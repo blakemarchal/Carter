@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { ISLANDS, islandOpen } from '../data/islands'
 import { PALS } from '../data/pals'
+import { RECIPES, recipeFor } from '../data/recipes'
 
 const EMOJI = /\p{Extended_Pictographic}/u
 const palIds = new Set(PALS.map((p) => p.id))
@@ -89,6 +90,24 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
     for (const t of spoken) {
       expect(t, t).not.toMatch(EMOJI)
       expect(t, t).not.toMatch(/[&/]/)
+    }
+  })
+})
+
+describe('Pal Kitchen recipes', () => {
+  it('every Pal has a favorite dish', () => {
+    for (const p of PALS) expect(recipeFor(p.fruit), p.id).toBeTruthy()
+  })
+  it.each(RECIPES.map((r) => [r.id, r] as const))('%s has valid steps', (_, r) => {
+    expect(r.steps.length).toBeGreaterThanOrEqual(2)
+    for (const s of r.steps) {
+      if (s.kind === 'add') expect(s.n >= 1 && s.n <= 8).toBe(true)
+      if (s.kind === 'find') {
+        expect(s.word).toMatch(/^[a-z]{2,4}$/) // short words she can read
+        expect(new Set([s.word, ...s.others]).size).toBe(s.others.length + 1)
+      }
+      if (s.kind === 'pattern') expect(s.names).toHaveLength(s.items.length)
+      if (s.kind === 'stir') expect(s.times >= 1 && s.times <= 5).toBe(true)
     }
   })
 })

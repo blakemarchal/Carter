@@ -7,6 +7,7 @@ import { HoldButton } from '../components/ui'
 import { ISLANDS, islandOpen, type Island } from '../data/islands'
 import { palById, stageFor } from '../data/pals'
 import { activeProfile, today, update, useProgress } from '../lib/progress'
+import { hungryPals } from '../lib/kitchen'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
@@ -168,6 +169,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
         <button className="ark-btn" onClick={() => { sfx.pop(); onArk() }}>
           <PalArt pal={buddy} stage={stageFor(buddy, p.pals[buddy.id] ?? 0)} size={70} />
           <span>My Ark</span>
+          {hungryPals(p, me.id).length > 0 && <span className="hungry-badge small">🍽️</span>}
         </button>
         <h2>Adventure Map</h2>
         <div className="map-tools">

@@ -8,7 +8,8 @@ import HatchScene, { Egg } from '../components/HatchScene'
 import StickerBook from '../components/StickerBook'
 import { BackButton } from '../components/ui'
 import { FRUIT_COLOR, PALS, palById, stageFor, type PalDef } from '../data/pals'
-import { useProgress } from '../lib/progress'
+import { activeProfile, useProgress } from '../lib/progress'
+import { hungryPals } from '../lib/kitchen'
 import { EGG_DAYS, EGG_PAL, eggActive, eggReady, hatchEgg } from '../lib/care'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
@@ -18,7 +19,11 @@ export default function ArkScreen({ onBack }: { onBack: () => void }) {
   const [home, setHome] = useState<PalDef | null>(null)
   const [hatching, setHatching] = useState(false)
   const [book, setBook] = useState(false)
-  useEffect(() => { speak('Welcome to your Ark! Tap a Pal to say hi.') }, [])
+  const hungry = hungryPals(p, activeProfile().id)
+  useEffect(() => {
+    const names = hungry.map((id) => { const x = palById(id); return x.stages[stageFor(x, p.pals[id] ?? 0)].name })
+    speak(names.length ? `Welcome to your Ark! ${names.join(' and ')} ${names.length > 1 ? 'are' : 'is'} hungry! Tap to cook something yummy.` : 'Welcome to your Ark! Tap a Pal to say hi.')
+  }, [])
 
   const tapEgg = () => {
     sfx.pop()
@@ -61,6 +66,7 @@ export default function ArkScreen({ onBack }: { onBack: () => void }) {
               {have
                 ? <DressedPal pal={pal} stage={st} size={120} outfit={p.outfits[pal.id]} className="bob" />
                 : <PalArt pal={pal} stage={st} size={120} silhouette />}
+              {have && hungry.includes(pal.id) && <span className="hungry-badge" aria-label="Hungry">🍽️</span>}
               <div className="name">{have ? pal.stages[st].name : '???'}</div>
               {have && <div className="fruit-tag">{pal.fruit}</div>}
               {have && next && (

@@ -2,6 +2,10 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import DressedPal from './DressedPal'
 import ColoringPage from './ColoringPage'
+import Kitchen from './Kitchen'
+import { recipeFor } from '../data/recipes'
+import { hungryPals } from '../lib/kitchen'
+import { activeProfile } from '../lib/progress'
 import { BackButton, BigButton } from './ui'
 import { FRUIT_COLOR, palIntro, stageFor, type PalDef } from '../data/pals'
 import { useProgress } from '../lib/progress'
@@ -21,10 +25,13 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
   const [anim, setAnim] = useState('')
   const [berry, setBerry] = useState<string | null>(null)
   const [coloring, setColoring] = useState(false)
+  const [cooking, setCooking] = useState(false)
   const left = feedsLeft(p, pal.id)
   const outfits = unlockedAccessories(p)
 
-  useEffect(() => { speak(palIntro(pal, stage)) }, [])
+  const hungry = hungryPals(p, activeProfile().id).includes(pal.id)
+  const dish = recipeFor(pal.fruit)
+  useEffect(() => { speak(hungry ? `${name} is hungry! ${name} would love some ${dish.name}.` : palIntro(pal, stage)) }, [])
 
   const pet = () => {
     sfx.good()
@@ -66,7 +73,10 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
           )}
           {berry && <span className="home-berry">{berry}</span>}
           <p className="home-hint">Tap {name} to pet!</p>
-          <BigButton color="white" onClick={() => setColoring(true)}>🖍️ Color me</BigButton>
+          <div className="leave-row">
+            <BigButton color={hungry ? 'yellow' : 'white'} className={hungry ? 'k-hungry-btn' : ''} onClick={() => setCooking(true)}>🍳 Cook {dish.emoji}</BigButton>
+            <BigButton color="white" onClick={() => setColoring(true)}>🖍️ Color me</BigButton>
+          </div>
         </div>
         <div className="home-side">
           <div className="home-box">
@@ -95,6 +105,7 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
         </div>
       </div>
       {coloring && <ColoringPage pal={pal} onClose={() => setColoring(false)} />}
+      {cooking && <Kitchen pal={pal} hungry={hungry} onClose={() => setCooking(false)} />}
     </div>
   )
 }
