@@ -221,7 +221,6 @@ const Page4 = () => (
     <Person x={290} y={418} s={1.5} look={PEOPLE.boy} pose="point">
       <Lunch x={60} y={-88} s={0.6} />
     </Person>
-    <Glow x={385} y={300} r={70} color="#fff3c0" />
     <Emoji e="💛" x={390} y={225} size={40} bob />
     <Sparkles spots={[[340, 240, 6], [440, 225, 7]]} />
   </Scene>
@@ -229,15 +228,15 @@ const Page4 = () => (
 
 // 5. "Jesus held up the bread and fish and thanked God for the food. Then He passed it out to everyone."
 const Page5 = () => (
-  <Scene sky="glory" ground="none" clouds={false}>
-    <Rays x={400} y={40} r={560} opacity={0.3} />
+  <Scene sky="dawn" ground="none" clouds={false}>
+    <Rays x={400} y={-30} r={620} n={14} color="#fff6c0" opacity={0.16} />
+    <Glow x={400} y={60} r={190} />
     <Hills />
     <Crowd sit seed={60} rows={[[306, 60, 740, 18, 0.3], [326, 70, 250, 4, 0.4], [326, 560, 740, 4, 0.4]]} />
     <Folk x={110} y={378} s={0.62} i={3} sit />
     <Folk x={690} y={380} s={0.62} i={8} sit />
     <Person x={200} y={392} s={0.92} look={PEOPLE.disciple} pose="hold" holding="basket" facing="left" blinkDelay={1.5} />
     <Person x={600} y={392} s={0.92} look={ANDREW} pose="hold" holding="basket" blinkDelay={0.6} />
-    <Glow x={400} y={190} r={190} />
     <Person x={400} y={415} s={1.3} look={PEOPLE.jesus} pose="arms-up" holding="bread">
       <Fish x={-44} y={-140} s={0.62} color="#5fb7ff" facing="left" />
     </Person>
@@ -251,7 +250,7 @@ const Page6 = () => (
     <Crowd sit hold seed={80} rows={[[316, 60, 740, 14, 0.36], [346, 70, 730, 11, 0.5]]} />
     <Person x={200} y={418} s={1.45} look={PEOPLE.boy} pose="hold" holding="bread" />
     <Basket x={395} y={405} s={1.25} fill="bread" />
-    <Basket x={300} y={420} s={0.95} fill="fish" />
+    <Basket x={300} y={412} s={0.95} fill="fish" />
     <Person x={560} y={420} s={1.4} look={GIRL} pose="hold" blinkDelay={0.9}>
       <Fish x={0} y={-62} s={0.75} />
     </Person>

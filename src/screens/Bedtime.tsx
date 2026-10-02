@@ -8,6 +8,7 @@ import { getProgress, playerName } from '../lib/progress'
 import { setMood } from '../lib/music'
 import { speak, stopSpeaking } from '../lib/speech'
 import { STORY_ART } from '../art/scenes'
+import { BuddyContext } from '../art/scenes/buddy'
 
 interface Page { scene: string; text: (name: string, pal: string) => string }
 
@@ -43,7 +44,7 @@ export default function Bedtime({ onDone }: { onDone: () => void }) {
     <div className={`screen bedtime ${last ? 'asleep' : ''}`}>
       <div className="bed-stars" aria-hidden />
       {Art ? (
-        <div className="bed-art" key={i}><Art /></div>
+        <div className="bed-art" key={i}><BuddyContext.Provider value={{ id: buddy.id, stage }}><Art /></BuddyContext.Provider></div>
       ) : (
         <>
           <div className="bed-scene" key={i}>{page.scene}</div>

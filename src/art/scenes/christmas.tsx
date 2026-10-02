@@ -209,7 +209,7 @@ const Page3 = () => (
     <Donkey x={680} y={366} s={0.62} flip blinkDelay={2.2} />
     <Person x={270} y={420} s={1.15} look={PEOPLE.mary} pose="pray" blinkDelay={0.4} />
     <Person x={540} y={420} s={1.15} look={PEOPLE.joseph} holding="staff" facing="left" blinkDelay={1.6} />
-    <Manger x={400} y={418} s={1.45} baby={<Baby x={6} y={-48} s={1} />} />
+    <Manger x={400} y={418} s={1.45} baby={<Baby x={6} y={-54} s={1} />} />
     <Sparkles spots={[[340, 270, 8], [460, 260, 10], [400, 230, 6]]} />
   </Scene>
 )
@@ -234,10 +234,10 @@ const Page4 = () => (
 // 5. "Suddenly, an angel came, and God's bright glory shone all around! The angel said, don't be afraid! …"
 const Page5 = () => (
   <Scene sky="glory" ground="none" clouds={false}>
-    <Rays x={410} y={150} r={600} n={18} opacity={0.35} />
+    <Rays x={410} y={150} r={600} n={18} color="#ffe28a" opacity={0.35} />
     <path d="M0 300 Q160 262 340 292 Q540 250 800 286 L800 450 L0 450 Z" fill="#c9dc9a" />
     <path d="M0 362 Q220 330 440 360 T800 350 L800 450 L0 450 Z" fill="#a8cf84" />
-    <Glow x={410} y={170} r={230} />
+    <Glow x={410} y={170} r={240} color="#ffd970" />
     <g className="sc-float">
       <Person x={410} y={290} s={1.3} look={PEOPLE.angel} pose="wave" />
     </g>
@@ -285,12 +285,12 @@ const Page7 = () => (
     <GlowingStable x={420} y={404} s={1.35}>
       <Person x={348} y={402} s={0.68} look={PEOPLE.mary} pose="pray" blinkDelay={0.6} />
       <Person x={494} y={402} s={0.7} look={PEOPLE.joseph} holding="staff" facing="left" blinkDelay={1.4} />
-      <Manger x={420} y={404} s={0.85} baby={<Baby x={6} y={-48} s={1} />} />
+      <Manger x={420} y={404} s={0.85} baby={<Baby x={6} y={-54} s={1} />} />
     </GlowingStable>
     <Person x={130} y={414} s={1.05} look={PEOPLE.shepherd} pose="pray" blinkDelay={2.1} />
     <Person x={204} y={420} s={1.05} look={SHEPHERD_BOY} pose="pray" blinkDelay={1} />
     <Sheep x={668} y={420} s={0.8} facing="left" />
-    <Sheep x={620} y={440} s={0.6} facing="left" />
+    <Sheep x={612} y={430} s={0.6} facing="left" />
     <Emoji e="💛" x={420} y={318} size={26} bob />
     <Sparkles spots={[[340, 250, 6], [500, 240, 7]]} />
   </Scene>
