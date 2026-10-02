@@ -76,6 +76,14 @@ ssh root@68.183.130.3 -t 'cd /opt/Carter && npm run set-password'
 - Only a salted hash is stored, in `/opt/Carter/.env` (root-only, mode 600).
 - The password never appears in shell history.
 
+**No interactive terminal?** For example, when Claude Code runs the commands for you, generate a password instead. It is printed once, so write it down:
+
+```bash
+ssh root@68.183.130.3 'cd /opt/Carter && npm run set-password -- --generate'
+```
+
+You can change it any time later by running the interactive command above.
+
 ## Step 3: Install and start the service
 
 ```bash
