@@ -3,11 +3,15 @@
 //   PORT                   default 3004
 //   CARTER_PASSWORD_HASH   scrypt hash written by `npm run set-password`
 //   CARTER_SESSION_SECRET  random secret for signing the login cookie
+//   XAI_API_KEY            optional: enables Grok's "Ara" narration voice (npm run set-voice-key)
+//   TTS_DAILY_CHARS        optional: cap on new narration generated per day (default 200000, about $3)
+//   CACHE_DIRECTORY        set by systemd (CacheDirectory=carter); where narration clips are kept
 import { createServer } from 'node:http'
 import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto'
 import { readFile, stat } from 'node:fs/promises'
 import { extname, join, normalize, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createTtsCache, MAX_CHARS, SPEEDS, VOICES } from './tts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 const PORT = Number(process.env.PORT ?? 3004)
@@ -19,6 +23,40 @@ const YEAR = 365 * 24 * 3600
 if (!HASH || !SECRET) {
   console.error('CARTER_PASSWORD_HASH and CARTER_SESSION_SECRET must be set. Run: npm run set-password')
   process.exit(1)
+}
+
+const tts = process.env.XAI_API_KEY
+  ? createTtsCache({
+      apiKey: process.env.XAI_API_KEY,
+      dir: process.env.CACHE_DIRECTORY ?? join(ROOT, '..', '.tts-cache'),
+      dailyChars: Number(process.env.TTS_DAILY_CHARS ?? 200_000),
+    })
+  : null
+if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. Run: npm run set-voice-key')
+
+async function serveTts(res, url) {
+  const text = (url.searchParams.get('text') ?? '').trim()
+  const voice = url.searchParams.get('voice') ?? 'ara'
+  const speed = url.searchParams.get('speed') ?? '1'
+  if (!text || text.length > MAX_CHARS || !VOICES.has(voice) || !SPEEDS.has(speed)) {
+    res.writeHead(400)
+    return res.end()
+  }
+  // 503 tells the game the voice isn't set up, so it stops asking and uses the device voice.
+  if (!tts) {
+    res.writeHead(503, { 'Cache-Control': 'no-store' })
+    return res.end()
+  }
+  try {
+    const mp3 = await tts(text, voice, speed)
+    // The URL fully determines the audio, so the device can keep it forever (and offline).
+    res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'private, max-age=31536000, immutable' })
+    res.end(mp3)
+  } catch (e) {
+    console.error(e.budget ? `TTS: ${e.message}` : e)
+    res.writeHead(e.budget ? 429 : 502, { 'Cache-Control': 'no-store' })
+    res.end()
+  }
 }
 
 const TYPES = {
@@ -154,6 +192,7 @@ createServer(async (req, res) => {
       res.writeHead(405)
       return res.end()
     }
+    if (url.pathname === '/tts') return await serveTts(res, url)
     await serveFile(res, decodeURIComponent(url.pathname))
   } catch (e) {
     console.error(e)

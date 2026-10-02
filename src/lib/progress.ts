@@ -1,11 +1,13 @@
 // All progress lives on the device. Nothing is sent anywhere.
+// Each player profile has its own saved progress and settings.
 import { useSyncExternalStore } from 'react'
 
 export type Skill = 'reading' | 'numbers'
+export type Narrator = 'ara' | 'eve' | 'device'
 
 export interface Progress {
   version: 1
-  starter?: string // the Pal Carter chose first
+  starter?: string // the Pal this player chose first
   pals: Record<string, number> // pal id -> xp (present = befriended)
   islandsDone: string[]
   skills: Record<Skill, number> // level 1..N
@@ -14,9 +16,33 @@ export interface Progress {
   playDate: string
   playSeconds: number
   speechRate: number
+  narrator: Narrator
+  music: boolean
+  sfx: boolean
 }
 
-const KEY = 'carters-ark:v1'
+export interface Profile {
+  id: string
+  name: string
+  emoji: string
+}
+
+interface ProfileIndex {
+  active: string
+  list: Profile[]
+}
+
+const PROFILES_KEY = 'carters-ark:profiles'
+// Carter's progress keeps the original key, so anything saved before profiles existed is still hers.
+const keyFor = (id: string) => (id === 'carter' ? 'carters-ark:v1' : `carters-ark:v1:${id}`)
+
+const DEFAULT_PROFILES: ProfileIndex = {
+  active: 'carter',
+  list: [
+    { id: 'carter', name: 'Carter', emoji: '🌈' },
+    { id: 'dad', name: 'Dad', emoji: '🧪' },
+  ],
+}
 
 const fresh = (): Progress => ({
   version: 1,
@@ -28,32 +54,50 @@ const fresh = (): Progress => ({
   playDate: today(),
   playSeconds: 0,
   speechRate: 0.9,
+  narrator: 'ara',
+  music: true,
+  sfx: true,
 })
 
 function today() {
   return new Date().toISOString().slice(0, 10)
 }
 
-function load(): Progress {
+function read<T>(key: string): T | null {
   try {
-    const raw = localStorage.getItem(KEY)
-    if (raw) return { ...fresh(), ...JSON.parse(raw) }
+    const raw = localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : null
   } catch {
-    /* storage unavailable: play without saving */
+    return null // storage unavailable: play without saving
   }
-  return fresh()
 }
 
-let state = load()
-const listeners = new Set<() => void>()
-
-function save() {
+function write(key: string, value: unknown) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(state))
+    localStorage.setItem(key, JSON.stringify(value))
   } catch {
     /* ignore */
   }
-  listeners.forEach((l) => l())
+}
+
+const loadProgress = (id: string): Progress => ({ ...fresh(), ...read<Partial<Progress>>(keyFor(id)) })
+
+let profiles: ProfileIndex = read<ProfileIndex>(PROFILES_KEY) ?? DEFAULT_PROFILES
+if (!profiles.list.some((p) => p.id === profiles.active)) profiles = { ...profiles, active: profiles.list[0].id }
+let state = loadProgress(profiles.active)
+const listeners = new Set<() => void>()
+const notify = () => listeners.forEach((l) => l())
+const subscribe = (l: () => void) => (listeners.add(l), () => { listeners.delete(l) })
+
+function save() {
+  write(keyFor(profiles.active), state)
+  notify()
+}
+
+function saveProfiles(next: ProfileIndex) {
+  profiles = next
+  write(PROFILES_KEY, profiles)
+  notify()
 }
 
 export function update(fn: (p: Progress) => Progress) {
@@ -66,16 +110,61 @@ export function getProgress() {
 }
 
 export function useProgress() {
-  return useSyncExternalStore(
-    (l) => (listeners.add(l), () => listeners.delete(l)),
-    () => state,
-  )
+  return useSyncExternalStore(subscribe, () => state)
 }
 
+// ---------- Profiles ----------
+
+export function useProfiles() {
+  return useSyncExternalStore(subscribe, () => profiles)
+}
+
+export function activeProfile(): Profile {
+  return profiles.list.find((p) => p.id === profiles.active)!
+}
+
+/** The current player's name, for narration ("Way to go, Carter!"). */
+export const playerName = () => activeProfile().name
+
+export function switchProfile(id: string) {
+  if (id === profiles.active || !profiles.list.some((p) => p.id === id)) return
+  state = loadProgress(id)
+  saveProfiles({ ...profiles, active: id })
+}
+
+export function addProfile(name: string, emoji: string) {
+  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'player'
+  let id = base
+  for (let n = 2; profiles.list.some((p) => p.id === id) || id === 'carter'; n++) id = `${base}-${n}`
+  saveProfiles({ ...profiles, list: [...profiles.list, { id, name, emoji }] })
+  return id
+}
+
+export function editProfile(id: string, changes: Partial<Omit<Profile, 'id'>>) {
+  saveProfiles({ ...profiles, list: profiles.list.map((p) => (p.id === id ? { ...p, ...changes } : p)) })
+}
+
+/** Deletes a profile and its progress. The last remaining profile can't be deleted. */
+export function deleteProfile(id: string) {
+  const list = profiles.list.filter((p) => p.id !== id)
+  if (!list.length) return
+  try {
+    localStorage.removeItem(keyFor(id))
+  } catch {
+    /* ignore */
+  }
+  if (id === profiles.active) state = loadProgress(list[0].id)
+  saveProfiles({ active: id === profiles.active ? list[0].id : profiles.active, list })
+}
+
+/** Erases the current player's progress but keeps their settings (voice, sound). */
 export function resetProgress() {
-  state = fresh()
+  const { speechRate, narrator, music, sfx } = state
+  state = { ...fresh(), speechRate, narrator, music, sfx }
   save()
 }
+
+// ---------- Learning ----------
 
 export const MAX_LEVEL: Record<Skill, number> = { reading: 5, numbers: 5 }
 

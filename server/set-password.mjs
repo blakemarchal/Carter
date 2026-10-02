@@ -1,16 +1,7 @@
 // Sets the family password. Run on the server:  cd /opt/Carter && npm run set-password
 // Writes CARTER_PASSWORD_HASH (and a session secret, if missing) to .env. The password itself is never stored.
 import { randomBytes, randomInt, scryptSync } from 'node:crypto'
-import { existsSync, readFileSync, writeFileSync, chmodSync } from 'node:fs'
-import { createInterface } from 'node:readline'
-
-function ask(q) {
-  return new Promise((resolve) => {
-    const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true })
-    rl._writeToOutput = (s) => { if (s.includes(q)) rl.output.write(s) } // hide typing
-    rl.question(q, (a) => { rl.close(); process.stdout.write('\n'); resolve(a) })
-  })
-}
+import { ask, readEnv, writeEnv } from './env.mjs'
 
 // --generate: make a friendly random password and print it once. Use this when no
 // interactive terminal is available (e.g. when Claude Code runs the command for you).
@@ -28,13 +19,11 @@ if (process.argv.includes('--generate')) {
 
 const salt = randomBytes(16).toString('hex')
 const hash = `${salt}:${scryptSync(pw, salt, 32).toString('hex')}`
-const lines = existsSync('.env') ? readFileSync('.env', 'utf8').split('\n').filter(Boolean) : []
-const env = Object.fromEntries(lines.map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]))
+const env = readEnv()
 env.CARTER_PASSWORD_HASH = hash
 env.CARTER_SESSION_SECRET ??= randomBytes(32).toString('hex')
 env.PORT ??= '3004'
-writeFileSync('.env', Object.entries(env).map(([k, v]) => `${k}=${v}`).join('\n') + '\n')
-chmodSync('.env', 0o600)
+writeEnv(env)
 if (process.argv.includes('--generate')) console.log(`Family password: ${pw}\n(Write it down. It is not stored anywhere in readable form.)`)
 console.log('Saved. Restart the app to use it:  systemctl restart carter-web')
 console.log('Tip: to sign every device out, delete the CARTER_SESSION_SECRET line and run this again.')

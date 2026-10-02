@@ -15,6 +15,8 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
+# Narration clips (Grok voice) are cached here: /var/cache/carter
+CacheDirectory=carter
 ReadOnlyPaths=/opt/Carter
 
 [Install]

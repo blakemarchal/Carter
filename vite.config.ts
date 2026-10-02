@@ -18,7 +18,19 @@ export default defineConfig({
         orientation: 'landscape',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp,woff2}'] },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp,woff2}'],
+        // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname === '/tts',
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'narration',
+            expiration: { maxEntries: 3000 },
+            cacheableResponse: { statuses: [200] },
+          },
+        }],
+      },
     }),
   ],
 })

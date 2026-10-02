@@ -56,6 +56,24 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
 .title h1 span { font-size: 60px; color: #8d5cf6; }
 .title-pals { display: flex; align-items: flex-end; gap: 12px; }
 .tap-start { font-size: 36px; font-weight: 800; background: #fff; padding: 10px 36px; border-radius: 999px; animation: pulse 1.4s infinite; }
+.app-view { height: 100%; }
+.who { font-size: 30px; font-weight: 800; color: #8d5cf6; }
+.players { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+.player {
+  display: flex; flex-direction: column; align-items: center; min-width: 150px; padding: 10px 26px 6px;
+  background: #fff; border-radius: 32px; box-shadow: 0 8px 0 rgba(0,0,0,.12); border: 5px solid transparent;
+}
+.player.last { border-color: var(--pink); animation: pulse 1.4s infinite; }
+.player:active { transform: translateY(5px); box-shadow: 0 3px 0 rgba(0,0,0,.12); }
+.player-emoji { font-size: 60px; line-height: 1.1; }
+.player-name { font-size: 32px; font-weight: 800; }
+
+/* Map header: who's playing + music toggle */
+.map-tools { display: flex; align-items: center; gap: 12px; }
+.who-chip { display: flex; align-items: center; gap: 6px; background: #fff; border-radius: 999px; padding: 6px 18px 6px 10px; font-size: 24px; font-weight: 800; box-shadow: 0 6px 0 rgba(0,0,0,.12); }
+.who-chip span { font-size: 32px; }
+.icon-btn.music { width: 60px; height: 60px; font-size: 30px; }
+.icon-btn.music.off { opacity: .55; }
 
 /* Starter */
 .starter h2 { font-size: 44px; color: var(--pink-deep); }
@@ -198,6 +216,14 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
 .level-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .level-row button { padding: 10px 20px; border-radius: 12px; background: #fff; border: 2px solid #f0c4da; font-size: 18px; }
 .level-row button.on { background: var(--pink); color: #fff; border-color: var(--pink); }
+.player-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.player-row, .player-add { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.player-row input, .player-add input { font: inherit; font-size: 18px; padding: 8px 12px; border-radius: 10px; border: 2px solid #f0c4da; width: 200px; }
+.player-row.on input { border-color: var(--pink); }
+.player-row button:not(.emoji-pick), .player-add button:not(.emoji-pick) { padding: 8px 16px; border-radius: 10px; background: #fff; border: 2px solid #f0c4da; font-size: 16px; }
+.player-row .tag { font-size: 15px; color: var(--pink-deep); font-weight: 700; }
+.player-add { margin-top: 10px; }
+.emoji-pick { font-size: 30px; width: 48px; height: 48px; border-radius: 12px; background: #fff; border: 2px solid #f0c4da; }
 .danger { background: #ffe2e2; color: #b42318; padding: 10px 18px; border-radius: 12px; font-size: 17px; }
 
 /* Overlays */
@@ -239,3 +265,5 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
   .q-choice { min-width: 120px; height: 120px; font-size: 64px; }
   .title h1 { font-size: 60px; }
 }
+.player-row button.danger { background: #ffe2e2; border-color: #ffc9c9; color: #b42318; }
+input { -webkit-user-select: text; user-select: text; }

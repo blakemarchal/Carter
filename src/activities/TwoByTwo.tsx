@@ -33,7 +33,7 @@ export default function TwoByTwo({ animals, onDone }: { animals: string[]; onDon
         await speak(`${praise()} Now let's count them into the ark by twos!`)
         for (let n = 1; n <= animals.length; n++) {
           setCounting(n * 2)
-          sfx.pop()
+          sfx.count(n + 1)
           await speak(String(n * 2))
         }
         recordAnswer('numbers', true)

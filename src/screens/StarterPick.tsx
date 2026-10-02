@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import PalArt from '../components/PalArt'
 import { BigButton } from '../components/ui'
 import { PALS } from '../data/pals'
-import { chooseStarter } from '../lib/progress'
+import { chooseStarter, playerName } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
@@ -11,7 +11,7 @@ const starters = PALS.filter((p) => p.starter)
 export default function StarterPick({ onDone }: { onDone: () => void }) {
   const [sel, setSel] = useState<string | null>(null)
   useEffect(() => {
-    speak('Hi Carter! Welcome to the Ark! Choose your very first Ark Pal. Tap one to meet them!')
+    speak(`Hi ${playerName()}! Welcome to the Ark! Choose your very first Ark Pal. Tap one to meet them!`)
   }, [])
   const choose = (id: string) => {
     setSel(id)

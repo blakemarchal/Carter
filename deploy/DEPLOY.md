@@ -108,14 +108,36 @@ ssh root@68.183.130.3 'sudo -u caddy caddy validate --config /etc/caddy/Caddyfil
 - Use **reload, not restart.** A restart drops connections for every site.
 - A failed reload keeps the old config serving, so it is not an outage. Check `journalctl -u caddy -n 50`.
 
+## Step 4b: Narrator voice (Grok "Ara")
+
+The narrator uses Grok's Ara voice, the same voice as Grok in the Tesla, through the xAI text-to-speech API. Until a key is set, the game uses the iPad's built-in voice.
+
+1. Get an API key at https://console.x.ai (API Keys → Create). Add a little credit; narration costs about $15 per million characters, and every line is generated only once, so the whole game costs cents.
+2. Save the key on the server. It asks for the key (hidden), checks it with xAI, and only then saves it:
+
+   ```bash
+   ssh root@68.183.130.3 -t 'cd /opt/Carter && npm run set-voice-key && systemctl restart carter-web'
+   ```
+
+- `npm run set-voice-key -- --check` tests the saved key without showing it. `-- --remove` goes back to the device voice.
+- The key lives only in `/opt/Carter/.env` (root-only). The game never sees it; it asks the server at `/tts`, which requires the family login.
+- Clips are cached in `/var/cache/carter`. New narration is capped at 200,000 characters a day (about $3), set by `TTS_DAILY_CHARS` in `.env`.
+- The Parent Corner can switch each player between Ara, Eve (another Grok voice), and the iPad voice.
+
+**Upgrading from the first version?** The service file gained a cache folder. After `deploy.ps1`, run:
+
+```bash
+ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/system/ && systemctl daemon-reload && systemctl restart carter-web'
+```
+
 ## Step 5: Install on Carter's iPad
 
 1. Open **Safari** and go to `https://spiritflow.church`.
 2. Enter the family password. The login lasts a year on that device.
 3. Tap **Share → Add to Home Screen**.
 4. Open it from the Home Screen icon. It runs full-screen, and **sign in once more there**, because the Home Screen app keeps its own cookies and saved progress, separate from Safari.
-5. Always play from the icon, so her progress stays in one place.
-6. Optional: for a nicer narrator voice, go to Settings → Accessibility → Spoken Content → Voices → English, and download an "Enhanced" voice such as Samantha or Ava.
+5. Always play from the icon, so her progress stays in one place. On the title screen she taps her own name; grown-ups test as **Dad** (or add a player in the Parent Corner) so her progress is never touched.
+6. Optional, only matters without the Grok voice: go to Settings → Accessibility → Spoken Content → Voices → English, and download an "Enhanced" voice such as Samantha or Ava.
 
 ## Later deploys
 

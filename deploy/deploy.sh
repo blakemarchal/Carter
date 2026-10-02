@@ -9,7 +9,7 @@ tar czf - dist server package.json deploy | ssh "$HOST" 'set -e
   mkdir -p /opt/Carter && cd /opt/Carter
   rm -rf dist
   tar xzf - --exclude=.env
-  chown -R root:root /opt/Carter && chmod -R a+rX dist server deploy package.json
+  chown -R root:root /opt/Carter && chmod -R u=rwX,go=rX dist server deploy package.json
   if systemctl is-enabled --quiet carter-web 2>/dev/null; then
     systemctl restart carter-web && sleep 1
     curl -fsS -o /dev/null -w "health: HTTP %{http_code}\n" -H "Accept: text/html" http://127.0.0.1:3004/

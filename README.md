@@ -14,7 +14,11 @@ npm run build      # production files in dist/
 **Quick playtest without the server:** on the Windows laptop run `npm install` then `npm run dev`. Open the "Network" URL it prints (e.g. `http://192.168.1.20:5173`) in Safari on the iPad, on the same Wi-Fi. If Windows asks, allow Node through the firewall on private networks.
 
 **Deploy to spiritflow.church:** see [deploy/DEPLOY.md](deploy/DEPLOY.md).
-Narration uses the device's built-in voice. On iPad, Settings → Accessibility → Spoken Content → Voices lets you download a nicer "Enhanced" English voice.
+**Narration** uses Grok's "Ara" voice (xAI text-to-speech) when the server has an xAI API key; see DEPLOY.md, "Narrator voice". Each line is generated once and cached on the server and the iPad. Without a key, or with `npm run dev`, the device's built-in voice reads instead.
+
+**Music and sound effects** are synthesized in the browser (`src/lib/audio.ts`, `music.ts`, `sfx.ts`), so there are no audio files. Each scene has its own tune. Music is on by default; the 🎵 button on the map turns it off.
+
+**Players:** the title screen asks "Who's playing?". Each player (Carter, Dad, or anyone added in the Parent Corner) has separate progress and settings on the device, so testing as Dad never touches Carter's game.
 
 ## Layout
 

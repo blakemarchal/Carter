@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import PalArt from '../components/PalArt'
 import { Confetti, BigButton } from '../components/ui'
 import { palById } from '../data/pals'
-import { addPalXp, addSticker } from '../lib/progress'
+import { addPalXp, addSticker, playerName } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
@@ -12,7 +12,7 @@ export default function Reward({ palId, sticker, onDone }: { palId: string; stic
     addPalXp(palId, 0)
     addSticker(sticker)
     sfx.fanfare()
-    speak(`Hooray, Carter! A new friend! ${pal.stages[0].name} ${pal.intro} You also earned a ${sticker} sticker!`)
+    speak(`Hooray, ${playerName()}! A new friend! ${pal.stages[0].name} ${pal.intro} You also earned a ${sticker} sticker!`)
   }, [])
   return (
     <div className="activity reward">

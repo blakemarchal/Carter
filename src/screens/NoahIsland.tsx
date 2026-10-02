@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BackButton, StepDots } from '../components/ui'
 import StoryBook from '../activities/StoryBook'
 import TwoByTwo from '../activities/TwoByTwo'
@@ -8,14 +8,22 @@ import FriendlyBattle from '../activities/FriendlyBattle'
 import Reward from '../activities/Reward'
 import { NOAH_PAIRS, NOAH_STORY, NOAH_VERSE } from '../data/noah'
 import { completeIsland } from '../lib/progress'
-import { stopSpeaking } from '../lib/speech'
+import { preload, stopSpeaking } from '../lib/speech'
+import { setMood, type Mood } from '../lib/music'
 
 const STEPS = ['story', 'pairs', 'words', 'numbers', 'verse', 'battle', 'reward'] as const
+const MOOD: Record<(typeof STEPS)[number], Mood> = {
+  story: 'story', pairs: 'play', words: 'play', numbers: 'play', verse: 'story', battle: 'battle', reward: 'home',
+}
 
 export default function NoahIsland({ onExit }: { onExit: () => void }) {
   const [step, setStep] = useState(0)
   const next = () => setStep((s) => s + 1)
   const exit = () => { stopSpeaking(); onExit() }
+
+  useEffect(() => setMood(MOOD[STEPS[step]]), [step])
+  // Fetch the story narration in the background so each page starts right away.
+  useEffect(() => { preload(NOAH_STORY.map((pg, i) => (i === 0 ? `Noah and the Big Boat. ${pg.text}` : pg.text))) }, [])
 
   let body
   switch (STEPS[step]) {
