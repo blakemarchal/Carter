@@ -11,6 +11,10 @@ export interface Progress {
   pals: Record<string, number> // pal id -> xp (present = befriended)
   islandsDone: string[]
   islandStep: Record<string, number> // where each island was left off
+  mapAt: string // the island her boat is parked at on the map
+  battlesWon: number
+  battler?: string // the Pal she picked for her last battle
+  movesSeen: string[] // moves she's been shown, so new ones get a "NEW" badge
   skills: Record<Skill, number> // level 1..N
   streak: Record<Skill, number> // +correct in a row / -misses in a row
   stickers: string[]
@@ -50,6 +54,9 @@ const fresh = (): Progress => ({
   pals: {},
   islandsDone: [],
   islandStep: {},
+  mapAt: 'noah',
+  battlesWon: 0,
+  movesSeen: [],
   skills: { reading: 1, numbers: 1 },
   streak: { reading: 0, numbers: 0 },
   stickers: [],

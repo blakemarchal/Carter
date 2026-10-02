@@ -4,7 +4,8 @@ import StarterPick from './screens/StarterPick'
 import MapScreen from './screens/MapScreen'
 import ArkScreen from './screens/ArkScreen'
 import ParentScreen from './screens/ParentScreen'
-import NoahIsland from './screens/NoahIsland'
+import IslandScreen from './screens/IslandScreen'
+import { islandById } from './data/islands'
 import EvolutionScene from './components/EvolutionScene'
 import { BigButton } from './components/ui'
 import { PALS, stageFor } from './data/pals'
@@ -14,7 +15,7 @@ import { setSfxEnabled } from './lib/sfx'
 import { musicReady, setMood, setMusicEnabled } from './lib/music'
 import { unlockAudio } from './lib/audio'
 
-type Screen = 'title' | 'starter' | 'map' | 'ark' | 'parent' | 'island:noah'
+type Screen = 'title' | 'starter' | 'map' | 'ark' | 'parent' | `island:${string}`
 
 const DAILY_MINUTES = 60
 
@@ -99,10 +100,13 @@ export default function App() {
   switch (shown) {
     case 'title': view = <Title onStart={start} />; break
     case 'starter': view = <StarterPick onDone={() => go('map')} />; break
-    case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}` as Screen)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} />; break
+    case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}`)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} />; break
     case 'ark': view = <ArkScreen onBack={() => go('map')} />; break
     case 'parent': view = <ParentScreen onBack={() => go('map')} />; break
-    case 'island:noah': view = <NoahIsland onExit={() => go('map')} />; break
+    default: {
+      const isl = islandById(shown.slice('island:'.length))
+      view = isl?.steps ? <IslandScreen key={isl.id} island={isl} onExit={() => go('map')} /> : null
+    }
   }
 
   const evolvedPal = evolved && PALS.find((x) => x.id === evolved.id)!

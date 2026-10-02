@@ -1,8 +1,4 @@
-export interface StoryPage {
-  scene: string // emoji scene for the prototype; replaced by illustrations later
-  bg: string
-  text: string
-}
+import type { Step, StoryPage } from './islands'
 
 export const NOAH_STORY: StoryPage[] = [
   { scene: '👴🏽🙏', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Long ago there was a man named Noah. Noah loved God, and God loved Noah.' },
@@ -20,3 +16,16 @@ export const NOAH_VERSE = {
   ref: 'Genesis 9:13',
   chunks: ['I set', 'my rainbow', 'in the cloud.'],
 }
+
+export const NOAH_STEPS: Step[] = [
+  { kind: 'story', title: 'Noah and the Big Boat', pages: NOAH_STORY },
+  {
+    kind: 'pairs', animals: NOAH_PAIRS,
+    names: { '🦁': 'lions', '🐘': 'elephants', '🦒': 'giraffes', '🐧': 'penguins', '🦓': 'zebras', '🐒': 'monkeys' },
+  },
+  { kind: 'practice', skill: 'reading', title: 'Word Boat', decor: '⛵', intro: "Let's help the animals with their words! Read the word, then tap the picture." },
+  { kind: 'practice', skill: 'numbers', title: 'Raindrop Numbers', decor: '🌧️', theme: '💧', intro: "Drip, drop! Let's count the raindrops!" },
+  { kind: 'verse', chunks: NOAH_VERSE.chunks, ref: NOAH_VERSE.ref },
+  { kind: 'battle', foe: 'rumble', intro: 'Oh no! A grumpy storm cloud named Rumble is blocking the rainbow! Rumble just needs a friend.' },
+  { kind: 'reward', pal: 'pip', sticker: '🌈', stickerName: 'rainbow' },
+]

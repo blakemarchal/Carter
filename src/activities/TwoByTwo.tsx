@@ -5,10 +5,9 @@ import { sfx } from '../lib/sfx'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 
-const NAMES: Record<string, string> = { '🦁': 'lions', '🐘': 'elephants', '🦒': 'giraffes', '🐧': 'penguins', '🦓': 'zebras', '🐒': 'monkeys' }
 const INTRO = 'Help Noah! Find the animals that match, two by two. Tap two that are the same.'
 
-export default function TwoByTwo({ animals, onDone }: { animals: string[]; onDone: () => void }) {
+export default function TwoByTwo({ animals, names, onDone }: { animals: string[]; names: Record<string, string>; onDone: () => void }) {
   const cards = useMemo(() => shuffle([...animals, ...animals]).map((a, id) => ({ a, id })), [animals])
   const [picked, setPicked] = useState<number[]>([])
   const [boarded, setBoarded] = useState<string[]>([])
@@ -49,7 +48,7 @@ export default function TwoByTwo({ animals, onDone }: { animals: string[]; onDon
         await speak('All the animals are safe in the ark!')
         if (alive.current) onDone()
       } else {
-        speak(`Two ${NAMES[x] ?? 'animals'}!`)
+        speak(`Two ${names[x] ?? 'animals'}!`)
       }
     } else {
       sfx.oops()

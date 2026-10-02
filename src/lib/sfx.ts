@@ -61,7 +61,13 @@ export const sfx = {
    * A Pal's battle move. Each lands about 0.6 s in, when the animation hits.
    * (Timings match the CSS in styles.css, "Battle moves".)
    */
-  move: (fx: MoveFx) => play((t, o) => {
+  move: (fx: MoveFx, superMove = false) => play((t, o) => {
+    if (superMove) {
+      // A rising golden swell before a super move lands.
+      ;[60, 64, 67, 72, 76, 79, 84].forEach((n, i) => mallet(o, t + i * 0.05, n, 0.6, 0.6))
+      rumble(o, t + 0.55, 0.9, 0.4)
+      ;[96, 100, 103, 108].forEach((n, i) => musicBox(o, t + 0.75 + i * 0.07, n, 0.45, 1))
+    }
     switch (fx) {
       case 'spark': // zig-zag crackle, then a bright zap
         for (let i = 0; i < 6; i++) slide(o, t + 0.25 + i * 0.05, 2200 - i * 150, 700, 0.06, 'square', 0.05)
@@ -89,6 +95,20 @@ export const sfx = {
         break
       case 'stars': // shooting-star twinkles
         for (let i = 0; i < 8; i++) musicBox(o, t + 0.1 + i * 0.06, PENTA[(i * 2) % PENTA.length] + 24, 0.35, 0.6)
+        break
+      case 'wind': // two whooshes and a spinning swirl
+        whooshAt(o, t)
+        whooshAt(o, t + 0.2)
+        slide(o, t + 0.55, 400, 1200, 0.5, 'triangle', 0.12)
+        break
+      case 'roll': // rumbling roll, then a bonk
+        rumble(o, t, 0.65, 0.5)
+        slide(o, t + 0.65, 500, 160, 0.15, 'triangle', 0.3)
+        kick(o, t + 0.65, 0.7)
+        break
+      case 'bubbles': // bloops, then a splash
+        for (let i = 0; i < 6; i++) slide(o, t + i * 0.08, 300 + i * 60, 900 + i * 80, 0.08, 'sine', 0.16)
+        for (let i = 0; i < 5; i++) shaker(o, t + 0.62 + i * 0.03, 1.4)
         break
     }
   }),

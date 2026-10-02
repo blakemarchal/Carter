@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { StoryPage } from '../data/noah'
+import type { StoryPage } from '../data/islands'
 import { speak } from '../lib/speech'
 import { BigButton } from '../components/ui'
 import { sfx } from '../lib/sfx'

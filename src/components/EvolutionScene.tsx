@@ -9,6 +9,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import PalArt from './PalArt'
 import { BigButton, Confetti } from './ui'
 import type { PalDef } from '../data/pals'
+import { getProgress, update } from '../lib/progress'
 import { pauseNarration, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { duck } from '../lib/audio'
@@ -39,6 +40,7 @@ export default function EvolutionScene({ pal, from, to, onDone }: { pal: PalDef;
   const [ready, setReady] = useState(false)
   const oldName = pal.stages[from].name
   const newName = pal.stages[to].name
+  const learnsSuper = from === 0 && to >= 1
 
   useEffect(() => {
     const timers: number[] = []
@@ -61,6 +63,11 @@ export default function EvolutionScene({ pal, from, to, onDone }: { pal: PalDef;
       setPhase('reveal')
       sfx.fanfare()
       speak(`${oldName} became ${newName}! Hooray!`, { important: true })
+      // Growing up for the first time teaches the Pal its super move.
+      if (learnsSuper) {
+        speak(`${newName} learned a super move: ${pal.moves.super.name}!`, { important: true })
+        if (!getProgress().movesSeen.includes(`${pal.id}:super`)) update((x) => ({ ...x, movesSeen: [...x.movesSeen, `${pal.id}:super`] }))
+      }
     })
     at(t + 1400, () => setReady(true))
     return () => {
@@ -83,7 +90,7 @@ export default function EvolutionScene({ pal, from, to, onDone }: { pal: PalDef;
       </div>
       <div className="evo-caption">
         {phase === 'reveal'
-          ? <h2 className="evo-name">{oldName} became<br /><b>{newName}!</b></h2>
+          ? <h2 className="evo-name">{oldName} became<br /><b>{newName}!</b>{learnsSuper && <small className="evo-move">New super move: {pal.moves.super.icon} {pal.moves.super.name}</small>}</h2>
           : <h2 className="evo-text">{phase === 'intro' ? `Whoa! ${oldName} is…` : 'growing!'}</h2>}
         {ready && <BigButton color="pink" onClick={onDone}>Yay! 💖</BigButton>}
       </div>
