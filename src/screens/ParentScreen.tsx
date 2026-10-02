@@ -7,6 +7,9 @@ import {
 import { grokVoiceAvailable, setNarrator, setRate, speak, voiceSignedOut } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
+import { backupNow, fetchBackup, lastBackup, restore } from '../lib/backup'
+import { ISLANDS } from '../data/islands'
+import type { Progress } from '../lib/progress'
 
 const SKILL_LABEL: Record<Skill, string[]> = {
   reading: ['Beginning sounds', 'Read 3-letter words (3 choices)', 'Read 3-letter words (4 choices)', 'Sight words', 'Find any word'],
@@ -60,6 +63,77 @@ function Players() {
   )
 }
 
+const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'never')
+
+/** The last 7 days: minutes played and answers right. */
+function Week({ p }: { p: Progress }) {
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (6 - i))
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return { label: d.toLocaleDateString(undefined, { weekday: 'short' }), ...(p.log[key] ?? { secs: 0, right: 0, tries: 0 }) }
+  })
+  const max = Math.max(600, ...days.map((d) => d.secs))
+  const total = days.reduce((a, d) => ({ secs: a.secs + d.secs, right: a.right + d.right, tries: a.tries + d.tries }), { secs: 0, right: 0, tries: 0 })
+  return (
+    <section>
+      <h3>This week</h3>
+      <div className="week">
+        {days.map((d, i) => (
+          <div key={i} className="week-day">
+            <div className="week-bar"><i style={{ height: `${(d.secs / max) * 100}%` }} /></div>
+            <b>{Math.round(d.secs / 60)}m</b>
+            <span>{d.label}</span>
+          </div>
+        ))}
+      </div>
+      <p>{Math.round(total.secs / 60)} minutes · {total.right} of {total.tries} questions right on the first try</p>
+    </section>
+  )
+}
+
+function Islands({ p }: { p: Progress }) {
+  return (
+    <section>
+      <h3>Islands</h3>
+      <p>Finished: {p.islandsDone.length ? p.islandsDone.map((id) => ISLANDS.find((i) => i.id === id)?.name ?? id).join(', ') : 'none yet'}</p>
+      <div className="level-row">
+        <button className={p.openAll ? 'on' : ''} onClick={() => update((x) => ({ ...x, openAll: !x.openAll }))}>
+          {p.openAll ? '🔓 All islands open' : '🔒 Islands open in order'}
+        </button>
+      </div>
+      <p className="muted">Normally each island opens when the one before it is finished. &ldquo;All islands open&rdquo; is for this player only, and also opens the birthday island early.</p>
+    </section>
+  )
+}
+
+function Backup() {
+  const [status, setStatus] = useState('')
+  const [last, setLast] = useState(lastBackup())
+  return (
+    <section>
+      <h3>Backup</h3>
+      <p>Every player&rsquo;s progress is copied to the family server when she starts playing and after each island. Last copy from this iPad: {when(last)}.</p>
+      <div className="level-row">
+        <button onClick={async () => {
+          setStatus('Saving…')
+          const ok = await backupNow()
+          setLast(lastBackup())
+          setStatus(ok ? 'Saved.' : 'Couldn’t reach the server. Try again when online.')
+        }}>Save now</button>
+        <button onClick={async () => {
+          setStatus('Looking…')
+          const b = await fetchBackup()
+          if (!b) return setStatus('No backup on the server yet.')
+          setStatus('')
+          if (confirm(`Replace all progress on this iPad with the server copy from ${when(b.savedAt)}?`)) restore(b)
+        }}>Restore from server</button>
+      </div>
+      {status && <p className="muted">{status}</p>}
+    </section>
+  )
+}
+
 function AppVersion() {
   const update = useUpdateAvailable()
   const [status, setStatus] = useState('')
@@ -100,6 +174,8 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
         <p>{mins} min played (gentle reminder at 60 min)</p>
         <p>Islands finished: {p.islandsDone.length ? p.islandsDone.join(', ') : 'none yet'} · Pals: {Object.keys(p.pals).length} · Stickers: {p.stickers.join(' ') || 'none'}</p>
       </section>
+      <Week p={p} />
+      <Islands p={p} />
       {(['reading', 'numbers'] as Skill[]).map((s) => (
         <section key={s}>
           <h3>{s === 'reading' ? '📖 Reading' : '🔢 Numbers'} — level {p.skills[s]}: {SKILL_LABEL[s][p.skills[s] - 1]}</h3>
@@ -145,6 +221,7 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
         <h3>Reset</h3>
         <button className="danger" onClick={() => confirm(`Erase all of ${me.name}’s progress on this device?`) && resetProgress()}>Erase {me.name}&rsquo;s progress</button>
       </section>
+      <Backup />
       <AppVersion />
       <p className="muted">Progress is stored only on this device. No ads, no chat, no accounts. Narration text is sent to xAI to create the voice; nothing else is shared.</p>
     </div>

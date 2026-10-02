@@ -6,12 +6,14 @@
 //   XAI_API_KEY            optional: enables Grok's "Ara" narration voice (npm run set-voice-key)
 //   TTS_DAILY_CHARS        optional: cap on new narration generated per day (default 200000, about $3)
 //   CACHE_DIRECTORY        set by systemd (CacheDirectory=carter); where narration clips are kept
+//   STATE_DIRECTORY        set by systemd (StateDirectory=carter); where progress backups are kept
 import { createServer } from 'node:http'
 import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto'
 import { readFile, stat } from 'node:fs/promises'
 import { extname, join, normalize, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createTtsCache, MAX_CHARS, SPEEDS, VOICES } from './tts.mjs'
+import { createBackups } from './backup.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 const PORT = Number(process.env.PORT ?? 3004)
@@ -33,6 +35,28 @@ const tts = process.env.XAI_API_KEY
     })
   : null
 if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. Run: npm run set-voice-key')
+
+const backups = createBackups(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'))
+
+async function handleBackup(req, res) {
+  if (req.method === 'POST') {
+    let body = ''
+    for await (const chunk of req) {
+      body += chunk
+      if (body.length > 600 * 1024) break
+    }
+    try {
+      await backups.save(body)
+      res.writeHead(204)
+    } catch (e) {
+      res.writeHead(e.status ?? 400)
+    }
+    return res.end()
+  }
+  const text = await backups.latest()
+  res.writeHead(text ? 200 : 404, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
+  return res.end(text ?? '')
+}
 
 async function serveTts(res, url) {
   const text = (url.searchParams.get('text') ?? '').trim()
@@ -191,6 +215,7 @@ createServer(async (req, res) => {
       res.writeHead(wantsPage ? 200 : 401, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
       return res.end(wantsPage ? LOGIN_PAGE() : '')
     }
+    if (url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) return await handleBackup(req, res)
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()

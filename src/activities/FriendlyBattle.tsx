@@ -188,7 +188,7 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
         </div>
         {phase === 'attack' && pal && (
           <MoveFx key={moveNo} fx={pal.moves[kind].fx} move={pal.moves[kind].name} color={FRUIT_COLOR[pal.fruit]}
-            superMove={kind === 'super'} hearts={POWER[kind]} from={ends.from} to={ends.to} />
+            superMove={kind === 'super'} hearts={POWER[kind]} icon={pal.moves[kind].icon} from={ends.from} to={ends.to} />
         )}
       </div>
       <div className="battle-q">

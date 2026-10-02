@@ -6,7 +6,7 @@ import PalArt from '../components/PalArt'
 import { HoldButton } from '../components/ui'
 import { ISLANDS, islandOpen, type Island } from '../data/islands'
 import { palById, stageFor } from '../data/pals'
-import { activeProfile, update, useProgress } from '../lib/progress'
+import { activeProfile, today, update, useProgress } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
@@ -82,8 +82,8 @@ function Boat({ palId, stage }: { palId: string; stage: number }) {
   )
 }
 
-export default function MapScreen({ onIsland, onArk, onParent, onPlayers }: {
-  onIsland: (id: string) => void; onArk: () => void; onParent: () => void; onPlayers: () => void
+export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime }: {
+  onIsland: (id: string) => void; onArk: () => void; onParent: () => void; onPlayers: () => void; onBedtime: () => void
 }) {
   const p = useProgress()
   const me = activeProfile()
@@ -99,7 +99,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers }: {
   useEffect(() => { speak('Where should we go? Tap an island!') }, [])
 
   const states = ISLANDS.map((isl, i) => {
-    if (!islandOpen(i, p.islandsDone)) return 'locked' as const
+    if (!islandOpen(i, p.islandsDone, today(), p.openAll)) return 'locked' as const
     if (p.islandsDone.includes(isl.id)) return 'done' as const
     return 'next' as const
   })
@@ -125,20 +125,29 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers }: {
     const from = lengthAt(docks[at.current]), to = lengthAt(docks[i])
     const ms = Math.min(2200, Math.max(900, Math.abs(to - from) * 2.2))
     const t0 = performance.now()
+    let arrived = false
+    const arrive = () => {
+      if (arrived) return
+      arrived = true
+      at.current = i
+      update((x) => ({ ...x, mapAt: ISLANDS[i].id }))
+      setSailing(false)
+      onIsland(ISLANDS[i].id)
+    }
     const step = (now: number) => {
+      if (arrived) return
       const k = Math.min(1, (now - t0) / ms)
       const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2 // ease in-out
       const l = from + (to - from) * e
       const q = path.getPointAtLength(l)
       const ahead = path.getPointAtLength(Math.max(0, Math.min(path.getTotalLength(), l + (to > from ? 4 : -4))))
       setBoat({ x: q.x, y: q.y, flip: ahead.x < q.x })
-      if (k < 1) return requestAnimationFrame(step)
-      at.current = i
-      update((x) => ({ ...x, mapAt: ISLANDS[i].id }))
-      setSailing(false)
-      onIsland(ISLANDS[i].id)
+      if (k < 1) requestAnimationFrame(step)
+      else arrive()
     }
     requestAnimationFrame(step)
+    // Animation frames pause while the app is in the background; never leave her stuck at sea.
+    setTimeout(arrive, ms + 400)
   }
 
   const tapIsland = (i: number) => {
@@ -167,6 +176,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers }: {
           </button>
           <button className={`icon-btn music ${p.music ? '' : 'off'}`} aria-label={p.music ? 'Turn music off' : 'Turn music on'}
             onClick={() => { sfx.pop(); update((x) => ({ ...x, music: !x.music })) }}>{p.music ? '🎵' : '🔇'}</button>
+          <button className="icon-btn music" aria-label="Bedtime story" onClick={() => { sfx.pop(); onBedtime() }}>🌙</button>
           <HoldButton onHold={onParent} className="parent-gear">⚙️</HoldButton>
         </div>
       </header>

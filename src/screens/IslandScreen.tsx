@@ -8,13 +8,21 @@ import Practice from '../activities/Practice'
 import VerseBuilder from '../activities/VerseBuilder'
 import FriendlyBattle from '../activities/FriendlyBattle'
 import Reward from '../activities/Reward'
+import Sequence from '../activities/Sequence'
+import SortGame from '../activities/SortGame'
+import Quiz from '../activities/Quiz'
+import CountBasket from '../activities/CountBasket'
+import TraceLetter from '../activities/TraceLetter'
+import Maze from '../activities/Maze'
 import type { Island, Step } from '../data/islands'
 import { completeIsland, getProgress, update } from '../lib/progress'
 import { pauseNarration, preload, speak, stopSpeaking } from '../lib/speech'
 import { setMood, type Mood } from '../lib/music'
+import { backupNow } from '../lib/backup'
 
 const MOOD: Record<Step['kind'], Mood> = {
-  story: 'story', pairs: 'play', practice: 'play', verse: 'story', battle: 'battle', reward: 'home',
+  story: 'story', pairs: 'play', practice: 'play', sequence: 'play', sort: 'play', quiz: 'story', count: 'play',
+  trace: 'play', maze: 'play', verse: 'story', battle: 'battle', reward: 'home',
 }
 
 export default function IslandScreen({ island, onExit }: { island: Island; onExit: () => void }) {
@@ -38,7 +46,10 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   useEffect(() => setMood(MOOD[current.kind]), [step])
   useEffect(() => {
     // Reaching the reward finishes the island, even if she leaves without tapping the button.
-    if (step === reward) completeIsland(island.id)
+    if (step === reward) {
+      completeIsland(island.id)
+      backupNow()
+    }
     const saved = step === reward ? 0 : step
     update((p) => ({ ...p, islandStep: { ...p.islandStep, [island.id]: saved } }))
   }, [step])
@@ -58,6 +69,24 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       break
     case 'practice':
       body = <Practice skill={current.skill} title={current.title} decor={current.decor} theme={current.theme} intro={current.intro} onDone={next} />
+      break
+    case 'sequence':
+      body = <Sequence title={current.title} intro={current.intro} items={current.items} onDone={next} />
+      break
+    case 'sort':
+      body = <SortGame title={current.title} intro={current.intro} groups={current.groups} items={current.items} onDone={next} />
+      break
+    case 'quiz':
+      body = <Quiz title={current.title} questions={current.questions} onDone={next} />
+      break
+    case 'count':
+      body = <CountBasket title={current.title} intro={current.intro} item={current.item} plural={current.plural} basket={current.basket} into={current.into} rounds={current.rounds} onDone={next} />
+      break
+    case 'trace':
+      body = <TraceLetter title={current.title} intro={current.intro} letters={current.letters} onDone={next} />
+      break
+    case 'maze':
+      body = <Maze title={current.title} intro={current.intro} hero={current.hero} goal={current.goal} onDone={next} />
       break
     case 'verse':
       body = <VerseBuilder chunks={current.chunks} reference={current.ref} onDone={next} />

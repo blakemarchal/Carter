@@ -2,7 +2,7 @@
 // Each scene has a mood; changing mood crossfades to that tune. No audio files, works offline.
 import { ac, bass, buses, chip, kick, mallet, musicBox, pad, pluck, shaker, snare } from './audio'
 
-export type Mood = 'home' | 'story' | 'play' | 'battle'
+export type Mood = 'home' | 'story' | 'play' | 'battle' | 'lullaby'
 
 type Lead = 'mallet' | 'musicBox' | 'pluck' | 'chip'
 
@@ -40,6 +40,13 @@ const TRACKS: Record<Mood, Track> = {
     chords: ['F', 'C', 'Dm', 'Bb', 'F', 'C', 'Bb', 'C'],
     arp: [0, 1, 2, 3, 2, 1, 2, 1],
     bass: [[0, 0, 8]], bassVel: 0.55, padVel: 1,
+  },
+  // Bedtime: slow and soft, a music box over gentle chords.
+  lullaby: {
+    bpm: 60, vol: 0.55,
+    chords: ['F', 'Dm', 'Bb', 'C', 'F', 'Dm', 'Bb', 'F'],
+    arp: [0, 2, 1, 2, 3, 2, 1, 2],
+    bass: [[0, 0, 8]], bassVel: 0.35, padVel: 0.8,
   },
   // Activities (matching, words, numbers, verse): light and curious, out of the narrator's way.
   play: {

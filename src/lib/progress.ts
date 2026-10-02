@@ -15,6 +15,13 @@ export interface Progress {
   battlesWon: number
   battler?: string // the Pal she picked for her last battle
   movesSeen: string[] // moves she's been shown, so new ones get a "NEW" badge
+  openAll: boolean // Parent Corner: open every built island
+  outfits: Record<string, string> // Pal id -> accessory it's wearing
+  fed: { day: string; counts: Record<string, number> } // berries per Pal today
+  egg: { warmth: number; day: string } // the mystery egg: one warmth per day she plays
+  colors: Record<string, Record<number, string>> // coloring pages: "palId:stage" -> shape index -> color
+  stickerSpots: { s: string; x: number; y: number }[] // sticker book: where she put each sticker (% of the scene)
+  log: Record<string, { secs: number; right: number; tries: number }> // per day, for the weekly summary
   skills: Record<Skill, number> // level 1..N
   streak: Record<Skill, number> // +correct in a row / -misses in a row
   stickers: string[]
@@ -57,6 +64,13 @@ const fresh = (): Progress => ({
   mapAt: 'noah',
   battlesWon: 0,
   movesSeen: [],
+  openAll: false,
+  outfits: {},
+  fed: { day: '', counts: {} },
+  egg: { warmth: 0, day: '' },
+  colors: {},
+  stickerSpots: [],
+  log: {},
   skills: { reading: 1, numbers: 1 },
   streak: { reading: 0, numbers: 0 },
   stickers: [],
@@ -179,6 +193,15 @@ export function resetProgress() {
 
 export const MAX_LEVEL: Record<Skill, number> = { reading: 5, numbers: 5 }
 
+/** Adds to today's entry in the daily log (kept for two weeks), for the Parent Corner summary. */
+function logged(p: Progress, add: { secs?: number; right?: number; tries?: number }): Progress['log'] {
+  const d = today()
+  const day = p.log[d] ?? { secs: 0, right: 0, tries: 0 }
+  const log = { ...p.log, [d]: { secs: day.secs + (add.secs ?? 0), right: day.right + (add.right ?? 0), tries: day.tries + (add.tries ?? 0) } }
+  for (const k of Object.keys(log).sort().slice(0, -14)) delete log[k]
+  return log
+}
+
 /** Adaptive difficulty: 3 right in a row -> level up; 2 misses in a row -> level down. */
 export function recordAnswer(skill: Skill, correct: boolean) {
   update((p) => {
@@ -188,7 +211,7 @@ export function recordAnswer(skill: Skill, correct: boolean) {
     else s = s > 0 ? -1 : s - 1
     if (s >= 3 && lvl < MAX_LEVEL[skill]) (lvl++, (s = 0))
     if (s <= -2 && lvl > 1) (lvl--, (s = 0))
-    return { ...p, skills: { ...p.skills, [skill]: lvl }, streak: { ...p.streak, [skill]: s } }
+    return { ...p, skills: { ...p.skills, [skill]: lvl }, streak: { ...p.streak, [skill]: s }, log: logged(p, { tries: 1, right: correct ? 1 : 0 }) }
   })
 }
 
@@ -216,8 +239,9 @@ export function completeIsland(id: string) {
 export function tickPlayTime(seconds: number) {
   update((p) => {
     const d = today()
+    const log = logged(p, { secs: seconds })
     return d === p.playDate
-      ? { ...p, playSeconds: p.playSeconds + seconds }
-      : { ...p, playDate: d, playSeconds: seconds }
+      ? { ...p, playSeconds: p.playSeconds + seconds, log }
+      : { ...p, playDate: d, playSeconds: seconds, log }
   })
 }

@@ -17,6 +17,8 @@ ProtectHome=true
 PrivateTmp=true
 # Narration clips (Grok voice) are cached here: /var/cache/carter
 CacheDirectory=carter
+# Progress backups are kept here: /var/lib/carter
+StateDirectory=carter
 ReadOnlyPaths=/opt/Carter
 
 [Install]

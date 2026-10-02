@@ -41,9 +41,12 @@ function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
 }
 
 /** Shows one question. No failure: wrong answers wiggle, and after two misses the answer glows. */
-/** `recordMisses: false` (brave battle questions): a miss doesn't lower her level, only a first-try answer counts. */
-export default function QuestionCard({ q, onSolved, quiet, recordMisses = true }: {
-  q: Question; onSolved: (firstTry: boolean) => void; quiet?: boolean; recordMisses?: boolean
+/**
+ * `recordMisses: false` (brave battle questions): a miss doesn't lower her level, only a first-try answer counts.
+ * `record: false` (story questions): doesn't touch the reading/number levels at all.
+ */
+export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, record = true }: {
+  q: Question; onSolved: (firstTry: boolean) => void; quiet?: boolean; recordMisses?: boolean; record?: boolean
 }) {
   const [misses, setMisses] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
@@ -57,7 +60,7 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true }
     if (i === q.answer) {
       setSolved(true)
       sfx.good()
-      if (recordMisses || misses === 0) recordAnswer(q.skill, misses === 0)
+      if (record && (recordMisses || misses === 0)) recordAnswer(q.skill, misses === 0)
       if (!quiet) {
         await speak(`${q.choices[i].say}!`)
         if (alive.current) await speak(praise())
