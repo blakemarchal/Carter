@@ -1,6 +1,7 @@
 // Question generators for each skill, tuned by level (see progress.recordAnswer).
 import type { Skill } from './progress'
-import { CVC, SIGHT, LETTER_PICS, LETTER_SOUND } from '../data/words'
+import { CVC, SIGHT, LETTER_PICS } from '../data/words'
+import { letterSound } from './spoken'
 import { pick, randInt, shuffle } from './util'
 
 export type Visual =
@@ -32,13 +33,17 @@ function build(skill: Skill, say: string, visual: Visual, right: Choice, wrong: 
 const numChoice = (n: number): Choice => ({ label: String(n), say: String(n) })
 
 // ---------- Reading ----------
+
+// One-letter words are unclear alone ("a" can sound like "uh"), so say them in a little phrase.
+const CARRIER: Record<string, string> = { a: 'a, like a cat', I: 'I, like I love you' }
+const sayWord = (w: string) => CARRIER[w] ?? w
 function readingQ(level: number): Question {
   if (level <= 1) {
     const letters = Object.keys(LETTER_PICS)
     const letter = pick(letters)
     const right = pick(LETTER_PICS[letter])
     const wrong = shuffle(letters.filter((l) => l !== letter)).slice(0, 2).map((l) => pick(LETTER_PICS[l]))
-    return build('reading', `Which picture starts with the ${LETTER_SOUND[letter]} sound? ${letter}!`,
+    return build('reading', `Which picture starts with the ${letterSound(letter)} sound, like the letter ${letter.toUpperCase()}?`,
       { kind: 'letter', text: letter.toUpperCase() + letter },
       { label: right.emoji, say: right.word }, wrong.map((w) => ({ label: w.emoji, say: w.word })))
   }
@@ -52,8 +57,8 @@ function readingQ(level: number): Question {
   // Levels 4–5: hear a word, find it in print.
   const pool = level === 4 ? SIGHT : [...SIGHT, ...CVC.map((c) => c.word)]
   const [right, ...wrong] = shuffle(pool).slice(0, level === 4 ? 3 : 4)
-  return build('reading', `Find the word: ${right}.`, { kind: 'listen' },
-    { label: right, say: right }, wrong.map((w) => ({ label: w, say: w })))
+  return build('reading', `Find the word: ${sayWord(right)}.`, { kind: 'listen' },
+    { label: right, say: sayWord(right) }, wrong.map((w) => ({ label: w, say: sayWord(w) })))
 }
 
 // ---------- Numbers ----------
@@ -77,10 +82,11 @@ function nextNumberQ(lo: number, hi: number, decadeCrossing: boolean): Question 
     numChoice(end), nearby(end, 2, decadeCrossing ? [-10, 10, 1, -1] : [1, -1, 2, 10]).map(numChoice))
 }
 
-function numbersQ(level: number): Question {
+function numbersQ(level: number, theme?: string): Question {
+  const thing = () => theme ?? pick(ANIMALS)
   if (level <= 1) {
     const n = randInt(3, 10)
-    const e = pick(ANIMALS)
+    const e = thing()
     return build('numbers', 'How many? Count them!', { kind: 'emoji', items: Array(n).fill(e) },
       numChoice(n), nearby(n, 2, [1, -1, 2, -2]).map(numChoice))
   }
@@ -89,7 +95,7 @@ function numbersQ(level: number): Question {
   if (level === 4) {
     if (Math.random() < 0.5) return nextNumberQ(40, 100, true)
     const a = randInt(1, 5), b = randInt(1, 5)
-    return build('numbers', `${a} plus ${b}. How many in all?`, { kind: 'sum', a, b, op: '+', emoji: pick(ANIMALS) },
+    return build('numbers', `${a} plus ${b}. How many in all?`, { kind: 'sum', a, b, op: '+', emoji: thing() },
       numChoice(a + b), nearby(a + b, 2, [1, -1, 2]).map(numChoice))
   }
   if (Math.random() < 0.4) return nextNumberQ(90, 130, true)
@@ -98,10 +104,16 @@ function numbersQ(level: number): Question {
   const b = randInt(1, plus ? 10 - a : a - 1)
   const ans = plus ? a + b : a - b
   return build('numbers', plus ? `${a} plus ${b}?` : `${a} take away ${b}?`,
-    { kind: 'sum', a, b, op: plus ? '+' : '-', emoji: pick(ANIMALS) },
+    { kind: 'sum', a, b, op: plus ? '+' : '-', emoji: thing() },
     numChoice(ans), nearby(ans, 2, [1, -1, 2]).map(numChoice))
 }
 
-export function makeQuestion(skill: Skill, level: number): Question {
-  return skill === 'reading' ? readingQ(level) : numbersQ(level)
+/** `theme` is the emoji to count in number questions (e.g. raindrops on Noah's island). */
+export function makeQuestion(skill: Skill, level: number, theme?: string, avoid: Question[] = []): Question {
+  // Try a few times for a question that wasn't just asked in this round.
+  const key = (x: Question) => `${x.say}|${x.choices[x.answer].label}`
+  const seen = new Set(avoid.map(key))
+  let q = skill === 'reading' ? readingQ(level) : numbersQ(level, theme)
+  for (let i = 0; i < 8 && seen.has(key(q)); i++) q = skill === 'reading' ? readingQ(level) : numbersQ(level, theme)
+  return q
 }

@@ -10,6 +10,7 @@ export interface Progress {
   starter?: string // the Pal this player chose first
   pals: Record<string, number> // pal id -> xp (present = befriended)
   islandsDone: string[]
+  islandStep: Record<string, number> // where each island was left off
   skills: Record<Skill, number> // level 1..N
   streak: Record<Skill, number> // +correct in a row / -misses in a row
   stickers: string[]
@@ -48,6 +49,7 @@ const fresh = (): Progress => ({
   version: 1,
   pals: {},
   islandsDone: [],
+  islandStep: {},
   skills: { reading: 1, numbers: 1 },
   streak: { reading: 0, numbers: 0 },
   stickers: [],
@@ -59,8 +61,10 @@ const fresh = (): Progress => ({
   sfx: true,
 })
 
-function today() {
-  return new Date().toISOString().slice(0, 10)
+/** Today's date on the device (local time, so the daily play time resets at midnight, not 7 PM). */
+export function today() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function read<T>(key: string): T | null {
@@ -124,7 +128,7 @@ export function activeProfile(): Profile {
 }
 
 /** The current player's name, for narration ("Way to go, Carter!"). */
-export const playerName = () => activeProfile().name
+export const playerName = () => activeProfile().name.trim() || 'friend'
 
 export function switchProfile(id: string) {
   if (id === profiles.active || !profiles.list.some((p) => p.id === id)) return
@@ -201,7 +205,7 @@ export function completeIsland(id: string) {
   update((p) => (p.islandsDone.includes(id) ? p : { ...p, islandsDone: [...p.islandsDone, id] }))
 }
 
-/** Called every minute while playing; resets per day. */
+/** Called every few seconds while playing; resets per day. */
 export function tickPlayTime(seconds: number) {
   update((p) => {
     const d = today()

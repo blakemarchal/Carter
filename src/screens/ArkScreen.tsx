@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import PalArt from '../components/PalArt'
 import { BackButton } from '../components/ui'
-import { FRUIT_COLOR, PALS, stageFor } from '../data/pals'
+import { FRUIT_COLOR, PALS, palIntro, stageFor } from '../data/pals'
 import { useProgress } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
@@ -22,7 +22,7 @@ export default function ArkScreen({ onBack }: { onBack: () => void }) {
             <button key={pal.id} className={`pal-card ${have ? '' : 'unknown'}`} style={{ ['--c' as string]: FRUIT_COLOR[pal.fruit] }}
               onClick={() => {
                 sfx.pop()
-                speak(have ? `${pal.stages[st].name} ${pal.intro}` : 'Who could this be? Keep exploring to find out!')
+                speak(have ? palIntro(pal, st) : 'Who could this be? Keep exploring to find out!')
               }}>
               <PalArt pal={pal} stage={st} size={130} silhouette={!have} className={have ? 'bob' : ''} />
               <div className="name">{have ? pal.stages[st].name : '???'}</div>

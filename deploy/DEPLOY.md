@@ -112,6 +112,12 @@ ssh root@68.183.130.3 'sudo -u caddy caddy validate --config /etc/caddy/Caddyfil
 
 The narrator uses Grok's Ara voice, the same voice as Grok in the Tesla, through the xAI text-to-speech API. Until a key is set, the game uses the iPad's built-in voice.
 
+**Upgrading from the first version?** The service file gained a cache folder. After `deploy.ps1`, run:
+
+```bash
+ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/system/ && systemctl daemon-reload && systemctl restart carter-web'
+```
+
 1. Get an API key at https://console.x.ai (API Keys → Create). Add a little credit; narration costs about $15 per million characters, and every line is generated only once, so the whole game costs cents.
 2. Save the key on the server. It asks for the key (hidden), checks it with xAI, and only then saves it:
 
@@ -123,12 +129,6 @@ The narrator uses Grok's Ara voice, the same voice as Grok in the Tesla, through
 - The key lives only in `/opt/Carter/.env` (root-only). The game never sees it; it asks the server at `/tts`, which requires the family login.
 - Clips are cached in `/var/cache/carter`. New narration is capped at 200,000 characters a day (about $3), set by `TTS_DAILY_CHARS` in `.env`.
 - The Parent Corner can switch each player between Ara, Eve (another Grok voice), and the iPad voice.
-
-**Upgrading from the first version?** The service file gained a cache folder. After `deploy.ps1`, run:
-
-```bash
-ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/system/ && systemctl daemon-reload && systemctl restart carter-web'
-```
 
 ## Step 5: Install on Carter's iPad
 

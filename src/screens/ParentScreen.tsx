@@ -4,11 +4,11 @@ import {
   activeProfile, addProfile, deleteProfile, editProfile, MAX_LEVEL, playerName, resetProgress, setSkillLevel,
   switchProfile, update, useProfiles, useProgress, type Narrator, type Skill,
 } from '../lib/progress'
-import { grokVoiceAvailable, setNarrator, setRate, speak } from '../lib/speech'
+import { grokVoiceAvailable, setNarrator, setRate, speak, voiceSignedOut } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
 const SKILL_LABEL: Record<Skill, string[]> = {
-  reading: ['Beginning sounds', 'Read 3-letter words (2 choices)', 'Read 3-letter words (3 choices)', 'Sight words', 'Find any word'],
+  reading: ['Beginning sounds', 'Read 3-letter words (3 choices)', 'Read 3-letter words (4 choices)', 'Sight words', 'Find any word'],
   numbers: ['Count to 10', 'What comes next? (to 40)', 'What comes next? (to 100, decades)', 'Decades + adding', 'Add/subtract to 10, past 100'],
 }
 
@@ -95,6 +95,9 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
             <button key={n.id} className={p.narrator === n.id ? 'on' : ''} onClick={() => pickNarrator(n.id)}>{n.label}</button>
           ))}
         </div>
+        {p.narrator !== 'device' && voiceSignedOut() && (
+          <p className="warn">This iPad&rsquo;s sign-in has expired, so the iPad voice is reading. <a href="/login">Sign in again</a> to get Ara back. Progress is kept.</p>
+        )}
         {p.narrator !== 'device' && !grokVoiceAvailable() && (
           <p className="muted">The Grok voice isn&rsquo;t set up on the server yet, so the iPad voice is reading for now.</p>
         )}

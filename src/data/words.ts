@@ -26,13 +26,6 @@ export const LETTER_PICS: Record<string, Picture[]> = {
   r: [{ word: 'rainbow', emoji: '🌈' }, { word: 'rabbit', emoji: '🐰' }],
   s: [{ word: 'sun', emoji: '☀️' }, { word: 'snake', emoji: '🐍' }],
   z: [{ word: 'zebra', emoji: '🦓' }],
-  g: [{ word: 'giraffe', emoji: '🦒' }, { word: 'goat', emoji: '🐐' }],
+  g: [{ word: 'gorilla', emoji: '🦍' }, { word: 'goat', emoji: '🐐' }],
   e: [{ word: 'elephant', emoji: '🐘' }, { word: 'egg', emoji: '🥚' }],
-}
-
-/** How to say each letter's sound with the speech engine (replaced by recorded phonics later). */
-export const LETTER_SOUND: Record<string, string> = {
-  a: 'ah', b: 'buh', c: 'kuh', d: 'duh', e: 'eh', f: 'fff', g: 'guh', h: 'huh', i: 'ih', j: 'juh',
-  k: 'kuh', l: 'lll', m: 'mmm', n: 'nnn', o: 'aw', p: 'puh', q: 'kwuh', r: 'rrr', s: 'sss', t: 'tuh',
-  u: 'uh', v: 'vvv', w: 'wuh', x: 'ks', y: 'yuh', z: 'zzz',
 }

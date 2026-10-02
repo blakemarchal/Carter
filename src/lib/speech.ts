@@ -4,10 +4,12 @@
 // line instead, so the game never gets stuck.
 import { ac, buses, duck } from './audio'
 import { playerName, type Narrator } from './progress'
+import { toSpoken } from './spoken'
 
 let narrator: Narrator = 'ara'
 let rate = 0.9
 let grokAvailable = true // false once the server says the voice isn't set up
+let signedOut = false // the login cookie expired: the server refuses /tts until a grown-up signs in again
 
 export function setRate(r: number) {
   rate = r
@@ -19,6 +21,8 @@ export function setNarrator(n: Narrator) {
 
 /** True when the Grok voice is set up on the server (as far as we know). */
 export const grokVoiceAvailable = () => grokAvailable
+/** True when the server turned us away because the login expired (the app itself still runs offline). */
+export const voiceSignedOut = () => signedOut
 
 // The rate setting was tuned for device voices (0.9 = normal); map it onto Grok's speed scale.
 const grokSpeed = () => (rate <= 0.75 ? '0.85' : rate >= 1 ? '1.1' : '1')
@@ -82,6 +86,7 @@ function fetchClip(text: string): Promise<ArrayBuffer | null> {
   const p = fetch(`/tts?${qs}`)
     .then((r) => {
       if (r.status === 503) grokAvailable = false
+      if (r.status === 401) signedOut = true
       return r.ok ? r.arrayBuffer() : null
     })
     .catch(() => null)
@@ -111,10 +116,14 @@ async function playClip(mp3: ArrayBuffer, g: number): Promise<boolean> {
     src.buffer = buf
     src.connect(buses().voice)
     current = src
-    src.onended = () => {
+    // If iOS suspends audio mid-line (screen locked, a call), `onended` may never fire. Don't hang.
+    const safety = setTimeout(done, buf.duration * 1000 + 1500)
+    function done() {
+      clearTimeout(safety)
       if (current === src) current = null
       resolve(true)
     }
+    src.onended = done
     src.start()
   })
 }
@@ -125,31 +134,52 @@ let gen = 0 // bumped on every interruption; stale lines check it and bow out
 let queue: Promise<void> = Promise.resolve()
 
 async function sayNow(text: string, pitch: number, g: number) {
-  if (g !== gen) return
+  if (g !== gen || !toSpoken(text, 'device')) return
   duck(true)
   try {
     if (narrator !== 'device' && grokAvailable) {
       // Wait up to 4 seconds for a new line to be generated; after that use the device voice
       // (the clip keeps downloading in the background, so it's ready next time).
-      const mp3 = await within(fetchClip(text), 4000, null)
+      const mp3 = await within(fetchClip(toSpoken(text, 'grok')), 4000, null)
       if (g !== gen) return
       if (mp3 && (await playClip(mp3, g))) return
     }
-    if (g === gen) await deviceSpeak(text, pitch)
+    if (g === gen) await deviceSpeak(toSpoken(text, 'device'), pitch)
   } finally {
     duck(false)
+  }
+}
+
+let important = 0 // lines that must not be cut off are playing or waiting
+let paused: Promise<void> | null = null
+let unpause: (() => void) | null = null
+
+/** While paused, ordinary lines wait (important ones still play), e.g. behind a "leave?" prompt. */
+export function pauseNarration(on: boolean) {
+  if (on && !paused) paused = new Promise((r) => (unpause = r))
+  if (!on && paused) {
+    unpause!()
+    paused = unpause = null
   }
 }
 
 /**
  * Speak text aloud. Resolves when finished (or right away if interrupted).
  * By default this interrupts whatever is being said; `interrupt: false` queues after it.
+ * `important` lines (like a Pal growing) can't be interrupted by other lines: those wait their
+ * turn instead. Only stopSpeaking() (leaving a screen) cuts them off.
  */
-export function speak(text: string, opts: { interrupt?: boolean; pitch?: number } = {}): Promise<void> {
-  if (opts.interrupt !== false) stopSpeaking()
+export function speak(text: string, opts: { interrupt?: boolean; pitch?: number; important?: boolean } = {}): Promise<void> {
+  if (opts.interrupt !== false && !important) stopSpeaking()
   const g = gen
-  const p = queue.then(() => sayNow(text, opts.pitch ?? 1.1, g))
+  const p = queue
+    .then(() => (opts.important ? undefined : paused ?? undefined))
+    .then(() => sayNow(text, opts.pitch ?? 1.1, g))
   queue = p
+  if (opts.important) {
+    important++
+    p.finally(() => { important-- })
+  }
   return p
 }
 
@@ -170,7 +200,7 @@ export async function preload(lines: string[]) {
   if (narrator === 'device') return
   for (const line of lines) {
     if (!grokAvailable) return
-    await fetchClip(line)
+    await fetchClip(toSpoken(line, 'grok'))
   }
 }
 

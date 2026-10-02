@@ -8,7 +8,7 @@ import NoahIsland from './screens/NoahIsland'
 import PalArt from './components/PalArt'
 import { BigButton, Confetti } from './components/ui'
 import { PALS, stageFor } from './data/pals'
-import { getProgress, playerName, switchProfile, tickPlayTime, useProfiles, useProgress } from './lib/progress'
+import { getProgress, playerName, switchProfile, tickPlayTime, today, useProfiles, useProgress } from './lib/progress'
 import { encouragements, preload, setNarrator, setRate, speak, unlockSpeech } from './lib/speech'
 import { setSfxEnabled, sfx } from './lib/sfx'
 import { musicReady, setMood, setMusicEnabled } from './lib/music'
@@ -35,15 +35,26 @@ export default function App() {
   // Islands pick their own music for each activity; everywhere else plays the home tune.
   useEffect(() => { if (!screen.startsWith('island')) setMood('home') }, [screen])
 
-  // Count play time once a minute; gentle reminder at the daily limit.
+  // Count play time (only while playing and the app is on screen); gentle reminder once a day at the limit.
+  const playing = screen !== 'title'
+  const reminded = useRef('')
   useEffect(() => {
-    if (screen === 'title') return
+    if (!playing) return
+    let last = Date.now()
     const t = setInterval(() => {
-      tickPlayTime(60)
-      if (getProgress().playSeconds >= DAILY_MINUTES * 60) setSleepy(true)
-    }, 60_000)
+      const now = Date.now()
+      const secs = Math.min(30, Math.round((now - last) / 1000)) // a long gap means the iPad was asleep
+      last = now
+      if (document.hidden) return
+      tickPlayTime(secs)
+      const key = `${active}|${today()}`
+      if (getProgress().playSeconds >= DAILY_MINUTES * 60 && reminded.current !== key) {
+        reminded.current = key
+        setSleepy(true)
+      }
+    }, 15_000)
     return () => clearInterval(t)
-  }, [screen])
+  }, [playing, active])
 
   // Celebrate when a Pal grows to its next stage (but not when switching to another player).
   useEffect(() => {
@@ -57,7 +68,8 @@ export default function App() {
         setEvolved({ id: pal.id, stage: st })
         sfx.sparkle()
         sfx.fanfare()
-        speak(`Whoa! ${pal.stages[prev].name} is growing! ${pal.stages[prev].name} became ${pal.stages[st].name}!`, { interrupt: false })
+        // Important: the next question waits for this instead of cutting it off.
+        speak(`Whoa! ${pal.stages[prev].name} is growing! ${pal.stages[prev].name} became ${pal.stages[st].name}!`, { important: true })
       }
       seen[pal.id] = st
     }
@@ -72,6 +84,9 @@ export default function App() {
     setEvolved(null)
     setSleepy(false)
     const me = getProgress()
+    // Apply this player's voice now (the effects above run after this), so preloading uses it.
+    setNarrator(me.narrator)
+    setRate(me.speechRate)
     setScreen(me.starter ? 'map' : 'starter')
     preload([
       'Where should we go? Tap an island!',
@@ -81,8 +96,10 @@ export default function App() {
   }
 
   const go = (s: Screen) => setScreen(s)
+  // A player without a starter Pal (new, erased, or switched in the Parent Corner) picks one first.
+  const shown: Screen = !p.starter && screen !== 'title' && screen !== 'parent' ? 'starter' : screen
   let view
-  switch (screen) {
+  switch (shown) {
     case 'title': view = <Title onStart={start} />; break
     case 'starter': view = <StarterPick onDone={() => go('map')} />; break
     case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}` as Screen)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} />; break

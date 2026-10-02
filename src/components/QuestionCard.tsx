@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { Question, Visual } from '../lib/questions'
-import { LETTER_SOUND } from '../data/words'
+import { letterSound } from '../lib/spoken'
 import { praise, retry, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { recordAnswer } from '../lib/progress'
 import { wait } from '../lib/util'
+import { useAlive } from '../lib/useAlive'
 
 function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
   switch (v.kind) {
@@ -14,7 +15,7 @@ function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
       return (
         <div className="q-word">
           {v.text.split('').map((ch, i) => (
-            <button key={i} className="q-word-letter" onClick={() => onSay(LETTER_SOUND[ch] ?? ch)}>{ch}</button>
+            <button key={i} className="q-word-letter" onClick={() => onSay(letterSound(ch))}>{ch}</button>
           ))}
         </div>
       )
@@ -44,6 +45,7 @@ export default function QuestionCard({ q, onSolved, quiet }: { q: Question; onSo
   const [misses, setMisses] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
+  const alive = useAlive()
 
   useEffect(() => { speak(q.say) }, [q])
 
@@ -53,9 +55,12 @@ export default function QuestionCard({ q, onSolved, quiet }: { q: Question; onSo
       setSolved(true)
       sfx.good()
       recordAnswer(q.skill, misses === 0)
-      if (!quiet) await speak(`${q.choices[i].say}! ${praise()}`)
+      if (!quiet) {
+        await speak(`${q.choices[i].say}!`)
+        if (alive.current) await speak(praise())
+      }
       else await wait(500)
-      onSolved(misses === 0)
+      if (alive.current) onSolved(misses === 0)
     } else {
       sfx.oops()
       setWrong(i)

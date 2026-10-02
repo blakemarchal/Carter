@@ -20,6 +20,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp,woff2}'],
+        // /login must reach the server (it shows the sign-in form when the login has expired).
+        navigateFallbackDenylist: [/^\/login/],
         // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
         runtimeCaching: [{
           urlPattern: ({ url }) => url.pathname === '/tts',

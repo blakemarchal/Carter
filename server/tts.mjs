@@ -35,7 +35,12 @@ export function createTtsCache({ apiKey, dir, dailyChars }) {
   const inFlight = new Map()
   let day = ''
   let used = 0
-  const ready = mkdir(dir, { recursive: true })
+  // If the cache folder can't be made, keep the server up: narration falls back to the device voice.
+  const ready = mkdir(dir, { recursive: true }).catch((e) => {
+    console.error(`TTS cache folder ${dir} unavailable: ${e.message}`)
+    throw e
+  })
+  ready.catch(() => {})
 
   return async function tts(text, voice, speed) {
     const id = createHash('sha256').update(`${voice}|${speed}|${text}`).digest('hex')
@@ -52,6 +57,10 @@ export function createTtsCache({ apiKey, dir, dailyChars }) {
     if (used + text.length > dailyChars) throw Object.assign(new Error('daily voice budget used up'), { budget: true })
     used += text.length
     const job = synthesize(text, voice, speed, apiKey)
+      .catch((e) => {
+        used -= text.length // nothing was generated, so it doesn't count against today's budget
+        throw e
+      })
       .then(async (mp3) => {
         const tmp = `${file}.${process.pid}.tmp`
         await writeFile(tmp, mp3)

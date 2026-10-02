@@ -24,7 +24,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers }: {
         <h2>Adventure Map</h2>
         <div className="map-tools">
           <button className="who-chip" aria-label="Switch player" onClick={() => { sfx.pop(); onPlayers() }}>
-            <span>{me.emoji}</span>{me.name}
+            <span>{me.emoji}</span>{me.name.trim() || 'Player'}
           </button>
           <button className={`icon-btn music ${p.music ? '' : 'off'}`} aria-label={p.music ? 'Turn music off' : 'Turn music on'}
             onClick={() => { sfx.pop(); update((x) => ({ ...x, music: !x.music })) }}>{p.music ? '🎵' : '🔇'}</button>
@@ -40,7 +40,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers }: {
               onClick={() => {
                 sfx.pop()
                 if (isl.ready) onIsland(isl.id)
-                else speak(`${isl.name} is coming soon!`)
+                else speak(`${isl.name.replace(/!$/, '')} is coming soon!`)
               }}>
               <span className="isl-emoji">{isl.ready ? isl.emoji : '🔒'}</span>
               <span className="isl-name">{isl.name}</span>

@@ -10,6 +10,7 @@ import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { Confetti } from '../components/ui'
 import { wait } from '../lib/util'
+import { useAlive } from '../lib/useAlive'
 
 const HITS = 4
 
@@ -22,12 +23,14 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
   const [phase, setPhase] = useState<'intro' | 'fight' | 'attack' | 'friends'>('intro')
   const skillFor = (n: number): Skill => (n % 2 ? 'numbers' : 'reading')
   const [q, setQ] = useState(() => makeQuestion('reading', getProgress().skills.reading))
+  const alive = useAlive()
 
   useEffect(() => {
     ;(async () => {
       await speak(foeIntro)
+      if (!alive.current) return
       await speak(`Go, ${buddy.stages[buddyStage].name}! Answer questions to use ${buddy.move} and fill the friendship meter!`)
-      setPhase('fight')
+      if (alive.current) setPhase('fight')
     })()
   }, [])
 
@@ -38,11 +41,13 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
     const n = hits + 1
     setHits(n)
     await speak(`${buddy.stages[buddyStage].name} used ${buddy.move}!`)
+    if (!alive.current) return
     if (n >= HITS) {
       setPhase('friends')
       sfx.fanfare()
       await wait(400)
       await speak(`${foe.stages[0].name} is not grumpy anymore! ${foe.stages[0].name} wants to be your friend! ${foe.stages[0].name} joined your ark!`)
+      if (!alive.current) return
       addPalXp(foe.id, 0)
       onDone()
       return

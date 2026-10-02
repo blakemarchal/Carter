@@ -79,12 +79,15 @@ function makeToken() {
   const exp = String(Math.floor(Date.now() / 1000) + YEAR)
   return `${exp}.${sign(exp)}`
 }
-function validToken(tok) {
+/** Seconds until the login expires, or 0 if the token isn't valid. */
+function tokenLife(tok) {
   const [exp, mac] = (tok ?? '').split('.')
-  if (!exp || !mac) return false
+  if (!exp || !mac) return 0
   const a = Buffer.from(mac), b = Buffer.from(sign(exp))
-  return a.length === b.length && timingSafeEqual(a, b) && Number(exp) > Date.now() / 1000
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return 0
+  return Math.max(0, Number(exp) - Date.now() / 1000)
 }
+const loginCookie = () => `${COOKIE}=${makeToken()}; Max-Age=${YEAR}; Path=/; HttpOnly; Secure; SameSite=Lax`
 function cookies(req) {
   return Object.fromEntries((req.headers.cookie ?? '').split(';').map((c) => c.trim().split('=')).filter((p) => p.length === 2))
 }
@@ -170,19 +173,19 @@ createServer(async (req, res) => {
       const pw = new URLSearchParams(body).get('password') ?? ''
       if (pw && checkPassword(pw)) {
         failures.delete(ip)
-        res.writeHead(303, {
-          'Set-Cookie': `${COOKIE}=${makeToken()}; Max-Age=${YEAR}; Path=/; HttpOnly; Secure; SameSite=Lax`,
-          Location: '/',
-        })
+        res.writeHead(303, { 'Set-Cookie': loginCookie(), Location: '/' })
         return res.end()
       }
       fail(ip)
       res.writeHead(401, { 'Content-Type': 'text/html; charset=utf-8' })
       return res.end(LOGIN_PAGE('That password didn’t work.'))
     }
-    // Browsers fetch the app manifest and icon without cookies, so these two stay public (they contain nothing private).
-    const isPublic = url.pathname === '/manifest.webmanifest' || url.pathname === '/icon.svg'
-    if (!isPublic && !validToken(cookies(req)[COOKIE])) {
+    // Browsers fetch the app manifest and icons without cookies, so these stay public (they contain nothing private).
+    const isPublic = ['/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.png'].includes(url.pathname)
+    const life = tokenLife(cookies(req)[COOKIE])
+    // Keep using the game and you stay signed in: refresh the login once it's a month old.
+    if (life > 0 && life < YEAR - 30 * 24 * 3600) res.setHeader('Set-Cookie', loginCookie())
+    if (!isPublic && !life) {
       // Pages get the login form; everything else is simply refused.
       const wantsPage = (req.headers.accept ?? '').includes('text/html')
       res.writeHead(wantsPage ? 200 : 401, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })

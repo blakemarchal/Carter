@@ -3,10 +3,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { praise, retry, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { shuffle } from '../lib/util'
+import { useAlive } from '../lib/useAlive'
 
 export default function VerseBuilder({ chunks, reference, onDone }: { chunks: string[]; reference: string; onDone: () => void }) {
   const full = chunks.join(' ')
-  const pool = useMemo(() => shuffle(chunks.map((c, i) => ({ c, i }))), [chunks])
+  // Shuffle until the pieces are out of order, so there's always something to build.
+  const pool = useMemo(() => {
+    let p = shuffle(chunks.map((c, i) => ({ c, i })))
+    while (chunks.length > 1 && p.every((x, i) => x.i === i)) p = shuffle(p)
+    return p
+  }, [chunks])
+  const alive = useAlive()
   const [placed, setPlaced] = useState(0)
   const [lit, setLit] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
@@ -16,12 +23,14 @@ export default function VerseBuilder({ chunks, reference, onDone }: { chunks: st
     setReady(false)
     await speak(`Our memory verse! Listen.`)
     for (let i = 0; i < chunks.length; i++) {
+      if (!alive.current) return
       setLit(i)
       await speak(chunks[i])
     }
+    if (!alive.current) return
     setLit(null)
     await speak(`${reference}. Now you build it! Tap the words in order.`)
-    setReady(true)
+    if (alive.current) setReady(true)
   }
 
   useEffect(() => { listen() }, [])
@@ -35,9 +44,14 @@ export default function VerseBuilder({ chunks, reference, onDone }: { chunks: st
       setPlaced(n)
       if (n === chunks.length) {
         sfx.fanfare()
-        await speak(`${full} ${reference}. ${praise()} Let's say it together one more time!`)
+        await speak(`${full} ${reference}.`)
+        if (!alive.current) return
+        await speak(praise())
+        if (!alive.current) return
+        await speak("Let's say it together one more time!")
+        if (!alive.current) return
         await speak(full)
-        onDone()
+        if (alive.current) onDone()
       }
     } else {
       sfx.oops()
@@ -62,7 +76,8 @@ export default function VerseBuilder({ chunks, reference, onDone }: { chunks: st
             disabled={i < placed} onClick={() => tap(i)}>{c}</button>
         ))}
       </div>
-      <button className="instruction" onClick={listen}>🔊 Hear it again</button>
+      {/* Only while building: replaying mid-read or mid-celebration would start a second read-aloud. */}
+      <button className="instruction" disabled={!ready || placed === chunks.length} onClick={listen}>🔊 Hear it again</button>
     </div>
   )
 }

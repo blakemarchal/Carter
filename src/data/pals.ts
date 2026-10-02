@@ -27,7 +27,7 @@ export interface PalDef {
   fruit: Fruit
   stages: PalStage[]
   move: string // friendly "battle" move name
-  intro: string // spoken when tapped
+  intro: string // spoken when tapped, after the Pal's name; {name} is its current name
   starter?: boolean
 }
 
@@ -36,37 +36,37 @@ export const PALS: PalDef[] = [
     id: 'zippy', species: 'mouse', fruit: 'Joy', starter: true,
     stages: [{ name: 'Zippy', xp: 0 }, { name: 'Sparkle', xp: 100 }, { name: 'Thunderjoy', xp: 300 }],
     move: 'Joy Spark',
-    intro: 'is a Joy Pal! Zippy is full of happy sparkles, because the joy of the Lord is our strength!',
+    intro: 'is a Joy Pal! {name} is full of happy sparkles, because the joy of the Lord is our strength!',
   },
   {
     id: 'ember', species: 'dragon', fruit: 'Faithfulness', starter: true,
     stages: [{ name: 'Ember', xp: 0 }, { name: 'Flarewing', xp: 100 }, { name: 'Glorydrake', xp: 300 }],
     move: 'Brave Flame',
-    intro: 'is a Faithfulness Pal! Ember is brave and always keeps promises, just like God.',
+    intro: 'is a Faithfulness Pal! {name} is brave and always keeps promises, just like God.',
   },
   {
     id: 'pebble', species: 'serpent', fruit: 'Patience', starter: true,
     stages: [{ name: 'Pebble', xp: 0 }, { name: 'Boulderoo', xp: 100 }, { name: 'Rockmount', xp: 300 }],
     move: 'Rock Steady',
-    intro: 'is a Patience Pal! Pebble is strong and steady, like a house built on the rock.',
+    intro: 'is a Patience Pal! {name} is strong and steady, like a house built on the rock.',
   },
   {
     id: 'pip', species: 'dove', fruit: 'Peace',
     stages: [{ name: 'Pip', xp: 0 }, { name: 'Olivewing', xp: 100 }, { name: 'Peacewing', xp: 300 }],
     move: 'Olive Leaf',
-    intro: 'is a Peace Pal! Pip the dove brought Noah an olive leaf to show the flood was over.',
+    intro: 'is a Peace Pal! {name} the dove brought Noah an olive leaf to show the flood was over.',
   },
   {
     id: 'rumble', species: 'cloud', fruit: 'Kindness',
     stages: [{ name: 'Rumble', xp: 0 }, { name: 'Drizzle', xp: 100 }, { name: 'Rainbowl', xp: 300 }],
     move: 'Rainbow Hug',
-    intro: 'is a Kindness Pal! Rumble used to be grumpy, but kindness made Rumble a friend.',
+    intro: 'is a Kindness Pal! {name} used to be grumpy, but kindness made {name} a friend.',
   },
   {
     id: 'nova', species: 'cat', fruit: 'Self-Control',
     stages: [{ name: 'Nova', xp: 0 }, { name: 'Novastar', xp: 100 }, { name: 'Cosmira', xp: 300 }],
     move: 'Star Shine',
-    intro: 'is a legendary Self-Control Pal! Nova lives among the stars God made.',
+    intro: 'is a legendary Self-Control Pal! {name} lives among the stars God made.',
   },
 ]
 
@@ -76,4 +76,10 @@ export function stageFor(pal: PalDef, xp: number) {
   let i = 0
   pal.stages.forEach((s, idx) => xp >= s.xp && (i = idx))
   return i
+}
+
+/** What a Pal says about itself, using the name for its current stage. */
+export const palIntro = (pal: PalDef, stage = 0) => {
+  const name = pal.stages[stage].name
+  return `${name} ${pal.intro.replaceAll('{name}', name)}`
 }

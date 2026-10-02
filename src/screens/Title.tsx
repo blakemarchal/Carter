@@ -18,7 +18,7 @@ export default function Title({ onStart }: { onStart: (profileId: string) => voi
         {list.map((pr) => (
           <button key={pr.id} className={`player ${pr.id === active ? 'last' : ''}`} onClick={() => onStart(pr.id)}>
             <span className="player-emoji">{pr.emoji}</span>
-            <span className="player-name">{pr.name}</span>
+            <span className="player-name">{pr.name.trim() || 'Player'}</span>
           </button>
         ))}
       </div>

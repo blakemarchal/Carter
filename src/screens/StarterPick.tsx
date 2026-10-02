@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import PalArt from '../components/PalArt'
 import { BigButton } from '../components/ui'
-import { PALS } from '../data/pals'
+import { PALS, palIntro } from '../data/pals'
 import { chooseStarter, playerName } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
@@ -10,13 +10,15 @@ const starters = PALS.filter((p) => p.starter)
 
 export default function StarterPick({ onDone }: { onDone: () => void }) {
   const [sel, setSel] = useState<string | null>(null)
+  const [chosen, setChosen] = useState(false)
   useEffect(() => {
     speak(`Hi ${playerName()}! Welcome to the Ark! Choose your very first Ark Pal. Tap one to meet them!`)
   }, [])
   const choose = (id: string) => {
+    if (chosen) return
     setSel(id)
     const p = starters.find((s) => s.id === id)!
-    speak(`${p.stages[0].name} ${p.intro}`)
+    speak(palIntro(p))
   }
   return (
     <div className="screen starter">
@@ -31,10 +33,11 @@ export default function StarterPick({ onDone }: { onDone: () => void }) {
         ))}
       </div>
       {sel && (
-        <BigButton color="pink" onClick={() => {
+        <BigButton color="pink" disabled={chosen} onClick={async () => {
+          setChosen(true)
           chooseStarter(sel)
           sfx.fanfare()
-          speak(`You chose ${starters.find((s) => s.id === sel)!.stages[0].name}! Let's go on an adventure!`)
+          await speak(`You chose ${starters.find((s) => s.id === sel)!.stages[0].name}! Let's go on an adventure!`)
           onDone()
         }}>💖 I choose you!</BigButton>
       )}
