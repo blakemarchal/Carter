@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url'
 import { createTtsCache, MAX_CHARS, SPEEDS, VOICES } from './tts.mjs'
 import { createBackups } from './backup.mjs'
 import { createRecordings } from './recordings.mjs'
+import { createSongs } from './songs.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 const PORT = Number(process.env.PORT ?? 3004)
@@ -39,6 +40,57 @@ if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. 
 
 const backups = createBackups(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'))
 const recordings = createRecordings(join(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'), 'recordings'))
+
+const songs = createSongs(join(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'), 'songs'))
+
+async function readBody(req, max) {
+  const chunks = []
+  let size = 0
+  for await (const c of req) {
+    size += c.length
+    if (size > max) throw Object.assign(new Error('too large'), { status: 413 })
+    chunks.push(c)
+  }
+  return Buffer.concat(chunks)
+}
+
+/** /songs (list), /songs/<id> (PUT details, DELETE), /songs/<id>/audio (GET, PUT). */
+async function handleSongs(req, res, url) {
+  const [, , id, part] = url.pathname.split('/')
+  try {
+    if (!id) {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
+      return res.end(JSON.stringify(await songs.list()))
+    }
+    if (part === 'audio') {
+      if (req.method === 'PUT') {
+        await songs.putAudio(id, req.headers['content-type'] ?? '', await readBody(req, 21 * 1024 * 1024))
+        res.writeHead(204)
+        return res.end()
+      }
+      const a = await songs.getAudio(id)
+      if (!a) { res.writeHead(404); return res.end() }
+      // The URL carries a version (?v=), so the device may keep it for offline singing.
+      res.writeHead(200, { 'Content-Type': a.type, 'Cache-Control': 'private, max-age=31536000' })
+      return res.end(a.body)
+    }
+    if (req.method === 'PUT') {
+      await songs.putMeta(id, (await readBody(req, 70 * 1024)).toString('utf8'))
+      res.writeHead(204)
+      return res.end()
+    }
+    if (req.method === 'DELETE') {
+      await songs.remove(id)
+      res.writeHead(204)
+      return res.end()
+    }
+    res.writeHead(405)
+    res.end()
+  } catch (e) {
+    res.writeHead(e.status ?? 400)
+    res.end()
+  }
+}
 
 /** /recordings (list), /recording/<id> (GET audio, PUT to save, DELETE). */
 async function handleRecording(req, res, url) {
@@ -256,6 +308,7 @@ createServer(async (req, res) => {
     }
     if (url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) return await handleBackup(req, res)
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url)
+    if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url)
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()

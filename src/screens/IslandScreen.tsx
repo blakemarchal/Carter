@@ -15,6 +15,7 @@ import CountBasket from '../activities/CountBasket'
 import TraceLetter from '../activities/TraceLetter'
 import Maze from '../activities/Maze'
 import type { Island, Step } from '../data/islands'
+import { STORY_ART } from '../art/scenes'
 import { completeIsland, getProgress, update } from '../lib/progress'
 import { pauseNarration, preload, speak, stopSpeaking } from '../lib/speech'
 import { setMood, type Mood } from '../lib/music'
@@ -62,7 +63,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   let body
   switch (current.kind) {
     case 'story':
-      body = <StoryBook title={current.title} pages={current.pages} onDone={next} />
+      body = <StoryBook title={current.title} pages={current.pages} art={STORY_ART[island.id]} onDone={next} />
       break
     case 'pairs':
       body = <TwoByTwo animals={current.animals} names={current.names} onDone={next} />

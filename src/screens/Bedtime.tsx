@@ -7,6 +7,7 @@ import { palById, stageFor } from '../data/pals'
 import { getProgress, playerName } from '../lib/progress'
 import { setMood } from '../lib/music'
 import { speak, stopSpeaking } from '../lib/speech'
+import { STORY_ART } from '../art/scenes'
 
 interface Page { scene: string; text: (name: string, pal: string) => string }
 
@@ -29,6 +30,7 @@ export default function Bedtime({ onDone }: { onDone: () => void }) {
   const stage = stageFor(buddy, p.pals[buddy.id] ?? 0)
   const page = PAGES[i]
   const text = page.text(playerName(), buddy.stages[stage].name)
+  const Art = STORY_ART.bedtime?.[i]
 
   useEffect(() => {
     setMood('lullaby')
@@ -40,8 +42,14 @@ export default function Bedtime({ onDone }: { onDone: () => void }) {
   return (
     <div className={`screen bedtime ${last ? 'asleep' : ''}`}>
       <div className="bed-stars" aria-hidden />
-      <div className="bed-scene" key={i}>{page.scene}</div>
-      <div className="bed-pal"><DressedPal pal={buddy} stage={stage} size={150} outfit={p.outfits[buddy.id]} className={i >= 2 ? 'sleepy-pal' : 'bob'} /></div>
+      {Art ? (
+        <div className="bed-art" key={i}><Art /></div>
+      ) : (
+        <>
+          <div className="bed-scene" key={i}>{page.scene}</div>
+          <div className="bed-pal"><DressedPal pal={buddy} stage={stage} size={150} outfit={p.outfits[buddy.id]} className={i >= 2 ? 'sleepy-pal' : 'bob'} /></div>
+        </>
+      )}
       <p className="bed-text" onClick={() => speak(text)}>{text}</p>
       <div className="bed-nav">
         {last

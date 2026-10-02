@@ -40,7 +40,7 @@ export default function ColoringPage({ pal, onClose }: { pal: PalDef; onClose: (
       <header className="home-head"><BackButton onClick={onClose} /><h2>🖍️ Color {pal.stages[stage].name}</h2><span /></header>
       <div className="coloring-main">
         <div ref={box} className="coloring" onClick={tap}>
-          <PalArt pal={pal} stage={stage} size={420} />
+          <PalArt pal={pal} stage={stage} size={420} still />
         </div>
         <div className="palette">
           {PALETTE.map((c) => (

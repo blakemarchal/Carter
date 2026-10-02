@@ -712,3 +712,110 @@ input { -webkit-user-select: text; user-select: text; }
 .fv-tools button:disabled { opacity: .35; }
 .fv-tools button.rec { background: #ffe2e2; border-color: #e5484d; animation: pulse 1s infinite; }
 .fv-tag { font-size: 14px; color: #2a7a4b; font-weight: 700; }
+
+/* ---------- Pal idle animations (src/art/kit.tsx): only inside svg.pa-anim ---------- */
+.pa-anim .pa-blink { animation: pablink 5s infinite; animation-delay: var(--d, 0s); transform-box: fill-box; transform-origin: center; }
+@keyframes pablink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+.pa-anim .pa-ear { animation: paear 4s ease-in-out infinite; transform-box: fill-box; transform-origin: var(--o, 50% 100%); }
+@keyframes paear { 0%, 78%, 100% { transform: rotate(0); } 84% { transform: rotate(-9deg); } 90% { transform: rotate(6deg); } }
+.pa-anim .pa-tail { animation: patail 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: var(--o, 0% 100%); }
+@keyframes patail { 50% { transform: rotate(12deg); } }
+.pa-anim .pa-wing { animation: pawing 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: var(--o, 100% 50%); }
+@keyframes pawing { 50% { transform: rotate(-14deg); } }
+.pa-anim .pa-breathe { animation: pabreathe 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes pabreathe { 50% { transform: scale(1.025, .975); } }
+.pa-anim .pa-float { animation: pafloat 3s ease-in-out infinite; }
+@keyframes pafloat { 50% { transform: translateY(-5px); } }
+.pa-anim .pa-twinkle { animation: patwinkle 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes patwinkle { 50% { transform: scale(.7); opacity: .6; } }
+.pa-anim .pa-spin { animation: paspin 16s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes paspin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pa-anim * { animation: none !important; } }
+
+/* ---------- Story scenes (src/art/scenes/kit.tsx) ---------- */
+.scene { display: block; width: 100%; height: 100%; }
+.scene .sc-cloud { animation: scdrift 14s ease-in-out infinite alternate; }
+.scene .sc-cloud.slow { animation-duration: 22s; }
+@keyframes scdrift { to { transform: translateX(40px); } }
+.scene .sc-wave { animation: scwave 4s ease-in-out infinite alternate; }
+.scene .sc-wave.slow { animation-duration: 6s; animation-direction: alternate-reverse; }
+@keyframes scwave { to { transform: translateX(-40px) translateY(3px); } }
+.scene .sc-rain path { animation: scrain .9s linear infinite; }
+@keyframes scrain { from { transform: translate(0, -40px); opacity: 0; } 20% { opacity: .8; } to { transform: translate(-14px, 60px); opacity: 0; } }
+.scene .sc-rock { animation: scrock 4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 90%; }
+@keyframes scrock { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(2deg) translateY(-4px); } }
+.scene .sc-float { animation: pafloat 3s ease-in-out infinite; }
+.scene .sc-sway { animation: scsway 5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes scsway { 50% { transform: rotate(2deg); } }
+.scene .sc-spout { animation: scspout 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes scspout { 0%, 100% { transform: scaleY(.6); opacity: .6; } 50% { transform: scaleY(1.1); opacity: 1; } }
+.scene .sc-fadein { animation: fadein 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { .scene * { animation: none !important; } }
+
+/* Story pages with an illustration: the picture fills the top of the card (cropping a little sky and
+   ground to fit), the words sit in a strip underneath, and big arrows turn the page at the sides. */
+.story.illustrated { position: relative; padding: 0 0 12px; overflow: hidden; justify-content: flex-start; gap: 10px; background: #fff7fb !important; }
+.story-art { flex: 1; min-height: 0; width: 100%; animation: pagein .6s ease-out; }
+@keyframes pagein { from { opacity: 0; transform: scale(1.03); } }
+.story.illustrated .story-text { margin: 0 24px; padding: 8px 22px; font-size: 31px; }
+.story.illustrated .story-nav { position: absolute; left: 12px; right: 12px; top: 38%; justify-content: space-between; pointer-events: none; }
+.story.illustrated .story-nav > * { pointer-events: auto; }
+.story.illustrated .story-nav .big-btn { min-width: 76px; min-height: 76px; padding: 8px; border-radius: 50%; opacity: .92; }
+.story.illustrated .story-page { display: none; }
+
+.bed-art { position: relative; width: 100%; flex: 1; min-height: 0; border-radius: 28px; overflow: hidden; animation: pagein .8s ease-out; box-shadow: 0 0 0 6px rgba(255,255,255,.12); }
+.bedtime:has(.bed-art) { justify-content: flex-start; gap: 12px; padding-top: 16px; }
+
+/* ---------- Battle: info boxes, the shadow, catching (activities/FriendlyBattle.tsx) ---------- */
+.info-box { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 16px; padding: 4px 12px; box-shadow: 0 4px 0 rgba(0,0,0,.1); font-size: 20px; }
+.info-box b { font-size: 22px; }
+.info-box .hearts { font-size: 18px; letter-spacing: -2px; }
+.info-box .charge { box-shadow: none; padding: 0; font-size: 18px; }
+.shadow-bar { position: relative; width: 150px; height: 22px; border-radius: 999px; background: #efe8f6; overflow: hidden; }
+.shadow-bar span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #fff; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.shadow-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #6b4aa0, #9b6bd0); border-radius: 999px; transition: width .6s; }
+.foe-body, .pal-body { position: relative; }
+.foe-body.shadowed::before { content: ''; position: absolute; inset: -10%; border-radius: 50%; background: radial-gradient(circle, rgba(91,63,143,.55), rgba(91,63,143,0) 68%); opacity: var(--s); animation: pulse 2.4s infinite; }
+.wisps { position: absolute; inset: 0; pointer-events: none; opacity: var(--s); }
+.wisps i { position: absolute; bottom: 30%; width: 22px; height: 22px; border-radius: 50%; background: #5b3f8f; opacity: .6; animation: wisp 2.6s ease-in infinite; }
+.wisps i:nth-child(1) { left: 22%; } .wisps i:nth-child(2) { left: 50%; animation-delay: .9s; } .wisps i:nth-child(3) { left: 72%; animation-delay: 1.7s; }
+@keyframes wisp { 0% { transform: translateY(0) scale(.6); opacity: 0; } 30% { opacity: .65; } 100% { transform: translateY(-110px) scale(1.4); opacity: 0; } }
+.gshade { position: absolute; right: 4%; top: -6%; pointer-events: none; z-index: 4; }
+.gshade.arrive { animation: gsarrive 1.6s ease-out both; }
+.gshade.inside { animation: gsinside .9s ease-in forwards; }
+.gshade.leave { animation: gsleave 1.8s ease-in forwards; }
+@keyframes gsarrive { from { transform: translate(160px, -140px) scale(.5); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes gsinside { to { transform: translate(-10px, 120px) scale(.2); opacity: 0; } }
+@keyframes gsleave { 0% { transform: translate(-10px, 120px) scale(.2); opacity: 0; } 30% { transform: translate(0, 0) scale(1); opacity: 1; } 55% { transform: translate(-8px, 0) rotate(-6deg); } 100% { transform: translate(260px, -260px) scale(.4) rotate(20deg); opacity: 0; } }
+.foe-lunge { animation: foelunge .7s; }
+@keyframes foelunge { 40% { transform: translateX(-60px) scale(1.08); } }
+.pal-body.dodge svg { animation: dodge .6s; }
+@keyframes dodge { 40% { transform: translate(-50px, -40px) rotate(-12deg); } 70% { transform: translate(-20px, 0); } }
+.pal-body.hurt svg { animation: hurt .6s; }
+@keyframes hurt { 20%, 60% { transform: translateX(-10px); filter: brightness(.8) saturate(.6); } 40%, 80% { transform: translateX(10px); } }
+.berry-snack { position: absolute; left: 50%; top: 10%; font-size: 48px; animation: berryeat 1.2s ease-in-out both; }
+@keyframes berryeat { 0% { transform: translate(-80px, -60px) scale(.6); opacity: 0; } 40% { transform: translate(-30%, 20px) scale(1.1); opacity: 1; } 100% { transform: translate(-30%, 50px) scale(.2); opacity: 0; } }
+.dodge-word { position: absolute; left: 50%; top: -10%; transform: translateX(-50%); font-size: 28px; font-weight: 800; color: #2a7a4b; background: #fff; border-radius: 999px; padding: 0 14px; animation: pop .4s; white-space: nowrap; }
+.fx-arc.shadow { animation-duration: .7s; animation-name: fxback; }
+@keyframes fxback { 0% { left: var(--from-x); opacity: 1; } 92% { opacity: 1; } 100% { left: var(--to-x); opacity: 0; } }
+.fx-puff { width: 60px; height: 44px; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle at 40% 40%, #a98cd8, #5b3f8f 65%, rgba(91,63,143,0) 72%); box-shadow: 0 0 20px rgba(91,63,143,.5); }
+.speech { position: absolute; right: 88%; top: 18%; background: #fff; border-radius: 20px; padding: 6px 16px; font-size: 24px; font-weight: 800; white-space: nowrap; box-shadow: 0 4px 0 rgba(0,0,0,.1); animation: pop .5s; z-index: 3; }
+.speech::after { content: ''; position: absolute; right: -10px; top: 50%; border: 10px solid transparent; border-left-color: #fff; border-right: 0; transform: translateY(-50%); }
+.throw-pick { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; animation: pop .4s; }
+.ask-line { font-size: 30px; font-weight: 800; color: var(--pink-deep); }
+.throw-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 26px; font-weight: 800; }
+.throw-btn svg { animation: ballready 1.2s ease-in-out infinite; filter: drop-shadow(0 8px 6px rgba(0,0,0,.2)); }
+@keyframes ballready { 50% { transform: translateY(-10px) rotate(-8deg); } }
+.throw-ball { position: absolute; z-index: 6; width: 0; height: 0; left: var(--tx); top: var(--ty); }
+.throw-ball-y svg { transform: translate(-50%, -50%); display: block; }
+.throw-ball.fly { animation: ballx .75s ease-out both; }
+.throw-ball.fly .throw-ball-y { animation: bally .75s both; }
+@keyframes ballx { from { left: 50%; } to { left: var(--tx); } }
+@keyframes bally { 0% { transform: translateY(260px) rotate(0); } 50% { transform: translateY(-120px) rotate(-360deg); } 100% { transform: translateY(0) rotate(-720deg); } }
+.throw-ball.land .throw-ball-y, .throw-ball.wobble .throw-ball-y, .throw-ball.done .throw-ball-y { transform: translateY(60px); transition: transform .5s ease-in; }
+.throw-ball.wobble .throw-ball-y svg { animation: ballwobble .65s ease-in-out 3; transform-origin: 50% 90%; }
+@keyframes ballwobble { 0%, 100% { transform: translate(-50%, -50%) rotate(0); } 25% { transform: translate(-50%, -50%) rotate(-22deg); } 75% { transform: translate(-50%, -50%) rotate(18deg); } }
+.zip-in { animation: zipin .6s ease-in forwards; }
+@keyframes zipin { 0% { filter: brightness(1); } 40% { filter: brightness(3); } 100% { transform: scale(0) translateY(40px); filter: brightness(3); opacity: 0; } }
+.caught-stars { position: absolute; top: 58%; transform: translateX(-50%); font-size: 40px; animation: pop .5s, floatup 1.6s .4s ease-out forwards; z-index: 6; }
+@keyframes floatup { to { transform: translate(-50%, -60px); opacity: 0; } }

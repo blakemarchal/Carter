@@ -112,6 +112,25 @@ export const sfx = {
         break
     }
   }),
+  /** Grumbleshade's grumpy move: a sulky "wah-wah". */
+  shadowMove: () => play((t, o) => {
+    slide(o, t + 0.1, 330, 220, 0.3, 'triangle', 0.18)
+    slide(o, t + 0.42, 300, 150, 0.45, 'triangle', 0.18)
+    rumble(o, t + 0.55, 0.4, 0.25)
+  }),
+  /** Her Pal hops out of the way. */
+  dodge: () => play((t, o) => { whooshAt(o, t); slide(o, t, 500, 1100, 0.15, 'sine', 0.15) }),
+  /** Her Pal gets puffed on (gentle). */
+  oof: () => play((t, o) => slide(o, t, 260, 140, 0.22, 'sine', 0.2)),
+  /** Throwing the Friend Ball. */
+  throwBall: () => play((t, o) => { whooshAt(o, t); slide(o, t, 300, 900, 0.5, 'sine', 0.12) }),
+  /** The ball wobbling on the ground. */
+  wobble: () => play((t, o) => { kick(o, t, 0.4); mallet(o, t, 67, 0.5, 0.25) }),
+  /** Click! Caught. */
+  caught: () => play((t, o) => {
+    slide(o, t, 1800, 1200, 0.05, 'square', 0.1)
+    ;[72, 76, 79, 84, 88].forEach((n, i) => musicBox(o, t + 0.1 + i * 0.07, n, 0.6, 0.8))
+  }),
   /** Evolution: one flicker between the old and new shapes; `i` rises with each flicker. */
   evolveTick: (i: number) => play((t, o) => musicBox(o, t, PENTA[Math.min(PENTA.length - 1, i)] + 12, 0.45, 0.35)),
   /** Evolution: the big flash. */

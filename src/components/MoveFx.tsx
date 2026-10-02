@@ -157,10 +157,25 @@ function Bubbles({ from, to }: Ends) {
   )
 }
 
-const FX: Record<Fx, (e: Ends) => ReactElement> = { spark: Spark, flame: Flame, rock: Rock, leaf: Leaf, hearts: Hearts, stars: Stars, wind: Wind, roll: Roll, bubbles: Bubbles }
+function Shadow({ from, to }: Ends) {
+  // Grumbleshade's grumpy puff: a purple cloud drifts over to her Pal.
+  return (
+    <>
+      {[0, 0.08, 0.16].map((d, i) => (
+        <div key={i} className="fx-arc shadow" style={{ animationDelay: `${d}s`, left: `${from.x}%`, top: `${from.y - 6 + i * 6}%` }}>
+          <div className="fx-arc-y" style={{ animationDelay: `${d}s` }}><div className="fx-puff" /></div>
+        </div>
+      ))}
+      <Burst x={to.x} y={to.y} chars={['💨', '💫']} n={8} dist={60} delay={0.65} />
+    </>
+  )
+}
+
+const FX: Record<Fx | 'shadow', (e: Ends) => ReactElement> = { shadow: Shadow, spark: Spark, flame: Flame, rock: Rock, leaf: Leaf, hearts: Hearts, stars: Stars, wind: Wind, roll: Roll, bubbles: Bubbles }
 
 /** One move, start to finish. Remount (change `key`) to play it again. */
-export default function MoveFx({ fx, move, color, from, to, superMove, hearts = 1, icon }: { fx: Fx; move: string; color: string; superMove?: boolean; hearts?: number } & Ends) {
+/** `fx: 'shadow'` is Grumbleshade's move toward her Pal; `hearts: 0` hides the +hearts. */
+export default function MoveFx({ fx, move, color, from, to, superMove, hearts = 1, icon }: { fx: Fx | 'shadow'; move: string; color: string; superMove?: boolean; hearts?: number } & Ends) {
   const Effect = FX[fx]
   // --from-x / --to-x drive the CSS animations that travel across (fireball, leaves, stars).
   const vars = { '--from-x': `${from.x}%`, '--to-x': `${to.x}%` } as CSSProperties
@@ -169,7 +184,7 @@ export default function MoveFx({ fx, move, color, from, to, superMove, hearts = 
       {superMove && <div className="fx-superglow" />}
       <div className="fx-banner" style={{ '--c': color } as CSSProperties}>{superMove && '★ '}{move}!</div>
       <Effect from={from} to={to} big={superMove} icon={icon} />
-      <div className="fx-plusheart" style={{ left: `${to.x}%`, top: `${to.y - 30}%` }}>+{'💖'.repeat(hearts)}</div>
+      {hearts > 0 && <div className="fx-plusheart" style={{ left: `${to.x}%`, top: `${to.y - 30}%` }}>{'✨'.repeat(hearts)}</div>}
     </div>
   )
 }
