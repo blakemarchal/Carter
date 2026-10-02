@@ -1,4 +1,4 @@
-# Carter's Ark Adventure — Product Spec (v0.1 draft)
+# Carter's Ark Adventure — Product Spec (v0.2)
 
 A faith-based learning game for Carter, an advanced 4-year-old who turns 5 on **January 8, 2027**.
 
@@ -8,6 +8,25 @@ Priorities, in order:
 3. **Pokémon flavor:** collecting, befriending, and evolving creature companions. Nice to have.
 
 Working title only. Rename it to whatever Carter would love.
+
+---
+
+## 0. Decisions so far
+
+| Topic | Decision |
+|---|---|
+| Device | **iPad first** (landscape, installed to the Home Screen). The Windows laptop works too, in Edge or Chrome, at no extra cost. |
+| Reading | Knows all letter sounds and is starting to blend words. Content starts at **CVC words** (cat, sun) and moves to sight words. |
+| Numbers | Counts past 100, with the 1–9 pattern solid. She sometimes forgets the **next decade** (69 → 70, 79 → 80), so "what comes next" questions deliberately practice decade crossings. |
+| Voice | Built-in device voice for now. **Mom and Dad record** the final narration, and different characters can use different voices. |
+| Art | AI-generated and open-licensed art are fine. The prototype uses emoji and hand-built SVG Pals. |
+| Pokémon taste | She likes the tough ones (Onix, Mewtwo, Charizard) *and* the cute ones (Pikachu). The starter Pals cover each: **Zippy** (cute electric mouse), **Ember** (dragon that grows into Glorydrake), **Pebble** (rock serpent). **Nova** is a hidden legendary cosmic cat. |
+| Battles | **Yes, friendly ones.** Correct answers power your Pal's move and fill a *Friendship meter*. Nobody gets hurt, and the "foe" becomes a friend and joins the Ark. |
+| Theme | **Pink!** |
+| Family | Little brother **Luke** (10 months) gets a cameo in a story, with his own player profile later. Family adventures with Mom and Dad come later (see §10). |
+| Screen time | 1 hour/day with a gentle "Pals are sleepy" reminder. An adult is always present, so no lock-out. |
+| Hosting | DigitalOcean VPS, on **spiritflow.church** (the existing app is archived first, see §9). |
+| Security | Private and password-protected. No chat, no other players, no user content, no ads, no outside links. Nothing like Roblox. |
 
 ---
 
@@ -59,7 +78,8 @@ Home (Carter's Ark)
 - **Types are the Fruit of the Spirit** (Galatians 5:22–23): Love, Joy, Peace, Patience, Kindness, Goodness, Faithfulness, Gentleness, Self-Control. Each Pal has a type and a short virtue lesson ("Pip the dove is a *Peace* Pal!").
 - **Evolution through practice.** Pals gain XP when Carter completes activities. At thresholds they grow (e.g., Lamb → Sheep → Shepherd's Ram) with a celebration animation.
 - **Collection screen (the "Ark"):** Carter can see her Pals, tap them to hear them, and feed or pet them. Silhouettes show the Pals not yet found.
-- No battles. "Challenges" are cooperative: her Pal helps her solve the puzzle.
+- **Starter choice.** On first launch Carter picks her first Pal (Zippy, Ember or Pebble), Pokémon-style.
+- **Friendly battles.** Each island ends with a grumpy creature (e.g., Rumble the storm cloud). Each correct answer makes her Pal use its move ("Ember used Brave Flame!") and fills the **Friendship meter**. When the meter is full, the creature smiles, becomes a friend, and joins the Ark. Wrong answers are harmless ("Rumble sprinkled some rain! Try again.").
 
 ---
 
@@ -121,7 +141,7 @@ The translation is TBD (see questions). Story text will be original, age-appropr
 
 | By | Milestone |
 |---|---|
-| Oct 16 | **Prototype:** app shell, map, 1 island (Noah's Ark) with story + 2 activities + 1 Pal, using placeholder art and TTS. Playtest with Carter. |
+| Oct 16 | ✅ **Prototype (built Oct 2):** app shell, starter Pal choice, map, full Noah's Ark island (story, Two by Two, Word Boat, Raindrop Numbers, memory verse, friendly battle, reward), Ark collection, evolution, parent corner. Placeholder art and device voice. **Next: playtest with Carter.** |
 | Nov 6 | **Core systems:** Ark Pals collection + evolution, adaptive skill engine, parent area, offline PWA install on her tablet, deployed to VPS |
 | Dec 4 | **Content:** 6 islands complete, art pass, music |
 | Dec 18 | **Polish:** parent voice recordings swapped in, playtest fixes |
@@ -137,5 +157,21 @@ Real Pokémon names, sprites, and sounds are Nintendo/Game Freak IP. Using them 
 
 ---
 
-## 9. Open questions
-See the list sent with this spec. Answers will update this document.
+## 9. Hosting & security plan (spiritflow.church)
+
+1. **Archive the existing app first.** Before anything changes on the VPS, back up its database and files to an off-server copy (and a DigitalOcean snapshot), then stop it. This step needs details about what it runs on (see §11).
+2. **Serve the game as static files** behind Caddy (automatic HTTPS) or the existing nginx, on `spiritflow.church` or a subdomain such as `carter.spiritflow.church`.
+3. **Family password.** A tiny login step sets a long-lived, secure cookie, so each device enters the password once. This works better than browser "basic auth" pop-ups, which behave badly in iPad Home Screen apps.
+4. **No server data.** Progress stays on the iPad, and the server only hands out the game files. Optional backup/sync of progress can be added later.
+5. `robots.txt` blocks search engines. There is no analytics or third-party tracking, and fonts will be self-hosted.
+
+## 10. Future ideas
+- **Family Adventures:** a "pass the iPad" mode where Mom or Dad joins a battle as a second Pal, plus family prayer and praise prompts.
+- **Luke's profile** once he's old enough: separate progress and his own starter Pal.
+- Parent-recorded voices, with each family member as a character.
+- A new island every few weeks after launch.
+
+## 11. Still open
+- **Church tradition and Bible translation** for memory verses. The default is NIrV-style kid wording.
+- **VPS details:** web server (nginx, Caddy, Apache or Docker), and what the current spiritflow.church app uses (database type, Docker or not), so we can back it up safely.
+- Root domain or a `carter.` subdomain?
