@@ -5,8 +5,10 @@
 import { ac, buses, duck } from './audio'
 import { playerName, type Narrator } from './progress'
 import { toSpoken } from './spoken'
+import { recordingFor } from './recordings'
 
 let narrator: Narrator = 'ara'
+let familyVoices = true // play Mom/Dad recordings when a line has one
 let rate = 0.9
 let grokAvailable = true // false once the server says the voice isn't set up
 let signedOut = false // the login cookie expired: the server refuses /tts until a grown-up signs in again
@@ -17,6 +19,10 @@ export function setRate(r: number) {
 
 export function setNarrator(n: Narrator) {
   narrator = n
+}
+
+export function setFamilyVoices(on: boolean) {
+  familyVoices = on
 }
 
 /** True when the Grok voice is set up on the server (as far as we know). */
@@ -137,6 +143,12 @@ async function sayNow(text: string, pitch: number, g: number) {
   if (g !== gen || !toSpoken(text, 'device')) return
   duck(true)
   try {
+    // A family recording of this exact line comes first.
+    if (familyVoices) {
+      const rec = await within(recordingFor(text), 3000, null)
+      if (g !== gen) return
+      if (rec && (await playClip(rec, g))) return
+    }
     if (narrator !== 'device' && grokAvailable) {
       // Wait up to 4 seconds for a new line to be generated; after that use the device voice
       // (the clip keeps downloading in the background, so it's ready next time).

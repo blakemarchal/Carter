@@ -22,6 +22,7 @@ export interface Progress {
   colors: Record<string, Record<number, string>> // coloring pages: "palId:stage" -> shape index -> color
   stickerSpots: { s: string; x: number; y: number }[] // sticker book: where she put each sticker (% of the scene)
   cooked: Record<string, string> // Pal Kitchen: Pal id -> the day she last cooked for it
+  familyVoices: boolean // play Mom/Dad recordings instead of the narrator when there is one
   log: Record<string, { secs: number; right: number; tries: number }> // per day, for the weekly summary
   skills: Record<Skill, number> // level 1..N
   streak: Record<Skill, number> // +correct in a row / -misses in a row
@@ -72,6 +73,7 @@ const fresh = (): Progress => ({
   colors: {},
   stickerSpots: [],
   cooked: {},
+  familyVoices: true,
   log: {},
   skills: { reading: 1, numbers: 1 },
   streak: { reading: 0, numbers: 0 },

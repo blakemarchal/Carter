@@ -14,6 +14,7 @@ import { extname, join, normalize, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createTtsCache, MAX_CHARS, SPEEDS, VOICES } from './tts.mjs'
 import { createBackups } from './backup.mjs'
+import { createRecordings } from './recordings.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 const PORT = Number(process.env.PORT ?? 3004)
@@ -37,6 +38,44 @@ const tts = process.env.XAI_API_KEY
 if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. Run: npm run set-voice-key')
 
 const backups = createBackups(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'))
+const recordings = createRecordings(join(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'), 'recordings'))
+
+/** /recordings (list), /recording/<id> (GET audio, PUT to save, DELETE). */
+async function handleRecording(req, res, url) {
+  if (url.pathname === '/recordings') {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
+    return res.end(JSON.stringify(await recordings.list()))
+  }
+  const id = url.pathname.slice('/recording/'.length)
+  if (req.method === 'PUT') {
+    const chunks = []
+    let size = 0
+    for await (const c of req) {
+      size += c.length
+      if (size > 3.5 * 1024 * 1024) break
+      chunks.push(c)
+    }
+    try {
+      await recordings.put(id, req.headers['content-type'] ?? '', Buffer.concat(chunks))
+      res.writeHead(204)
+    } catch (e) {
+      res.writeHead(e.status ?? 400)
+    }
+    return res.end()
+  }
+  if (req.method === 'DELETE') {
+    await recordings.remove(id)
+    res.writeHead(204)
+    return res.end()
+  }
+  const rec = await recordings.get(id)
+  if (!rec) {
+    res.writeHead(404, { 'Cache-Control': 'no-store' })
+    return res.end()
+  }
+  res.writeHead(200, { 'Content-Type': rec.type, 'Cache-Control': 'no-store' })
+  res.end(rec.body)
+}
 
 async function handleBackup(req, res) {
   if (req.method === 'POST') {
@@ -216,6 +255,7 @@ createServer(async (req, res) => {
       return res.end(wantsPage ? LOGIN_PAGE() : '')
     }
     if (url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) return await handleBackup(req, res)
+    if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url)
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()

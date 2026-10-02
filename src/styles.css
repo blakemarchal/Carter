@@ -697,3 +697,18 @@ input { -webkit-user-select: text; user-select: text; }
 .k-dish.flying { animation: dishfly .6s ease-in forwards; }
 @keyframes dishfly { to { transform: translate(-300px, -20px) scale(.3); opacity: 0; } }
 .k-yum { font-size: 64px; font-weight: 800; color: var(--pink-deep); animation: pop .5s; }
+
+/* ---------- Family voices (components/FamilyVoices.tsx) ---------- */
+.family-voices { background: #fff; justify-content: flex-start; align-items: stretch; padding: 16px 24px; font-family: system-ui, sans-serif; overflow-y: auto; }
+.family-voices h2 { font-family: 'Baloo 2', system-ui; }
+.fv-list { display: flex; flex-direction: column; gap: 14px; max-width: 900px; width: 100%; margin: 0 auto; }
+.fv-list section { background: #fbf4f8; border-radius: 16px; padding: 12px 16px; }
+.fv-list h3 { font-size: 20px; margin-bottom: 6px; }
+.fv-line { border-top: 1px solid #f0dbe6; padding: 8px 0; }
+.fv-line p { margin: 0 0 6px; font-size: 17px; }
+.fv-line.has p { color: #2a7a4b; }
+.fv-tools { display: flex; gap: 8px; align-items: center; }
+.fv-tools button { width: 48px; height: 44px; border-radius: 12px; background: #fff; border: 2px solid #f0c4da; font-size: 20px; }
+.fv-tools button:disabled { opacity: .35; }
+.fv-tools button.rec { background: #ffe2e2; border-color: #e5484d; animation: pulse 1s infinite; }
+.fv-tag { font-size: 14px; color: #2a7a4b; font-weight: 700; }

@@ -8,6 +8,7 @@ import { grokVoiceAvailable, setNarrator, setRate, speak, voiceSignedOut } from 
 import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
 import { backupNow, fetchBackup, lastBackup, restore } from '../lib/backup'
+import FamilyVoices from '../components/FamilyVoices'
 import { ISLANDS } from '../data/islands'
 import type { Progress } from '../lib/progress'
 
@@ -103,6 +104,23 @@ function Islands({ p }: { p: Progress }) {
         </button>
       </div>
       <p className="muted">Normally each island opens when the one before it is finished. &ldquo;All islands open&rdquo; is for this player only, and also opens the birthday island early.</p>
+    </section>
+  )
+}
+
+function Voices({ p }: { p: Progress }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <section>
+      <h3>Family voices</h3>
+      <p>Record yourself reading the stories. Your voice plays instead of the narrator for any page you record.</p>
+      <div className="level-row">
+        <button onClick={() => setOpen(true)}>🎙️ Record story pages</button>
+        <button className={p.familyVoices ? 'on' : ''} onClick={() => update((x) => ({ ...x, familyVoices: !x.familyVoices }))}>
+          {p.familyVoices ? 'Play family recordings: on' : 'Play family recordings: off'}
+        </button>
+      </div>
+      {open && <FamilyVoices onClose={() => setOpen(false)} />}
     </section>
   )
 }
@@ -221,6 +239,7 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
         <h3>Reset</h3>
         <button className="danger" onClick={() => confirm(`Erase all of ${me.name}’s progress on this device?`) && resetProgress()}>Erase {me.name}&rsquo;s progress</button>
       </section>
+      <Voices p={p} />
       <Backup />
       <AppVersion />
       <p className="muted">Progress is stored only on this device. No ads, no chat, no accounts. Narration text is sent to xAI to create the voice; nothing else is shared.</p>

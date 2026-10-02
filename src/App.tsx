@@ -11,7 +11,8 @@ import EvolutionScene from './components/EvolutionScene'
 import { BigButton } from './components/ui'
 import { PALS, stageFor } from './data/pals'
 import { getProgress, playerName, switchProfile, tickPlayTime, today, useProfiles, useProgress } from './lib/progress'
-import { encouragements, preload, setNarrator, setRate, unlockSpeech } from './lib/speech'
+import { encouragements, preload, setFamilyVoices, setNarrator, setRate, unlockSpeech } from './lib/speech'
+import { loadRecordings } from './lib/recordings'
 import { setSfxEnabled } from './lib/sfx'
 import { musicReady, setMood, setMusicEnabled } from './lib/music'
 import { unlockAudio } from './lib/audio'
@@ -33,6 +34,7 @@ export default function App() {
   // Each player has their own voice and sound settings.
   useEffect(() => setRate(p.speechRate), [p.speechRate])
   useEffect(() => setNarrator(p.narrator), [p.narrator])
+  useEffect(() => setFamilyVoices(p.familyVoices), [p.familyVoices])
   useEffect(() => setMusicEnabled(p.music), [p.music])
   useEffect(() => setSfxEnabled(p.sfx), [p.sfx])
 
@@ -90,6 +92,7 @@ export default function App() {
     setRate(me.speechRate)
     setScreen(me.starter ? 'map' : 'starter')
     backupSoon()
+    loadRecordings()
     warmEgg()
     preload([
       'Where should we go? Tap an island!',

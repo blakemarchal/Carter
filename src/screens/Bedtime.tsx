@@ -19,6 +19,9 @@ const PAGES: Page[] = [
   { scene: '🌙😴', text: (name) => `Goodnight, ${name}. God loves you so much. Sweet dreams!` },
 ]
 
+/** The bedtime lines that don't depend on who's playing, for recording in Family voices. */
+export const BEDTIME_LINES = [0, 1, 3, 4].map((i) => PAGES[i].text('', ''))
+
 export default function Bedtime({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0)
   const p = getProgress()
