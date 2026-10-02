@@ -238,3 +238,19 @@ export function slide(out: Out, t: number, from: number, to: number, dur: number
   o.frequency.exponentialRampToValueAtTime(to, t + dur)
   return o
 }
+
+/** A low ground rumble (stomps, big moments). */
+export function rumble(out: Out, t: number, dur: number, vol = 0.5) {
+  const c = ac()
+  const s = c.createBufferSource()
+  s.buffer = noiseBuffer()
+  s.loop = true
+  const f = c.createBiquadFilter()
+  f.type = 'lowpass'
+  f.frequency.value = 180
+  const g = c.createGain()
+  env(g, t, vol, 0.02, dur)
+  s.connect(f).connect(g).connect(out)
+  s.start(t)
+  s.stop(t + dur + 0.1)
+}

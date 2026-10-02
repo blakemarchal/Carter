@@ -38,21 +38,27 @@ function Crown({ x, y }: { x: number; y: number }) {
 
 function Body({ species, stage, mood }: { species: PalDef['species']; stage: number; mood: 'happy' | 'grumpy' }) {
   switch (species) {
-    case 'mouse':
+    case 'mouse': {
+      // Grown forms: taller ears, a bigger lightning tail and a tuft of hair, so the outline changes.
+      const ear = stage >= 1 ? 46 : 34
       return (
         <g>
-          <path d="M150 140 L175 120 L162 112 L185 88" stroke="#e8a800" strokeWidth={10} fill="none" strokeLinejoin="round" />
-          <ellipse cx={62} cy={58} rx={18} ry={34} fill="#ffd94a" transform="rotate(-25 62 58)" />
-          <ellipse cx={138} cy={58} rx={18} ry={34} fill="#ffd94a" transform="rotate(25 138 58)" />
-          <ellipse cx={62} cy={40} rx={10} ry={14} fill="#3a2a1a" transform="rotate(-25 62 58)" />
-          <ellipse cx={138} cy={40} rx={10} ry={14} fill="#3a2a1a" transform="rotate(25 138 58)" />
+          {stage >= 1
+            ? <path d="M146 150 L182 128 L164 116 L196 90 L176 82 L196 50" stroke="#e8a800" strokeWidth={13} fill="none" strokeLinejoin="round" />
+            : <path d="M150 140 L175 120 L162 112 L185 88" stroke="#e8a800" strokeWidth={10} fill="none" strokeLinejoin="round" />}
+          <ellipse cx={62} cy={70 - ear / 2 + 5} rx={18} ry={ear} fill="#ffd94a" transform="rotate(-25 62 58)" />
+          <ellipse cx={138} cy={70 - ear / 2 + 5} rx={18} ry={ear} fill="#ffd94a" transform="rotate(25 138 58)" />
+          <ellipse cx={62} cy={58 - ear + 16} rx={10} ry={14} fill="#3a2a1a" transform="rotate(-25 62 58)" />
+          <ellipse cx={138} cy={58 - ear + 16} rx={10} ry={14} fill="#3a2a1a" transform="rotate(25 138 58)" />
+          {stage >= 1 && <path d="M84 72 L90 46 L99 64 L106 40 L112 66 L120 50 L118 76 Z" fill="#ffd94a" />}
           <ellipse cx={100} cy={120} rx={58} ry={56} fill="#ffd94a" />
           <ellipse cx={100} cy={145} rx={30} ry={22} fill="#fff2b8" />
           <Face x={100} y={108} mood={mood} />
           {stage >= 1 && <path d="M60 170 l10 -12 l10 12 Z M120 170 l10 -12 l10 12 Z" fill="#ff8cc0" />}
-          {stage >= 2 && <Crown x={100} y={68} />}
+          {stage >= 2 && <Crown x={100} y={40} />}
         </g>
       )
+    }
     case 'dragon':
       return (
         <g>
@@ -67,7 +73,9 @@ function Body({ species, stage, mood }: { species: PalDef['species']; stage: num
           <ellipse cx={100} cy={128} rx={52} ry={50} fill="#ff8a3d" />
           <ellipse cx={100} cy={145} rx={28} ry={28} fill="#ffe2b0" />
           <circle cx={100} cy={82} r={40} fill="#ff8a3d" />
-          <path d="M75 48 l-6 -18 l14 12Z M125 48 l6 -18 l-14 12Z" fill="#ffe2b0" />
+          {stage >= 2
+            ? <path d="M74 50 l-14 -34 l24 22Z M126 50 l14 -34 l-24 22Z" fill="#ffe2b0" />
+            : <path d="M75 48 l-6 -18 l14 12Z M125 48 l6 -18 l-14 12Z" fill="#ffe2b0" />}
           <Face x={100} y={82} s={0.9} mood={mood} />
           {stage >= 2 && <Crown x={100} y={46} />}
         </g>
@@ -79,6 +87,7 @@ function Body({ species, stage, mood }: { species: PalDef['species']; stage: num
           {Array.from({ length: segs }).map((_, i) => (
             <circle key={i} cx={150 - i * 14} cy={165 - i * 6} r={22 - i} fill={i % 2 ? '#a9a39b' : '#bdb6ad'} stroke="#7d766d" strokeWidth={3} />
           ))}
+          {stage >= 1 && <path d="M58 76 L64 40 L80 64 L90 28 L100 62 L116 36 L120 76 Z" fill="#a9a39b" stroke="#7d766d" strokeWidth={3} strokeLinejoin="round" />}
           <ellipse cx={90} cy={100} rx={46} ry={40} fill="#bdb6ad" stroke="#7d766d" strokeWidth={3} />
           <path d="M70 66 l6 -14 l8 12 M104 62 l6 -14 l8 12" stroke="#7d766d" strokeWidth={4} fill="none" />
           <Face x={90} y={100} s={0.9} mood={mood} />
@@ -89,6 +98,8 @@ function Body({ species, stage, mood }: { species: PalDef['species']; stage: num
     case 'dove':
       return (
         <g>
+          {stage >= 1 && <path d="M70 110 Q40 40 90 20 Q100 70 110 105Z" fill="#e8f2ff" stroke="#b9cce6" strokeWidth={2} />}
+          {stage >= 1 && <path d="M55 125 L10 100 L18 125 L5 145 L52 138Z" fill="#e8f2ff" stroke="#b9cce6" strokeWidth={2} />}
           <path d="M50 120 Q20 90 40 70 Q70 100 90 110Z" fill="#e8f2ff" stroke="#b9cce6" strokeWidth={2} />
           <ellipse cx={105} cy={125} rx={55} ry={42} fill="#fff" stroke="#b9cce6" strokeWidth={2} />
           <path d="M100 120 Q130 70 165 95 Q140 125 110 135Z" fill="#e8f2ff" stroke="#b9cce6" strokeWidth={2} />

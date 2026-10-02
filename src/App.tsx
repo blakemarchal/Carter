@@ -5,12 +5,12 @@ import MapScreen from './screens/MapScreen'
 import ArkScreen from './screens/ArkScreen'
 import ParentScreen from './screens/ParentScreen'
 import NoahIsland from './screens/NoahIsland'
-import PalArt from './components/PalArt'
-import { BigButton, Confetti } from './components/ui'
+import EvolutionScene from './components/EvolutionScene'
+import { BigButton } from './components/ui'
 import { PALS, stageFor } from './data/pals'
 import { getProgress, playerName, switchProfile, tickPlayTime, today, useProfiles, useProgress } from './lib/progress'
-import { encouragements, preload, setNarrator, setRate, speak, unlockSpeech } from './lib/speech'
-import { setSfxEnabled, sfx } from './lib/sfx'
+import { encouragements, preload, setNarrator, setRate, unlockSpeech } from './lib/speech'
+import { setSfxEnabled } from './lib/sfx'
 import { musicReady, setMood, setMusicEnabled } from './lib/music'
 import { unlockAudio } from './lib/audio'
 
@@ -22,7 +22,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('title')
   const p = useProgress()
   const { active } = useProfiles()
-  const [evolved, setEvolved] = useState<{ id: string; stage: number } | null>(null)
+  const [evolved, setEvolved] = useState<{ id: string; from: number; to: number } | null>(null)
   const [sleepy, setSleepy] = useState(false)
   const stages = useRef<{ profile: string; byPal: Record<string, number> }>({ profile: active, byPal: {} })
 
@@ -65,11 +65,8 @@ export default function App() {
       const st = stageFor(pal, p.pals[pal.id])
       const prev = seen[pal.id]
       if (prev !== undefined && st > prev) {
-        setEvolved({ id: pal.id, stage: st })
-        sfx.sparkle()
-        sfx.fanfare()
-        // Important: the next question waits for this instead of cutting it off.
-        speak(`Whoa! ${pal.stages[prev].name} is growing! ${pal.stages[prev].name} became ${pal.stages[st].name}!`, { important: true })
+        // The scene does its own narration and sounds, and holds other narration until it's done.
+        setEvolved({ id: pal.id, from: prev, to: st })
       }
       seen[pal.id] = st
     }
@@ -113,12 +110,7 @@ export default function App() {
     <div className="app">
       <div className="app-view" key={active}>{view}</div>
       {evolvedPal && evolved && (
-        <div className="overlay" onClick={() => setEvolved(null)}>
-          <Confetti />
-          <PalArt pal={evolvedPal} stage={evolved.stage} size={240} className="evolve" />
-          <h2>{evolvedPal.stages[evolved.stage].name}!</h2>
-          <BigButton color="pink" onClick={() => setEvolved(null)}>Yay! 💖</BigButton>
-        </div>
+        <EvolutionScene key={`${evolved.id}-${evolved.to}`} pal={evolvedPal} from={evolved.from} to={evolved.to} onDone={() => setEvolved(null)} />
       )}
       {sleepy && (
         <div className="overlay sleepy">
