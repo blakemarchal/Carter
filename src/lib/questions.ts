@@ -111,7 +111,8 @@ function numbersQ(level: number, theme?: string): Question {
 /** `theme` is the emoji to count in number questions (e.g. raindrops on Noah's island). */
 export function makeQuestion(skill: Skill, level: number, theme?: string, avoid: Question[] = []): Question {
   // Try a few times for a question that wasn't just asked in this round.
-  const key = (x: Question) => `${x.say}|${x.choices[x.answer].label}`
+  // Same prompt and picture = same question (e.g. the letter E twice, even with a different answer).
+  const key = (x: Question) => `${x.say}|${JSON.stringify(x.visual)}`
   const seen = new Set(avoid.map(key))
   let q = skill === 'reading' ? readingQ(level) : numbersQ(level, theme)
   for (let i = 0; i < 8 && seen.has(key(q)); i++) q = skill === 'reading' ? readingQ(level) : numbersQ(level, theme)

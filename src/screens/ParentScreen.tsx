@@ -6,6 +6,7 @@ import {
 } from '../lib/progress'
 import { grokVoiceAvailable, setNarrator, setRate, speak, voiceSignedOut } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
 
 const SKILL_LABEL: Record<Skill, string[]> = {
   reading: ['Beginning sounds', 'Read 3-letter words (3 choices)', 'Read 3-letter words (4 choices)', 'Sight words', 'Find any word'],
@@ -55,6 +56,28 @@ function Players() {
         <input value={name} maxLength={16} placeholder="New player name" onChange={(e) => setName(e.target.value)} />
         <button type="submit">Add player</button>
       </form>
+    </section>
+  )
+}
+
+function AppVersion() {
+  const update = useUpdateAvailable()
+  const [status, setStatus] = useState('')
+  return (
+    <section>
+      <h3>App version</h3>
+      <p>This iPad has the version from {buildLabel()}.</p>
+      <div className="level-row">
+        {update
+          ? <button className="on" onClick={applyUpdate}>✨ Update now</button>
+          : <button onClick={async () => {
+              setStatus('Checking…')
+              setStatus((await checkForUpdate()) ? '' : 'Up to date.')
+            }}>Check for updates</button>}
+        <button onClick={applyUpdate}>Reload app</button>
+      </div>
+      {status && <p className="muted">{status}</p>}
+      <p className="muted">Updating keeps every player&rsquo;s progress. &ldquo;Reload app&rdquo; also fixes a stuck screen.</p>
     </section>
   )
 }
@@ -122,6 +145,7 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
         <h3>Reset</h3>
         <button className="danger" onClick={() => confirm(`Erase all of ${me.name}’s progress on this device?`) && resetProgress()}>Erase {me.name}&rsquo;s progress</button>
       </section>
+      <AppVersion />
       <p className="muted">Progress is stored only on this device. No ads, no chat, no accounts. Narration text is sent to xAI to create the voice; nothing else is shared.</p>
     </div>
   )

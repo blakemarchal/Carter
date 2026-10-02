@@ -2,9 +2,20 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Each build gets an id. The app has it baked in, and dist/version.json publishes it, so an
+// installed app can tell when a newer version has been deployed (see src/lib/update.ts).
+const BUILD_ID = new Date().toISOString()
+
 export default defineConfig({
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
   plugins: [
     react(),
+    {
+      name: 'version-file',
+      generateBundle() {
+        this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ build: BUILD_ID }) })
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],

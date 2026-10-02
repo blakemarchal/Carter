@@ -58,6 +58,8 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
 .title-pals { display: flex; align-items: flex-end; gap: 12px; }
 .tap-start { font-size: 36px; font-weight: 800; background: #fff; padding: 10px 36px; border-radius: 999px; animation: pulse 1.4s infinite; }
 .app-view { height: 100%; }
+.update-pill { position: absolute; top: 14px; right: 18px; background: var(--yellow); font-size: 20px; font-weight: 800; padding: 8px 18px; border-radius: 999px; box-shadow: 0 5px 0 rgba(0,0,0,.12); animation: pulse 1.6s infinite; }
+.title { position: relative; }
 .leave-row { display: flex; gap: 24px; }
 .who { font-size: 30px; font-weight: 800; color: #8d5cf6; }
 .players { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }

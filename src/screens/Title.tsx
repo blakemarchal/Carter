@@ -1,12 +1,15 @@
 import PalArt from '../components/PalArt'
 import { palById } from '../data/pals'
 import { useProfiles } from '../lib/progress'
+import { applyUpdate, useUpdateAvailable } from '../lib/update'
 
 /** Title screen. Tapping a player starts the game as them; each player has their own progress. */
 export default function Title({ onStart }: { onStart: (profileId: string) => void }) {
   const { active, list } = useProfiles()
+  const update = useUpdateAvailable()
   return (
     <div className="screen title">
+      {update && <button className="update-pill" onClick={applyUpdate}>✨ Update ready: tap to update</button>}
       <div className="title-pals">
         <PalArt pal={palById('zippy')} size={120} className="bob" />
         <PalArt pal={palById('ember')} size={140} className="bob d1" />

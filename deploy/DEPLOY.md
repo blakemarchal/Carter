@@ -141,7 +141,9 @@ ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/sys
 
 ## Later deploys
 
-Run `./deploy/deploy.sh` again. It rebuilds, swaps the files, restarts `carter-web`, and prints a health check. The iPad picks up the new version the next time the app is opened while online.
+Run `./deploy/deploy.sh` (or `.\deploy\deploy.ps1`) again. It rebuilds, swaps the files, restarts `carter-web`, and prints a health check.
+
+**On the iPad:** the app checks for a new version when it opens, when it comes back to the screen, and every 10 minutes. When there is one, the title screen shows **✨ Update ready: tap to update**. Tapping it loads the new version and keeps everyone's progress and the saved narration. The Parent Corner also has **Check for updates** and **Reload app** (which also fixes a stuck screen).
 
 ## If something goes wrong
 
