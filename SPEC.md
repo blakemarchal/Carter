@@ -153,10 +153,10 @@ Story text is original, age-appropriate retelling in simple kid wording.
 | By | Milestone |
 |---|---|
 | Oct 16 | ✅ **Prototype (built Oct 2):** app shell, starter Pal choice, map, full Noah's Ark island (story, Two by Two, Word Boat, Raindrop Numbers, memory verse, friendly battle, reward), Ark collection, evolution, parent corner. Placeholder art and device voice. **Next: playtest with Carter.** |
-| Nov 6 | **Core systems:** Ark Pals collection + evolution, adaptive skill engine, parent area, offline PWA install on her tablet, deployed to VPS |
-| Dec 4 | **Content:** 6 islands complete, art pass, music |
-| Dec 18 | **Polish:** parent voice recordings swapped in, playtest fixes |
-| Jan 1 | **Content freeze:** birthday bonus island + "Happy 5th Birthday, Carter!" surprise |
+| Nov 6 | ✅ **Core systems (built Oct 2):** Grok "Ara" narration, music and sound effects, player profiles, in-app updates, progress backup, sailing map, battle moves (basic, brave, super), Pal care, mystery egg, Pal Kitchen, bedtime story, tests |
+| Dec 4 | ✅ **Content (built Oct 2):** all 6 islands plus the birthday island, 18 Pals with art. **Still to do:** an illustration pass for the story pages (they use emoji scenes today) |
+| Dec 18 | **Polish:** record family voices in the Parent Corner, sing-along, playtest fixes |
+| Jan 1 | **Content freeze:** the birthday island is built and opens on January 8 |
 | **Jan 8** | 🎂 Launch |
 
 After launch: add a new island every few weeks so the game "grows up" with her.

@@ -20,6 +20,14 @@ npm run build      # production files in dist/
 
 **Players:** the title screen asks "Who's playing?". Each player (Carter, Dad, or anyone added in the Parent Corner) has separate progress and settings on the device, so testing as Dad never touches Carter's game.
 
+**What's in the game:**
+- A sailing map of seven story islands (Noah, Creation, David, Jonah, Loaves & Fishes, Baby Jesus, and a birthday island that opens on January 8). Islands open in order; each is data in `src/data/<island>.ts`.
+- Activities: picture-book stories, memory match, adaptive reading and number questions, put-in-order, sorting, story questions, counting into a basket, letter tracing, mazes, memory verses (World English Bible).
+- Ark Pals: 18 collectable Pals with three stages each, an evolution scene, friendly battles with basic, brave and super moves, Pal homes (pet, feed, dress up, color), a mystery egg, the Pal Kitchen (cook each Pal's favorite food: counting, reading, patterns, shapes), a sticker book and a bedtime story.
+- Parent Corner (hold the ⚙️ for 3 seconds): players, levels, narrator voice, music, this week's summary, open all islands, family voice recordings, backup and restore, app updates.
+
+**Tests:** `npm test` checks the spoken-text rules, question generation, move unlocks, and every island, Pal and recipe.
+
 ## Layout
 
 - `src/data/`: story text, Pals, word lists, islands (most content edits happen here)
