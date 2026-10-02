@@ -1,4 +1,4 @@
-# Carter's Ark Adventure — Product Spec (v0.2)
+# Carter's Ark Adventure — Product Spec (v0.3)
 
 A faith-based learning game for Carter, an advanced 4-year-old who turns 5 on **January 8, 2027**.
 
@@ -25,7 +25,9 @@ Working title only. Rename it to whatever Carter would love.
 | Theme | **Pink!** |
 | Family | Little brother **Luke** (10 months) gets a cameo in a story, with his own player profile later. Family adventures with Mom and Dad come later (see §10). |
 | Screen time | 1 hour/day with a gentle "Pals are sleepy" reminder. An adult is always present, so no lock-out. |
-| Hosting | DigitalOcean VPS, on **spiritflow.church** (the existing app is archived first, see §9). |
+| Faith | **Protestant**: saved by grace through faith alone, with obedience as a loving response to God's free gift (see §4.4). |
+| Bible text | **World English Bible (WEB)**, which is public domain, for memory verses. Stories use simple kid wording. |
+| Hosting | DigitalOcean droplet `spiritflow-prod-01`, at **https://spiritflow.church**, as its own systemd service on port 3004 behind Caddy. The old app is archived first (see `deploy/DEPLOY.md`). |
 | Security | Private and password-protected. No chat, no other players, no user content, no ads, no outside links. Nothing like Roblox. |
 
 ---
@@ -107,14 +109,23 @@ Each track has levels. The game nudges difficulty up after 3 correct answers in 
 - **Thinking:** shapes, sorting, sequencing story events, memory match, simple mazes
 - **Faith:** story comprehension ("Who did God keep safe in the ark?"), memory verses, prayer prompts ("Tell God thank you for something!")
 
-### 4.3 Memory verses (short, kid-friendly)
+### 4.3 Memory verses (World English Bible)
 - "God is love." (1 John 4:8)
-- "In the beginning God created the heavens and the earth." (Gen 1:1)
-- "I can do all things through Christ who strengthens me." (Phil 4:13)
-- "Be kind to one another." (Eph 4:32)
-- "Jesus said, 'Let the little children come to me.'" (Matt 19:14)
+- "In the beginning, God created the heavens and the earth." (Gen 1:1)
+- "I set my rainbow in the cloud." (Gen 9:13, first half) ✅ in the game
+- "For by grace you have been saved through faith." (Eph 2:8)
+- "If you love me, keep my commandments." (John 14:15)
+- "I can do all things through Christ, who strengthens me." (Phil 4:13)
+- "And be kind to one another." (Eph 4:32)
+- "Allow the little children, and don't forbid them to come to me." (Matt 19:14)
 
-The translation is TBD (see questions). Story text will be original, age-appropriate retellings, which avoids translation licensing.
+Story text is original, age-appropriate retelling in simple kid wording.
+
+### 4.4 Faith approach
+- **Grace first.** God's love is never earned. The game never says or implies "be good so God will love you." Game praise is about effort and learning, never about God's approval.
+- **Obedience as a response.** Stories show people trusting God and then obeying because they love and trust Him. Noah *trusted God, so he listened and obeyed*.
+- **Fruit of the Spirit** (the Pal types) are presented as good fruit God grows in us, not badges we earn.
+- **Promises:** each island ends on what God did and what He promises (e.g., the rainbow: God always keeps His promises).
 
 ---
 
@@ -159,11 +170,14 @@ Real Pokémon names, sprites, and sounds are Nintendo/Game Freak IP. Using them 
 
 ## 9. Hosting & security plan (spiritflow.church)
 
-1. **Archive the existing app first.** Before anything changes on the VPS, back up its database and files to an off-server copy (and a DigitalOcean snapshot), then stop it. This step needs details about what it runs on (see §11).
-2. **Serve the game as static files** behind Caddy (automatic HTTPS) or the existing nginx, on `spiritflow.church` or a subdomain such as `carter.spiritflow.church`.
-3. **Family password.** A tiny login step sets a long-lived, secure cookie, so each device enters the password once. This works better than browser "basic auth" pop-ups, which behave badly in iPad Home Screen apps.
+Step-by-step runbook: [`deploy/DEPLOY.md`](deploy/DEPLOY.md).
+
+1. **Archive the existing app first.** Back up its files and database on the droplet, copy them to the laptop, and optionally take a DigitalOcean snapshot. Only then disable its service. Nothing is deleted.
+2. **`carter-web` systemd service** (`/opt/Carter`, port 3004, runs as `www-data` with a locked-down sandbox), behind Caddy (automatic HTTPS). This is the same pattern as the other apps on the droplet.
+3. **Family password.** A dependency-free Node server (`server/index.mjs`) shows a login page and sets a signed, HttpOnly, Secure cookie that lasts a year, so each device signs in once. Failed attempts are rate-limited, and only a scrypt hash of the password is stored. This works better than browser "basic auth" pop-ups, which behave badly in iPad Home Screen apps.
 4. **No server data.** Progress stays on the iPad, and the server only hands out the game files. Optional backup/sync of progress can be added later.
-5. `robots.txt` blocks search engines. There is no analytics or third-party tracking, and fonts will be self-hosted.
+5. **Strict security headers:** robots blocked, a no-outside-content security policy, no framing, no analytics. Fonts are self-hosted.
+6. **Deploys** run from the laptop with `./deploy/deploy.sh` (or `deploy.ps1`). Cloud sessions have no SSH access to the droplet. A GitHub Action could deploy automatically later, using an SSH deploy key stored as a repository secret.
 
 ## 10. Future ideas
 - **Family Adventures:** a "pass the iPad" mode where Mom or Dad joins a battle as a second Pal, plus family prayer and praise prompts.
@@ -172,6 +186,5 @@ Real Pokémon names, sprites, and sounds are Nintendo/Game Freak IP. Using them 
 - A new island every few weeks after launch.
 
 ## 11. Still open
-- **Church tradition and Bible translation** for memory verses. The default is NIrV-style kid wording.
-- **VPS details:** web server (nginx, Caddy, Apache or Docker), and what the current spiritflow.church app uses (database type, Docker or not), so we can back it up safely.
-- Root domain or a `carter.` subdomain?
+- Which service and database serve the current spiritflow.church app. `deploy/DEPLOY.md` Step 0 finds this on the droplet.
+- First playtest notes from Carter.

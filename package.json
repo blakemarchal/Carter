@@ -7,9 +7,12 @@
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "start": "node server/index.mjs",
+    "set-password": "node server/set-password.mjs"
   },
   "dependencies": {
+    "@fontsource/baloo-2": "^5.3.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

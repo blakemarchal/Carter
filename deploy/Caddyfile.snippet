@@ -1,0 +1,6 @@
+# Carter's Ark Adventure: append to /etc/caddy/Caddyfile (replacing the old spiritflow.church block)
+spiritflow.church, www.spiritflow.church {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3004
+	header -Server
+}

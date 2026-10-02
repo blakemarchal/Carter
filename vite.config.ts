@@ -18,7 +18,7 @@ export default defineConfig({
         orientation: 'landscape',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp}'] },
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp,woff2}'] },
     }),
   ],
 })

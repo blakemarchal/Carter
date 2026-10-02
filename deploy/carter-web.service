@@ -1,0 +1,21 @@
+[Unit]
+Description=Carter's Ark Adventure (static game behind family password)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/Carter
+EnvironmentFile=/opt/Carter/.env
+ExecStart=/usr/bin/node server/index.mjs
+Restart=on-failure
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/opt/Carter
+
+[Install]
+WantedBy=multi-user.target
