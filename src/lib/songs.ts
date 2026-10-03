@@ -2,8 +2,9 @@
 // Songs play through the game's own audio (lib/audio.ts), so they start without another tap on
 // iOS, pause with the app, and keep exact time for the words lighting up. The service worker
 // keeps each song after its first play, so they work offline too.
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ac, buses } from './audio'
+import { speak } from './speech'
 import { timedLines, type Song } from '../data/songs'
 
 // ---------- playback ----------
@@ -103,6 +104,22 @@ export class Playback {
       } catch {
         /* already stopped */
       }
+    }
+  }
+}
+
+/**
+ * For a playing song with a name in it ("Happy birthday, dear ___"): call with the time as it plays,
+ * and it says the name where it goes (only while Ara is singing; when they sing, they say it).
+ */
+export function useNameSlot(song: Song, name: string, araSinging: () => boolean) {
+  const said = useRef(false)
+  return (t: number) => {
+    if (!song.name) return
+    if (t < song.name[0] - 0.5) said.current = false // back to the start: say it again next time
+    else if (!said.current && t >= song.name[0] - 0.04 && t < song.name[1]) {
+      said.current = true
+      if (araSinging()) speak(`${name}!`)
     }
   }
 }

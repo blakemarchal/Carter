@@ -1,5 +1,5 @@
 // Progress backups: the game posts every player's saved progress here, so a lost or reset iPad
-// doesn't lose it. Kept in STATE_DIRECTORY (systemd StateDirectory=carter -> /var/lib/carter).
+// doesn't lose it. Kept in STATE_DIRECTORY (set by systemd's StateDirectory).
 // Each backup is tagged with the device that made it, and the last KEEP copies per device are kept,
 // so one device's backups (a test laptop, say) can never push out or hide another's (the iPad's).
 import { mkdir, readdir, readFile, rename, unlink, writeFile } from 'node:fs/promises'
@@ -9,13 +9,18 @@ const KEEP = 10
 const MAX_BYTES = 512 * 1024
 const NAME = /^backup-(\d+)-([a-z0-9]{1,16})$/ // backup-<time>-<device>
 
-/** Who is in a backup: each player's name and how far they've got. */
+/**
+ * Who is in a backup: each player's name and how far they've got. Saves are named "ark-pals:…";
+ * backups from before the game had that name say "carters-ark:…", where the first player's progress
+ * was the bare "…:v1".
+ */
 function summarize(data) {
   const parse = (s) => { try { return JSON.parse(s) } catch { return null } }
-  const profiles = parse(data.keys?.['carters-ark:profiles'])?.list ?? []
-  return profiles.map((p) => {
-    const key = p.id === 'carter' ? 'carters-ark:v1' : `carters-ark:v1:${p.id}`
-    const prog = parse(data.keys?.[key]) ?? {}
+  const keys = data.keys ?? {}
+  const ns = keys['ark-pals:profiles'] ? 'ark-pals' : 'carters-ark'
+  const profiles = parse(keys[`${ns}:profiles`])?.list ?? []
+  return profiles.map((p, i) => {
+    const prog = parse(keys[`${ns}:v1:${p.id}`] ?? (ns === 'carters-ark' && i === 0 ? keys['carters-ark:v1'] : undefined)) ?? {}
     return { name: String(p.name ?? '').slice(0, 16), emoji: p.emoji, islands: prog.islandsDone?.length ?? 0, pals: Object.keys(prog.pals ?? {}).length }
   })
 }

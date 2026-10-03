@@ -2,7 +2,8 @@
 // Slow, sleepy colors; God's care is shown as soft light, never as a person.
 import { useId, type ComponentType, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Person, PEOPLE } from '../people'
+import { Person, type Pose } from '../people'
+import { usePlayer } from './player'
 import { PalAt, Room } from './birthday'
 import { Cloud, Emoji, Glow, Moon, Scene, Sparkles, Sun, sparkle } from './kit'
 
@@ -60,11 +61,12 @@ const StarField = ({ stars = MANY_STARS }: { stars?: number[][] }) => (
 )
 
 /** A bed seen from the side, headboard on the left. (x, y) = the left foot of the bed on the floor.
- *  `sleeper`: Carter tucked in with her head on the pillow. `behind`: drawn behind the mattress (kneeling to pray). */
+ *  `sleeper`: the child tucked in with their head on the pillow. `behind`: drawn behind the mattress (kneeling to pray). */
 function Bed({ x, y, w = 320, quilt = '#ff9fc6', sleeper, asleep, behind, children }: {
   x: number; y: number; w?: number; quilt?: string; sleeper?: boolean; asleep?: boolean; behind?: ReactNode; children?: ReactNode
 }) {
   const clip = `bd${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  const { look } = usePlayer()
   const wood = '#c98448'
   return (
     <g>
@@ -74,7 +76,7 @@ function Bed({ x, y, w = 320, quilt = '#ff9fc6', sleeper, asleep, behind, childr
       <ellipse cx={x + 82} cy={y - 104} rx={50} ry={20} fill="#ffffff" stroke="#d8cfe8" strokeWidth={3} />
       {sleeper && (
         <g className={asleep ? 'bt-sleepy' : undefined} clipPath={`url(#${clip})`}>
-          <Person x={x + 86} y={y - 13} s={1.45} look={PEOPLE.carter} blinkDelay={0.5} />
+          <Person x={x + 86} y={y - 13} s={1.45} look={look} blinkDelay={0.5} />
         </g>
       )}
       <rect x={x + 24} y={y - 92} width={w - 40} height={28} rx={8} fill="#fffaf2" stroke="#d8cfe8" strokeWidth={2.5} />
@@ -178,6 +180,9 @@ const Page1 = () => (
   </Scene>
 )
 
+/** The child playing, as drawn from their profile. */
+const Kid = ({ x, y, s, pose }: { x: number; y: number; s: number; pose?: Pose }) => <Person x={x} y={y} s={s} look={usePlayer().look} pose={pose} />
+
 // 2. "One by one, the stars came out. God knows every star by name. And He knows you, too."
 const Page2 = () => (
   <Scene sky="night" ground="none" moon>
@@ -189,7 +194,7 @@ const Page2 = () => (
     <path d="M0 330 Q200 300 380 326 Q560 290 800 320 L800 450 L0 450 Z" fill="#3e5e86" />
     <path d="M300 450 Q420 340 560 350 Q700 356 800 380 L800 450 Z" fill="#35577a" />
     <Glow x={520} y={290} r={130} color="#fff3c0" />
-    <Person x={500} y={404} s={1.45} look={PEOPLE.carter} pose="wave" />
+    <Kid x={500} y={404} s={1.45} pose="wave" />
     <PalAt id="buddy" x={610} y={404} size={120} />
     <Sparkles spots={[[440, 230, 6], [590, 220, 5]]} />
   </Scene>
@@ -235,7 +240,7 @@ const Page4 = () => (
     <Nightstand x={130} y={420} w={100} h={92} />
     <Lamp x={118} y={320} s={0.9} />
     <Glow x={480} y={120} r={160} />
-    <Bed x={300} y={420} w={360} behind={<Person x={480} y={388} s={1.5} look={PEOPLE.carter} pose="pray" />}>
+    <Bed x={300} y={420} w={360} behind={<Kid x={480} y={388} s={1.5} pose="pray" />}>
       <g className="bt-sleepy"><PalAt id="buddy" x={384} y={316} size={84} /></g>
     </Bed>
     <Sparkles spots={[[440, 170, 7], [520, 150, 9], [480, 110, 6], [400, 140, 5]]} />

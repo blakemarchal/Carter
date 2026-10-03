@@ -71,12 +71,14 @@ def render(song, words_dir, index, wav=False):
 
     clips, events = {}, []
     for i, s in enumerate(sylls):
+        if s['slot']:
+            continue  # the name: the flute plays it, and the game says it
         text, n, j = s['tts']
         if text not in clips:
             clips[text] = voice.Word(os.path.join(words_dir, index[text]), n)
         nxt = sylls[i + 1] if i + 1 < len(sylls) else None
         end = s['notes'][-1][1] + s['notes'][-1][2]
-        follows = nxt is not None and abs(nxt['notes'][0][1] - end) < 1e-6
+        follows = nxt is not None and not nxt['slot'] and abs(nxt['notes'][0][1] - end) < 1e-6
         b0 = s['notes'][0][1]
         accent = 1.0 if abs(b0 % meter) < 1e-6 else (-1.0 if abs(b0 % 1) > 1e-6 else 0.0)
         events.append(dict(
@@ -92,9 +94,10 @@ def render(song, words_dir, index, wav=False):
 
     band_dry, band_wet = accompany(song, chords, clock, total)
     tune = Track(total)
+    name_tune = Track(total)  # the name's notes, played louder in Ara's version where she doesn't sing
     for s in sylls:
         for m, b, d in s['notes']:
-            tune.add(flute(m, round(T(b + d) - T(b), 2)), T(b), 1.0, 0.1)
+            (name_tune if s['slot'] else tune).add(flute(m, round(T(b + d) - T(b), 2)), T(b), 1.0, 0.1)
     if song['style'] in ('lullaby', 'party', 'bouncy'):
         for s in sylls:
             m, b, d = s['notes'][0]
@@ -109,9 +112,10 @@ def render(song, words_dir, index, wav=False):
     vox2 = np.stack([vocal, vocal], axis=1) * g_vox
 
     outputs = {}
-    for kind, tune_gain, vox_gain in (('ara', 0.16, 1.0), ('sing', 1.0, 0.0)):
-        dry = band * g_band + vox2 * vox_gain + tune.buf * g_tune * tune_gain
-        wet = band_wet.buf * g_band + vox2 * vox_gain * 0.28 + tune.buf * g_tune * tune_gain * 0.3
+    for kind, tune_gain, vox_gain, name_gain in (('ara', 0.16, 1.0, 0.6), ('sing', 1.0, 0.0, 1.0)):
+        melody = tune.buf * tune_gain + name_tune.buf * name_gain
+        dry = band * g_band + vox2 * vox_gain + melody * g_tune
+        wet = band_wet.buf * g_band + vox2 * vox_gain * 0.28 + melody * g_tune * 0.3
         mix = master(dry + reverb(wet) * 0.55)
         tail = np.flatnonzero(np.abs(mix).max(axis=1) > 0.002)
         mix = mix[: tail[-1] + int(0.3 * SR)]
@@ -125,6 +129,11 @@ def render(song, words_dir, index, wav=False):
         beats=[round(T(b), 3) for b in range(int(end_beat) + 1)],
         lines=[],
     )
+    slots = [s for s in sylls if s['slot']]
+    if slots:
+        # When to say the name, and when its notes end.
+        first, last = slots[0]['notes'][0], slots[-1]['notes'][-1]
+        timing['name'] = [round(T(first[1]), 3), round(T(last[1] + last[2]), 3)]
     for li, line in enumerate(lines):
         words = []
         for w in line['words']:

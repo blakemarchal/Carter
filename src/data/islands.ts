@@ -7,7 +7,6 @@ import { DAVID_STEPS } from './david'
 import { JONAH_STEPS } from './jonah'
 import { LOAVES_STEPS } from './loaves'
 import { CHRISTMAS_STEPS } from './christmas'
-import { BIRTHDAY_STEPS } from './birthday'
 
 export interface StoryPage {
   scene: string // emoji scene for now; replaced by illustrations later
@@ -51,7 +50,6 @@ export interface Island {
   color: string
   at: [number, number] // position on the map (viewBox 1000 x 620)
   steps?: Step[] // islands without steps yet show as "coming soon"
-  opensOn?: string // YYYY-MM-DD: stays locked until this day (the birthday surprise)
 }
 
 export const ISLANDS: Island[] = [
@@ -61,20 +59,17 @@ export const ISLANDS: Island[] = [
   { id: 'jonah', name: 'Jonah & the Big Fish', emoji: '🐋', color: '#5fb7ff', at: [495, 120], steps: JONAH_STEPS },
   { id: 'loaves', name: 'Loaves & Fishes', emoji: '🧺', color: '#ffd34d', at: [610, 330], steps: LOAVES_STEPS },
   { id: 'christmas', name: 'Baby Jesus', emoji: '⭐', color: '#c9a8ff', at: [815, 180], steps: CHRISTMAS_STEPS },
-  // Her 5th birthday: a surprise that stays locked until the day.
-  { id: 'birthday', name: "Carter's Birthday!", emoji: '🎂', color: '#ff8cc0', at: [850, 470], steps: BIRTHDAY_STEPS, opensOn: '2027-01-08' },
 ]
 
 export const islandById = (id: string) => ISLANDS.find((i) => i.id === id)
 
 /**
  * Islands open in order: the first one, then each one after the previous is finished.
- * `openAll` (Parent Corner) opens every island that's built, including the birthday one early.
+ * `openAll` (Parent Corner) opens every island that's built.
  */
-export function islandOpen(index: number, done: string[], today: string, openAll = false) {
+export function islandOpen(index: number, done: string[], openAll = false) {
   const isl = ISLANDS[index]
   if (!isl?.steps) return false
   if (openAll) return true
-  if (isl.opensOn && today < isl.opensOn) return false
   return index === 0 || done.includes(ISLANDS[index - 1].id)
 }

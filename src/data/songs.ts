@@ -22,7 +22,12 @@ export interface Song {
   beats?: number[]
   /** Added by a parent, rather than built in. */
   family?: boolean
+  /** Where the birthday child's name goes (seconds): the tune plays on and the game says the name. */
+  name?: [number, number]
 }
+
+/** Stands for the birthday child's name in a song's words. */
+export const NAME_SLOT = '{name}'
 
 const BUILT_IN: { id: keyof typeof gen; title: string; emoji: string; color: string }[] = [
   { id: 'jesus-loves-me', title: 'Jesus Loves Me', emoji: '💛', color: '#ffcf5a' },
@@ -30,13 +35,19 @@ const BUILT_IN: { id: keyof typeof gen; title: string; emoji: string; color: str
   { id: 'noah-boat', title: 'Noah Built a Big Boat', emoji: '🚢', color: '#5ec8f2' },
   { id: 'twinkle', title: 'Twinkle, Twinkle, Little Star', emoji: '⭐', color: '#9b8cff' },
   { id: 'away-in-a-manger', title: 'Away in a Manger', emoji: '👶', color: '#7ed68a' },
-  { id: 'happy-birthday', title: 'Happy Birthday, Carter', emoji: '🎂', color: '#ff8fc7' },
+  { id: 'happy-birthday', title: 'Happy Birthday', emoji: '🎂', color: '#ff8fc7' },
 ]
 
 export const SONGS: Song[] = BUILT_IN.filter((s) => s.id in gen).map((s) => {
   const g = gen[s.id]
-  return { ...s, audio: g.audio, lines: g.lines as SongLine[], beats: g.beats }
+  return { ...s, audio: g.audio, lines: g.lines as SongLine[], beats: g.beats, name: 'name' in g ? (g.name as [number, number]) : undefined }
 })
+
+/** The song with the birthday child's name in its words. */
+export function withName(song: Song, name: string): Song {
+  if (!song.name) return song
+  return { ...song, lines: song.lines.map((l) => ({ ...l, words: l.words.map(([w, t]): [string, number] => [w.replace(NAME_SLOT, name), t]) })) }
+}
 
 /**
  * Lines with word timings for a song that only has its words and when each line starts:

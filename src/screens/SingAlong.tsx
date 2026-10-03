@@ -1,16 +1,17 @@
 // Sing-along: pick a song, then Ara sings it while the words light up one by one (great for
 // following along and early reading) and her Pal dances to the beat. "I sing!" swaps to the same
-// song with the tune on a flute, so she can be the singer. Styles: styles.css, "Sing-along".
+// song with the tune on a flute, so she can be the singer. In "Happy Birthday" the game says the
+// player's name where it goes (Ara leaves it for the name). Styles: styles.css, "Sing-along".
 import { useEffect, useRef, useState } from 'react'
 import DressedPal from '../components/DressedPal'
 import { BackButton, BigButton, Confetti } from '../components/ui'
-import { SONGS, type Song } from '../data/songs'
+import { SONGS, withName, type Song } from '../data/songs'
 import { palById, stageFor } from '../data/pals'
-import { getProgress } from '../lib/progress'
+import { getProgress, playerName } from '../lib/progress'
 import { setMood } from '../lib/music'
-import { speak, stopSpeaking } from '../lib/speech'
+import { preload, speak, stopSpeaking } from '../lib/speech'
 import { sfx } from '../lib/sfx'
-import { familyAsSongs, loadSong, Playback, useFamilySongs, withTimings } from '../lib/songs'
+import { familyAsSongs, loadSong, Playback, useFamilySongs, useNameSlot, withTimings } from '../lib/songs'
 import { useAlive } from '../lib/useAlive'
 
 /** The index of the last item whose time has come (or -1). */
@@ -38,11 +39,14 @@ function Buddy({ beat, dancing }: { beat: number; dancing: boolean }) {
 
 function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
   const alive = useAlive()
-  const [song, setSong] = useState(picked)
+  const name = playerName()
+  const [song, setSong] = useState(() => withName(picked, name))
   const [state, setState] = useState<'loading' | 'playing' | 'paused' | 'done' | 'error'>('loading')
   const [mine, setMine] = useState(false) // "I sing!": the version without Ara
+  const mineNow = useRef(false)
   const [pos, setPos] = useState({ line: -1, word: -1, beat: -1 })
   const play = useRef<Playback | null>(null)
+  const nameSlot = useNameSlot(song, name, () => !mineNow.current)
 
   const start = async () => {
     try {
@@ -57,8 +61,9 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
         speak('Beautiful singing!')
       }
       play.current = pb
-      setSong(withTimings(picked, buf.duration))
-      await speak(`Let's sing ${picked.title.replace(/,? Carter$/, '')}!`)
+      setSong(withName(withTimings(picked, buf.duration), name))
+      if (picked.name) preload([`${name}!`])
+      await speak(`Let's sing ${picked.title}!`)
       if (!alive.current) return
       pb.play(0)
       setState('playing')
@@ -84,6 +89,7 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
         const words = song.lines[line]?.words ?? []
         const word = lastAt(words, t + 0.05, (w) => w[1])
         const beat = song.beats ? lastAt(song.beats, t, (b) => b) : -1
+        if (pb.playing) nameSlot(t)
         setPos((p) => (p.line === line && p.word === word && p.beat === beat ? p : { line, word, beat }))
       }
       raf = requestAnimationFrame(tick)
@@ -116,11 +122,13 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
     if (!pb || !song.audio.sing) return
     const next = !mine
     setMine(next)
+    mineNow.current = next
     try {
       const buf = await loadSong(next ? song.audio.sing : song.audio.ara)
       if (alive.current && play.current === pb) pb.swap(buf)
     } catch {
       setMine(!next)
+      mineNow.current = !next
     }
   }
 

@@ -9,7 +9,7 @@ import { synthesize } from './tts.mjs'
 const env = readEnv()
 
 async function test(key) {
-  const mp3 = await synthesize('Hi Carter! Welcome to the Ark!', 'ara', '1', key)
+  const mp3 = await synthesize('Hi! Welcome to the Ark!', 'ara', '1', key)
   console.log(`Voice works: Ara said hello (${mp3.length} bytes of audio).`)
 }
 

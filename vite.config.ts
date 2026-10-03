@@ -20,9 +20,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: "Carter's Ark Adventure",
-        short_name: "Carter's Ark",
-        description: 'A faith-based learning adventure for Carter',
+        name: 'Ark Pals',
+        short_name: 'Ark Pals',
+        description: 'A faith-based learning adventure: Bible stories, reading, numbers and Pals to befriend',
         theme_color: '#ff6fae',
         background_color: '#fff0f7',
         display: 'fullscreen',

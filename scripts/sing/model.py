@@ -6,7 +6,9 @@ from scores import SAY
 
 _SEMI = dict(C=0, D=2, E=4, F=5, G=7, A=9, B=11)
 _PUNCT = '.,;:!?"'
-_KEEP_CASE = {'I', 'Jesus', 'Bible', 'Lord', 'Noah', 'Carter'}
+_KEEP_CASE = {'I', 'Jesus', 'Bible', 'Lord', 'Noah'}
+# Where the birthday child's name goes: not sung (the game says it), but it still has its notes.
+NAME = '{name}'
 
 
 def midi(name):
@@ -83,7 +85,8 @@ def tts_items(core):
 def build(song):
     """Returns (syllables, lines, chords, clock, end_beat).
 
-    syllable: dict(text, word, notes=[(midi, start_beat, beats)], line, tts=(text, n syllables, index))
+    syllable: dict(text, word, notes=[(midi, start_beat, beats)], line, tts=(text, n syllables, index), slot)
+              (slot: the name, which isn't sung)
     line:     dict(text, words=[dict(text, syllables=[indexes])])
     chords:   [(symbol, start_beat, beats)]
     """
@@ -96,13 +99,16 @@ def build(song):
         words = []
         for raw in lyric.split():
             core, parts = _split_word(raw)
-            items = tts_items(core)
+            slot = core == NAME
+            if slot:
+                parts = [NAME] * song.get('name_notes', 2)
+            items = [(NAME, len(parts))] if slot else tts_items(core)
             word = dict(text=raw.replace('-', ''), syllables=[])
             k = 0
             for text, n in items:
                 for j in range(n):
                     word['syllables'].append(len(sylls) + len(line_sylls))
-                    line_sylls.append(dict(text=parts[k], word=len(words), line=li, notes=[], tts=(text, n, j)))
+                    line_sylls.append(dict(text=parts[k], word=len(words), line=li, notes=[], tts=(text, n, j), slot=slot))
                     k += 1
             words.append(word)
         si = -1

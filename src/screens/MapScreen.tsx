@@ -1,13 +1,18 @@
 // The Adventure Map: an ocean with story islands joined by a sea route. Her Ark (with her Pal
 // aboard) sits at the island she visited last; tapping an open island sails it there, then the
-// island starts. Locked islands hide under clouds. Styles: styles.css, "Map".
+// island starts. Locked islands hide under clouds. In the week before their birthday, balloons are
+// tied to the boat and their Pal counts the sleeps; on a brother's or sister's birthday, a banner
+// says so. Styles: styles.css, "Map".
 import { useEffect, useMemo, useRef, useState } from 'react'
 import PalArt from '../components/PalArt'
 import { HoldButton } from '../components/ui'
 import { ISLANDS, islandOpen, type Island } from '../data/islands'
 import { palById, stageFor } from '../data/pals'
-import { activeProfile, today, update, useProgress } from '../lib/progress'
+import { activeProfile, today, update, useFamily, useProfiles, useProgress } from '../lib/progress'
 import { hungryPals } from '../lib/kitchen'
+import { isBirthday, sleepsToGo } from '../lib/birthday'
+import { andList, othersBirthdayToday } from '../lib/party'
+import { numberWords } from '../lib/spoken'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
@@ -80,6 +85,38 @@ function IslandShape({ isl, state, pressed }: { isl: Island; state: 'locked' | '
   )
 }
 
+/** Balloons tied to the boat, for a birthday (or the week before one). */
+function BoatBalloons() {
+  return (
+    <g className="map-balloons" aria-hidden>
+      {[[34, -142, '#ff6fae'], [62, -128, '#ffd34d'], [46, -168, '#5fb7ff']].map(([x, y, c], i) => (
+        <g key={i} className={`map-balloon b${i}`}>
+          <path d={`M22 -26 Q${(x as number) - 6} ${(y as number) + 50} ${x} ${(y as number) + 20}`} stroke="#8a7a99" strokeWidth={1.5} fill="none" />
+          <ellipse cx={x as number} cy={y as number} rx={14} ry={17} fill={c as string} stroke="#00000026" strokeWidth={1.5} />
+          <ellipse cx={(x as number) - 5} cy={(y as number) - 6} rx={3} ry={5} fill="#fff" opacity={0.6} />
+          <path d={`M${(x as number) - 3} ${(y as number) + 17} l3 5 l3 -5 Z`} fill={c as string} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+/** What the boat's Pal is saying (a bubble above the boat). */
+function Bubble({ text }: { text: string }) {
+  const w = text.length * 11 + 36
+  return (
+    <g className="map-bubble" aria-hidden>
+      <rect x={-w / 2} y={-34} width={w} height={42} rx={21} fill="#fff" stroke="#ff8cc0" strokeWidth={3} />
+      <path d="M-10 6 L2 20 L10 6 Z" fill="#fff" stroke="#ff8cc0" strokeWidth={3} strokeLinejoin="round" />
+      <rect x={-12} y={2} width={24} height={6} fill="#fff" />
+      <text className="map-bubble-text" x={0} y={-12} textAnchor="middle" dominantBaseline="middle">{text}</text>
+    </g>
+  )
+}
+
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1)
+const sleepsLine = (n: number) => `${cap(numberWords(n))} more ${n === 1 ? 'sleep' : 'sleeps'} until your birthday!`
+
 function Boat({ palId, stage }: { palId: string; stage: number }) {
   return (
     <g className="map-boat-inner">
@@ -91,12 +128,21 @@ function Boat({ palId, stage }: { palId: string; stage: number }) {
   )
 }
 
-export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime, onSing }: {
+/** `onParty`: their birthday party again (tapping "Happy birthday!" on their birthday). */
+export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime, onSing, onParty }: {
   onIsland: (id: string) => void; onArk: () => void; onParent: () => void; onPlayers: () => void; onBedtime: () => void; onSing: () => void
+  onParty: () => void
 }) {
   const p = useProgress()
   const me = activeProfile()
+  const { list } = useProfiles()
+  const family = useFamily()
   const buddy = palById(p.starter ?? 'zippy')
+  const buddyName = buddy.stages[stageFor(buddy, p.pals[buddy.id] ?? 0)].name
+  // Birthdays: their own (the week before, and the day), and anyone else's today.
+  const sleeps = sleepsToGo(me.birthday)
+  const myDay = isBirthday(me.birthday)
+  const others = othersBirthdayToday(me, list, family)
   const route = useRef<SVGPathElement>(null)
   const docks = useMemo(() => ISLANDS.map(dock), [])
   const d = useMemo(() => routePath(docks), [docks])
@@ -106,10 +152,24 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const [pressed, setPressed] = useState<number | null>(null)
   const at = useRef(startAt)
 
-  useEffect(() => { speak('Where should we go? Tap an island!') }, [])
+  useEffect(() => {
+    // Said once a day: whose birthday it is today, or how many sleeps until theirs.
+    const d = today()
+    if (others.length && p.siblingSaid !== d) {
+      update((x) => ({ ...x, siblingSaid: d }))
+      speak(`Today is ${andList(others)}'s birthday! Tell ${others.length > 1 ? 'them' : others[0]} happy birthday!`)
+    } else if (sleeps && p.countdownSaid !== d) {
+      update((x) => ({ ...x, countdownSaid: d }))
+      speak(`${buddyName} says: ${sleepsLine(sleeps)}`)
+    } else {
+      speak('Where should we go? Tap an island!')
+      return
+    }
+    speak('Where should we go? Tap an island!', { interrupt: false })
+  }, [])
 
   const states = ISLANDS.map((isl, i) => {
-    if (!islandOpen(i, p.islandsDone, today(), p.openAll)) return 'locked' as const
+    if (!islandOpen(i, p.islandsDone, p.openAll)) return 'locked' as const
     if (p.islandsDone.includes(isl.id)) return 'done' as const
     return 'next' as const
   })
@@ -193,6 +253,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
         </div>
       </header>
       <div className="sea">
+        {others.length > 0 && <div className="map-banner">🎂 Today is {andList(others)}&rsquo;s birthday! 🎉</div>}
         <svg className="sea-map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet">
           <defs>
             <pattern id="waves" width="80" height="40" patternUnits="userSpaceOnUse">
@@ -228,8 +289,16 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
             </g>
           ))}
           <g transform={`translate(${boat.x} ${boat.y}) scale(${boat.flip ? -1 : 1} 1)`} onClick={() => { if (!sailing) { sfx.pop(); onArk() } }} style={{ cursor: 'pointer' }}>
+            {(sleeps > 0 || myDay) && <BoatBalloons />}
             <Boat palId={buddy.id} stage={stageFor(buddy, p.pals[buddy.id] ?? 0)} />
           </g>
+          {(sleeps > 0 || myDay) && !sailing && (
+            // (beside the balloons, which are on the boat's front side)
+            <g transform={`translate(${Math.min(Math.max(boat.x + (boat.flip ? 84 : -84), 120), 880)} ${Math.max(boat.y - 100, 50)})`}
+              onClick={myDay ? () => { sfx.pop(); onParty() } : undefined} style={myDay ? { cursor: 'pointer' } : undefined}>
+              <Bubble text={myDay ? '🎂 Happy birthday!' : `🎈 ${sleeps} more ${sleeps === 1 ? 'sleep' : 'sleeps'}!`} />
+            </g>
+          )}
         </svg>
       </div>
     </div>

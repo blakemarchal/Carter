@@ -1,7 +1,8 @@
 // God Made Everything: one illustration per story page (see data/creation.ts for the words).
 // God is never drawn as a person: His presence and voice are light (Glow, rays, Sparkles).
 import { useId, type ComponentType } from 'react'
-import { Person, PEOPLE, type Look } from '../people'
+import { Person, type Look } from '../people'
+import { usePlayer } from './player'
 import { Cloud, Dove, Emoji, Fish, Flower, Glow, Moon, Palm, Scene, Sea, Sparkles, Sun, Tree, sparkle } from './kit'
 
 // ---------- Local props ----------
@@ -186,6 +187,9 @@ const Page6 = () => (
   </Scene>
 )
 
+/** The child playing (God made you, too!), drawn from their profile. */
+const Kid = ({ x, y, s }: { x: number; y: number; s: number }) => <Person x={x} y={y} s={s} look={usePlayer().look} pose="arms-up" />
+
 // 7. "God looked at everything He made, and it was very, very good! Then God rested. God made it all, and God made you, too!"
 const Page7 = () => (
   <Scene sky="dusk" ground="none" stars moon>
@@ -194,7 +198,7 @@ const Page7 = () => (
     <path d="M0 375 Q220 345 430 375 T800 362 L800 450 L0 450 Z" fill="#62a36c" />
     <Glow x={330} y={300} r={130} color="#ffe9b0" />
     <Tree x={140} y={370} s={1.1} fruit="#ff6b6b" />
-    <Person x={330} y={410} s={1.4} look={PEOPLE.carter} pose="arms-up" />
+    <Kid x={330} y={410} s={1.4} />
     <Emoji e="💛" x={330} y={170} size={46} bob />
     <Emoji e="🐑" x={510} y={392} size={64} />
     <Emoji e="🐰" x={610} y={402} size={48} />

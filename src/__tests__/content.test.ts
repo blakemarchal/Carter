@@ -1,6 +1,7 @@
 // Checks every island and Pal, so a typo in new content can't ship.
 import { describe, expect, it } from 'vitest'
 import { ISLANDS, islandOpen } from '../data/islands'
+import { PARTY_FOE, PARTY_PAL } from '../data/birthday'
 import { PALS } from '../data/pals'
 import { RECIPES, recipeFor } from '../data/recipes'
 
@@ -112,8 +113,8 @@ describe('Pal Kitchen recipes', () => {
   })
 })
 
-it('each grumpy creature and reward Pal belongs to one island only', () => {
-  const seen = new Map<string, string>()
+it('each grumpy creature and reward Pal belongs to one island (or the birthday party) only', () => {
+  const seen = new Map<string, string>([[PARTY_FOE, 'the birthday party'], [PARTY_PAL, 'the birthday party']])
   for (const isl of ISLANDS) for (const s of isl.steps ?? []) {
     const id = s.kind === 'battle' ? s.foe : s.kind === 'reward' ? s.pal : null
     if (!id) continue
@@ -122,13 +123,9 @@ it('each grumpy creature and reward Pal belongs to one island only', () => {
   }
 })
 
-it('islands open in order, and the birthday island waits for its day', () => {
-  expect(islandOpen(0, [], '2026-10-02')).toBe(true)
-  const b = ISLANDS.findIndex((i) => i.opensOn)
-  if (b >= 0) {
-    const done = ISLANDS.slice(0, b).map((i) => i.id)
-    expect(islandOpen(b, done, '2026-12-25')).toBe(false)
-    expect(islandOpen(b, done, ISLANDS[b].opensOn!)).toBe(true)
-    expect(islandOpen(b, [], '2026-12-25', true)).toBe(true)
-  }
+it('islands open in order', () => {
+  expect(islandOpen(0, [])).toBe(true)
+  expect(islandOpen(1, [])).toBe(false)
+  expect(islandOpen(1, [ISLANDS[0].id])).toBe(true)
+  expect(islandOpen(ISLANDS.length - 1, [], true)).toBe(true)
 })

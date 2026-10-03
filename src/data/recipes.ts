@@ -5,6 +5,7 @@
 //   cut      pick the right way to cut: halves, triangles or 4 pieces (shapes, first fractions)
 //   stir     stir round the bowl with a finger (counting the stirs)
 //   bake     into the oven, count down 3, 2, 1… ding!
+//   candles  a candle on the cake for each year (the birthday cake, only on a birthday)
 import type { Fruit } from './pals'
 
 export interface Ingredient { emoji: string; say: string; plural: string }
@@ -16,6 +17,7 @@ export type CookStep =
   | { kind: 'cut'; food: string; foodName: string; cut: 'halves' | 'triangles' | 'quarters' }
   | { kind: 'stir'; times: number }
   | { kind: 'bake'; what: string; many?: boolean }
+  | { kind: 'candles'; n: number }
 
 /** `many`: the dish is plural ("the cookies are ready"); otherwise "the pizza is ready". */
 export interface Recipe { id: string; name: string; emoji: string; many?: boolean; steps: CookStep[] }
@@ -103,3 +105,14 @@ const FAVORITE: Record<Fruit, string> = {
   Goodness: 'pizza', Faithfulness: 'salad', Gentleness: 'toast', 'Self-Control': 'salad',
 }
 export const recipeFor = (fruit: Fruit) => RECIPES.find((r) => r.id === FAVORITE[fruit])!
+
+/** On their birthday: a cake to share with a Pal, with a candle for each year. */
+export const birthdayCake = (candles: number): Recipe => ({
+  id: 'cake', name: 'Birthday Cake', emoji: '🎂', steps: [
+    { kind: 'add', item: I.egg, n: 3 },
+    { kind: 'add', item: I.strawberry, n: 2 },
+    { kind: 'stir', times: 3 },
+    { kind: 'bake', what: 'cake' },
+    { kind: 'candles', n: Math.max(1, Math.min(12, candles)) },
+  ],
+})

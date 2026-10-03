@@ -1,9 +1,11 @@
 // Looking after Pals on the Ark: dress-up accessories, feeding berries, and the mystery egg.
 import { addPalXp, getProgress, today, update, type Progress } from './progress'
+import { hasAgeSticker } from './party'
 
-export interface Accessory { id: string; emoji: string; name: string; needs: number } // needs = stickers earned
+/** needs = stickers earned; `birthday`: comes with the first birthday party instead. */
+export interface Accessory { id: string; emoji: string; name: string; needs: number; birthday?: boolean }
 
-/** Earned with stickers: one more each time she finishes an island. */
+/** Earned with stickers: one more each time she finishes an island (and a party hat on a birthday). */
 export const ACCESSORIES: Accessory[] = [
   { id: 'bow', emoji: '🎀', name: 'bow', needs: 0 },
   { id: 'flower', emoji: '🌸', name: 'flower', needs: 1 },
@@ -12,9 +14,11 @@ export const ACCESSORIES: Accessory[] = [
   { id: 'cap', emoji: '🧢', name: 'cap', needs: 4 },
   { id: 'star', emoji: '⭐', name: 'star clip', needs: 5 },
   { id: 'rainbow', emoji: '🌈', name: 'rainbow clip', needs: 6 },
+  { id: 'partyhat', emoji: '🥳', name: 'party hat', needs: 0, birthday: true },
 ]
 export const accessoryById = (id?: string) => ACCESSORIES.find((a) => a.id === id)
-export const unlockedAccessories = (p: Progress) => ACCESSORIES.filter((a) => p.stickers.length >= a.needs)
+export const unlockedAccessories = (p: Progress) =>
+  ACCESSORIES.filter((a) => (a.birthday ? hasAgeSticker(p.stickers) : p.stickers.length >= a.needs))
 
 export function wear(palId: string, accessory: string | null) {
   update((p) => {

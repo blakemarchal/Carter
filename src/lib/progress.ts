@@ -1,6 +1,10 @@
-// All progress lives on the device. Nothing is sent anywhere.
-// Each player profile has its own saved progress and settings.
+// All progress lives on the device (and in the family's backups on the server).
+// Each player profile has its own saved progress and settings; the family cast is shared.
+// No child is written into the code: names, birthdays and looks all come from the profiles.
 import { useSyncExternalStore } from 'react'
+import { isValidBirthday, type Birthday } from './birthday'
+import { FAMILY_KEY, migrateStorage, PROFILES_KEY, progressKey } from './storageKeys'
+import type { KidLook } from './look'
 
 export type Skill = 'reading' | 'numbers'
 export type Narrator = 'ara' | 'eve' | 'device'
@@ -33,30 +37,45 @@ export interface Progress {
   narrator: Narrator
   music: boolean
   sfx: boolean
+  /** The day the birthday party was shown (so it surprises them once, on the day), and the age they turned. */
+  partyShown?: string
+  partyAge?: number
+  /** The days the birthday countdown and "it's ___'s birthday" were last said, so they're said once a day. */
+  countdownSaid?: string
+  siblingSaid?: string
 }
+
+export { DEFAULT_LOOK, type KidLook } from './look'
 
 export interface Profile {
   id: string
   name: string
   emoji: string
+  /** Month and day only (never a year). */
+  birthday?: Birthday
+  look?: KidLook
+  /** A grown-up's player (a parent trying the game): never a brother or sister in the stories. */
+  grownup?: boolean
 }
+
+/** The family cast: names that appear in stories (shared by every player on the device). */
+export interface FamilyCast {
+  /** What the children call their parents; empty = not in the stories. */
+  mom: string
+  dad: string
+  /** Brothers and sisters who don't have a player of their own (players are siblings automatically). */
+  siblings: { name: string; baby?: boolean; birthday?: Birthday }[]
+  pets: { name: string; emoji: string }[]
+}
+
+const FAMILY_DEFAULT: FamilyCast = { mom: 'Mom', dad: 'Dad', siblings: [], pets: [] }
 
 interface ProfileIndex {
   active: string
   list: Profile[]
 }
 
-const PROFILES_KEY = 'carters-ark:profiles'
-// Carter's progress keeps the original key, so anything saved before profiles existed is still hers.
-const keyFor = (id: string) => (id === 'carter' ? 'carters-ark:v1' : `carters-ark:v1:${id}`)
-
-const DEFAULT_PROFILES: ProfileIndex = {
-  active: 'carter',
-  list: [
-    { id: 'carter', name: 'Carter', emoji: '🌈' },
-    { id: 'dad', name: 'Dad', emoji: '🧪' },
-  ],
-}
+const keyFor = progressKey
 
 const fresh = (): Progress => ({
   version: 1,
@@ -111,15 +130,34 @@ function write(key: string, value: unknown) {
 
 const loadProgress = (id: string): Progress => ({ ...fresh(), ...read<Partial<Progress>>(keyFor(id)) })
 
-let profiles: ProfileIndex = read<ProfileIndex>(PROFILES_KEY) ?? DEFAULT_PROFILES
-if (!profiles.list.some((p) => p.id === profiles.active)) profiles = { ...profiles, active: profiles.list[0].id }
+// Saves from before the game was called Ark Pals move over first.
+try {
+  migrateStorage(localStorage)
+} catch {
+  /* storage unavailable */
+}
+
+/** Player list as saved, tidied (bad birthdays dropped). A brand-new device has no players yet. */
+function loadProfiles(): ProfileIndex {
+  const saved = read<ProfileIndex>(PROFILES_KEY)
+  if (saved?.list?.length) {
+    const list = saved.list.map((p) => (p.birthday && !isValidBirthday(p.birthday) ? { ...p, birthday: undefined } : p))
+    return { active: list.some((p) => p.id === saved.active) ? saved.active : list[0].id, list }
+  }
+  // Progress from before there were players (moved to "player"), with no list: give it a player.
+  if (read(keyFor('player'))) return { active: 'player', list: [{ id: 'player', name: 'Player', emoji: '🌈' }] }
+  return { active: '', list: [] }
+}
+
+let profiles: ProfileIndex = loadProfiles()
+let family: FamilyCast = { ...FAMILY_DEFAULT, ...read<Partial<FamilyCast>>(FAMILY_KEY) }
 let state = loadProgress(profiles.active)
 const listeners = new Set<() => void>()
 const notify = () => listeners.forEach((l) => l())
 const subscribe = (l: () => void) => (listeners.add(l), () => { listeners.delete(l) })
 
 function save() {
-  write(keyFor(profiles.active), state)
+  if (profiles.active) write(keyFor(profiles.active), state)
   notify()
 }
 
@@ -148,11 +186,17 @@ export function useProfiles() {
   return useSyncExternalStore(subscribe, () => profiles)
 }
 
+const NOBODY: Profile = { id: '', name: '', emoji: '🌈' }
+
+/** The player now playing (a blank one on a brand-new device, until the first player is added). */
 export function activeProfile(): Profile {
-  return profiles.list.find((p) => p.id === profiles.active)!
+  return profiles.list.find((p) => p.id === profiles.active) ?? NOBODY
 }
 
-/** The current player's name, for narration ("Way to go, Carter!"). */
+/** No players yet: a brand-new device, where the title screen asks for the first one. */
+export const noPlayers = () => profiles.list.length === 0
+
+/** The current player's name, for narration ("Way to go, ___!"). */
 export const playerName = () => activeProfile().name.trim() || 'friend'
 
 export function switchProfile(id: string) {
@@ -161,11 +205,14 @@ export function switchProfile(id: string) {
   saveProfiles({ ...profiles, active: id })
 }
 
-export function addProfile(name: string, emoji: string) {
+export function addProfile(name: string, emoji: string, more: Partial<Omit<Profile, 'id' | 'name' | 'emoji'>> = {}) {
   const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'player'
   let id = base
-  for (let n = 2; profiles.list.some((p) => p.id === id) || id === 'carter'; n++) id = `${base}-${n}`
-  saveProfiles({ ...profiles, list: [...profiles.list, { id, name, emoji }] })
+  // (Never reuse an id that still has progress saved under it.)
+  for (let n = 2; profiles.list.some((p) => p.id === id) || read(keyFor(id)); n++) id = `${base}-${n}`
+  const first = !profiles.list.length
+  if (first) state = loadProgress(id)
+  saveProfiles({ active: first ? id : profiles.active, list: [...profiles.list, { id, name, emoji, ...more }] })
   return id
 }
 
@@ -184,6 +231,18 @@ export function deleteProfile(id: string) {
   }
   if (id === profiles.active) state = loadProgress(list[0].id)
   saveProfiles({ active: id === profiles.active ? list[0].id : profiles.active, list })
+}
+
+// ---------- Family cast ----------
+
+export const getFamily = () => family
+export function useFamily() {
+  return useSyncExternalStore(subscribe, () => family)
+}
+export function setFamily(next: FamilyCast) {
+  family = next
+  write(FAMILY_KEY, family)
+  notify()
 }
 
 /** Erases the current player's progress but keeps their settings (voice, sound). */

@@ -10,8 +10,8 @@ const fx = fixture({ today })
 fx.islandStep = { [ISLAND]: Number(STEP) }
 fx.mapAt = ISLAND
 await page.goto('http://localhost:5179/')
-await page.eval(`localStorage.clear(); localStorage.setItem('carters-ark:profiles', JSON.stringify({ active: 'tester', list: [{ id: 'tester', name: 'Tester', emoji: '🧪' }] }));
-  localStorage.setItem('carters-ark:v1:tester', ${JSON.stringify(JSON.stringify(fx))}); true`)
+await page.eval(`localStorage.clear(); localStorage.setItem('ark-pals:profiles', JSON.stringify({ active: 'tester', list: [{ id: 'tester', name: 'Tester', emoji: '🧪' }] }));
+  localStorage.setItem('ark-pals:v1:tester', ${JSON.stringify(JSON.stringify(fx))}); true`)
 await page.goto('http://localhost:5179/')
 await sleep(700)
 await page.tapOn('button.player')

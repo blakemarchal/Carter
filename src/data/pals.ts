@@ -154,7 +154,7 @@ export const PALS: PalDef[] = [
     intro: 'is a Gentleness Pal! {name} was frosty and grumpy, but the love of baby Jesus made {name} soft and gentle, like falling snow.',
   },
 
-  // Birthday island
+  // The birthday party (Sprinkles comes to the party; Pouty is the grumpy balloon in its battle)
   {
     id: 'sprinkles', species: 'cupcake', fruit: 'Joy',
     stages: [{ name: 'Sprinkles', xp: 0 }, { name: 'Swirly', xp: 100 }, { name: 'Celebrake', xp: 300 }],

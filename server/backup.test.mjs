@@ -6,13 +6,13 @@ import { createBackups } from './backup.mjs'
 
 let dir
 let backups
-beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), 'carter-bk-')); backups = createBackups(dir) })
+beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), 'ark-bk-')); backups = createBackups(dir) })
 afterEach(async () => { await rm(dir, { recursive: true, force: true }) })
 
 const backup = (device, label, extra = {}) => JSON.stringify({
   savedAt: new Date().toISOString(), device, label,
   keys: {
-    'carters-ark:profiles': JSON.stringify({ active: 'carter', list: [{ id: 'carter', name: 'Carter', emoji: '🌈' }, { id: 'dad', name: 'Dad', emoji: '🧪' }] }),
+    'carters-ark:profiles': JSON.stringify({ active: 'robin', list: [{ id: 'robin', name: 'Robin', emoji: '🌈' }, { id: 'dad', name: 'Dad', emoji: '🧪' }] }),
     'carters-ark:v1': JSON.stringify({ islandsDone: ['noah', 'creation'], pals: { zippy: 10, pip: 0, rumble: 0 }, ...extra }),
     'carters-ark:v1:dad': JSON.stringify({ islandsDone: [], pals: {} }),
   },
@@ -20,14 +20,27 @@ const backup = (device, label, extra = {}) => JSON.stringify({
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 
 describe('backups', () => {
-  it('lists each backup with who is in it', async () => {
+  it('lists each backup with who is in it (an older backup: the first player was the bare "v1")', async () => {
     await backups.save(backup('ipad1', 'iPad'))
     const [b] = await backups.list()
     expect(b.label).toBe('iPad')
     expect(b.players).toEqual([
-      { name: 'Carter', emoji: '🌈', islands: 2, pals: 3 },
+      { name: 'Robin', emoji: '🌈', islands: 2, pals: 3 },
       { name: 'Dad', emoji: '🧪', islands: 0, pals: 0 },
     ])
+  })
+
+  it('reads backups saved under the new names too', async () => {
+    await backups.save(JSON.stringify({
+      savedAt: new Date().toISOString(), device: 'ipad2', label: 'iPad',
+      keys: {
+        'ark-pals:profiles': JSON.stringify({ active: 'sam', list: [{ id: 'sam', name: 'Sam', emoji: '🦁' }, { id: 'jo', name: 'Jo', emoji: '🐳' }] }),
+        'ark-pals:v1:sam': JSON.stringify({ islandsDone: ['noah'], pals: { zippy: 0 } }),
+        'ark-pals:v1:jo': JSON.stringify({ islandsDone: [], pals: {} }),
+      },
+    }))
+    const [b] = await backups.list()
+    expect(b.players).toEqual([{ name: 'Sam', emoji: '🦁', islands: 1, pals: 1 }, { name: 'Jo', emoji: '🐳', islands: 0, pals: 0 }])
   })
 
   it('one device can never push out another device’s backups', async () => {

@@ -4,6 +4,7 @@
 // to her Pal. A tap still works for every one of them, so nothing ever gets stuck.
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import DressedPal from './DressedPal'
+import { CandlesOnCake } from './PartyCake'
 import { MixingBowl, StirBowl, bowlSlot, type Batter } from './Bowl'
 import { BackButton, BigButton, Confetti } from './ui'
 import { FRUIT_COLOR, stageFor, type PalDef } from '../data/pals'
@@ -28,6 +29,7 @@ const BATTER: Record<string, Batter> = {
   smoothie: { base: '#f8e8f0', done: '#c77fcd' },
   salad: { base: '#fff4dc', done: '#ffe7b5', keep: true },
   soup: { base: '#f9c27e', done: '#e8653d', keep: true },
+  cake: { base: '#fff1d6', done: '#ffd2e4' },
 }
 
 // ---------- add: drag ingredients into the bowl ----------
@@ -492,9 +494,12 @@ function Plate({ emoji, onGive, onTap }: { emoji: string; onGive: () => boolean;
   )
 }
 
-export default function Kitchen({ pal, hungry, onClose }: { pal: PalDef; hungry: boolean; onClose: () => void }) {
+/** `special`: something other than the Pal's favorite (the birthday cake), with what to say first. */
+export default function Kitchen({ pal, hungry, special, onClose }: {
+  pal: PalDef; hungry: boolean; special?: { recipe: Recipe; intro: string }; onClose: () => void
+}) {
   const p = useProgress()
-  const recipe: Recipe = recipeFor(pal.fruit)
+  const recipe: Recipe = special?.recipe ?? recipeFor(pal.fruit)
   const stage = stageFor(pal, p.pals[pal.id] ?? 0)
   const name = pal.stages[stage].name
   const [i, setI] = useState(0)
@@ -510,7 +515,7 @@ export default function Kitchen({ pal, hungry, onClose }: { pal: PalDef; hungry:
 
   useEffect(() => {
     showedHow = false
-    speak(`${name} is ${hungry ? 'hungry' : 'ready for a snack'}! Let's cook ${recipe.name}, ${name}'s favorite!`)
+    speak(special?.intro ?? `${name} is ${hungry ? 'hungry' : 'ready for a snack'}! Let's cook ${recipe.name}, ${name}'s favorite!`)
   }, [])
   useEffect(() => {
     if (finished) speak(`The ${recipe.name} ${recipe.many ? 'are' : 'is'} ready! Give ${recipe.many ? 'them' : 'it'} to ${name}!`)
@@ -546,10 +551,11 @@ export default function Kitchen({ pal, hungry, onClose }: { pal: PalDef; hungry:
       case 'cut': station = <CutStep key={i} step={step} onDone={next} />; break
       case 'stir': station = <StirStep key={i} step={step} contents={contents} batter={BATTER[recipe.id] ?? BATTER.pancakes} onDone={next} />; break
       case 'bake': station = <BakeStep key={i} step={step} dish={recipe.emoji} onDone={next} />; break
+      case 'candles': station = <div key={i} className="k-station"><CandlesOnCake n={step.n} onDone={next} /></div>; break
     }
   }
 
-  const ICON: Record<CookStep['kind'], string> = { add: '🥣', find: '🫙', pattern: '🔁', cut: '🔪', stir: '🥄', bake: '🔥' }
+  const ICON: Record<CookStep['kind'], string> = { add: '🥣', find: '🫙', pattern: '🔁', cut: '🔪', stir: '🥄', bake: '🔥', candles: '🕯️' }
   return (
     <div className="overlay kitchen" style={{ '--c': FRUIT_COLOR[pal.fruit] } as CSSProperties}>
       <header className="home-head">

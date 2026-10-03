@@ -4,8 +4,8 @@ import { AUDIT } from './motion.mjs'
 const page = await launch()
 const today = new Date().toISOString().slice(0, 10)
 await page.goto('http://localhost:5179/')
-await page.eval(`localStorage.clear(); localStorage.setItem('carters-ark:profiles', JSON.stringify({ active: 'tester', list: [{ id: 'tester', name: 'Tester', emoji: '🧪' }] }));
-  localStorage.setItem('carters-ark:v1:tester', ${JSON.stringify(JSON.stringify(fixture({ today })))}); true`)
+await page.eval(`localStorage.clear(); localStorage.setItem('ark-pals:profiles', JSON.stringify({ active: 'tester', list: [{ id: 'tester', name: 'Tester', emoji: '🧪' }] }));
+  localStorage.setItem('ark-pals:v1:tester', ${JSON.stringify(JSON.stringify(fixture({ today })))}); true`)
 await page.goto('http://localhost:5179/')
 const audit = async (label, min = 40) => {
   await sleep(1500)

@@ -10,6 +10,10 @@ import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../
 import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
 import FamilySongs from '../components/FamilySongs'
+import { FamilyCastEditor, PlayerDetails } from '../components/FamilyEditor'
+import { birthdayLabel, daysUntil } from '../lib/birthday'
+import { isGrownup } from '../lib/party'
+import { PLAYER_EMOJIS } from '../lib/look'
 import { ISLANDS } from '../data/islands'
 import type { Progress } from '../lib/progress'
 
@@ -24,19 +28,21 @@ const NARRATORS: { id: Narrator; label: string }[] = [
   { id: 'device', label: 'iPad voice' },
 ]
 
-const EMOJIS = ['🌈', '🧪', '🦁', '🐳', '🌟', '🦄', '🐻', '🚀', '🌸', '🐶']
+const EMOJIS = PLAYER_EMOJIS
 
 function Players() {
   const { active, list } = useProfiles()
   const [name, setName] = useState('')
   const [emoji, setEmoji] = useState(EMOJIS[2])
+  const [open, setOpen] = useState<string | null>(null)
   return (
     <section>
       <h3>Players</h3>
-      <p className="muted">Each player has their own Pals, levels and settings. Playing as one never changes another&rsquo;s progress.</p>
+      <p className="muted">Each player has their own Pals, levels and settings. Playing as one never changes another&rsquo;s progress. Tap &ldquo;Birthday &amp; look&rdquo; to add a birthday and choose how they look in the stories.</p>
       <div className="player-list">
         {list.map((pr) => (
-          <div key={pr.id} className={`player-row ${pr.id === active ? 'on' : ''}`}>
+          <div key={pr.id} className="player-block">
+          <div className={`player-row ${pr.id === active ? 'on' : ''}`}>
             <button className="emoji-pick" title="Change icon"
               onClick={() => editProfile(pr.id, { emoji: EMOJIS[(EMOJIS.indexOf(pr.emoji) + 1) % EMOJIS.length] })}>{pr.emoji}</button>
             <input value={pr.name} maxLength={16} aria-label="Player name"
@@ -45,9 +51,14 @@ function Players() {
             {pr.id === active
               ? <span className="tag">playing now</span>
               : <button onClick={() => switchProfile(pr.id)}>Play as {pr.name}</button>}
+            <button className={open === pr.id ? 'on' : ''} onClick={() => setOpen(open === pr.id ? null : pr.id)}>
+              {pr.birthday ? `🎂 ${birthdayLabel(pr.birthday)}` : isGrownup(pr) ? 'Grown-up' : 'Birthday & look'}
+            </button>
             {list.length > 1 && (
               <button className="danger" onClick={() => confirm(`Delete ${pr.name} and all of their progress?`) && deleteProfile(pr.id)}>Delete</button>
             )}
+          </div>
+          {open === pr.id && <PlayerDetails profile={pr} />}
           </div>
         ))}
       </div>
@@ -94,6 +105,33 @@ function Week({ p }: { p: Progress }) {
   )
 }
 
+function Family() {
+  return (
+    <section>
+      <h3>Family</h3>
+      <p className="muted">These names appear in the stories, like the birthday story.</p>
+      <FamilyCastEditor />
+    </section>
+  )
+}
+
+/** The birthday party: when it happens, and a preview a grown-up can play right now. */
+function Party({ onParty }: { onParty: () => void }) {
+  const me = activeProfile()
+  const days = me.birthday ? daysUntil(me.birthday) : null
+  return (
+    <section>
+      <h3>Birthday party</h3>
+      <p>
+        {me.birthday
+          ? `${me.name}’s birthday is ${birthdayLabel(me.birthday)}${days === 0 ? ': today!' : `, in ${days} ${days === 1 ? 'day' : 'days'}`}. On the day, a surprise party starts when ${me.name} opens the game: Happy Birthday with their name, candles to blow out, the birthday story and a present. The week before, balloons appear on the map and their Pal counts down the sleeps.`
+          : `Add a birthday for ${me.name} under Players, and the game throws a surprise party on the day.`}
+      </p>
+      <div className="level-row"><button onClick={onParty}>🎉 Try the party now (nothing is saved)</button></div>
+    </section>
+  )
+}
+
 function Islands({ p }: { p: Progress }) {
   return (
     <section>
@@ -104,7 +142,7 @@ function Islands({ p }: { p: Progress }) {
           {p.openAll ? '🔓 All islands open' : '🔒 Islands open in order'}
         </button>
       </div>
-      <p className="muted">Normally each island opens when the one before it is finished. &ldquo;All islands open&rdquo; is for this player only, and also opens the birthday island early.</p>
+      <p className="muted">Normally each island opens when the one before it is finished. &ldquo;All islands open&rdquo; is for this player only.</p>
     </section>
   )
 }
@@ -200,7 +238,7 @@ function AppVersion() {
   )
 }
 
-export default function ParentScreen({ onBack }: { onBack: () => void }) {
+export default function ParentScreen({ onBack, onParty }: { onBack: () => void; onParty: () => void }) {
   const p = useProgress()
   const me = activeProfile()
   const mins = Math.round(p.playSeconds / 60)
@@ -213,6 +251,8 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
     <div className="screen parent">
       <header><BackButton onClick={onBack} /><h2>Parent Corner</h2><span /></header>
       <Players />
+      <Family />
+      <Party onParty={onParty} />
       <section>
         <h3>Today ({me.emoji} {me.name})</h3>
         <p>{mins} min played (gentle reminder at 60 min)</p>

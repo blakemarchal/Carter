@@ -1,12 +1,17 @@
-// Cook pancakes for Zippy with real finger drags, filming each step.
+// Cook a Pal's favorite food with real finger drags, filming each step.
+//   node kitchen.mjs <out dir> [pal] [cake]   (cake: it's the player's birthday; bake the birthday cake)
 import { fixture, launch, sleep } from './cdp.mjs'
 const OUT = process.argv[2]
 const PAL = process.argv[3] ?? 'zippy'
+const CAKE = process.argv[4] === 'cake'
 const page = await launch()
-const today = new Date().toISOString().slice(0, 10)
+const now = new Date()
+const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+const fx = { ...fixture({ today }), ...(CAKE ? { partyShown: today, partyAge: 5 } : {}) }
+const tester = { id: 'tester', name: 'Tester', emoji: '🦁', ...(CAKE ? { birthday: { month: now.getMonth() + 1, day: now.getDate() } } : {}) }
 await page.goto('http://localhost:5179/')
-await page.eval(`localStorage.clear(); localStorage.setItem('carters-ark:profiles', JSON.stringify({ active: 'tester', list: [{ id: 'tester', name: 'Tester', emoji: '🧪' }] }));
-  localStorage.setItem('carters-ark:v1:tester', ${JSON.stringify(JSON.stringify(fixture({ today })))}); true`)
+await page.eval(`localStorage.clear(); localStorage.setItem('ark-pals:profiles', JSON.stringify({ active: 'tester', list: [${JSON.stringify(tester)}] }));
+  localStorage.setItem('ark-pals:v1:tester', ${JSON.stringify(JSON.stringify(fx))}); true`)
 await page.goto('http://localhost:5179/')
 await sleep(700)
 await page.tapOn('button.player')
@@ -18,7 +23,7 @@ const cards = await page.eval(`[...document.querySelectorAll('.pal-card')].map((
 const idx = { zippy: 0, ember: 1, pebble: 2, pip: 3 }[PAL] ?? 0
 { const c = await page.eval(`(() => { const e = document.querySelectorAll('.pal-card')[${idx}]; const r = e.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2] })()`); await page.tap(c[0], c[1]) }
 await sleep(900)
-await page.tapOn('.big-btn', 'Cook')
+await page.tapOn('.big-btn', CAKE ? 'Birthday cake' : 'Cook')
 await sleep(1500)
 
 const box = (sel, text) => page.eval(`(() => { const e = [...document.querySelectorAll(${JSON.stringify(sel)})].filter((e) => ${text ? `e.textContent.includes(${JSON.stringify(text)})` : 'true'})[0]; if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height } })()`)
@@ -35,11 +40,14 @@ for (let guard = 0; guard < 8; guard++) {
   if (s === '🥣') {
     // drag ingredients in until the ask is met
     const need = await page.eval(`+document.querySelector('.k-ask b').textContent`)
-    // first, a tap: it should show how to drag (a hand carries a see-through copy to the bowl)
-    const t = await box('.k-pile .k-thing')
-    await page.tap(t.x, t.y)
-    for (let k = 0; k < 5; k++) { await sleep(230); await snap(`hint-${k}`) }
-    await sleep(1600)
+    // first, a tap: it should show how to drag (a hand carries a see-through copy to the bowl).
+    // (Only the first time: after that, a tap hops it straight in.)
+    if (guard === 0) {
+      const t = await box('.k-pile .k-thing')
+      await page.tap(t.x, t.y)
+      for (let k = 0; k < 5; k++) { await sleep(230); await snap(`hint-${k}`) }
+      await sleep(1600)
+    }
     for (let k = 0; k < need; k++) {
       const from = await box('.k-pile .k-thing')
       const to = await box('.bowl')
@@ -88,6 +96,18 @@ for (let guard = 0; guard < 8; guard++) {
     const c = await page.eval(`(() => { const e = document.querySelector('.k-cut[aria-label="${cut}"]'); const r = e.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2] })()`)
     await page.tap(c[0], c[1])
     for (let k = 0; k < 5; k++) { await sleep(180); await snap(`cut-${k}`) }
+    await sleep(3000)
+  } else if (s === '🕯️') {
+    await sleep(2500)
+    await snap('candles-start')
+    for (let k = 0; k < 12; k++) {
+      const from = await box('.tray-candle')
+      if (!from) break
+      const to = await box('.party-cake')
+      await page.drag(line(from, to), 20)
+      await sleep(700)
+    }
+    await sleep(500); await snap('candles-lit')
     await sleep(3000)
   } else {
     break

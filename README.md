@@ -1,7 +1,9 @@
-# Carter's Ark Adventure
+# Ark Pals
 
-A faith-based learning game for Carter: Bible stories, reading, numbers, and Pokémon-style Ark Pals.
-See [SPEC.md](SPEC.md) for the full plan.
+A faith-based learning game for young children: Bible stories, reading, numbers, and Pokémon-style Ark Pals.
+It began as a game for one family's daughter; [SPEC.md](SPEC.md) is that first plan, and
+[docs/BUSINESS-PLAN.md](docs/BUSINESS-PLAN.md) is where it's going. No child is written into the code:
+names, birthdays, looks and family all come from the players and the Parent Corner.
 
 ## Run it
 
@@ -20,14 +22,16 @@ npm run build      # production files in dist/
 
 **Sing-along** (🎤 on the map): Ara sings six songs while the words light up one at a time, and the player's Pal dances. "I sing!" swaps to the same song with the tune on a flute. The songs are made ahead of time by `scripts/sing` (see "Making the songs" below) into `public/music/` and `src/data/songs.gen.json`. Parents can add their own recordings in the Parent Corner and tap along once to time the words.
 
-**Players:** the title screen asks "Who's playing?". Each player (Carter, Dad, or anyone added in the Parent Corner) has separate progress and settings on the device, so testing as Dad never touches Carter's game.
+**Players:** the title screen asks "Who's playing?" (a brand-new device asks for the first player's name). Each player has separate progress and settings on the device, so a grown-up testing as themselves never touches a child's game. In the Parent Corner each player can have a birthday (month and day only) and a look for the story pictures, and the family cast (what the children call Mom and Dad, brothers and sisters, pets) puts the family into the stories.
+
+**Birthdays:** the week before, balloons appear on the map and the player's Pal counts the sleeps. On the day, a surprise party starts when they open the game: every Pal in a party hat, Ara singing Happy Birthday with their name, candles to put on the cake and blow out, the birthday story (their date, age, family and Pals), "Thank you, God, for making ___!" with Psalm 139:14, a battle where the grumpy balloon was bringing a present, and gifts: an age sticker ("5 candles") that collects year by year, party hats for their Pals, and a birthday cake in the Pal Kitchen that day. The other players see "Today is ___'s birthday!". Tapping an age sticker in the sticker book plays that party again.
 
 **What's in the game:**
-- A sailing map of seven story islands (Noah, Creation, David, Jonah, Loaves & Fishes, Baby Jesus, and a birthday island that opens on January 8). Islands open in order; each is data in `src/data/<island>.ts`.
+- A sailing map of six story islands (Noah, Creation, David, Jonah, Loaves & Fishes, Baby Jesus). Islands open in order; each is data in `src/data/<island>.ts`.
 - Activities: picture-book stories, memory match, adaptive reading and number questions, put-in-order, sorting, story questions, counting into a basket, letter tracing, mazes, memory verses (World English Bible).
 - Ark Pals: 18 collectable Pals with three stages each, an evolution scene, friendly battles with basic, brave and super moves, Pal homes (pet, feed, dress up, color), a mystery egg, the Pal Kitchen (cook each Pal's favorite food: counting, reading, patterns, shapes), a sticker book and a bedtime story.
-- Sing-along: Jesus Loves Me, This Little Light of Mine, Noah Built a Big Boat (to "Old MacDonald"), Twinkle Twinkle, Away in a Manger, and Happy Birthday, Carter.
-- Parent Corner (hold the ⚙️ for 3 seconds): players, levels, narrator voice, music, this week's summary, open all islands, family voice recordings, your own sing-along songs, backup and restore, app updates.
+- Sing-along: Jesus Loves Me, This Little Light of Mine, Noah Built a Big Boat (to "Old MacDonald"), Twinkle Twinkle, Away in a Manger, and Happy Birthday (Ara leaves a gap for the name, and the game says the player's name there).
+- Parent Corner (hold the ⚙️ for 3 seconds): players (birthday and look), the family cast, a birthday-party preview, levels, narrator voice, music, this week's summary, open all islands, family voice recordings, your own sing-along songs, backup and restore, app updates.
 
 **Tests:** `npm test` checks the spoken-text rules, question generation, move unlocks, and every island, Pal and recipe.
 
@@ -48,6 +52,7 @@ npm run build      # production files in dist/
 ```bash
 node scripts/film/screens.mjs                                     # motion audit: title, map, Ark, a Pal's home
 node scripts/film/motion.mjs "http://localhost:5179/#gallery/scenes/all"   # every story picture (and #gallery/pals)
+node scripts/film/gallery.mjs out/pics scenes/birthday/family     # a picture of each page (…/family: a made-up family)
 node scripts/film/play.mjs out/pairs noah 1                       # play one island step: pairs, sequence, sort, count, maze, verse, battle
 node scripts/film/kitchen.mjs out/kitchen zippy                   # cook a whole recipe by dragging
 python scripts/film/transforms.py .                               # CSS that would wipe out an SVG element's position
@@ -63,13 +68,13 @@ Each song is written out note by note in `scripts/sing/scores.py` (melodies chec
    ```bash
    python scripts/sing/words.py > words.json
    scp scripts/sing/fetch-words.mjs root@68.183.130.3:/opt/Carter/scripts/sing/
-   scp words.json root@68.183.130.3:/root/carter-words.json
-   ssh root@68.183.130.3 "cd /opt/Carter && node scripts/sing/fetch-words.mjs /root/carter-words.json /root/carter-sing-words"
-   scp -r "root@68.183.130.3:/root/carter-sing-words" .
+   scp words.json root@68.183.130.3:/root/sing-words.json
+   ssh root@68.183.130.3 "cd /opt/Carter && node scripts/sing/fetch-words.mjs /root/sing-words.json /root/sing-words"
+   scp -r "root@68.183.130.3:/root/sing-words" .
    ```
 2. Make the songs (needs Python 3 and `pip install -r scripts/sing/requirements.txt`):
    ```bash
-   python scripts/sing/make.py carter-sing-words           # all songs; or --only twinkle
+   python scripts/sing/make.py sing-words                  # all songs; or --only twinkle
    ```
    Each word is pitched onto its notes and its vowel held for the note's length (the WORLD vocoder), then mixed with a synthesized band. It prints how close each song is to the written notes.
 3. Build and deploy as usual. Song files have a content hash in their names, so iPads pick up new versions.

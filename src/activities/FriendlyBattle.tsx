@@ -7,6 +7,7 @@
 //      otherwise it loses a heart. A tired Pal eats a berry and bounces back: nobody ever loses.
 //   4. Shadow gone: Grumbleshade floats away grumbling, the creature smiles, and she asks it to
 //      join the Ark. "Yes, please!" She throws a Friend Ball: wobble, wobble, wobble… click!
+// At a birthday party (`present`), the creature turns out to have been bringing a present.
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import PalArt from '../components/PalArt'
 import MoveFx, { type Pt } from '../components/MoveFx'
@@ -29,7 +30,9 @@ const SHADOW_MOVES = ['Grumpy Puff', 'Shadow Sneeze', 'Pouty Mist', 'Frown Fog',
 
 type Phase = 'intro' | 'team' | 'pick' | 'question' | 'attack' | 'shadow' | 'freed' | 'ask' | 'throw' | 'caught' | 'learned'
 
-export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: string; foeIntro: string; onDone: () => void }) {
+export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
+  foeId: string; foeIntro: string; /** a birthday: what to say when the present comes out */ present?: string; onDone: () => void
+}) {
   const p = useProgress()
   const alive = useAlive()
   const foe = palById(foeId)
@@ -56,6 +59,7 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
   const [palAnim, setPalAnim] = useState<'dodge' | 'hurt' | 'berry' | ''>('')
   const [ball, setBall] = useState<'' | 'fly' | 'land' | 'wobble' | 'done'>('')
   const [learned, setLearned] = useState<Move | null>(null)
+  const [gift, setGift] = useState(false) // the birthday present, out from behind its back
   const arena = useRef<HTMLDivElement>(null)
   const [ends, setEnds] = useState<{ from: Pt; to: Pt }>({ from: { x: 12, y: 55 }, to: { x: 86, y: 50 } })
 
@@ -204,6 +208,12 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
     await speak(`Kindness chased the shadow away! Grumbleshade floated off, grumbling. ${foeName} is happy again!`)
     if (!alive.current) return
     setShade('gone')
+    if (present) {
+      setGift(true)
+      sfx.sparkle()
+      await speak(present)
+      if (!alive.current) return
+    }
     if (alreadyFriend) {
       await speak(`${foeName} is so glad to see you again. Thank you, friend!`)
       return finish()
@@ -282,6 +292,7 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
                 className={phase === 'attack' ? 'hit' : phase === 'shadow' ? 'foe-lunge' : happy ? 'befriend' : 'bob'} />
             </div>
             {phase === 'ask' && <div className="speech">Yes, please! 💖</div>}
+            {gift && !caughtIn && <span className="foe-present" aria-hidden>🎁</span>}
           </div>
         </div>
         <div className="fighter buddy">

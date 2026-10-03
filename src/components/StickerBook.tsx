@@ -1,7 +1,9 @@
 // Sticker book: a big scene where she drags her stickers anywhere (and back to the tray to take them
-// off). Positions are saved.
+// off). Positions are saved. Tapping a birthday sticker plays that birthday party again.
 import { useCallback, useEffect, useRef } from 'react'
 import { BackButton } from './ui'
+import StickerFace from './StickerFace'
+import { stickerAge } from '../lib/party'
 import { update, useProgress } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
@@ -9,18 +11,23 @@ import { useDrag, useDropTarget, type Pt } from '../lib/drag'
 
 type Place = (s: string, where: 'scene' | 'tray', at: Pt) => boolean
 
-function Sticker({ s, spot, onPlace }: { s: string; spot?: { x: number; y: number }; onPlace: Place }) {
+function Sticker({ s, spot, onPlace, onParty }: { s: string; spot?: { x: number; y: number }; onPlace: Place; onParty?: (age: number) => void }) {
+  const age = stickerAge(s)
   const drag = useDrag({
     data: s, landing: 'here', onStart: sfx.lift,
     onDrop: (t, at) => (t === 'scene' || t === 'tray') && onPlace(s, t, at),
-    onTap: () => speak(spot ? 'Drag it somewhere else, or back to the tray!' : 'Drag it onto the page!'),
+    onTap: () => {
+      if (age !== null && onParty) return onParty(age)
+      speak(spot ? 'Drag it somewhere else, or back to the tray!' : 'Drag it onto the page!')
+    },
   })
   return spot
-    ? <span className="placed-sticker" style={{ left: `${spot.x}%`, top: `${spot.y}%` }} {...drag}>{s}</span>
-    : <span className="tray-sticker" {...drag}>{s}</span>
+    ? <span className="placed-sticker" style={{ left: `${spot.x}%`, top: `${spot.y}%` }} {...drag}><StickerFace s={s} /></span>
+    : <span className="tray-sticker" {...drag}><StickerFace s={s} /></span>
 }
 
-export default function StickerBook({ onClose }: { onClose: () => void }) {
+/** `onParty`: replay the birthday party a birthday sticker came from. */
+export default function StickerBook({ onClose, onParty }: { onClose: () => void; onParty?: (age: number) => void }) {
   const p = useProgress()
   const scene = useRef<HTMLDivElement | null>(null)
   const sceneTarget = useDropTarget('scene', undefined, 0)
@@ -30,7 +37,8 @@ export default function StickerBook({ onClose }: { onClose: () => void }) {
   const tray = p.stickers.filter((s) => !placed.has(s))
 
   useEffect(() => {
-    speak(p.stickers.length ? 'Your sticker book! Drag your stickers anywhere you like.' : 'Finish an island to earn your first sticker!')
+    const party = onParty && p.stickers.some((s) => stickerAge(s) !== null) ? ' Tap a birthday cake to play that party again!' : ''
+    speak(p.stickers.length ? `Your sticker book! Drag your stickers anywhere you like.${party}` : 'Finish an island to earn your first sticker!')
   }, [])
 
   const place: Place = (s, where, at) => {
@@ -51,10 +59,10 @@ export default function StickerBook({ onClose }: { onClose: () => void }) {
     <div className="overlay sticker-book">
       <header className="home-head"><BackButton onClick={onClose} /><h2>⭐ My Sticker Book</h2><span /></header>
       <div ref={sceneRef} className="sticker-scene">
-        {p.stickerSpots.map((t) => <Sticker key={t.s} s={t.s} spot={t} onPlace={place} />)}
+        {p.stickerSpots.map((t) => <Sticker key={t.s} s={t.s} spot={t} onPlace={place} onParty={onParty} />)}
       </div>
       <div ref={trayTarget} className="sticker-tray">
-        {tray.length ? tray.map((s) => <Sticker key={s} s={s} onPlace={place} />)
+        {tray.length ? tray.map((s) => <Sticker key={s} s={s} onPlace={place} onParty={onParty} />)
           : <span className="muted">{p.stickers.length ? 'All your stickers are on the page!' : 'No stickers yet.'}</span>}
       </div>
     </div>

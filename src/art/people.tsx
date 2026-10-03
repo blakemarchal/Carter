@@ -2,7 +2,8 @@
 // Pal style: soft shading, gentle outlines, blinking eyes. Origin is at the feet, centered;
 // an adult stands about 150 units tall at s = 1. Presets for every character are at the bottom.
 import type { CSSProperties, ReactNode } from 'react'
-import { ink, lighten, useShade } from './kit'
+import { darken, ink, lighten, useShade } from './kit'
+import type { KidLook } from '../lib/look'
 
 export type Pose = 'stand' | 'wave' | 'pray' | 'arms-up' | 'hold' | 'point'
 export type Holding = 'staff' | 'sling' | 'baby' | 'basket' | 'bread' | 'hammer' | 'lunch' | 'scroll'
@@ -27,7 +28,7 @@ export interface Look {
   bow?: string
 }
 
-const SKIN = { light: '#f6d2b8', medium: '#d9a47a', tan: '#c68b5e', deep: '#8d5a3b' }
+export const SKIN = { light: '#f6d2b8', medium: '#d9a47a', tan: '#c68b5e', deep: '#8d5a3b' }
 
 function Held({ what, x, y }: { what: Holding; x: number; y: number }) {
   switch (what) {
@@ -62,7 +63,7 @@ function Held({ what, x, y }: { what: Holding; x: number; y: number }) {
   }
 }
 
-/** A baby wrapped in a blanket (baby Jesus, baby Luke). */
+/** A baby wrapped in a blanket (baby Jesus, a baby brother or sister). */
 export function Baby({ x, y, s = 1, blanket = '#fff7e8' }: { x: number; y: number; s?: number; blanket?: string }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
@@ -184,7 +185,30 @@ export const PEOPLE = {
   joseph: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#a0703f', sash: '#6b8f5a' },
   shepherd: { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8dcc0', robe: '#8f7a5a', beard: 'short', beardColor: '#3b2a20', sash: '#c0504d' },
   angel: { skin: SKIN.light, hair: 'long', hairColor: '#f2d27a', robe: '#ffffff', sash: '#ffd34d', wings: true, glow: true },
-  carter: { skin: SKIN.light, hair: 'ponytail', hairColor: '#7a4a24', robe: '#ff8cc0', sash: '#ffffff', bow: '#ff5d9e', build: 'child' },
   mom: { skin: SKIN.light, hair: 'long', hairColor: '#7a4a24', robe: '#c9a8ff', sash: '#ffffff' },
   dad: { skin: SKIN.light, hair: 'short', hairColor: '#5a3a24', beard: 'short', robe: '#5fb7ff', sash: '#3b6fa0' },
 } satisfies Record<string, Look>
+
+// ---------- The player and their family ----------
+// The child in the pictures is whoever is playing: drawn from their profile's look (skin, hair, favorite
+// color). Their family is drawn to match.
+
+/** A child's look for the pictures, from their profile. A bow goes with longer hair. */
+export function kidLook(k: KidLook): Look {
+  const bow = k.hair === 'ponytail' || k.hair === 'pigtails' || k.hair === 'long' ? darken(k.color, 0.12) : undefined
+  return { skin: SKIN[k.skin], hair: k.hair, hairColor: k.hairColor, robe: k.color, sash: '#ffffff', bow, build: 'child' }
+}
+
+/** Mom or Dad, drawn with the child's skin tone and hair color. */
+export function grownupLook(role: 'mom' | 'dad', k: KidLook): Look {
+  const base = PEOPLE[role]
+  return { ...base, skin: SKIN[k.skin], hairColor: role === 'dad' ? darken(k.hairColor, 0.15) : k.hairColor, beardColor: role === 'dad' ? darken(k.hairColor, 0.15) : undefined }
+}
+
+const SIBLING_COLORS = ['#ffb347', '#5fd39a', '#c9a8ff', '#ff8cc0', '#5fb7ff']
+
+/** A brother or sister without a look of their own: the family's skin and hair, a different color. */
+export function siblingLook(k: KidLook, i: number): Look {
+  const hair: KidLook['hair'] = i % 2 ? 'curly' : 'short'
+  return kidLook({ ...k, hair, color: SIBLING_COLORS[(SIBLING_COLORS.indexOf(k.color) + 1 + i) % SIBLING_COLORS.length] })
+}

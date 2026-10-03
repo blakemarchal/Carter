@@ -110,13 +110,14 @@ TWINKLE = dict(
 )
 
 HAPPY_BIRTHDAY = dict(
-    id='happy-birthday', title='Happy Birthday, Carter', style='party', meter=3,
-    # The held "Car-ter" (a fermata): slow down for those two beats, then back to tempo.
-    tempo=[(0, 104), (21, 78), (22, 46), (23, 104)], transpose=-2, start=5,
+    id='happy-birthday', title='Happy Birthday', style='party', meter=3,
+    # The held name (a fermata): slow down for those two beats, then back to tempo. Nobody's name is
+    # sung: the flute carries those two notes and the game says the birthday child's name ({name}).
+    tempo=[(0, 104), (21, 78), (22, 46), (23, 104)], transpose=-2, start=5, name_notes=2,
     lines=[
         ('Hap-py birth-day to you,', 'D4:.75 D4:.25 E4:1 D4:1 G4:1 F#4:2'),
         ('Hap-py birth-day to you,', 'D4:.75 D4:.25 E4:1 D4:1 A4:1 G4:2'),
-        ('Hap-py birth-day, dear Car-ter,', 'D4:.75 D4:.25 D5:1 B4:1 G4:1 F#4:1 E4:1'),
+        ('Hap-py birth-day, dear {name},', 'D4:.75 D4:.25 D5:1 B4:1 G4:1 F#4:1 E4:1'),
         ('Hap-py birth-day to you!', 'C5:.75 C5:.25 B4:1 G4:1 A4:1 G4:3'),
     ],
     chords='G:3 D7:3 G:3 D7:3 D7:3 G:3 G7:3 C:3 G:2 D7:1 G:6',

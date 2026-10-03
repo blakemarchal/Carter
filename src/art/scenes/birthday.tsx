@@ -1,13 +1,18 @@
-// Happy Birthday, Carter: one illustration per story page (see data/birthday.ts for the words).
+// The birthday story: one illustration per page (see data/party.ts for the words). It's about whoever
+// is having the birthday: their name on the bunting, their date on the calendar, their look, their
+// family (the grown-ups, brothers and sisters, a baby to hold, pets) and their own Pals in party hats.
 // God is never drawn as a person: His love is light (Glow, rays, Sparkles). Some local props here
 // (Room, PalAt, SittingKid, Little) are shared with the bedtime pictures.
 import { BuddyContext } from './buddy'
 import { useContext, useId, type ComponentType, type ReactNode } from 'react'
 import PalArt from '../../components/PalArt'
 import { palById } from '../../data/pals'
+import { MONTHS } from '../../lib/birthday'
 import { darken, ink, lighten } from '../kit'
-import { Person, PEOPLE, type Holding, type Look, type Pose } from '../people'
+import { PartyHatShape } from '../partyHat'
+import { Person, type Holding, type Look, type Pose } from '../people'
 import { Balloon, Cake, Emoji, Flower, Glow, Moon, Scene, Sparkles, Sun, Tree, sparkle } from './kit'
+import { usePlayer, type PlayerArt } from './player'
 
 // ---------- Local props (some shared with bedtime.tsx) ----------
 
@@ -66,13 +71,14 @@ export function Room({ wall = '#ffe6f0', floor = '#e8c9a0', stripes = 0.5, win, 
 /**
  * One of the Ark Pals, nested like the map does. (x, y) is where its feet touch the ground.
  * id 'buddy' draws the player's own Pal (BuddyContext) in its current form; if another spot names
- * that same Pal, it shows Zippy instead so the picture doesn't have two of hers.
+ * that same Pal, it shows Zippy instead so the picture doesn't have two of theirs (`exact` turns
+ * that off, for pictures of all their own Pals). `hat`: a party hat.
  */
-export function PalAt({ id, x, y, size = 110, stage = 0, sleepy, yawn, flip }: {
-  id: string; x: number; y: number; size?: number; stage?: number; sleepy?: boolean; yawn?: boolean; flip?: boolean
+export function PalAt({ id, x, y, size = 110, stage = 0, sleepy, yawn, flip, hat, exact }: {
+  id: string; x: number; y: number; size?: number; stage?: number; sleepy?: boolean; yawn?: boolean; flip?: boolean; hat?: boolean; exact?: boolean
 }) {
   const buddy = useContext(BuddyContext)
-  const shown = id === 'buddy' ? buddy.id : id === buddy.id ? 'zippy' : id
+  const shown = id === 'buddy' ? buddy.id : id === buddy.id && !exact ? 'zippy' : id
   const shownStage = id === 'buddy' ? buddy.stage : stage
   return (
     <svg x={x - size / 2} y={y - size * 0.92} width={size} height={size} viewBox="0 0 200 200" overflow="visible" className={sleepy ? 'bt-sleepy' : undefined}>
@@ -81,6 +87,7 @@ export function PalAt({ id, x, y, size = 110, stage = 0, sleepy, yawn, flip }: {
         <PalArt pal={palById(shown)} stage={shownStage} size={200} />
       </g>
       {yawn && <ellipse cx={100} cy={105} rx={7} ry={9} fill="#6b2a3a" stroke="#2b2140" strokeWidth={2} />}
+      {hat && <g transform="translate(76 -12) rotate(-12 30 66) scale(0.85)"><PartyHatShape /></g>}
     </svg>
   )
 }
@@ -107,7 +114,7 @@ export function SittingKid({ x, y, s = 1, look, pose = 'stand', holding, chair =
   )
 }
 
-/** A baby in a blanket (Carter as a newborn, baby Luke). `awake` opens the eyes and adds a giggly smile. */
+/** A baby in a blanket (the birthday child as a newborn, or a baby brother or sister). `awake` opens the eyes and adds a giggly smile. */
 export function Little({ x, y, s = 1, blanket = '#ffd0e6', skin = '#f6d2b8', bow, awake }: {
   x: number; y: number; s?: number; blanket?: string; skin?: string; bow?: string; awake?: boolean
 }) {
@@ -159,7 +166,13 @@ function Bunting({ x0, x1, y, sag = 30, n, letters, colors = ['#ff6fae', '#ffd34
   )
 }
 
-function Present({ x, y, s = 1, color = '#5fb7ff', ribbon = '#ffd34d' }: { x: number; y: number; s?: number; color?: string; ribbon?: string }) {
+/** The child's name for a banner: letters only, if it fits on the flags. */
+const bannerName = (name: string) => {
+  const up = name.toUpperCase().replace(/[^A-Z ]/g, '').trim()
+  return up && up.length <= 10 ? up : 'HOORAY'
+}
+
+export function Present({ x, y, s = 1, color = '#5fb7ff', ribbon = '#ffd34d' }: { x: number; y: number; s?: number; color?: string; ribbon?: string }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
       <rect x={-24} y={-40} width={48} height={40} rx={4} fill={color} stroke={ink(color)} strokeWidth={3} />
@@ -196,12 +209,12 @@ function Table({ x, y, w = 200, cloth = '#ffffff' }: { x: number; y: number; w?:
   )
 }
 
-/** A shiny gold "5" balloon. */
-const Five = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
+/** A shiny gold balloon of their new age (a star when we don't know it). */
+const NumberBalloon = ({ x, y, s = 1, n }: { x: number; y: number; s?: number; n?: number }) => (
   <g className="sc-float">
     <g transform={`translate(${x} ${y}) scale(${s})`}>
       <path d="M0 40 Q-10 80 4 120" stroke="#8a7a99" strokeWidth={2} fill="none" />
-      <text x={0} y={0} fontSize={110} fontWeight={900} fill="#ffd34d" stroke="#e0a800" strokeWidth={6} paintOrder="stroke" textAnchor="middle" dominantBaseline="middle" fontFamily="'Baloo 2', system-ui, sans-serif">5</text>
+      <text x={0} y={0} fontSize={110} fontWeight={900} fill="#ffd34d" stroke="#e0a800" strokeWidth={6} paintOrder="stroke" textAnchor="middle" dominantBaseline="middle" fontFamily="'Baloo 2', system-ui, sans-serif">{n ?? '★'}</text>
       <ellipse cx={-14} cy={-22} rx={6} ry={12} fill="#fff" opacity={0.55} transform="rotate(20 -14 -22)" />
     </g>
   </g>
@@ -261,162 +274,214 @@ const Book = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   </g>
 )
 
-const LUKE = { blanket: '#bfe0ff', awake: true } as const
+/** A baby in the family's colors. */
+const babyOf = (p: PlayerArt, look: Look, awake = true) => ({ blanket: lighten(look.robe, 0.45), skin: p.look.skin, awake })
+
+/** Their pets, sitting at the front of a picture. */
+const Pets = ({ p, xs, y }: { p: PlayerArt; xs: number[]; y: number }) => (
+  <>{p.pets.slice(0, xs.length).map((pet, i) => <Emoji key={pet.name + i} e={pet.emoji} x={xs[i]} y={y} size={54} />)}</>
+)
 
 // ---------- Pages ----------
 
-// 1. "Five years ago, on January eighth, a special baby girl was born. Her name was Carter!"
-const Page1 = () => (
-  <Scene sky="dawn" ground="none" clouds={false}>
-    <Room wall="#ffe6f0" win={{ x: 560, y: 80, w: 140, h: 120, night: true, snow: true }}>
-      <g>
-        <rect x={110} y={84} width={96} height={104} rx={8} fill="#fff" stroke="#d9b8c8" strokeWidth={3} />
-        <rect x={110} y={84} width={96} height={28} rx={8} fill="#ff6b6b" />
-        <rect x={110} y={100} width={96} height={12} fill="#ff6b6b" />
-        <text x={158} y={100} fontSize={17} fontWeight={800} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontFamily="'Baloo 2', system-ui, sans-serif">JAN</text>
-        <text x={158} y={152} fontSize={56} fontWeight={900} fill="#e0577a" textAnchor="middle" dominantBaseline="middle" fontFamily="'Baloo 2', system-ui, sans-serif">8</text>
-        <circle cx={132} cy={80} r={4} fill="#a07a8a" /><circle cx={184} cy={80} r={4} fill="#a07a8a" />
-      </g>
-      <Bunting x0={250} x1={510} y={44} sag={18} letters="CARTER" />
-    </Room>
-    <Glow x={370} y={300} r={130} color="#fff3c8" />
-    <Person x={350} y={428} s={1.5} look={PEOPLE.mom} pose="hold">
-      <Little x={4} y={-62} s={0.95} bow="#ff5d9e" />
-    </Person>
-    <Person x={485} y={426} s={1.52} look={PEOPLE.dad} facing="left" blinkDelay={1.4} />
-    <Heart x={280} y={200} r={14} />
-    <Heart x={420} y={176} r={10} color="#ff9fc6" d={0.7} />
-    <Sparkles spots={[[320, 240, 7], [400, 226, 5], [250, 280, 5]]} />
-  </Scene>
-)
-
-// 2. "God made Carter. He made her bright eyes, her happy giggles, and her smart brain. God made her wonderfully!"
-const Page2 = () => (
-  <Scene sky="glory" ground="none" clouds={false}>
-    <Rays x={400} y={-20} r={600} n={18} />
-    <Meadow />
-    <Glow x={400} y={250} r={210} />
-    <Person x={400} y={418} s={1.85} look={PEOPLE.carter} pose="arms-up" />
-    <Sparkles spots={[[360, 262, 5], [440, 262, 5], [300, 160, 10], [520, 150, 12], [250, 260, 7], [560, 280, 8]]} />
-    <Emoji e="💡" x={400} y={172} size={42} bob />
-    <g className="sc-float">
-      <text x={512} y={218} fontSize={30} fill="#ff6fae" fontWeight={800} fontFamily="'Baloo 2', system-ui, sans-serif">♪</text>
-      <text x={540} y={196} fontSize={24} fill="#c9a8ff" fontWeight={800} fontFamily="'Baloo 2', system-ui, sans-serif">♫</text>
-    </g>
-    <Heart x={268} y={200} r={14} d={0.4} />
-    <Flower x={180} y={410} color="#ff8cc0" s={1.3} />
-    <Flower x={620} y={420} color="#ffd34d" s={1.3} />
-  </Scene>
-)
-
-// 3. "God knows Carter, inside and out. He knows when she sits down and when she gets up. And God loves her so much, …"
-const Page3 = () => (
-  <Scene sky="day" ground="meadow">
-    <Sun x={150} y={80} s={0.7} />
-    <Moon x={660} y={80} s={0.75} />
-    <g className="pa-twinkle">
-      <path d={heart(400, 175, 92)} fill="#ff9fc6" opacity={0.32} />
-    </g>
-    <Glow x={400} y={200} r={150} color="#fff3d0" />
-    <Heart x={400} y={160} r={30} />
-    <SittingKid x={270} y={418} s={1.5} look={PEOPLE.carter} pose="hold" blinkDelay={0.6}>
-      <Book x={0} y={-58} s={0.9} />
-    </SittingKid>
-    <path d="M330 300 Q400 250 470 290" stroke="#ff9fc6" strokeWidth={5} strokeDasharray="4 12" strokeLinecap="round" fill="none" />
-    <path d="M462 276 L474 292 L454 296" stroke="#ff9fc6" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    <g className="sc-float">
-      <Person x={540} y={410} s={1.5} look={PEOPLE.carter} pose="arms-up" blinkDelay={2} />
-    </g>
-    <path d="M500 420 q-8 8 -16 4 M580 420 q8 8 16 4" stroke="#fff" strokeWidth={4} strokeLinecap="round" fill="none" />
-    <Sparkles spots={[[310, 140, 8], [490, 130, 9], [600, 200, 6], [200, 220, 6]]} />
-  </Scene>
-)
-
-// 4. "Carter's family thanks God for her every day! Mom and Dad love her so much. And her baby brother Luke gives her big, giggly hugs!"
-const Page4 = () => (
-  <Scene sky="day" ground="none" clouds={false}>
-    <Room wall="#fff1cf" floor="#d9b98a" win={{ x: 330, y: 70, w: 140, h: 110, curtain: '#7cc6ff' }}>
-      {[[150, 120, '#ff9fc6'], [650, 130, '#9ad0ff']].map(([fx, fy, c], i) => (
-        <g key={i}>
-          <rect x={(fx as number) - 34} y={(fy as number) - 28} width={68} height={56} rx={6} fill="#fff" stroke="#c98448" strokeWidth={5} />
-          <path d={heart(fx as number, (fy as number) - 2, 14)} fill={c as string} />
+// 1. "A long time ago, on <January eighth>, a wonderful baby was born. It was you, <name>!"
+function Page1() {
+  const p = usePlayer()
+  const [g1, g2] = p.grownups
+  const month = p.birthday ? MONTHS[p.birthday.month - 1].slice(0, 3).toUpperCase() : '★'
+  const baby = <Little x={4} y={-62} s={0.95} bow={p.look.bow} blanket={lighten(p.look.robe, 0.45)} skin={p.look.skin} />
+  return (
+    <Scene sky="dawn" ground="none" clouds={false}>
+      <Room wall="#ffe6f0" win={{ x: 560, y: 80, w: 140, h: 120, night: true, snow: p.birthday ? [12, 1, 2].includes(p.birthday.month) : false }}>
+        <g>
+          <rect x={110} y={84} width={96} height={104} rx={8} fill="#fff" stroke="#d9b8c8" strokeWidth={3} />
+          <rect x={110} y={84} width={96} height={28} rx={8} fill="#ff6b6b" />
+          <rect x={110} y={100} width={96} height={12} fill="#ff6b6b" />
+          <text x={158} y={100} fontSize={17} fontWeight={800} fill="#fff" textAnchor="middle" dominantBaseline="middle" fontFamily="'Baloo 2', system-ui, sans-serif">{month}</text>
+          <text x={158} y={152} fontSize={56} fontWeight={900} fill="#e0577a" textAnchor="middle" dominantBaseline="middle" fontFamily="'Baloo 2', system-ui, sans-serif">{p.birthday?.day ?? '♥'}</text>
+          <circle cx={132} cy={80} r={4} fill="#a07a8a" /><circle cx={184} cy={80} r={4} fill="#a07a8a" />
         </g>
-      ))}
-    </Room>
-    <Glow x={400} y={120} r={170} />
-    <Person x={240} y={428} s={1.48} look={PEOPLE.dad} pose="pray" blinkDelay={0.8} />
-    <Person x={560} y={428} s={1.45} look={PEOPLE.mom} pose="pray" facing="left" blinkDelay={1.9} />
-    <Person x={400} y={432} s={1.75} look={PEOPLE.carter} pose="hold">
-      <Little x={6} y={-60} s={1} {...LUKE} />
-    </Person>
-    <Heart x={330} y={226} r={12} />
-    <Heart x={470} y={214} r={15} color="#ff9fc6" d={0.6} />
-    <Heart x={400} y={180} r={10} d={1.2} />
-    <g stroke="#ff8cc0" strokeWidth={3} strokeLinecap="round" fill="none">
-      <path d="M446 300 q6 -4 10 2" /><path d="M450 314 q7 -2 10 4" />
-    </g>
-  </Scene>
-)
+        <Bunting x0={250} x1={510} y={44} sag={18} letters={bannerName(p.name)} />
+      </Room>
+      <Glow x={370} y={300} r={130} color="#fff3c8" />
+      {g1 ? (
+        <Person x={350} y={428} s={1.5} look={g1.look} pose="hold">{baby}</Person>
+      ) : (
+        // nobody to hold the baby in the picture: a cozy cradle
+        <g>
+          <path d="M290 396 Q350 448 410 396 Z" fill="#e8c9a0" stroke="#a0703f" strokeWidth={4} strokeLinejoin="round" />
+          <Little x={354} y={384} s={1.1} bow={p.look.bow} blanket={lighten(p.look.robe, 0.45)} skin={p.look.skin} />
+        </g>
+      )}
+      {g2 && <Person x={485} y={426} s={1.52} look={g2.look} facing="left" blinkDelay={1.4} />}
+      <Heart x={280} y={200} r={14} />
+      <Heart x={420} y={176} r={10} color="#ff9fc6" d={0.7} />
+      <Sparkles spots={[[320, 240, 7], [400, 226, 5], [250, 280, 5]]} />
+    </Scene>
+  )
+}
 
-// 5. "And now, Carter is five years old! Hooray! It's party time!"
-const Page5 = () => (
-  <Scene sky="day" ground="meadow">
-    <Tree x={110} y={372} s={1.1} />
-    <Tree x={690} y={372} s={1.1} />
-    <Bunting x0={140} x1={660} y={104} sag={24} n={11} />
-    <Confetti />
-    <Five x={210} y={232} s={0.85} />
-    <Balloon x={610} y={220} color="#5fb7ff" />
-    <Balloon x={650} y={240} color="#ff6fae" s={0.9} />
-    <Balloon x={575} y={250} color="#ffd34d" s={0.85} />
-    <Person x={320} y={420} s={1.65} look={PEOPLE.carter} pose="arms-up" />
-    <Table x={520} y={420} w={210} />
-    <Cake x={520} y={354} s={0.95} candles={5} />
-    <Emoji e="🎉" x={430} y={200} size={44} bob />
-  </Scene>
-)
+// 2. "God made you, <name>! He made your bright eyes, your happy giggles, and your smart brain. God made you wonderfully!"
+function Page2() {
+  const p = usePlayer()
+  return (
+    <Scene sky="glory" ground="none" clouds={false}>
+      <Rays x={400} y={-20} r={600} n={18} />
+      <Meadow />
+      <Glow x={400} y={250} r={210} />
+      <Person x={400} y={418} s={1.85} look={p.look} pose="arms-up" />
+      <Sparkles spots={[[360, 262, 5], [440, 262, 5], [300, 160, 10], [520, 150, 12], [250, 260, 7], [560, 280, 8]]} />
+      <Emoji e="💡" x={400} y={172} size={42} bob />
+      <g className="sc-float">
+        <text x={512} y={218} fontSize={30} fill="#ff6fae" fontWeight={800} fontFamily="'Baloo 2', system-ui, sans-serif">♪</text>
+        <text x={540} y={196} fontSize={24} fill="#c9a8ff" fontWeight={800} fontFamily="'Baloo 2', system-ui, sans-serif">♫</text>
+      </g>
+      <Heart x={268} y={200} r={14} d={0.4} />
+      <Flower x={180} y={410} color="#ff8cc0" s={1.3} />
+      <Flower x={620} y={420} color="#ffd34d" s={1.3} />
+    </Scene>
+  )
+}
 
-// 6. "All of Carter's Ark Pals came to the party! They brought balloons, presents, and yummy cupcakes."
-const Page6 = () => (
-  <Scene sky="day" ground="meadow">
-    <Bunting x0={110} x1={690} y={60} sag={22} n={13} />
-    <Balloon x={296} y={150} color="#ff6fae" />
-    <Balloon x={252} y={168} color="#ffd34d" s={0.9} />
-    <Balloon x={606} y={96} color="#5fb7ff" s={0.85} />
-    <PalAt id="pip" x={640} y={262} size={120} />
-    <PalAt id="buddy" x={150} y={420} size={165} />
-    <PalAt id="ember" x={275} y={416} size={160} />
-    <Person x={400} y={420} s={1.6} look={PEOPLE.carter} pose="wave" />
-    <PalAt id="starling" x={528} y={420} size={160} />
-    <PalAt id="sprinkles" x={652} y={424} size={150} />
-    <Present x={205} y={426} s={0.85} color="#c9a8ff" />
-    <Present x={108} y={428} s={0.7} color="#5fd39a" ribbon="#ff6fae" />
-    <Cupcake x={470} y={428} s={0.95} />
-    <Cupcake x={592} y={430} s={0.85} frost="#c9e8ff" />
-    <Confetti />
-  </Scene>
-)
+// 3. "God knows you, inside and out. He knows when you sit down and when you get up. And God loves you so much, …"
+function Page3() {
+  const p = usePlayer()
+  return (
+    <Scene sky="day" ground="meadow">
+      <Sun x={150} y={80} s={0.7} />
+      <Moon x={660} y={80} s={0.75} />
+      <g className="pa-twinkle">
+        <path d={heart(400, 175, 92)} fill="#ff9fc6" opacity={0.32} />
+      </g>
+      <Glow x={400} y={200} r={150} color="#fff3d0" />
+      <Heart x={400} y={160} r={30} />
+      <SittingKid x={270} y={418} s={1.5} look={p.look} pose="hold" blinkDelay={0.6}>
+        <Book x={0} y={-58} s={0.9} />
+      </SittingKid>
+      <path d="M330 300 Q400 250 470 290" stroke="#ff9fc6" strokeWidth={5} strokeDasharray="4 12" strokeLinecap="round" fill="none" />
+      <path d="M462 276 L474 292 L454 296" stroke="#ff9fc6" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <g className="sc-float">
+        <Person x={540} y={410} s={1.5} look={p.look} pose="arms-up" blinkDelay={2} />
+      </g>
+      <path d="M500 420 q-8 8 -16 4 M580 420 q8 8 16 4" stroke="#fff" strokeWidth={4} strokeLinecap="round" fill="none" />
+      <Sparkles spots={[[310, 140, 8], [490, 130, 9], [600, 200, 6], [200, 220, 6]]} />
+    </Scene>
+  )
+}
 
-// 7. "Happy birthday, Carter! God made you, God knows you, and God will love you forever and ever."
-const Page7 = () => (
-  <Scene sky="glory" ground="none" clouds={false}>
-    <Rays x={400} y={210} r={600} n={20} color="#ffffff" opacity={0.35} />
-    <Meadow />
-    <Bunting x0={110} x1={690} y={44} sag={22} letters="HAPPY BIRTHDAY" />
-    <Glow x={400} y={250} r={200} />
-    <Person x={205} y={418} s={1.28} look={PEOPLE.dad} pose="arms-up" blinkDelay={1.1} />
-    <Person x={600} y={418} s={1.26} look={PEOPLE.mom} pose="hold" facing="left" blinkDelay={2.2}>
-      <Little x={6} y={-62} s={0.9} {...LUKE} />
-    </Person>
-    <Person x={400} y={380} s={1.55} look={PEOPLE.carter} pose="arms-up" />
-    <Cake x={400} y={430} s={1.15} candles={5} />
-    <Heart x={300} y={170} r={16} />
-    <Heart x={505} y={160} r={13} color="#ff9fc6" d={0.5} />
-    <Heart x={400} y={128} r={11} d={1} />
-    <Sparkles spots={[[250, 110, 9], [560, 100, 10], [330, 230, 6], [480, 220, 7]]} />
-    <Flower x={120} y={430} color="#ff8cc0" />
-    <Flower x={690} y={428} color="#ffd34d" />
-  </Scene>
-)
+// 4. "Your family thanks God for you every day! <Mom> and <Dad> love you so much. And <brothers and sisters> give you big, giggly hugs!"
+function Page4() {
+  const p = usePlayer()
+  const [g1, g2] = p.grownups
+  const baby = p.siblings.find((s) => s.baby)
+  const kids = p.siblings.filter((s) => !s.baby).slice(0, 2)
+  return (
+    <Scene sky="day" ground="none" clouds={false}>
+      <Room wall="#fff1cf" floor="#d9b98a" win={{ x: 330, y: 70, w: 140, h: 110, curtain: '#7cc6ff' }}>
+        {[[150, 120, '#ff9fc6'], [650, 130, '#9ad0ff']].map(([fx, fy, c], i) => (
+          <g key={i}>
+            <rect x={(fx as number) - 34} y={(fy as number) - 28} width={68} height={56} rx={6} fill="#fff" stroke="#c98448" strokeWidth={5} />
+            <path d={heart(fx as number, (fy as number) - 2, 14)} fill={c as string} />
+          </g>
+        ))}
+      </Room>
+      <Glow x={400} y={120} r={170} />
+      {g1 && <Person x={215} y={428} s={1.48} look={g1.look} pose="pray" blinkDelay={0.8} />}
+      {g2 && <Person x={585} y={428} s={1.45} look={g2.look} pose="pray" facing="left" blinkDelay={1.9} />}
+      {kids.map((k, i) => <Person key={k.name} x={i ? 494 : 306} y={434} s={1.12} look={k.look} pose="wave" facing={i ? 'left' : 'right'} blinkDelay={1.2 + i} />)}
+      <Person x={400} y={432} s={1.75} look={p.look} pose={baby ? 'hold' : 'arms-up'}>
+        {baby && <Little x={6} y={-60} s={1} {...babyOf(p, baby.look)} />}
+      </Person>
+      <Pets p={p} xs={[110, 690]} y={412} />
+      <Heart x={330} y={226} r={12} />
+      <Heart x={470} y={214} r={15} color="#ff9fc6" d={0.6} />
+      <Heart x={400} y={180} r={10} d={1.2} />
+      {baby && (
+        <g stroke="#ff8cc0" strokeWidth={3} strokeLinecap="round" fill="none">
+          <path d="M446 300 q6 -4 10 2" /><path d="M450 314 q7 -2 10 4" />
+        </g>
+      )}
+    </Scene>
+  )
+}
+
+// 5. "And now it's your birthday! You're <five> years old! Hooray! It's party time!"
+function Page5() {
+  const p = usePlayer()
+  return (
+    <Scene sky="day" ground="meadow">
+      <Tree x={110} y={372} s={1.1} />
+      <Tree x={690} y={372} s={1.1} />
+      <Bunting x0={140} x1={660} y={104} sag={24} n={11} />
+      <Confetti />
+      <NumberBalloon x={210} y={232} s={0.85} n={p.age} />
+      <Balloon x={610} y={220} color="#5fb7ff" />
+      <Balloon x={650} y={240} color="#ff6fae" s={0.9} />
+      <Balloon x={575} y={250} color="#ffd34d" s={0.85} />
+      <Person x={320} y={420} s={1.65} look={p.look} pose="arms-up" />
+      <Table x={520} y={420} w={210} />
+      <Cake x={520} y={354} s={0.95} candles={Math.min(10, p.age ?? 3)} />
+      <Emoji e="🎉" x={430} y={200} size={44} bob />
+    </Scene>
+  )
+}
+
+// 6. "All your Ark Pals came to the party! They brought balloons, presents, and yummy cupcakes."
+function Page6() {
+  const p = usePlayer()
+  // Her own Pals, in party hats (her buddy first); a few friends fill in if she has only met a few.
+  const fill = ['zippy', 'ember', 'pebble', 'pip'].filter((id) => !p.pals.some((x) => x.id === id)).map((id) => ({ id, stage: 0 }))
+  const pals = [...p.pals, ...fill].slice(0, 6)
+  const spots: [number, number, number][] = [[150, 420, 165], [275, 416, 160], [528, 420, 160], [652, 424, 150], [212, 344, 96], [590, 340, 96]]
+  return (
+    <Scene sky="day" ground="meadow">
+      <Bunting x0={110} x1={690} y={60} sag={22} n={13} />
+      <Balloon x={296} y={150} color="#ff6fae" />
+      <Balloon x={252} y={168} color="#ffd34d" s={0.9} />
+      <Balloon x={606} y={96} color="#5fb7ff" s={0.85} />
+      {/* the back row first */}
+      {pals.map((pal, i) => i >= 4 && <PalAt key={pal.id} id={pal.id} stage={pal.stage} x={spots[i][0]} y={spots[i][1]} size={spots[i][2]} hat exact />)}
+      {pals.map((pal, i) => i < 4 && <PalAt key={pal.id} id={pal.id} stage={pal.stage} x={spots[i][0]} y={spots[i][1]} size={spots[i][2]} hat exact />)}
+      <Person x={400} y={420} s={1.6} look={p.look} pose="wave" />
+      <Present x={205} y={426} s={0.85} color="#c9a8ff" />
+      <Present x={108} y={428} s={0.7} color="#5fd39a" ribbon="#ff6fae" />
+      <Cupcake x={470} y={428} s={0.95} />
+      <Cupcake x={592} y={430} s={0.85} frost="#c9e8ff" />
+      <Confetti />
+    </Scene>
+  )
+}
+
+// 7. "Happy birthday, <name>! God made you, God knows you, and God will love you forever and ever."
+function Page7() {
+  const p = usePlayer()
+  const [g1, g2] = p.grownups
+  const baby = p.siblings.find((s) => s.baby)
+  const kids = p.siblings.filter((s) => !s.baby).slice(0, 2)
+  return (
+    <Scene sky="glory" ground="none" clouds={false}>
+      <Rays x={400} y={210} r={600} n={20} color="#ffffff" opacity={0.35} />
+      <Meadow />
+      <Bunting x0={110} x1={690} y={44} sag={22} letters="HAPPY BIRTHDAY" />
+      <Glow x={400} y={250} r={200} />
+      {g1 && <Person x={205} y={418} s={1.28} look={g1.look} pose="arms-up" blinkDelay={1.1} />}
+      {g2 && (
+        <Person x={600} y={418} s={1.26} look={g2.look} pose={baby ? 'hold' : 'arms-up'} facing="left" blinkDelay={2.2}>
+          {baby && <Little x={6} y={-62} s={0.9} {...babyOf(p, baby.look)} />}
+        </Person>
+      )}
+      {kids.map((k, i) => <Person key={k.name} x={i ? 512 : 288} y={424} s={1.08} look={k.look} pose="arms-up" blinkDelay={0.5 + i} />)}
+      <Person x={400} y={380} s={1.55} look={p.look} pose="arms-up" />
+      <Cake x={400} y={430} s={1.15} candles={Math.min(10, p.age ?? 3)} />
+      <Pets p={p} xs={[120, 680]} y={414} />
+      <Heart x={300} y={170} r={16} />
+      <Heart x={505} y={160} r={13} color="#ff9fc6" d={0.5} />
+      <Heart x={400} y={128} r={11} d={1} />
+      <Sparkles spots={[[250, 110, 9], [560, 100, 10], [330, 230, 6], [480, 220, 7]]} />
+      <Flower x={120} y={430} color="#ff8cc0" />
+      <Flower x={690} y={428} color="#ffd34d" />
+    </Scene>
+  )
+}
 
 export const BIRTHDAY_ART: ComponentType[] = [Page1, Page2, Page3, Page4, Page5, Page6, Page7]

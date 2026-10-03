@@ -1,4 +1,4 @@
-// Carter's Ark server: serves the built game (dist/) behind a family password.
+// Ark Pals server: serves the built game (dist/) behind a family password.
 // No dependencies. Configured by environment (systemd EnvironmentFile=/opt/Carter/.env):
 //   PORT                   default 3004
 //   CARTER_PASSWORD_HASH   scrypt hash written by `npm run set-password`
@@ -227,7 +227,7 @@ function fail(ip) {
 
 const LOGIN_PAGE = (msg = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
-<meta name="apple-mobile-web-app-capable" content="yes"><title>Carter's Ark</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><title>Ark Pals</title>
 <style>
 body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:linear-gradient(#ffe0f0,#ffc0dc);color:#3b2a4a}
 form{background:#fff;padding:32px 28px;border-radius:28px;box-shadow:0 10px 0 rgba(0,0,0,.08);width:min(360px,90vw);text-align:center}
@@ -236,7 +236,7 @@ input{width:100%;box-sizing:border-box;font-size:20px;padding:14px;border-radius
 button{width:100%;font-size:22px;font-weight:700;padding:14px;border:0;border-radius:14px;background:#ff6fae;color:#fff}
 .err{color:#b42318;margin-bottom:12px}
 </style></head><body><form method="post" action="/login">
-<h1>🌈 Carter's Ark</h1><p>Grown-ups only: family password</p>
+<h1>🌈 Ark Pals</h1><p>Grown-ups only: family password</p>
 ${msg ? `<div class="err">${msg}</div>` : ''}
 <input type="password" name="password" autocomplete="current-password" autofocus required>
 <button>Open the Ark</button></form></body></html>`
@@ -326,4 +326,4 @@ createServer(async (req, res) => {
     res.writeHead(500)
     res.end()
   }
-}).listen(PORT, '127.0.0.1', () => console.log(`Carter's Ark listening on 127.0.0.1:${PORT}`))
+}).listen(PORT, '127.0.0.1', () => console.log(`Ark Pals listening on 127.0.0.1:${PORT}`))

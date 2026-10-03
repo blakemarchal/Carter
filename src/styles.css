@@ -986,3 +986,128 @@ input { -webkit-user-select: text; user-select: text; }
 .fs-lines { max-width: 900px; width: 100%; margin: 0 auto; font-size: 18px; }
 .fs-lines li.done { color: #2a7a4b; }
 .fs-lines li.now { font-weight: 800; }
+
+/* ---------- Birthday party (screens/BirthdayParty.tsx, components/PartyCake.tsx) ---------- */
+.party { background: linear-gradient(#ffe0f0, #fff3c9 60%, #e6ffe9); }
+.party-tag { min-width: 72px; text-align: right; font-size: 26px; font-weight: 800; color: var(--pink-deep); }
+.party-surprise, .party-age, .party-song, .party-thanks, .party-gift, .candle-step {
+  flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+}
+.party-shout { font-size: 110px; color: var(--pink-deep); text-shadow: 0 6px 0 #fff, 0 10px 24px rgba(226, 70, 143, .35); animation: shout .9s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes shout { from { scale: .2; rotate: -12deg; opacity: 0; } }
+.party-name { font-size: 44px; font-weight: 800; color: #8d5cf6; animation: pop .6s .5s both; }
+.party-balloons { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.party-balloons span { position: absolute; bottom: -90px; left: calc(6% + var(--i) * 16%); font-size: 70px; animation: balloonup 6.5s ease-in calc(var(--i) * .35s) both; }
+@keyframes balloonup { from { translate: 0 0; } to { translate: 0 -125vh; rotate: 10deg; } }
+.party-pals { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 6px; }
+.party-pal { animation: pop .6s both; }
+/* While Happy Birthday plays, the Pals take turns hopping to the beat. */
+.party-pals.beat-0 .dressed, .party-pals.beat-1 .dressed { animation: none; }
+.party-pals.beat-0 .party-pal:nth-child(odd) .dressed, .party-pals.beat-1 .party-pal:nth-child(even) .dressed { animation: singhopa .4s ease-out; }
+.party-age h2 { font-size: 52px; color: var(--pink-deep); }
+.age-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+.age-btn { width: 110px; height: 110px; border-radius: 28px; background: #fff; font-size: 64px; font-weight: 800; color: #8d5cf6; box-shadow: 0 8px 0 rgba(0,0,0,.12); }
+.age-btn:active { translate: 0 5px; box-shadow: 0 3px 0 rgba(0,0,0,.12); }
+.party-cake { width: min(500px, 78vw); aspect-ratio: 260 / 206; border-radius: 32px; }
+.party-cake-art { display: block; width: 100%; height: 100%; overflow: visible; }
+.party-cake.drop-hover { background: rgba(255, 111, 174, .12); box-shadow: 0 0 0 6px rgba(255, 111, 174, .35); }
+.party-cake.lit .party-cake-art { filter: drop-shadow(0 0 18px rgba(255, 200, 90, .45)); }
+.party-cake.blowable { cursor: pointer; touch-action: none; }
+.cake-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flicker .45s ease-in-out infinite alternate; }
+@keyframes flicker { to { scale: .88 1.12; } }
+.cake-smoke { animation: smoke 1.4s ease-out forwards; }
+@keyframes smoke { to { translate: 0 -30px; opacity: 0; } }
+.candle-tray { min-height: 80px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; }
+.tray-candle { width: 64px; height: 78px; display: grid; place-items: center; border-radius: 18px; background: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.1); touch-action: none; animation: pulse 1.6s infinite; }
+.candle-count { font-size: 40px; font-weight: 800; color: var(--pink-deep); }
+.blow-btn { font-size: 34px; font-weight: 800; background: #fff; padding: 10px 30px; border-radius: 999px; box-shadow: 0 6px 0 rgba(0,0,0,.1); }
+.blow-btn:active { translate: 0 4px; box-shadow: 0 2px 0 rgba(0,0,0,.1); }
+.party-song .party-cake { width: min(360px, 56vw); }
+.party-words { min-width: min(760px, 92vw); padding: 16px 30px; text-align: center; background: rgba(255,255,255,.88); border-radius: 36px; box-shadow: 0 10px 30px rgba(120, 60, 100, .12); }
+.party-words .sing-now { font-size: 46px; }
+.sing-now .w.their-name.sung { color: #8d5cf6; }
+.party-skip { position: absolute; right: 8px; bottom: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.6); color: #8a7a99; font-size: 18px; }
+.thanks-heart { position: relative; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, #ffe0f0 55%, transparent 70%); animation: pulse 1.4s infinite; }
+.thanks-heart.said { animation: none; }
+.thanks-big { display: block; font-size: 170px; line-height: 1; }
+.thanks-heart.said .thanks-big { animation: pop .5s; }
+.thanks-burst i { --a: calc(var(--i) * 60deg); position: absolute; left: 50%; top: 50%; font-size: 44px; font-style: normal; animation: burst 1.3s ease-out forwards; }
+@keyframes burst {
+  from { transform: translate(-50%, -50%) rotate(var(--a)) translateY(0); opacity: 1; }
+  to { transform: translate(-50%, -50%) rotate(var(--a)) translateY(-190px); opacity: 0; }
+}
+.thanks-line { max-width: 90vw; text-align: center; font-size: 44px; font-weight: 800; color: var(--pink-deep); }
+.gift-box { font-size: 220px; line-height: 1; animation: wiggle 1.6s ease-in-out infinite; }
+.gift-open { display: flex; flex-direction: column; align-items: center; gap: 16px; animation: pop .6s; }
+.gift-sticker { display: flex; align-items: center; gap: 18px; font-size: 44px; font-weight: 800; color: var(--pink-deep); }
+.gift-sticker .age-sticker { font-size: 120px; }
+.gift-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; }
+.gift-item { display: flex; flex-direction: column; align-items: center; padding: 12px 18px; border-radius: 28px; background: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.08); font-size: 24px; font-weight: 800; }
+.gift-cake { font-size: 100px; line-height: 1.2; }
+/* The birthday battle: the present the grumpy balloon was hiding. */
+.foe-present { position: absolute; left: -14%; bottom: 6%; font-size: 64px; animation: pop .6s, bob 2.4s .6s ease-in-out infinite; }
+/* A birthday sticker: a cake with the age on it. */
+.age-sticker { position: relative; display: inline-block; line-height: 1; }
+.age-sticker b { position: absolute; right: -.14em; bottom: -.08em; min-width: 1.3em; height: 1.3em; border-radius: 50%; background: var(--pink); color: #fff; font-size: .42em; line-height: 1.3em; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.15); font-family: 'Baloo 2', system-ui, sans-serif; }
+/* The party hat on a Pal (the birthday outfit). */
+.dressed-hat { position: absolute; left: 50%; top: -9%; translate: -46% 0; rotate: -14deg; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,.15)); }
+.k-cake-btn { animation: pulse 1.6s infinite; }
+@media (max-width: 760px) {
+  .age-grid { grid-template-columns: repeat(4, 1fr); }
+  .age-btn { width: 84px; height: 84px; font-size: 48px; }
+  .party-shout { font-size: 72px; }
+  .party-name, .thanks-line { font-size: 32px; }
+  .party-words .sing-now { font-size: 32px; }
+}
+
+/* Map: birthday balloons on the boat, the Pal's countdown bubble, and the "it's ___'s birthday" banner */
+.sea { position: relative; }
+.map-balloon { animation: balloonbob 3s ease-in-out infinite; }
+.map-balloon.b1 { animation-delay: -1s; } .map-balloon.b2 { animation-delay: -2s; }
+@keyframes balloonbob { 50% { translate: 0 -6px; } }
+.map-bubble { transform-box: fill-box; transform-origin: 50% 100%; animation: pop .5s both; }
+.map-bubble-text { font-size: 22px; font-weight: 800; fill: var(--pink-deep); font-family: 'Baloo 2', system-ui, sans-serif; }
+.map-banner { position: absolute; z-index: 3; left: 50%; top: 8px; translate: -50% 0; padding: 8px 26px; border-radius: 999px; background: #fff; color: var(--pink-deep); font-size: 26px; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 0 rgba(0,0,0,.12); animation: pop .6s both; }
+
+/* Title: birthday badges, and the welcome form on a brand-new device */
+.player { position: relative; }
+.player-bday { position: absolute; top: -14px; right: -14px; padding: 3px 12px; border-radius: 999px; background: var(--pink); color: #fff; font-size: 18px; font-weight: 800; white-space: nowrap; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
+.player-bday.soon { background: var(--yellow); color: var(--ink); }
+.welcome { max-width: 640px; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 22px 30px; border-radius: 32px; background: rgba(255,255,255,.85); box-shadow: 0 8px 0 rgba(0,0,0,.08); }
+.welcome h2 { font-size: 40px; color: #8d5cf6; }
+.welcome-name { width: 340px; max-width: 100%; padding: 8px 18px; border-radius: 20px; border: 4px solid #f0c4da; font: inherit; font-size: 34px; font-weight: 800; text-align: center; }
+.welcome-emoji { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.welcome-emoji button { width: 64px; height: 64px; border-radius: 18px; background: #fff; border: 4px solid transparent; font-size: 40px; }
+.welcome-emoji button.on { border-color: var(--pink); }
+.welcome-bday { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; }
+.welcome .muted { text-align: center; }
+.title.welcoming { justify-content: flex-start; }
+.title.welcoming .title-pals { display: none; }
+.title.welcoming h1 { font-size: 56px; }
+.title.welcoming h1 span { font-size: 40px; }
+
+/* Parent Corner: player details and the family cast (components/FamilyEditor.tsx) */
+.player-block { display: flex; flex-direction: column; gap: 8px; }
+.player-row button.on { border-color: var(--pink); background: #ffe0ef; }
+.player-details { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 2px solid #f0c4da; }
+.detail-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.detail-row.top { align-items: flex-start; }
+.detail-row > span:first-child { min-width: 140px; font-weight: 700; }
+.detail-row input:not([type=checkbox]), .cast-row input:not([type=checkbox]) { width: 160px; padding: 6px 10px; border-radius: 10px; border: 2px solid #f0c4da; font: inherit; font-size: 17px; }
+.bday-pick { display: inline-flex; gap: 6px; }
+.bday-pick select { padding: 6px 8px; border-radius: 10px; border: 2px solid #f0c4da; background: #fff; font: inherit; font-size: 17px; }
+.chip { padding: 6px 14px; border-radius: 999px; background: #fff; border: 2px solid #f0c4da; font-size: 16px; }
+.chip.on { border-color: var(--pink); background: #ffe0ef; font-weight: 700; }
+.swatch { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px #e2cfe0; }
+.swatch.on { box-shadow: 0 0 0 3px var(--pink); }
+.look-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.look-preview { width: 130px; height: 145px; border-radius: 16px; background: linear-gradient(#e6f6ff, #fff3f8); }
+.look-rows { display: flex; flex-direction: column; gap: 8px; }
+.look-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.look-row > span { min-width: 110px; font-size: 15px; font-weight: 700; }
+.family-cast { display: flex; flex-direction: column; gap: 6px; }
+.cast-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.cast-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cast-list > button, .cast-row button.danger { padding: 6px 14px; border-radius: 10px; background: #fff; border: 2px solid #f0c4da; font-size: 16px; }
+.cast-row button.danger { background: #ffe2e2; border-color: #ffc9c9; color: #b42318; }
+.check { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; }

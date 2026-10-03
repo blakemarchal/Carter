@@ -6,6 +6,7 @@ import PalArt from '../components/PalArt'
 import PalHome from '../components/PalHome'
 import HatchScene, { Egg } from '../components/HatchScene'
 import StickerBook from '../components/StickerBook'
+import StickerFace from '../components/StickerFace'
 import { BackButton } from '../components/ui'
 import { FRUIT_COLOR, PALS, palById, stageFor, type PalDef } from '../data/pals'
 import { activeProfile, useProgress } from '../lib/progress'
@@ -14,7 +15,8 @@ import { EGG_DAYS, EGG_PAL, eggActive, eggReady, hatchEgg } from '../lib/care'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
-export default function ArkScreen({ onBack }: { onBack: () => void }) {
+/** `onParty`: play a birthday party again (from its sticker). */
+export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onParty: (age: number) => void }) {
   const p = useProgress()
   const [home, setHome] = useState<PalDef | null>(null)
   const [hatching, setHatching] = useState(false)
@@ -76,9 +78,9 @@ export default function ArkScreen({ onBack }: { onBack: () => void }) {
           )
         })}
       </div>
-      <div className="stickers">{p.stickers.map((s) => <span key={s}>{s}</span>)}</div>
+      <div className="stickers">{p.stickers.map((s) => <span key={s}><StickerFace s={s} /></span>)}</div>
       {home && <PalHome pal={home} onClose={() => { setHome(null); speak('Tap a Pal to say hi.') }} />}
-      {book && <StickerBook onClose={() => setBook(false)} />}
+      {book && <StickerBook onClose={() => setBook(false)} onParty={onParty} />}
       {hatching && <HatchScene pal={palById(EGG_PAL)} onDone={() => { hatchEgg(); setHatching(false) }} />}
     </div>
   )

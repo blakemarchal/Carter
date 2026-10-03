@@ -1,6 +1,6 @@
 // Asks Ara (the narration voice) to say each word the songs need, one clip per word.
 // Run on the server, where the voice key lives (it is read from .env and never printed):
-//   cd /opt/Carter && node scripts/sing/fetch-words.mjs words.json /root/carter-sing-words
+//   cd /opt/Carter && node scripts/sing/fetch-words.mjs words.json /root/sing-words
 // Clips already fetched are kept, so running it again only fetches new words.
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'

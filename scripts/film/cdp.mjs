@@ -23,7 +23,7 @@ const SPEECH_STUB = `(() => {
 })();`
 
 export async function launch({ port = 9333, width = 1180, height = 820, touch = true } = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'carter-film-'))
+  const dir = mkdtempSync(join(tmpdir(), 'ark-film-'))
   const proc = spawn(CHROME, [
     '--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${dir}`, '--no-first-run',
     '--no-default-browser-check', '--autoplay-policy=no-user-gesture-required', '--mute-audio',

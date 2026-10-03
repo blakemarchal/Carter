@@ -74,7 +74,7 @@ function nearby(n: number, count: number, spread: number[]): number[] {
 }
 
 function nextNumberQ(lo: number, hi: number, decadeCrossing: boolean): Question {
-  // Carter sometimes forgets which decade comes next (69 → 70), so we practice that a lot.
+  // Kids often forget which decade comes next (69 → 70), so we practice that a lot.
   const end = decadeCrossing ? randInt(Math.ceil(lo / 10), Math.floor(hi / 10)) * 10 : randInt(lo, hi)
   const nums = [end - 3, end - 2, end - 1]
   return build('numbers', `${nums.join(', ')}. What number comes next?`,

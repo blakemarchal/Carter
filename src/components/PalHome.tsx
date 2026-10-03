@@ -1,12 +1,13 @@
 // A Pal's home on the Ark: pet it (hearts and giggles), feed it berries, dress it up, see its moves.
 // Berries and dress-up things are dragged onto the Pal (a tap works too).
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
-import DressedPal from './DressedPal'
+import DressedPal, { AccessoryIcon } from './DressedPal'
 import ColoringPage from './ColoringPage'
 import Kitchen from './Kitchen'
-import { recipeFor } from '../data/recipes'
+import { birthdayCake, recipeFor } from '../data/recipes'
 import { hungryPals } from '../lib/kitchen'
-import { activeProfile } from '../lib/progress'
+import { isBirthday } from '../lib/birthday'
+import { activeProfile, today } from '../lib/progress'
 import { BackButton, BigButton } from './ui'
 import { FRUIT_COLOR, palIntro, stageFor, type PalDef } from '../data/pals'
 import { useProgress } from '../lib/progress'
@@ -27,7 +28,7 @@ function Carryable({ what, label, on, disabled, onGive }: {
 }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: what, disabled, onStart: sfx.lift, onDrop: (t) => t === 'home-pal' && onGive(what, null), onTap: () => onGive(what, ref.current) })
-  return <button ref={ref} className={`home-btn ${on ? 'on' : ''}`} disabled={disabled} aria-label={label} {...drag}>{what.kind === 'berry' ? what.b : what.a.emoji}</button>
+  return <button ref={ref} className={`home-btn ${on ? 'on' : ''}`} disabled={disabled} aria-label={label} {...drag}>{what.kind === 'berry' ? what.b : <AccessoryIcon a={what.a} size={56} />}</button>
 }
 
 export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => void }) {
@@ -37,15 +38,19 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
   const [hearts, setHearts] = useState(0) // bumps to replay the hearts animation
   const [anim, setAnim] = useState('')
   const [coloring, setColoring] = useState(false)
-  const [cooking, setCooking] = useState(false)
+  const [cooking, setCooking] = useState<false | 'dish' | 'cake'>(false)
   const left = feedsLeft(p, pal.id)
   const outfits = unlockedAccessories(p)
   const palBox = useRef<HTMLButtonElement | null>(null)
-  const palTarget = useDropTarget('home-pal', undefined, 30)
+  // (Only berries and dress-up things: the kitchen opens on top, and its drags mustn't land here.)
+  const palTarget = useDropTarget('home-pal', (d: Carry) => d?.kind === 'berry' || d?.kind === 'acc', 30)
   const palRef = useCallback((el: HTMLButtonElement | null) => { palBox.current = el; palTarget(el) }, [palTarget])
 
   const hungry = hungryPals(p, activeProfile().id).includes(pal.id)
   const dish = recipeFor(pal.fruit)
+  // Their birthday: a cake to bake, with a candle for each year (from the party today).
+  const birthday = isBirthday(activeProfile().birthday)
+  const cake = birthdayCake(p.partyShown === today() && p.partyAge ? p.partyAge : 3)
   useEffect(() => { speak(hungry ? `${name} is hungry! ${name} would love some ${dish.name}.` : palIntro(pal, stage)) }, [])
 
   const react = (cls: string, ms: number) => {
@@ -111,7 +116,8 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
           )}
           <p className="home-hint">Tap {name} to pet! Drag a berry over for a snack.</p>
           <div className="leave-row">
-            <BigButton color={hungry ? 'yellow' : 'white'} className={hungry ? 'k-hungry-btn' : ''} onClick={() => setCooking(true)}>🍳 Cook {dish.emoji}</BigButton>
+            <BigButton color={hungry ? 'yellow' : 'white'} className={hungry ? 'k-hungry-btn' : ''} onClick={() => setCooking('dish')}>🍳 Cook {dish.emoji}</BigButton>
+            {birthday && <BigButton color="pink" className="k-cake-btn" onClick={() => setCooking('cake')}>🎂 Birthday cake</BigButton>}
             <BigButton color="white" onClick={() => setColoring(true)}>🖍️ Color me</BigButton>
           </div>
         </div>
@@ -142,7 +148,10 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
         </div>
       </div>
       {coloring && <ColoringPage pal={pal} onClose={() => setColoring(false)} />}
-      {cooking && <Kitchen pal={pal} hungry={hungry} onClose={() => setCooking(false)} />}
+      {cooking && (
+        <Kitchen pal={pal} hungry={hungry} onClose={() => setCooking(false)}
+          special={cooking === 'cake' ? { recipe: cake, intro: `It's your birthday! Let's bake a birthday cake to share with ${name}!` } : undefined} />
+      )}
     </div>
   )
 }
