@@ -1,18 +1,31 @@
-// Match the animals two by two, then count them into the ark by 2s.
-import { useEffect, useMemo, useState } from 'react'
+// Match the animals two by two (drag one onto its twin, or tap the two), and the pair hops onto
+// the ark. Then count them into the ark by 2s.
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { praise, preload, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 
-const INTRO = 'Help Noah! Find the animals that match, two by two. Tap two that are the same.'
+const INTRO = 'Help Noah! Find the animals that match, two by two. Drag an animal to its twin.'
+
+function Animal({ id, a, picked, boarded, onMatch, onTap }: {
+  id: number; a: string; picked: boolean; boarded: boolean; onMatch: (from: number, to: number) => boolean; onTap: (id: number) => void
+}) {
+  // Each animal can be picked up and dropped on its twin, and is a place a twin can be dropped.
+  const target = useDropTarget(`animal-${id}`, (d: { id: number; a: string }) => d.id !== id && !boarded, 6)
+  const drag = useDrag({ data: { id, a }, disabled: boarded, onStart: sfx.lift, onDrop: (t) => t.startsWith('animal-') && onMatch(id, Number(t.slice(7))), onTap: () => onTap(id) })
+  return <button ref={target} data-card={id} className={`pair-card ${picked ? 'picked' : ''} ${boarded ? 'boarded' : ''}`} {...drag}>{a}</button>
+}
 
 export default function TwoByTwo({ animals, names, onDone }: { animals: string[]; names: Record<string, string>; onDone: () => void }) {
   const cards = useMemo(() => shuffle([...animals, ...animals]).map((a, id) => ({ a, id })), [animals])
   const [picked, setPicked] = useState<number[]>([])
   const [boarded, setBoarded] = useState<string[]>([])
+  const boardedRef = useRef<string[]>([])
   const [counting, setCounting] = useState<number | null>(null)
   const alive = useAlive()
+  const busy = useRef(false)
 
   useEffect(() => {
     speak(INTRO)
@@ -20,41 +33,62 @@ export default function TwoByTwo({ animals, names, onDone }: { animals: string[]
     preload(animals.map((_, i) => String((i + 1) * 2)))
   }, [])
 
+  /** The pair hops off its cards and onto the ark; then count them in once all are aboard. */
+  const board = async (x: number, y: number) => {
+    const a = cards[x].a
+    sfx.good()
+    const all = [...boardedRef.current, a]
+    boardedRef.current = all
+    setPicked([])
+    const ark = document.querySelector('.ark-dock .ark-emoji')
+    const els = [x, y].map((n) => document.querySelector(`[data-card="${n}"]`)).filter(Boolean) as HTMLElement[]
+    if (ark) {
+      // (The cards stay hidden: they're on the ark now.)
+      els.forEach((el) => (el.style.visibility = 'hidden'))
+      await Promise.all(els.map((el, i) => wait(i * 90).then(() => fly(el, ark, { arc: 120, endScale: 0.5 }))))
+    }
+    setBoarded(all)
+    sfx.plop()
+    if (all.length < animals.length) return void speak(`Two ${names[a] ?? 'animals'}!`)
+    busy.current = true
+    await speak(praise())
+    if (!alive.current) return
+    await speak("Now let's count them into the ark by twos!")
+    for (let n = 1; n <= animals.length; n++) {
+      if (!alive.current) return
+      setCounting(n * 2)
+      sfx.count(n + 1)
+      await speak(String(n * 2))
+      await wait(250)
+    }
+    if (!alive.current) return
+    await speak('All the animals are safe in the ark!')
+    if (alive.current) onDone()
+  }
+
+  const match = (x: number, y: number) => {
+    if (busy.current || x === y) return false
+    if (cards[x].a !== cards[y].a) {
+      sfx.oops()
+      setPicked([y])
+      setTimeout(() => alive.current && setPicked([]), 600)
+      return false
+    }
+    board(x, y)
+    return true
+  }
+
   const tap = async (id: number) => {
     const card = cards[id]
-    if (boarded.includes(card.a) || picked.includes(id) || picked.length === 2) return
+    if (busy.current || boardedRef.current.includes(card.a) || picked.includes(id) || picked.length === 2) return
     sfx.pop()
     const next = [...picked, id]
     setPicked(next)
     if (next.length < 2) return
-    const [x, y] = next.map((n) => cards[n].a)
-    if (x === y) {
-      sfx.good()
-      const all = [...boarded, x]
-      setBoarded(all)
-      setPicked([])
-      if (all.length === animals.length) {
-        await speak(praise())
-        if (!alive.current) return
-        await speak("Now let's count them into the ark by twos!")
-        for (let n = 1; n <= animals.length; n++) {
-          if (!alive.current) return
-          setCounting(n * 2)
-          sfx.count(n + 1)
-          await speak(String(n * 2))
-          await wait(250)
-        }
-        if (!alive.current) return
-        await speak('All the animals are safe in the ark!')
-        if (alive.current) onDone()
-      } else {
-        speak(`Two ${names[x] ?? 'animals'}!`)
-      }
-    } else {
-      sfx.oops()
-      await wait(700)
-      if (alive.current) setPicked([])
-    }
+    if (cards[next[0]].a === cards[next[1]].a) return void board(next[0], next[1])
+    sfx.oops()
+    await wait(700)
+    if (alive.current) setPicked([])
   }
 
   return (
@@ -62,9 +96,7 @@ export default function TwoByTwo({ animals, names, onDone }: { animals: string[]
       <button className="instruction" disabled={counting !== null} onClick={() => speak(INTRO)}>🔊 Find the pairs!</button>
       <div className="pair-grid">
         {cards.map((c) => (
-          <button key={c.id}
-            className={`pair-card ${picked.includes(c.id) ? 'picked' : ''} ${boarded.includes(c.a) ? 'boarded' : ''}`}
-            onClick={() => tap(c.id)}>{c.a}</button>
+          <Animal key={c.id} id={c.id} a={c.a} picked={picked.includes(c.id)} boarded={boarded.includes(c.a)} onMatch={match} onTap={tap} />
         ))}
       </div>
       <div className="ark-dock">

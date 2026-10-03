@@ -7,5 +7,11 @@ import './styles.css'
 import { watchForUpdates } from './lib/update'
 
 // No StrictMode: its double-run effects would make narration start twice.
-createRoot(document.getElementById('root')!).render(<App />)
-watchForUpdates()
+const root = createRoot(document.getElementById('root')!)
+if (import.meta.env.DEV && location.hash.startsWith('#gallery')) {
+  // Development only: every picture and Pal on one page (src/dev/Gallery.tsx).
+  import('./dev/Gallery').then(({ default: Gallery }) => root.render(<Gallery route={location.hash.slice(1)} />))
+} else {
+  root.render(<App />)
+  watchForUpdates()
+}

@@ -1,9 +1,10 @@
-node_modules
-dist
+*.stackdump
 *.tsbuildinfo
 .DS_Store
-.tts-cache
 .backups
-preview
+.tts-cache
 __pycache__
-*.stackdump
+dist
+node_modules
+preview/
+scripts/film/out/

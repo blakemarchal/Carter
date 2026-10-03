@@ -135,9 +135,12 @@ function Thought({ x, y, tx, ty, children }: { x: number; y: number; tx: number;
 
 /** "Grumble, grumble": a little wiggle by a hungry tummy. */
 const Rumble = ({ x, y, flip }: { x: number; y: number; flip?: boolean }) => (
-  <g transform={`translate(${x} ${y}) scale(${flip ? -1 : 1} 1)`} className="pa-twinkle" stroke="#e07a5f" strokeWidth={2.6} fill="none" strokeLinecap="round">
-    <path d="M0 -6 q4 -5 8 0 t8 0" />
-    <path d="M2 4 q4 -5 8 0 t8 0" />
+  // The pulse goes on an inner group: a CSS animation on the positioned group would replace its position.
+  <g transform={`translate(${x} ${y}) scale(${flip ? -1 : 1} 1)`}>
+    <g className="pa-twinkle" stroke="#e07a5f" strokeWidth={2.6} fill="none" strokeLinecap="round">
+      <path d="M0 -6 q4 -5 8 0 t8 0" />
+      <path d="M2 4 q4 -5 8 0 t8 0" />
+    </g>
   </g>
 )
 

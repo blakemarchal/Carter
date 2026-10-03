@@ -1,13 +1,30 @@
-// Sort the pictures: one at a time, "Where does the fish go?", then tap its group (sea / land / sky).
+// Sort the pictures: one at a time, "Where does the fish go?", then drag it into its group
+// (sea / land / sky), or tap the group. A wrong group wiggles and the picture comes back.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Thing } from '../data/islands'
 import { praise, retry, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 
 type Group = Thing & { id: string }
 type Item = Thing & { group: string }
+
+function Bin({ g, wrong, glow, items, onTap }: { g: Group; wrong: boolean; glow: boolean; items: string[]; onTap: (g: Group) => void }) {
+  const target = useDropTarget(`bin-${g.id}`)
+  return (
+    <button ref={target} className={`sort-bin ${wrong ? 'wiggle' : ''} ${glow ? 'glow' : ''}`} onClick={() => onTap(g)}>
+      <span className="bin-emoji">{g.emoji}</span>
+      <span className="bin-items">{items.map((e, i) => <span key={i}>{e}</span>)}</span>
+    </button>
+  )
+}
+
+function Card({ item, onDrop, onTap }: { item: Item; onDrop: (bin: string) => boolean; onTap: () => void }) {
+  const drag = useDrag({ data: item, onStart: sfx.lift, onDrop: (t) => t.startsWith('bin-') && onDrop(t.slice(4)), onTap })
+  return <button className="sort-card" {...drag}>{item.emoji}</button>
+}
 
 export default function SortGame({ title, intro, groups, items, onDone }: {
   title: string; intro: string; groups: Group[]; items: Item[]; onDone: () => void
@@ -20,6 +37,7 @@ export default function SortGame({ title, intro, groups, items, onDone }: {
   const [flying, setFlying] = useState(false)
   const alive = useAlive()
   const busy = useRef(false) // a ref, so two quick taps can't both count
+  const card = useRef<HTMLDivElement>(null)
   const item = order[n]
 
   const ask = (it: Item) => speak(`Where does ${it.say} go?`)
@@ -31,16 +49,16 @@ export default function SortGame({ title, intro, groups, items, onDone }: {
     })()
   }, [])
 
-  const tap = async (g: Group) => {
-    if (!item || busy.current) return
-    if (g.id !== item.group) {
-      sfx.oops()
-      setWrong(g.id)
-      setMisses((m) => m + 1)
-      speak(retry())
-      setTimeout(() => setWrong(null), 600)
-      return
-    }
+  const miss = (id: string) => {
+    sfx.oops()
+    setWrong(id)
+    setMisses((m) => m + 1)
+    speak(retry())
+    setTimeout(() => setWrong(null), 600)
+  }
+  /** Sorted into group `g`. */
+  const right = async (g: Group) => {
+    sfx.plop()
     sfx.good()
     busy.current = true
     setFlying(true)
@@ -61,21 +79,39 @@ export default function SortGame({ title, intro, groups, items, onDone }: {
     setN(n + 1)
     ask(order[n + 1])
   }
+  const drop = (id: string) => {
+    if (!item || busy.current) return false
+    const g = groups.find((x) => x.id === id)!
+    if (g.id !== item.group) { miss(g.id); return false }
+    right(g)
+    return true
+  }
+  // Tapping a group: if it's the right one, the picture flies into it.
+  const tapBin = async (g: Group) => {
+    if (!item || busy.current) return
+    if (g.id !== item.group) return miss(g.id)
+    busy.current = true
+    const el = card.current?.querySelector('.sort-card')
+    const to = document.querySelector(`.sort-bin:nth-child(${groups.indexOf(g) + 1})`)
+    if (el && to) {
+      ;(el as HTMLElement).style.visibility = 'hidden'
+      await fly(el, to, { endScale: 0.4 })
+    }
+    right(g)
+  }
 
   return (
     <div className="activity sort">
       <h2>{title}</h2>
-      <div className="sort-item">
-        {item && !flying && <button key={n} className="sort-card" onClick={() => ask(item)}>{item.emoji}</button>}
+      <div className="sort-item" ref={card}>
+        {item && !flying && <Card key={n} item={item} onDrop={drop} onTap={() => ask(item)} />}
       </div>
       <div className="sort-groups">
         {groups.map((g) => (
-          <button key={g.id} className={`sort-bin ${wrong === g.id ? 'wiggle' : ''} ${misses >= 2 && item?.group === g.id ? 'glow' : ''}`} onClick={() => tap(g)}>
-            <span className="bin-emoji">{g.emoji}</span>
-            <span className="bin-items">{(sorted[g.id] ?? []).join('')}</span>
-          </button>
+          <Bin key={g.id} g={g} wrong={wrong === g.id} glow={misses >= 2 && item?.group === g.id} items={sorted[g.id] ?? []} onTap={tapBin} />
         ))}
       </div>
+      <p className="muted">Drag it to where it lives!</p>
     </div>
   )
 }

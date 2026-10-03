@@ -19,6 +19,7 @@ import { addPalXp, getProgress, MAX_LEVEL, update, useProgress, type Skill } fro
 import { battlesWon, CHARGE, movesFor, POWER, type MoveSlot } from '../lib/moves'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import { useDrag, useDropTarget } from '../lib/drag'
 import { pick, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 
@@ -214,15 +215,22 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
     if (alive.current) speak('Throw a Friend Ball!')
   }
 
-  /** Throw the Friend Ball: it flies over, the creature zips inside, wobble, wobble, wobble… click! */
-  const throwBall = async () => {
-    if (ball) return
+  /**
+   * Throw the Friend Ball: it flies over (or she carried it there herself), the creature zips inside,
+   * wobble, wobble, wobble… click!
+   */
+  const thrown = useRef(false)
+  const throwBall = async (carried = false) => {
+    if (thrown.current) return
+    thrown.current = true
     measure()
     sfx.throwBall()
     setPhase('throw')
-    setBall('fly')
-    await wait(750)
-    if (!alive.current) return
+    if (!carried) {
+      setBall('fly')
+      await wait(750)
+      if (!alive.current) return
+    }
     setBall('land')
     sfx.whoosh()
     await wait(700)
@@ -252,6 +260,9 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
     speak(`${name} learned a brave move: ${pal.moves.brave.name}! Brave moves are extra strong!`)
   }
 
+  // The Friend Ball can be dragged onto the creature, as well as tapped.
+  const foeTarget = useDropTarget('foe', (d) => d === 'ball', 60)
+  const ballDrag = useDrag({ data: 'ball', disabled: phase !== 'ask', onStart: sfx.lift, onDrop: (t) => { if (t !== 'foe') return false; throwBall(true); return true }, onTap: () => throwBall() })
   const superKnown = slots.find((s) => s.kind === 'super')?.known
   const happy = shade === 'leave' || shade === 'gone'
   const caughtIn = ball === 'land' || ball === 'wobble' || ball === 'done'
@@ -264,7 +275,7 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
             <b>{foeName}</b>
             <div className="shadow-bar" aria-label="Shadow"><span>Shadow</span><i style={{ width: `${(shadow / SHADOW) * 100}%` }} /></div>
           </div>
-          <div className={`foe-body ${!happy ? 'shadowed' : ''}`} style={{ '--s': shadow / SHADOW } as CSSProperties}>
+          <div ref={foeTarget} className={`foe-body ${!happy ? 'shadowed' : ''}`} style={{ '--s': shadow / SHADOW } as CSSProperties}>
             {!happy && <span className="wisps" aria-hidden><i /><i /><i /></span>}
             <div className={caughtIn ? 'zip-in' : ''}>
               <PalArt pal={foe} mood={happy ? 'happy' : 'grumpy'} size={170}
@@ -346,10 +357,11 @@ export default function FriendlyBattle({ foeId, foeIntro, onDone }: { foeId: str
         {phase === 'ask' && (
           <div className="throw-pick">
             <div className="ask-line">Would you like to join our Ark, {foeName}?</div>
-            <button className="throw-btn" onClick={throwBall} aria-label="Throw a Friend Ball">
-              <FriendBall size={110} />
-              <span>Tap to throw!</span>
-            </button>
+            <div className="throw-btn">
+              {/* only the ball is picked up (the words stay put) */}
+              <span className="throw-grab" role="button" aria-label="Throw a Friend Ball" {...ballDrag}><FriendBall size={110} /></span>
+              <span>Throw it to {foeName}!</span>
+            </div>
           </div>
         )}
         {phase === 'caught' && (

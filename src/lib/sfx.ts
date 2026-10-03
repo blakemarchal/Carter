@@ -143,4 +143,16 @@ export const sfx = {
   sparkle: () => play((t, o) => {
     for (let i = 0; i < 10; i++) musicBox(o, t + i * 0.06, PENTA[(i * 3) % PENTA.length] + 12, 0.35, 0.6)
   }),
+  /** Picking something up to drag it: a tiny rising blip. */
+  lift: () => play((t, o) => slide(o, t, 520, 760, 0.06, 'sine', 0.12)),
+  /** Something dropped into a bowl or basket: a soft "bloop" with a little thud. */
+  plop: () => play((t, o) => { slide(o, t, 700, 260, 0.12, 'sine', 0.24); kick(o, t + 0.02, 0.25) }),
+  /** A spoon going round the batter: a soft swish. */
+  swish: () => play((t, o) => { shaker(o, t, 0.9); shaker(o, t + 0.07, 0.6) }),
+  /** The oven timer: ding! */
+  ding: () => play((t, o) => { musicBox(o, t, 96, 0.8, 1.6); musicBox(o, t + 0.01, 103, 0.35, 1.4) }),
+  /** A Pal eating: two happy chomps. */
+  chomp: () => play((t, o) => { slide(o, t, 260, 180, 0.08, 'triangle', 0.2); slide(o, t + 0.18, 280, 190, 0.08, 'triangle', 0.2) }),
+  /** Sizzle in the oven. */
+  sizzle: () => play((t, o) => { for (let i = 0; i < 6; i++) shaker(o, t + i * 0.09, 0.5 + (i % 2) * 0.3) }),
 }

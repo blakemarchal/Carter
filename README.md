@@ -41,6 +41,20 @@ npm run build      # production files in dist/
 - `deploy/`: systemd unit, Caddy block, deploy scripts and runbook
 - `scripts/sing/`: makes the sing-along songs (Python)
 
+## Checking animations
+
+`scripts/film/` drives the game in headless Chrome at iPad size, with touch and real finger drags, and takes pictures as it goes (start `npm run dev -- --port 5179` first):
+
+```bash
+node scripts/film/screens.mjs                                     # motion audit: title, map, Ark, a Pal's home
+node scripts/film/motion.mjs "http://localhost:5179/#gallery/scenes/all"   # every story picture (and #gallery/pals)
+node scripts/film/play.mjs out/pairs noah 1                       # play one island step: pairs, sequence, sort, count, maze, verse, battle
+node scripts/film/kitchen.mjs out/kitchen zippy                   # cook a whole recipe by dragging
+python scripts/film/transforms.py .                               # CSS that would wipe out an SVG element's position
+```
+
+The motion audit pauses every animation, scrubs it through its cycle and lists anything that travels far from where it rests (a sign of a transform pivoting on the wrong point). `sheet.py` turns a folder of pictures into one contact sheet. `#gallery/...` pages only exist in `npm run dev`.
+
 ## Making the songs
 
 Each song is written out note by note in `scripts/sing/scores.py` (melodies checked against published sheet music; all public domain). To make Ara sing them:

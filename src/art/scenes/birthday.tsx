@@ -211,8 +211,11 @@ const CONFETTI = [[150, 120], [230, 60], [320, 150], [470, 90], [560, 140], [640
 const Confetti = () => (
   <g>
     {CONFETTI.map(([cx, cy], i) => (
-      <rect key={i} className="pa-twinkle" style={{ animationDelay: `${i * 0.25}s` }} x={cx} y={cy} width={10} height={5} rx={2}
-        fill={['#ff6fae', '#ffd34d', '#5fb7ff', '#5fd39a', '#c9a8ff'][i % 5]} transform={`rotate(${i * 37} ${cx} ${cy})`} />
+      // Tilted by the outer group; the twinkle (a CSS animation) on the inner one would otherwise undo the tilt.
+      <g key={i} transform={`rotate(${i * 37} ${cx} ${cy})`}>
+        <rect className="pa-twinkle" style={{ animationDelay: `${i * 0.25}s` }} x={cx} y={cy} width={10} height={5} rx={2}
+          fill={['#ff6fae', '#ffd34d', '#5fb7ff', '#5fd39a', '#c9a8ff'][i % 5]} />
+      </g>
     ))}
   </g>
 )
