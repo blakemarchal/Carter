@@ -129,7 +129,7 @@ async function handleRecording(req, res, url) {
   res.end(rec.body)
 }
 
-async function handleBackup(req, res) {
+async function handleBackup(req, res, url) {
   if (req.method === 'POST') {
     let body = ''
     for await (const chunk of req) {
@@ -144,7 +144,12 @@ async function handleBackup(req, res) {
     }
     return res.end()
   }
-  const text = await backups.latest()
+  // GET /backups lists them all (with who is in each); GET /backup?id=... is one; plain GET /backup is the newest.
+  if (url.pathname === '/backups') {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
+    return res.end(JSON.stringify(await backups.list()))
+  }
+  const text = await backups.get(url.searchParams.get('id'))
   res.writeHead(text ? 200 : 404, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
   return res.end(text ?? '')
 }
@@ -306,7 +311,7 @@ createServer(async (req, res) => {
       res.writeHead(wantsPage ? 200 : 401, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
       return res.end(wantsPage ? LOGIN_PAGE() : '')
     }
-    if (url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) return await handleBackup(req, res)
+    if ((url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) || (url.pathname === '/backups' && req.method === 'GET')) return await handleBackup(req, res, url)
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url)
     if (req.method !== 'GET' && req.method !== 'HEAD') {

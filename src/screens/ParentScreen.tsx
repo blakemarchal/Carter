@@ -7,7 +7,7 @@ import {
 import { grokVoiceAvailable, setNarrator, setRate, speak, voiceSignedOut } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
-import { backupNow, fetchBackup, lastBackup, restore } from '../lib/backup'
+import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
 import { ISLANDS } from '../data/islands'
 import type { Progress } from '../lib/progress'
@@ -128,10 +128,26 @@ function Voices({ p }: { p: Progress }) {
 function Backup() {
   const [status, setStatus] = useState('')
   const [last, setLast] = useState(lastBackup())
+  const [list, setList] = useState<BackupInfo[] | null>(null)
+  const who = (b: BackupInfo) => b.players.map((x) => `${x.emoji ?? ''} ${x.name}: ${x.islands} ${x.islands === 1 ? 'island' : 'islands'}, ${x.pals} Pals`).join(' · ') || 'no players'
+
+  const choose = async (b: BackupInfo) => {
+    if (!confirm(`Replace ALL progress on this ${deviceLabel()} with the copy from ${b.label}, ${when(b.savedAt)}?
+
+${who(b)}
+
+The current progress is saved to the server first, so you can undo this.`)) return
+    setStatus('Saving what’s here first…')
+    if (!(await backupNow())) return setStatus('Couldn’t save the current progress first, so nothing was changed. Try again when online.')
+    const full = await fetchBackup(b.id)
+    if (!full) return setStatus('Couldn’t read that copy. Nothing was changed.')
+    restore(full)
+  }
+
   return (
     <section>
       <h3>Backup</h3>
-      <p>Every player&rsquo;s progress is copied to the family server when she starts playing and after each island. Last copy from this iPad: {when(last)}.</p>
+      <p>Every player&rsquo;s progress is copied to the family server when she starts playing and after each island. This {deviceLabel()}&rsquo;s last copy: {when(last)}.</p>
       <div className="level-row">
         <button onClick={async () => {
           setStatus('Saving…')
@@ -141,12 +157,21 @@ function Backup() {
         }}>Save now</button>
         <button onClick={async () => {
           setStatus('Looking…')
-          const b = await fetchBackup()
-          if (!b) return setStatus('No backup on the server yet.')
-          setStatus('')
-          if (confirm(`Replace all progress on this iPad with the server copy from ${when(b.savedAt)}?`)) restore(b)
-        }}>Restore from server</button>
+          const l = await listBackups()
+          setStatus(l ? (l.length ? '' : 'No backups on the server yet.') : 'Couldn’t reach the server.')
+          setList(l)
+        }}>Restore from a backup…</button>
       </div>
+      {list && list.length > 0 && (
+        <div className="backup-list">
+          {list.map((b) => (
+            <div key={b.id} className="backup-row">
+              <div><b>{b.label}</b> · {when(b.savedAt)}<br /><span className="muted">{who(b)}</span></div>
+              <button onClick={() => choose(b)}>Restore this</button>
+            </div>
+          ))}
+        </div>
+      )}
       {status && <p className="muted">{status}</p>}
     </section>
   )

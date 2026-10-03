@@ -1,38 +1,65 @@
 // Progress backups: the game posts every player's saved progress here, so a lost or reset iPad
 // doesn't lose it. Kept in STATE_DIRECTORY (systemd StateDirectory=carter -> /var/lib/carter).
-// The last 20 copies are kept; restore reads the newest.
+// Each backup is tagged with the device that made it, and the last KEEP copies per device are kept,
+// so one device's backups (a test laptop, say) can never push out or hide another's (the iPad's).
 import { mkdir, readdir, readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-const KEEP = 20
+const KEEP = 10
 const MAX_BYTES = 512 * 1024
+const NAME = /^backup-(\d+)-([a-z0-9]{1,16})$/ // backup-<time>-<device>
+
+/** Who is in a backup: each player's name and how far they've got. */
+function summarize(data) {
+  const parse = (s) => { try { return JSON.parse(s) } catch { return null } }
+  const profiles = parse(data.keys?.['carters-ark:profiles'])?.list ?? []
+  return profiles.map((p) => {
+    const key = p.id === 'carter' ? 'carters-ark:v1' : `carters-ark:v1:${p.id}`
+    const prog = parse(data.keys?.[key]) ?? {}
+    return { name: String(p.name ?? '').slice(0, 16), emoji: p.emoji, islands: prog.islandsDone?.length ?? 0, pals: Object.keys(prog.pals ?? {}).length }
+  })
+}
 
 export function createBackups(dir) {
   const ready = mkdir(dir, { recursive: true })
   ready.catch((e) => console.error(`Backup folder ${dir} unavailable: ${e.message}`))
 
-  async function list() {
+  async function names() {
     await ready
-    return (await readdir(dir)).filter((f) => /^backup-\d+\.json$/.test(f)).sort()
+    return (await readdir(dir)).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).filter((n) => NAME.test(n))
   }
 
   return {
-    /** Saves a backup (raw JSON text). Throws on bad input. */
+    /** Saves a backup (raw JSON text: { savedAt, device, label, keys }). Throws on bad input. */
     async save(text) {
       if (text.length > MAX_BYTES) throw Object.assign(new Error('backup too large'), { status: 413 })
       const data = JSON.parse(text) // must be valid JSON
       if (typeof data !== 'object' || !data || typeof data.keys !== 'object') throw Object.assign(new Error('not a backup'), { status: 400 })
+      const device = /^[a-z0-9]{1,16}$/.test(data.device ?? '') ? data.device : 'unknown'
       await ready
-      const file = join(dir, `backup-${Date.now()}.json`)
-      await writeFile(`${file}.tmp`, text)
-      await rename(`${file}.tmp`, file)
-      const all = await list()
-      for (const old of all.slice(0, -KEEP)) await unlink(join(dir, old)).catch(() => {})
+      const name = `backup-${Date.now()}-${device}`
+      await writeFile(join(dir, `${name}.json.tmp`), text)
+      await rename(join(dir, `${name}.json.tmp`), join(dir, `${name}.json`))
+      const mine = (await names()).filter((n) => n.endsWith(`-${device}`)).sort()
+      for (const old of mine.slice(0, -KEEP)) await unlink(join(dir, `${old}.json`)).catch(() => {})
+      return name
     },
-    /** The newest backup as JSON text, or null. */
-    async latest() {
-      const all = await list()
-      return all.length ? readFile(join(dir, all[all.length - 1]), 'utf8') : null
+    /** Every backup, newest first, each with a summary of who is in it. */
+    async list() {
+      const out = []
+      for (const name of (await names()).sort().reverse()) {
+        try {
+          const data = JSON.parse(await readFile(join(dir, `${name}.json`), 'utf8'))
+          out.push({ id: name, savedAt: data.savedAt ?? null, device: name.split('-')[2], label: String(data.label ?? 'Unknown device').slice(0, 40), players: summarize(data) })
+        } catch { /* unreadable file: skip */ }
+      }
+      return out
+    },
+    /** One backup's JSON text by id, or the newest overall when no id is given. */
+    async get(id) {
+      const all = (await names()).sort()
+      const name = id ? all.find((n) => n === id) : all[all.length - 1]
+      return name ? readFile(join(dir, `${name}.json`), 'utf8') : null
     },
   }
 }

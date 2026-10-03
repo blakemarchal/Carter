@@ -819,3 +819,7 @@ input { -webkit-user-select: text; user-select: text; }
 @keyframes zipin { 0% { filter: brightness(1); } 40% { filter: brightness(3); } 100% { transform: scale(0) translateY(40px); filter: brightness(3); opacity: 0; } }
 .caught-stars { position: absolute; top: 58%; transform: translateX(-50%); font-size: 40px; animation: pop .5s, floatup 1.6s .4s ease-out forwards; z-index: 6; }
 @keyframes floatup { to { transform: translate(-50%, -60px); opacity: 0; } }
+
+.backup-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.backup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border-radius: 12px; padding: 8px 12px; border: 2px solid #f0dbe6; font-size: 16px; }
+.backup-row button { padding: 8px 14px; border-radius: 10px; background: #fff; border: 2px solid #f0c4da; white-space: nowrap; }
