@@ -9,6 +9,7 @@ import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
 import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
+import FamilySongs from '../components/FamilySongs'
 import { ISLANDS } from '../data/islands'
 import type { Progress } from '../lib/progress'
 
@@ -265,6 +266,7 @@ export default function ParentScreen({ onBack }: { onBack: () => void }) {
         <button className="danger" onClick={() => confirm(`Erase all of ${me.name}’s progress on this device?`) && resetProgress()}>Erase {me.name}&rsquo;s progress</button>
       </section>
       <Voices p={p} />
+      <FamilySongs />
       <Backup />
       <AppVersion />
       <p className="muted">Progress is stored only on this device. No ads, no chat, no accounts. Narration text is sent to xAI to create the voice; nothing else is shared.</p>

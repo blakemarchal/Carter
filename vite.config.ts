@@ -31,6 +31,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp,woff2}'],
+        // Sing-along songs are big: each is kept the first time it's played (below), not up front.
+        globIgnores: ['**/music/**'],
         // /login must reach the server (it shows the sign-in form when the login has expired).
         navigateFallbackDenylist: [/^\/login/],
         // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
@@ -40,6 +42,15 @@ export default defineConfig({
           options: {
             cacheName: 'narration',
             expiration: { maxEntries: 3000 },
+            cacheableResponse: { statuses: [200] },
+          },
+        }, {
+          // Song files have their version in the name (or ?v=), so a kept copy never goes stale.
+          urlPattern: ({ url }) => url.pathname.startsWith('/music/') || /^\/songs\/[^/]+\/audio$/.test(url.pathname),
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'songs',
+            expiration: { maxEntries: 40 },
             cacheableResponse: { statuses: [200] },
           },
         }],

@@ -1,0 +1,5 @@
+numpy
+scipy
+pyworld
+soundfile
+lameenc

@@ -253,7 +253,8 @@ async function serveFile(res, path) {
   }
   const body = await readFile(file)
   const ext = extname(file)
-  const immutable = file.includes(`${join(ROOT, 'assets')}`)
+  // Built files and sing-along songs have a content hash in their names, so they never change.
+  const immutable = file.includes(`${join(ROOT, 'assets')}`) || file.includes(`${join(ROOT, 'music')}`)
   res.writeHead(200, {
     'Content-Type': TYPES[ext] ?? 'application/octet-stream',
     'Cache-Control': immutable ? 'public, max-age=31536000, immutable' : 'no-cache',

@@ -6,6 +6,7 @@ import ArkScreen from './screens/ArkScreen'
 import ParentScreen from './screens/ParentScreen'
 import IslandScreen from './screens/IslandScreen'
 import Bedtime from './screens/Bedtime'
+import SingAlong from './screens/SingAlong'
 import { islandById } from './data/islands'
 import EvolutionScene from './components/EvolutionScene'
 import { BigButton } from './components/ui'
@@ -19,7 +20,7 @@ import { unlockAudio } from './lib/audio'
 import { backupSoon } from './lib/backup'
 import { warmEgg } from './lib/care'
 
-type Screen = 'title' | 'starter' | 'map' | 'ark' | 'parent' | 'bedtime' | `island:${string}`
+type Screen = 'title' | 'starter' | 'map' | 'ark' | 'parent' | 'bedtime' | 'sing' | `island:${string}`
 
 const DAILY_MINUTES = 60
 
@@ -38,8 +39,8 @@ export default function App() {
   useEffect(() => setMusicEnabled(p.music), [p.music])
   useEffect(() => setSfxEnabled(p.sfx), [p.sfx])
 
-  // Islands pick their own music for each activity; everywhere else plays the home tune.
-  useEffect(() => { if (!screen.startsWith('island') && screen !== 'bedtime') setMood('home') }, [screen])
+  // Islands, bedtime and sing-along pick their own music; everywhere else plays the home tune.
+  useEffect(() => { if (!screen.startsWith('island') && screen !== 'bedtime' && screen !== 'sing') setMood('home') }, [screen])
 
   // Count play time (only while playing and the app is on screen); gentle reminder once a day at the limit.
   const playing = screen !== 'title'
@@ -108,7 +109,8 @@ export default function App() {
   switch (shown) {
     case 'title': view = <Title onStart={start} />; break
     case 'starter': view = <StarterPick onDone={() => go('map')} />; break
-    case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}`)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} onBedtime={() => go('bedtime')} />; break
+    case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}`)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} onBedtime={() => go('bedtime')} onSing={() => go('sing')} />; break
+    case 'sing': view = <SingAlong onBack={() => go('map')} />; break
     case 'bedtime': view = <Bedtime onDone={() => go('title')} />; break
     case 'ark': view = <ArkScreen onBack={() => go('map')} />; break
     case 'parent': view = <ParentScreen onBack={() => go('map')} />; break

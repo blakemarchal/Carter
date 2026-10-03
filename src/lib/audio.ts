@@ -1,11 +1,12 @@
 // One shared Web Audio graph for music, sound effects and the narrator voice:
 //   music ─┐
-//   sfx   ─┼─> master ─> compressor ─> speakers
-//   voice ─┘
+//   sfx   ─┤
+//   voice ─┼─> master ─> compressor ─> speakers
+//   songs ─┘  (sing-along recordings)
 // Music ducks (gets quieter) while the narrator is talking.
 
 let ctx: AudioContext | null = null
-let master: GainNode, musicBus: GainNode, sfxBus: GainNode, voiceBus: GainNode
+let master: GainNode, musicBus: GainNode, sfxBus: GainNode, voiceBus: GainNode, songBus: GainNode
 let noise: AudioBuffer
 
 const MUSIC_LEVEL = 0.55
@@ -24,7 +25,9 @@ function build(c: AudioContext) {
   sfxBus = c.createGain()
   voiceBus = c.createGain()
   voiceBus.gain.value = 1.15
-  for (const b of [musicBus, sfxBus, voiceBus]) b.connect(master)
+  songBus = c.createGain()
+  songBus.gain.value = 0.8
+  for (const b of [musicBus, sfxBus, voiceBus, songBus]) b.connect(master)
   noise = c.createBuffer(1, c.sampleRate, c.sampleRate)
   const d = noise.getChannelData(0)
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1
@@ -43,7 +46,7 @@ export function ac(): AudioContext {
   return ctx
 }
 
-export const buses = () => (ac(), { music: musicBus, sfx: sfxBus, voice: voiceBus })
+export const buses = () => (ac(), { music: musicBus, sfx: sfxBus, voice: voiceBus, song: songBus })
 export const noiseBuffer = () => (ac(), noise)
 
 /** iOS only allows audio after a user gesture; call this from the first tap. */

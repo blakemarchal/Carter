@@ -83,8 +83,8 @@ function Boat({ palId, stage }: { palId: string; stage: number }) {
   )
 }
 
-export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime }: {
-  onIsland: (id: string) => void; onArk: () => void; onParent: () => void; onPlayers: () => void; onBedtime: () => void
+export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime, onSing }: {
+  onIsland: (id: string) => void; onArk: () => void; onParent: () => void; onPlayers: () => void; onBedtime: () => void; onSing: () => void
 }) {
   const p = useProgress()
   const me = activeProfile()
@@ -178,6 +178,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
           </button>
           <button className={`icon-btn music ${p.music ? '' : 'off'}`} aria-label={p.music ? 'Turn music off' : 'Turn music on'}
             onClick={() => { sfx.pop(); update((x) => ({ ...x, music: !x.music })) }}>{p.music ? '🎵' : '🔇'}</button>
+          <button className="icon-btn music" aria-label="Sing-along" onClick={() => { sfx.pop(); onSing() }}>🎤</button>
           <button className="icon-btn music" aria-label="Bedtime story" onClick={() => { sfx.pop(); onBedtime() }}>🌙</button>
           <HoldButton onHold={onParent} className="parent-gear">⚙️</HoldButton>
         </div>
