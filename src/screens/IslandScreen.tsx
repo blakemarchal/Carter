@@ -16,27 +16,46 @@ import Quiz from '../activities/Quiz'
 import CountBasket from '../activities/CountBasket'
 import TraceLetter from '../activities/TraceLetter'
 import Maze from '../activities/Maze'
+import SongSpot from '../activities/SongSpot'
+import BuildIt from '../activities/games/BuildIt'
+import SpotIt from '../activities/games/SpotIt'
+import PaintIt from '../activities/games/PaintIt'
+import SteerIt from '../activities/games/SteerIt'
+import Rhythm from '../activities/games/Rhythm'
+import ShareIt from '../activities/games/ShareIt'
 import type { Island, Step } from '../data/islands'
 import { STORY_ART } from '../art/scenes'
-import { completeIsland, getProgress, today, update } from '../lib/progress'
+import { completeIsland, getProgress, savedStep, today, update } from '../lib/progress'
 import { countVisit } from '../lib/voyage'
 import { ScoreContext, starsFor } from '../lib/score'
 import { count } from '../lib/stats'
 import { VisitPause } from '../components/VisitPause'
+import BuddyCheer from '../components/BuddyCheer'
 import { pauseNarration, preload, speak, stopSpeaking } from '../lib/speech'
 import { setMood, type Mood } from '../lib/music'
 import { backupNow } from '../lib/backup'
 
-const MOOD: Record<Step['kind'], Mood> = {
+// (null: the step brings its own music, like a song or a rhythm game.)
+const MOOD: Record<Step['kind'], Mood | null> = {
   story: 'story', pairs: 'play', practice: 'play', sequence: 'play', sort: 'play', quiz: 'story', count: 'play',
   trace: 'play', maze: 'play', verse: 'story', battle: 'battle', reward: 'home', pause: 'home',
+  build: 'play', spot: 'play', paint: 'play', steer: 'play', share: 'play', rhythm: null, song: null,
+}
+
+/** The steps of the visit that `step` is in: from just after the last pause before it, to its own pause. */
+function visitOf(steps: Step[], step: number) {
+  let from = step
+  while (from > 0 && steps[from - 1].kind !== 'pause') from--
+  let to = step
+  while (to < steps.length - 1 && steps[to].kind !== 'pause') to++
+  return { from, to }
 }
 
 export default function IslandScreen({ island, onExit }: { island: Island; onExit: () => void }) {
   const steps = island.steps!
   const reward = steps.length - 1 // the last step is always the reward
   // Pick up where this player left off (the start of the activity they were on).
-  const [step, setStep] = useState(() => Math.min(getProgress().islandStep[island.id] ?? 0, reward))
+  const [step, setStep] = useState(() => Math.min(savedStep(getProgress(), island.id, island.version), reward))
   const [leaving, setLeaving] = useState(false)
   // Whether this player had already finished the island (a replay doesn't count toward the daily voyage).
   const [wasDone] = useState(() => getProgress().islandsDone.includes(island.id))
@@ -80,6 +99,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
         return {
           ...p, islandScore,
           stars: { ...p.stars, [island.id]: Math.max(p.stars[island.id] ?? 0, n) },
+          islandVersion: { ...p.islandVersion, [island.id]: island.version ?? 1 },
           voyage: wasDone ? p.voyage : countVisit(p.voyage, today()),
         }
       })
@@ -92,19 +112,25 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       if (!wasDone) update((p) => ({ ...p, voyage: countVisit(p.voyage, today()) }))
     }
     const saved = step === reward ? 0 : current.kind === 'pause' ? step + 1 : step
-    update((p) => ({ ...p, islandStep: { ...p.islandStep, [island.id]: saved } }))
+    update((p) => ({
+      ...p, islandStep: { ...p.islandStep, [island.id]: saved },
+      islandStepVersion: { ...p.islandStepVersion, [island.id]: island.version ?? 1 },
+    }))
   }, [step])
-  // Fetch the story narration in the background so each page starts right away.
+  // Fetch this visit's story narration in the background so each page starts right away.
+  const visit = visitOf(steps, step)
   useEffect(() => {
-    const story = steps.find((s) => s.kind === 'story')
+    const story = steps.slice(visit.from, visit.to + 1).find((s) => s.kind === 'story')
     if (story?.kind === 'story') preload(story.pages.map((pg, i) => (i === 0 ? `${story.title}. ${pg.text}` : pg.text)))
-  }, [])
+  }, [visit.from])
 
   let body
   switch (current.kind) {
-    case 'story':
-      body = <StoryBook title={current.title} pages={current.pages} art={STORY_ART[island.id]} onDone={next} />
+    case 'story': {
+      const first = current.first ?? 0
+      body = <StoryBook title={current.title} pages={current.pages} art={STORY_ART[island.id]?.slice(first, first + current.pages.length)} onDone={next} />
       break
+    }
     case 'pairs':
       body = <TwoByTwo animals={current.animals} names={current.names} onDone={next} />
       break
@@ -129,6 +155,27 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
     case 'maze':
       body = <Maze title={current.title} intro={current.intro} hero={current.hero} goal={current.goal} trail={current.trail} theme={current.theme} onDone={next} />
       break
+    case 'build':
+      body = <BuildIt title={current.title} intro={current.intro} done={current.done} kit={current.kit} onDone={next} />
+      break
+    case 'spot':
+      body = <SpotIt title={current.title} intro={current.intro} done={current.done} plural={current.plural} kit={current.kit} onDone={next} />
+      break
+    case 'paint':
+      body = <PaintIt title={current.title} intro={current.intro} done={current.done} kit={current.kit} onDone={next} />
+      break
+    case 'steer':
+      body = <SteerIt title={current.title} intro={current.intro} done={current.done} kit={current.kit} onDone={next} />
+      break
+    case 'rhythm':
+      body = <Rhythm title={current.title} intro={current.intro} done={current.done} kit={current.kit} onDone={next} />
+      break
+    case 'share':
+      body = <ShareIt title={current.title} intro={current.intro} done={current.done} kit={current.kit} onDone={next} />
+      break
+    case 'song':
+      body = <SongSpot song={current.song} intro={current.intro} onDone={next} />
+      break
     case 'verse':
       body = <VerseBuilder chunks={current.chunks} reference={current.ref} onDone={next} />
       break
@@ -136,7 +183,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       body = <FriendlyBattle foeId={current.foe} foeIntro={current.intro} onDone={next} />
       break
     case 'pause':
-      body = <VisitPause line={current.line} onDone={exit} />
+      body = <VisitPause line={current.line} onDone={exit} onContinue={next} replay={wasDone} />
       break
     case 'reward':
       body = <Reward palId={current.pal} sticker={current.sticker} stickerName={current.stickerName} stars={stars} onDone={exit} />
@@ -147,8 +194,10 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
     <div className="screen island-screen">
       <header className="island-head">
         <BackButton onClick={step === reward || current.kind === 'pause' ? exit : askToLeave} />
-        <StepDots total={steps.length} current={step} />
-        <span />
+        {/* (the dots are this visit's steps) */}
+        <StepDots total={visit.to - visit.from + 1} current={step - visit.from} />
+        {/* (their Pal cheers them on in activities; stories, battles and songs have it on screen already) */}
+        {['story', 'battle', 'reward', 'pause', 'song'].includes(current.kind) ? <span /> : <BuddyCheer />}
       </header>
       <ScoreContext.Provider value={scored}>
         <div className="island-body" key={step}>{body}</div>

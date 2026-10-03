@@ -20,6 +20,14 @@ function play(fn: (t: number, out: AudioNode) => void) {
   }
 }
 
+/** A sound that also lets their Pal in the corner of an island react (components/BuddyCheer.tsx), sounds on or off. */
+function cheering(kind: 'good' | 'yay' | 'oops', sound: () => void) {
+  return () => {
+    try { window.dispatchEvent(new CustomEvent('ark:react', { detail: kind })) } catch { /* no window */ }
+    sound()
+  }
+}
+
 // C major pentatonic, so any run of notes sounds happy.
 const PENTA = [60, 62, 64, 67, 69, 72, 74, 76, 79, 81, 84, 86, 88]
 
@@ -27,12 +35,12 @@ export const sfx = {
   /** Button tap: a little bubble pop. */
   pop: () => play((t, o) => slide(o, t, 420, 980, 0.07, 'sine', 0.22)),
   /** Right answer: a sparkly rising arpeggio. */
-  good: () => play((t, o) => {
+  good: cheering('good', () => play((t, o) => {
     ;[72, 76, 79, 84].forEach((n, i) => mallet(o, t + i * 0.07, n, 0.9, 0.45))
     ;[96, 100, 103].forEach((n, i) => musicBox(o, t + 0.28 + i * 0.05, n, 0.35, 0.5))
-  }),
+  })),
   /** Wrong answer: a soft, silly boing. */
-  oops: () => play((t, o) => {
+  oops: cheering('oops', () => play((t, o) => {
     const s = slide(o, t, 330, 160, 0.32, 'sine', 0.2)
     const lfo = ac().createOscillator()
     const depth = ac().createGain()
@@ -41,9 +49,9 @@ export const sfx = {
     lfo.connect(depth).connect(s.frequency)
     lfo.start(t)
     lfo.stop(t + 0.4)
-  }),
+  })),
   /** Big moments: a little marching fanfare. */
-  fanfare: () => play((t, o) => {
+  fanfare: cheering('yay', () => play((t, o) => {
     const notes: [number, number][] = [[67, 0], [72, 0.14], [76, 0.28], [79, 0.42], [76, 0.62], [79, 0.74], [84, 0.9]]
     for (const [n, at] of notes) {
       mallet(o, t + at, n, 1, 0.6)
@@ -52,7 +60,7 @@ export const sfx = {
     kick(o, t + 0.9, 0.7)
     snare(o, t + 0.9, 0.5)
     ;[96, 100, 103, 108].forEach((n, i) => musicBox(o, t + 1.0 + i * 0.06, n, 0.3, 0.8))
-  }),
+  })),
   /** Turning a page. */
   whoosh: () => play((t, o) => whooshAt(o, t)),
   /** Counting: each number rings a little higher than the last. */

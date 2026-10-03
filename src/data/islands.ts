@@ -1,12 +1,18 @@
 // Story islands. Each island is data: a list of steps (story, activities, verse, battle, reward)
 // that IslandScreen plays in order. Adding an island = adding an entry here with its steps.
+// An island has up to three visits, split by 'pause' steps (docs/GAME-PLAN.md §3.1).
 import type { Skill } from '../lib/progress'
+import type { BuildKit, PaintKit, RhythmKit, ShareKit, SpotKit, SteerKit } from '../activities/games/types'
 import { NOAH_STEPS } from './noah'
 import { CREATION_STEPS } from './creation'
 import { DAVID_STEPS } from './david'
 import { JONAH_STEPS } from './jonah'
 import { LOAVES_STEPS } from './loaves'
 import { CHRISTMAS_STEPS } from './christmas'
+import { ABRAHAM_STEPS } from './abraham'
+import { JOSEPH_STEPS } from './joseph'
+import { RED_SEA_STEPS } from './red-sea'
+import { DANIEL_STEPS } from './daniel'
 
 export interface StoryPage {
   scene: string // emoji scene for now; replaced by illustrations later
@@ -21,8 +27,11 @@ export interface StoryPage {
 export interface Thing { emoji: string; say: string; art?: string }
 
 export type Step =
-  /** Narrated picture book. */
-  | { kind: 'story'; title: string; pages: StoryPage[] }
+  /**
+   * Narrated picture book. An island's pictures (art/scenes) run on through all its story parts, so a
+   * later part says where its pages start in them: `first` (0 for the first part, the default).
+   */
+  | { kind: 'story'; title: string; pages: StoryPage[]; first?: number }
   /** Memory match: find pairs, then count them by twos. `names` are plural ("lions"). */
   | { kind: 'pairs'; animals: string[]; names: Record<string, string> }
   /** A run of adaptive reading or number questions; `theme` is what number questions count. */
@@ -52,6 +61,19 @@ export type Step =
   | { kind: 'maze'; title: string; intro: string; hero: Thing; goal: Thing; trail?: string; theme?: 'water' }
   /** Memory verse: listen, then tap the pieces in order. */
   | { kind: 'verse'; chunks: string[]; ref: string }
+  /**
+   * The island's signature mini-game (activities/games): a mechanic played with the island's own kit of
+   * pictures (art/games/<island>.tsx). `intro` is said at the start, `done` at the end.
+   */
+  | { kind: 'build'; title: string; intro: string; done: string; kit: BuildKit }
+  /** Find things in a big picture; `plural` names them ("stars"), for hints. */
+  | { kind: 'spot'; title: string; intro: string; done: string; plural: string; kit: SpotKit }
+  | { kind: 'paint'; title: string; intro: string; done: string; kit: PaintKit }
+  | { kind: 'steer'; title: string; intro: string; done: string; kit: SteerKit }
+  | { kind: 'rhythm'; title: string; intro: string; done: string; kit: RhythmKit }
+  | { kind: 'share'; title: string; intro: string; done: string; kit: ShareKit }
+  /** The island's song (a song id in data/songs.ts) to sing along with; then it's in the sing-along on the Ark. */
+  | { kind: 'song'; song: string; intro: string }
   /** Friendly battle against a grumpy creature (a Pal id), who joins the Ark at the end. */
   | { kind: 'battle'; foe: string; intro: string }
   /** The end of a visit (an island has up to three): a little cliffhanger, then back to the map. */
@@ -66,15 +88,22 @@ export interface Island {
   emoji: string // landmark on the map
   color: string
   steps?: Step[] // islands without steps yet show as "coming soon"
+  /** Goes up when the island gets new content (more visits), so players who finished it see "New!". */
+  version?: number
 }
 
+// (version 2: the island grew from one visit to three)
 export const ISLANDS: Island[] = [
-  { id: 'noah', name: "Noah's Ark", emoji: '🌈', color: '#7cc6ff', steps: NOAH_STEPS },
-  { id: 'creation', name: 'Creation', emoji: '🌍', color: '#5fd39a', steps: CREATION_STEPS },
-  { id: 'david', name: 'David & Goliath', emoji: '🪨', color: '#ffb347', steps: DAVID_STEPS },
-  { id: 'jonah', name: 'Jonah & the Big Fish', emoji: '🐋', color: '#5fb7ff', steps: JONAH_STEPS },
-  { id: 'loaves', name: 'Loaves & Fishes', emoji: '🧺', color: '#ffd34d', steps: LOAVES_STEPS },
-  { id: 'christmas', name: 'Baby Jesus', emoji: '⭐', color: '#c9a8ff', steps: CHRISTMAS_STEPS },
+  { id: 'noah', name: "Noah's Ark", emoji: '🌈', color: '#7cc6ff', steps: NOAH_STEPS, version: 2 },
+  { id: 'creation', name: 'Creation', emoji: '🌍', color: '#5fd39a', steps: CREATION_STEPS, version: 2 },
+  { id: 'david', name: 'David & Goliath', emoji: '🪨', color: '#ffb347', steps: DAVID_STEPS, version: 2 },
+  { id: 'jonah', name: 'Jonah & the Big Fish', emoji: '🐋', color: '#5fb7ff', steps: JONAH_STEPS, version: 2 },
+  { id: 'loaves', name: 'Loaves & Fishes', emoji: '🧺', color: '#ffd34d', steps: LOAVES_STEPS, version: 2 },
+  { id: 'christmas', name: 'Baby Jesus', emoji: '⭐', color: '#c9a8ff', steps: CHRISTMAS_STEPS, version: 2 },
+  { id: 'abraham', name: "Abraham's Stars", emoji: '✨', color: '#9b8cff', steps: ABRAHAM_STEPS },
+  { id: 'joseph', name: "Joseph's Coat", emoji: '🧥', color: '#ff9b4a', steps: JOSEPH_STEPS },
+  { id: 'red-sea', name: 'The Red Sea', emoji: '🌊', color: '#4fb0d8', steps: RED_SEA_STEPS },
+  { id: 'daniel', name: 'Daniel & the Lions', emoji: '🦁', color: '#e0a85a', steps: DANIEL_STEPS },
 ]
 
 export const islandById = (id: string) => ISLANDS.find((i) => i.id === id)

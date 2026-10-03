@@ -1,6 +1,8 @@
 // Checks every island and Pal, so a typo in new content can't ship.
 import { describe, expect, it } from 'vitest'
-import { ISLANDS } from '../data/islands'
+import { ISLANDS, type Step, type Thing } from '../data/islands'
+import { STORY_ART } from '../art/scenes'
+import { SONG_IDS } from '../data/songs'
 import { SEAS } from '../data/seas'
 import { PARTY_FOE, PARTY_PAL } from '../data/birthday'
 import { PALS } from '../data/pals'
@@ -9,6 +11,19 @@ import { RECIPES, recipeFor } from '../data/recipes'
 const EMOJI = /\p{Extended_Pictographic}/u
 const palIds = new Set(PALS.map((p) => p.id))
 const FX = ['spark', 'flame', 'rock', 'leaf', 'hearts', 'stars', 'wind', 'roll', 'bubbles']
+
+/** Every picture a step shows, as { emoji, say, art }. */
+function things(s: Step): Thing[] {
+  switch (s.kind) {
+    case 'sequence': return s.items
+    case 'sort': return [...s.groups, ...s.items]
+    case 'quiz': return s.questions.flatMap((q) => q.choices)
+    case 'count': return [s.item]
+    case 'maze': return [s.hero, s.goal]
+    case 'share': return [s.kit.item]
+    default: return []
+  }
+}
 
 describe('Pals', () => {
   it.each(PALS.map((p) => [p.id, p] as const))('%s is complete', (_, p) => {
@@ -82,6 +97,53 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
         case 'pause':
           spoken.push(s.line)
           break
+        case 'build': {
+          const ids = s.kit.parts.map((p) => p.id)
+          expect(new Set(ids).size, 'part ids').toBe(ids.length)
+          // (a part can only wait for parts listed before it, so the build can always be finished)
+          for (const p of s.kit.parts) for (const a of p.after ?? []) expect(ids.slice(0, ids.indexOf(p.id)), `${p.id} after ${a}`).toContain(a)
+          spoken.push(s.intro, s.done, ...s.kit.parts.map((p) => p.say))
+          break
+        }
+        case 'spot':
+          expect(s.kit.targets.length).toBeGreaterThanOrEqual(3)
+          for (const t of s.kit.targets) {
+            expect(t.r, t.id).toBeGreaterThanOrEqual(40)
+            if (t.say) spoken.push(t.say)
+          }
+          spoken.push(s.intro, s.done, s.plural)
+          break
+        case 'paint': {
+          const nums = new Set(s.kit.palette.map((c) => c.n))
+          expect(nums.size, 'paint numbers').toBe(s.kit.palette.length)
+          for (const r of s.kit.regions) expect(nums.has(r.n), r.id).toBe(true)
+          spoken.push(s.intro, s.done, ...s.kit.palette.map((c) => c.name))
+          break
+        }
+        case 'steer':
+          expect(s.kit.path.length).toBeGreaterThanOrEqual(2)
+          for (const [x, y] of s.kit.path) expect(x >= 0 && x <= 800 && y >= 0 && y <= 450, `${x}, ${y}`).toBe(true)
+          spoken.push(s.intro, s.done)
+          break
+        case 'rhythm': {
+          const beats = s.kit.notes.map(([b]) => b)
+          expect(beats).toEqual([...beats].sort((a, b) => a - b))
+          expect(s.kit.notes.length).toBeGreaterThanOrEqual(8)
+          expect(s.kit.bpm >= 50 && s.kit.bpm <= 140).toBe(true)
+          spoken.push(s.intro, s.done)
+          break
+        }
+        case 'share':
+          for (const r of s.kit.rounds) {
+            expect(r.items % r.people, `${r.items} for ${r.people} comes out even`).toBe(0)
+            expect(r.people).toBeLessThanOrEqual(s.kit.people.length)
+          }
+          spoken.push(s.intro, s.done, s.kit.item.say, s.kit.plural, ...s.kit.people.map((p) => p.say))
+          break
+        case 'song':
+          expect(SONG_IDS, s.song).toContain(s.song)
+          spoken.push(s.intro)
+          break
         case 'battle':
           expect(palIds.has(s.foe), s.foe).toBe(true)
           spoken.push(s.intro)
@@ -91,6 +153,32 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
           expect(s.stickerName.length).toBeGreaterThan(1)
           break
       }
+    }
+  })
+  it('its story parts follow on from each other, and every page has its picture', () => {
+    let next = 0
+    for (const s of steps) {
+      if (s.kind !== 'story') continue
+      expect(s.first ?? 0, s.title).toBe(next)
+      expect(s.title, 'a title is read before page one, so no "!"').not.toMatch(/!/)
+      next += s.pages.length
+    }
+    const art = STORY_ART[isl.id]
+    if (art) expect(art.length, 'one picture per page').toBe(next)
+  })
+  it('story cards show pages that exist', () => {
+    for (const s of steps) for (const t of things(s)) {
+      if (!t.art?.startsWith('story:')) continue
+      const [, island, page] = t.art.split(':')
+      expect(STORY_ART[island]?.[Number(page) - 1], t.art).toBeTruthy()
+    }
+  })
+  it('has at most three visits, none of them empty', () => {
+    const pauses = steps.flatMap((s, i) => (s.kind === 'pause' ? [i] : []))
+    expect(pauses.length).toBeLessThanOrEqual(2)
+    for (const i of pauses) {
+      expect(steps[i - 1].kind, 'two pauses in a row').not.toBe('pause')
+      expect(steps[i + 1].kind, 'a pause right before the reward').not.toBe('reward')
     }
   })
   it('nothing spoken has emoji or symbols in it', () => {

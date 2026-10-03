@@ -1,0 +1,77 @@
+/* Share it (ShareIt.tsx): the people behind their plates on a picnic cloth, the things on the plates
+   (laid over the board in board units: --k is pixels per board unit), and the basket under the board. */
+.share-it { width: 100%; min-height: 0; }
+.share-it .practice-head { flex: 0 0 auto; }
+.share-again { flex: 0 0 auto; width: 54px; height: 54px; border-radius: 50%; background: #fff; font-size: 26px; box-shadow: 0 4px 0 rgba(0, 0, 0, .1); }
+.share-again:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, .1); }
+.share-again:disabled { opacity: .45; }
+
+/* Between rounds, this round's people and plates fade away before the next round's come. */
+.share-people, .share-zones { transition: opacity .3s; }
+.share-it.leaving .share-people, .share-it.leaving .share-zones { opacity: 0; }
+.share-rounds { display: flex; gap: 8px; }
+.share-rounds span { width: 16px; height: 16px; border-radius: 50%; background: #f3d3e3; }
+.share-rounds span.done { background: var(--pink); }
+.share-rounds span.now { background: var(--yellow); scale: 1.3; }
+
+/* The people: each round's step forward, and hop when they're given something (ShareIt.tsx animates the hop). */
+.share-person { transform-box: fill-box; transform-origin: 50% 100%; animation: share-arrive .5s ease-out both; }
+@keyframes share-arrive { 0% { transform: translateY(26px) scale(.85); opacity: 0; } 60% { transform: translateY(-6px) scale(1.03); opacity: 1; } 100% { transform: none; } }
+
+/* One column of the board per person: a drop anywhere in it lands on that person's plate. */
+.share-zones { pointer-events: none; }
+.share-zone { position: absolute; top: 0; height: 100%; transform-origin: 50% 84%; }
+.share-zone::before {
+  content: ''; position: absolute; inset: 0; border-radius: 24px; opacity: 0; transition: opacity .15s;
+  background: radial-gradient(ellipse 58% 34% at 50% 82%, rgba(255, 236, 130, .7), rgba(255, 236, 130, 0) 72%);
+}
+.share-zone.drop-hover::before { opacity: 1; }
+.share-plate { position: absolute; display: block; overflow: visible; }
+.share-zone.drop-hover .share-plate { filter: drop-shadow(0 0 8px #ffe14d); }
+
+/* A thing: on a plate it's sized in board units; in the basket, for small fingers. */
+.share-thing { display: grid; place-items: center; padding: 0; line-height: 1; touch-action: none; pointer-events: auto; }
+.share-zone .share-thing {
+  position: absolute; width: calc(var(--k, 1px) * 74); height: calc(var(--k, 1px) * 74); font-size: calc(var(--k, 1px) * 74);
+  animation: share-plop .45s ease-out both;
+}
+@keyframes share-plop {
+  0% { translate: 0 -50px; scale: 1.1; opacity: 0; }
+  30% { opacity: 1; }
+  64% { translate: 0 3px; scale: 1.1 .9; }
+  84% { translate: 0 -3px; scale: .97 1.03; }
+  100% { translate: 0 0; scale: 1; }
+}
+/* counted aloud: each one lights up as its number is said */
+.share-zone .share-thing.lit { filter: drop-shadow(0 0 6px #ffe14d) drop-shadow(0 0 3px #ffc928); animation: share-lit .45s ease-out both; }
+@keyframes share-lit { 40% { scale: 1.3; translate: 0 -8px; } 100% { scale: 1.12; translate: 0 -3px; } }
+
+/* How many on each plate. */
+.share-count {
+  position: absolute; width: calc(var(--k, 1px) * 44); height: calc(var(--k, 1px) * 44); margin: calc(var(--k, 1px) * -22) 0 0 calc(var(--k, 1px) * -22);
+  display: grid; place-items: center; border-radius: 50%; background: #fff; border: 3px solid var(--pink-deep); color: var(--pink-deep);
+  font-size: calc(var(--k, 1px) * 30); font-weight: 800; line-height: 1; box-shadow: 0 3px 0 rgba(0, 0, 0, .12); z-index: 60;
+  animation: share-bump .3s ease-out;
+}
+.share-count.zero { opacity: .5; animation: none; }
+@keyframes share-bump { 50% { scale: 1.3; } }
+
+/* The basket the things come from (and can go back to). */
+.share-pile {
+  flex: 0 0 auto; display: flex; justify-content: center; align-items: center; gap: 4px; width: min(100%, 1080px); min-height: 116px;
+  padding: 4px 18px; border-radius: 30px; border: 4px solid #d6a95c; background-color: #f6e2b8;
+  background-image: repeating-linear-gradient(45deg, rgba(200, 145, 60, .13) 0 7px, transparent 7px 14px),
+    repeating-linear-gradient(-45deg, rgba(200, 145, 60, .13) 0 7px, transparent 7px 14px);
+  box-shadow: inset 0 -8px 0 rgba(160, 110, 40, .14); transition: background-color .15s, box-shadow .15s;
+}
+.share-pile.drop-hover { background-color: #fff3c9; box-shadow: 0 0 0 6px #ffe14d, inset 0 -8px 0 rgba(160, 110, 40, .14); }
+.share-pile .share-thing { flex: 0 1 100px; min-width: 52px; height: 100px; font-size: 100px; rotate: var(--r, 0deg); animation: share-in .4s ease-out both; animation-delay: var(--d, 0s); }
+@keyframes share-in { 0% { scale: .4; opacity: 0; } 70% { scale: 1.1; opacity: 1; } 100% { scale: 1; } }
+
+/* Portrait: the board on top and a bigger basket under it, the two together in the middle. */
+@media (max-aspect-ratio: 1/1) {
+  .share-it { justify-content: center; }
+  .share-it .game-wrap { flex: 0 0 auto; }
+  .share-pile { flex-wrap: wrap; align-content: center; width: min(100%, 720px); min-height: 240px; gap: 6px; }
+  .share-pile .share-thing { flex: 0 0 112px; height: 112px; font-size: 112px; }
+}

@@ -15,6 +15,8 @@ export interface Progress {
   pals: Record<string, number> // pal id -> xp (present = befriended)
   islandsDone: string[]
   islandStep: Record<string, number> // where each island was left off
+  /** The version of each island (data/islands.ts `version`) its islandStep was saved in (see savedStep). */
+  islandStepVersion?: Record<string, number>
   mapAt: string // the island her boat is parked at on the map
   battlesWon: number
   battler?: string // the Pal she picked for her last battle
@@ -50,9 +52,19 @@ export interface Progress {
   stars: Record<string, number>
   /** The island being played: first-try answers so far [right, asked] (kept across visits). */
   islandScore?: Record<string, [number, number]>
+  /** Which version of each island (data/islands.ts `version`) this player finished; a newer one shows "New!". */
+  islandVersion?: Record<string, number>
 }
 
 export { DEFAULT_LOOK, type KidLook } from './look'
+
+/**
+ * Where a player left off an island (a step index), if it was saved in this version of the island.
+ * A place saved in an older version points at different steps, so that island starts again.
+ */
+export function savedStep(p: Progress, id: string, version = 1) {
+  return (p.islandStepVersion?.[id] ?? 1) === version ? p.islandStep[id] ?? 0 : 0
+}
 
 export interface Profile {
   id: string

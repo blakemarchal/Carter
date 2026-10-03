@@ -2,8 +2,11 @@
 // animating, for checking art and motion. Not part of the built game.
 //   #gallery/scenes/<island>   that island's story pictures (or "all")
 //   #gallery/scenes/<island>/family   the same, for a made-up family (baby, big sister, pets, turning 5)
-//   #gallery/pals              every Pal at every stage
+//   #gallery/pals[/<id or species>]   every Pal at every stage (or just one)
+//   #gallery/hats[/<id or species>]   the same with a party hat on and a yawn drawn where art/pals/faces.ts says
 //   #gallery/items[/<group>]   every drawn item (art/items), large and at activity sizes
+//   #gallery/game/<kind>[/<island>]   a mini-game mechanic, playable, with its demo kit or an island's
+//   #gallery/kit/<island>      every piece of an island's mini-game kit, drawn in place
 import { STORY_ART } from '../art/scenes'
 import { BuddyContext } from '../art/scenes/buddy'
 import { PlayerContext, type PlayerArt } from '../art/scenes/player'
@@ -13,6 +16,10 @@ import Pic from '../components/Pic'
 import { ITEM_GROUPS } from '../art/items'
 import { PALS } from '../data/pals'
 import type { KidLook } from '../lib/look'
+import GameDemo from './GameDemo'
+import DressedPal from '../components/DressedPal'
+import { atStage, PAL_FACES, stageScale } from '../art/pals/faces'
+import KitPreview from './KitPreview'
 
 const LOOK: KidLook = { skin: 'tan', hair: 'pigtails', hairColor: '#2b1d14', color: '#8d7cff' }
 const SAMPLE: PlayerArt = {
@@ -28,6 +35,26 @@ const SAMPLE: PlayerArt = {
 
 export default function Gallery({ route }: { route: string }) {
   const [, kind, which, variant] = route.split('/')
+  if (kind === 'game') return <GameDemo kind={which} island={variant} />
+  if (kind === 'kit') return <KitPreview island={which} />
+  if (kind === 'hats') {
+    return (
+      <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto', alignContent: 'flex-start' }}>
+        {PALS.filter((pal) => !which || pal.id === which || pal.species === which).flatMap((pal) => pal.stages.map((st, i) => {
+          const m = PAL_FACES[pal.species].yawn
+          const c = atStage(100, m.y, i)
+          return (
+            <div key={`${pal.id}-${i}`} data-name={`${pal.id} stage ${i} (${st.name}): hat and yawn`} style={{ position: 'relative', width: 200, height: 220, paddingTop: 20 }}>
+              <DressedPal pal={pal} stage={i} size={200} outfit="partyhat" />
+              <svg viewBox="0 0 200 200" width={200} height={200} style={{ position: 'absolute', left: 0, top: 20, pointerEvents: 'none' }}>
+                <ellipse cx={c.x} cy={c.y} rx={m.rx * stageScale(i)} ry={m.ry * stageScale(i)} fill="#6b2a3a" opacity={0.7} />
+              </svg>
+            </div>
+          )
+        }))}
+      </div>
+    )
+  }
   if (kind === 'items') {
     const groups = which ? { [which]: ITEM_GROUPS[which] ?? [] } : ITEM_GROUPS
     return (
@@ -45,7 +72,7 @@ export default function Gallery({ route }: { route: string }) {
   if (kind === 'pals') {
     return (
       <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto' }}>
-        {PALS.flatMap((pal) => pal.stages.map((st, i) => (
+        {PALS.filter((pal) => !which || pal.id === which || pal.species === which).flatMap((pal) => pal.stages.map((st, i) => (
           <div key={`${pal.id}-${i}`} data-name={`${pal.id} stage ${i} (${st.name})`} style={{ textAlign: 'center', fontSize: 12 }}>
             <PalArt pal={pal} stage={i} size={150} />
             <div>{st.name}</div>

@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { SEAS, islandSpots } from '../data/seas'
 import { countVisit, currentSea, islandState, seaOpen, visitsLeft } from '../lib/voyage'
+import { savedStep, type Progress } from '../lib/progress'
 
 // Today's built islands (the rest are "coming soon").
 const BUILT = new Set(['creation', 'noah', 'david', 'jonah', 'christmas', 'loaves'])
@@ -52,6 +53,24 @@ describe('the seas', () => {
     const s = (id: string) => islandState(...at(id), done, more)
     expect(s('abraham')).toBe('next') // the new island is ready to play...
     expect(s('christmas')).toBe('next') // ...and the voyage ahead stays open
+  })
+
+  it('a new island in the sea a player is in comes first, but never closes an island they started', () => {
+    const done = ['noah', 'creation', 'david', 'jonah']
+    const more = (id: string) => built(id) || id === 'daniel' // Daniel arrives, before Jonah, in Kings & Prophets
+    const s = (id: string, started: string[] = []) => islandState(...at(id), done, more, false, started)
+    expect(s('daniel')).toBe('next')
+    expect(s('christmas')).toBe('locked') // the next sea waits for Daniel…
+    expect(s('christmas', ['christmas'])).toBe('next') // …unless they'd already begun Christmas
+    expect(seaOpen(at('christmas')[0], done, more, false, ['christmas'])).toBe(true)
+    expect(currentSea(done, more, false, ['christmas'])).toBe(at('daniel')[0])
+  })
+
+  it('a place saved in an older version of an island starts that island again', () => {
+    const p = { islandStep: { christmas: 3, noah: 4 }, islandStepVersion: { noah: 2 } } as unknown as Progress
+    expect(savedStep(p, 'christmas', 2)).toBe(0) // saved in the one-visit island: step 3 means something else now
+    expect(savedStep(p, 'christmas')).toBe(3) // (an island that hasn't changed keeps its place)
+    expect(savedStep(p, 'noah', 2)).toBe(4)
   })
 
   it('"all islands open" opens every built island', () => {

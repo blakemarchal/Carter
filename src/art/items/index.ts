@@ -8,9 +8,32 @@ import { WILD } from './wild'
 import { FOOD } from './food'
 import { NATURE } from './nature'
 import { THINGS } from './things'
+import { ISL_NOAH } from './isl-noah'
+import { ISL_CREATION } from './isl-creation'
+import { ISL_DAVID } from './isl-david'
+import { ISL_JONAH } from './isl-jonah'
+import { ISL_LOAVES } from './isl-loaves'
+import { ISL_CHRISTMAS } from './isl-christmas'
+import { ISL_ABRAHAM } from './isl-abraham'
+import { ISL_JOSEPH } from './isl-joseph'
+import { ISL_RED_SEA } from './isl-red-sea'
+import { ISL_DANIEL } from './isl-daniel'
 
 export type { Item } from './types'
-export const ITEM_GROUPS: Record<string, Item[]> = { farm: FARM, wild: WILD, food: FOOD, nature: NATURE, things: THINGS }
+export const ITEM_GROUPS: Record<string, Item[]> = {
+  farm: FARM, wild: WILD, food: FOOD, nature: NATURE, things: THINGS,
+  // (things first drawn for one island's story)
+  'noah': ISL_NOAH,
+  'creation': ISL_CREATION,
+  'david': ISL_DAVID,
+  'jonah': ISL_JONAH,
+  'loaves': ISL_LOAVES,
+  'christmas': ISL_CHRISTMAS,
+  'abraham': ISL_ABRAHAM,
+  'joseph': ISL_JOSEPH,
+  'red-sea': ISL_RED_SEA,
+  'daniel': ISL_DANIEL,
+}
 export const ITEMS: Item[] = Object.values(ITEM_GROUPS).flat()
 
 // (Emoji are matched without their invisible "show as emoji" marks, so ☀️ and ☀ are the same.)

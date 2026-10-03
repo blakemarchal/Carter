@@ -16,7 +16,7 @@ import { currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '
 import { count } from '../lib/stats'
 import { Emoji } from '../art/scenes/kit'
 import { palById, stageFor } from '../data/pals'
-import { activeProfile, today, update, useFamily, useProfiles, useProgress } from '../lib/progress'
+import { activeProfile, savedStep, today, update, useFamily, useProfiles, useProgress } from '../lib/progress'
 import { hungryPals } from '../lib/kitchen'
 import { isBirthday, sleepsToGo } from '../lib/birthday'
 import { andList, othersBirthdayToday } from '../lib/party'
@@ -65,7 +65,7 @@ const starPath = (x: number, y: number, r: number) => Array.from({ length: 10 },
  * invisible hit area on top takes the tap: a CSS transform on the positioned group itself would
  * replace its position (SVG), sliding the island out from under her finger mid-tap.
  */
-function IslandShape({ isl, state, pressed, stars, resting }: { isl: MapIsland; state: IslandState; pressed: boolean; stars: number; resting: boolean }) {
+function IslandShape({ isl, state, pressed, stars, resting, fresh }: { isl: MapIsland; state: IslandState; pressed: boolean; stars: number; resting: boolean; fresh: boolean }) {
   const [x, y] = isl.at
   return (
     <g transform={`translate(${x} ${y})`} data-island={isl.id}>
@@ -106,6 +106,15 @@ function IslandShape({ isl, state, pressed, stars, resting }: { isl: MapIsland; 
         <g transform="translate(0 84)">
           <rect x={-58} y={-14} width={116} height={26} rx={13} className="map-soon" />
           <text className="map-soon-text" x={0} y={5} textAnchor="middle">Coming soon</text>
+        </g>
+      )}
+      {/* A finished island that has grown (more visits): "New!" where the pointer would be */}
+      {state === 'done' && fresh && (
+        <g transform="translate(4 -82)">
+          <g className="map-new">
+            <rect x={-40} y={-18} width={80} height={34} rx={17} />
+            <text x={0} y={8} textAnchor="middle">New!</text>
+          </g>
         </g>
       )}
       {state === 'next' && !resting && <text className="map-point" x={4} y={-70} textAnchor="middle">👇</text>}
@@ -175,10 +184,12 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const myDay = isBirthday(me.birthday)
   const others = othersBirthdayToday(me, list, family)
   const route = useRef<SVGPathElement>(null)
+  // Islands part-way through: they (and their seas) stay open, even if a new island appears before them.
+  const started = Object.entries(p.islandStep).filter(([id, k]) => k > 0 && !p.islandsDone.includes(id)).map(([id]) => id)
   // The sea on screen: where the boat is (if that sea is open), else the one they're up to.
   const [sea, setSea] = useState(() => {
     const s = seaOf(p.mapAt)
-    return s >= 0 && seaOpen(s, p.islandsDone, built, p.openAll) ? s : currentSea(p.islandsDone, built, p.openAll)
+    return s >= 0 && seaOpen(s, p.islandsDone, built, p.openAll, started) ? s : currentSea(p.islandsDone, built, p.openAll, started)
   })
   const def = SEAS[sea]
   const islands: MapIsland[] = useMemo(() => {
@@ -200,7 +211,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   }, [sea])
   const resting = visitsLeft(p.voyage, today(), p.dailyVisits) <= 0
   const prevOpen = sea > 0
-  const nextOpen = sea + 1 < SEAS.length && seaOpen(sea + 1, p.islandsDone, built, p.openAll)
+  const nextOpen = sea + 1 < SEAS.length && seaOpen(sea + 1, p.islandsDone, built, p.openAll, started)
   const seaDone = islands.every((i) => !i.built || p.islandsDone.includes(i.id))
 
   useEffect(() => {
@@ -219,13 +230,15 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
     speak('Where should we go? Tap an island!', { interrupt: false })
   }, [])
 
-  const states = islands.map((_, i) => islandState(sea, i, p.islandsDone, built, p.openAll))
+  const states = islands.map((_, i) => islandState(sea, i, p.islandsDone, built, p.openAll, started))
+  /** A finished island that has grown since (its version is newer than the one they finished). */
+  const fresh = (id: string) => (islandById(id)?.version ?? 1) > (p.islandVersion?.[id] ?? 1)
   /** Whether going into an island now starts a new visit (rather than replaying, or finishing one). */
   const startsNewVisit = (id: string) => {
     if (p.islandsDone.includes(id)) return false
-    const steps = islandById(id)?.steps ?? []
-    const k = p.islandStep[id] ?? 0
-    return k === 0 || steps[k - 1]?.kind === 'pause'
+    const isl = islandById(id)
+    const k = savedStep(p, id, isl?.version)
+    return k === 0 || isl?.steps?.[k - 1]?.kind === 'pause'
   }
   const goSea = (n: number) => {
     if (sailing || n < 0 || n >= SEAS.length) return
@@ -309,7 +322,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
         <div className="map-title">
           <h2>{def.name}</h2>
           <div className="sea-dots" aria-label={`Sea ${sea + 1} of ${SEAS.length}`}>
-            {SEAS.map((x, k) => <i key={x.id} className={k === sea ? 'now' : seaOpen(k, p.islandsDone, built, p.openAll) ? 'open' : ''} />)}
+            {SEAS.map((x, k) => <i key={x.id} className={k === sea ? 'now' : seaOpen(k, p.islandsDone, built, p.openAll, started) ? 'open' : ''} />)}
           </div>
         </div>
         <div className="map-tools">
@@ -362,7 +375,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
           {islands.map((isl, i) => (
             <g key={isl.id} onClick={() => tapIsland(i)} style={{ cursor: 'pointer' }}
               onPointerDown={() => setPressed(i)} onPointerUp={() => setPressed(null)} onPointerCancel={() => setPressed(null)} onPointerLeave={() => setPressed(null)}>
-              <IslandShape isl={isl} state={states[i]} pressed={pressed === i} stars={p.stars[isl.id] ?? 0} resting={resting} />
+              <IslandShape isl={isl} state={states[i]} pressed={pressed === i} stars={p.stars[isl.id] ?? 0} resting={resting} fresh={fresh(isl.id)} />
             </g>
           ))}
           <g transform={`translate(${boat.x} ${boat.y}) scale(${boat.flip ? -1 : 1} 1)`} onClick={() => { if (!sailing) { sfx.pop(); onArk() } }} style={{ cursor: 'pointer' }}>

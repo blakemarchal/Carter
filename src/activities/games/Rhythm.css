@@ -1,0 +1,37 @@
+/* Rhythm (Rhythm.tsx): tap the big circle when the notes arrive. */
+.rhythm .practice-head .speaker { width: 56px; height: 56px; font-size: 28px; }
+.rhythm-layer { touch-action: none; cursor: pointer; }
+.rhythm-lane { pointer-events: none; }
+.rhythm-staff { fill: none; stroke: #ffffff; stroke-opacity: .55; stroke-width: 2.5; stroke-linecap: round; pointer-events: none; }
+
+/* The circle to tap: it glows gold when a note is about to arrive, and flashes on a hit. */
+.rhythm-target { fill: #ffffff; fill-opacity: .9; stroke: #ffffff; stroke-width: 7; transition: stroke .12s, fill .12s; }
+.rhythm-target.near { stroke: #ffd34d; }
+.rhythm-target.flash { fill: #fff6c8; stroke: #ffc21a; }
+
+/* A note played in time: a ring and sparkles burst out. A tap off the beat: a small soft ripple. */
+.rhythm-burst { animation: rhythmburst .85s ease-out forwards; pointer-events: none; }
+@keyframes rhythmburst { 0% { transform: scale(.9); opacity: 1; } 100% { transform: scale(1.7); opacity: 0; } }
+.rhythm-ripple { animation: rhythmripple .5s ease-out forwards; pointer-events: none; }
+@keyframes rhythmripple { 0% { transform: scale(.95); opacity: .7; } 100% { transform: scale(1.25); opacity: 0; } }
+
+/* The count-in: one, two, three, four. */
+.rhythm-count {
+  font-size: 130px; font-weight: 800; fill: #ffffff; stroke: #e2468f; stroke-width: 12; paint-order: stroke;
+  text-anchor: middle; dominant-baseline: middle; pointer-events: none;
+  transform-box: fill-box; transform-origin: center; animation: rhythmcount .45s ease-out;
+}
+@keyframes rhythmcount { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+
+.rhythm-hand { pointer-events: none; filter: drop-shadow(0 3px 2px rgba(60, 30, 90, .3)); }
+
+/* Over the board: the play button (when the music needs a tap to start), and "again or go on" at the end. */
+.rhythm-overlay { display: flex; align-items: center; justify-content: center; gap: 28px; pointer-events: none; }
+.rhythm-overlay > * { pointer-events: auto; }
+/* (bottom right, under the circle, where it's least likely to cover the player) */
+.rhythm-overlay.rhythm-ask { align-items: flex-end; justify-content: flex-end; gap: 18px; padding: 0 2.5% 2.5% 0; }
+.rhythm-play {
+  width: 150px; height: 150px; border-radius: 50%; background: var(--pink); color: #fff; font-size: 70px; line-height: 1;
+  padding-left: 10px; box-shadow: 0 8px 0 rgba(0,0,0,.15), 0 0 0 10px rgba(255,255,255,.7); animation: pulse 1.4s infinite;
+}
+.rhythm-again { animation: pulse 1.6s infinite; }

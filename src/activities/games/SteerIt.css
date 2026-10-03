@@ -1,0 +1,45 @@
+/* Steer it (SteerIt.tsx): lead the hero along the glowing way. */
+.steer-it .practice-head .speaker { width: 56px; height: 56px; font-size: 28px; }
+.steer-layer { touch-action: none; cursor: grab; }
+.steer-layer.dragging { cursor: grabbing; }
+
+/* The way: faint where the hero has been, glowing (with little lights flowing toward the goal) ahead. */
+.steer-layer polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.steer-walked { stroke: #ffffff; stroke-opacity: .26; stroke-width: 14; }
+.steer-ahead-shadow { stroke: #4a2e6e; stroke-opacity: .14; stroke-width: 36; }
+.steer-ahead-glow { stroke: #fff4b8; stroke-opacity: .42; stroke-width: 28; }
+.steer-ahead { stroke: #fffbe8; stroke-opacity: .8; stroke-width: 11; }
+.steer-ahead-dots { stroke: #ffffff; stroke-width: 9; stroke-dasharray: 0 24; animation: steerflow 1.1s linear infinite; }
+@keyframes steerflow { to { stroke-dashoffset: -24; } }
+
+/* The goal glows, and the hero has a soft halo while it waits to be led. */
+.steer-goal-glow, .steer-halo { pointer-events: none; transform-box: fill-box; transform-origin: center; animation: steerglow 1.8s ease-in-out infinite; }
+.steer-goal-glow.won { animation: steerwon .9s ease-out infinite; }
+@keyframes steerglow { 50% { opacity: .5; transform: scale(1.12); } }
+@keyframes steerwon { 50% { opacity: 1; transform: scale(1.35); } }
+
+/* The crowd: a little bob as they walk, a breath while they wait, and a happy bounce at the goal. */
+.steer-walk { animation: steerwalk .42s ease-in-out infinite; }
+@keyframes steerwalk { 50% { transform: translateY(-6px); } }
+.steer-idle { animation: steeridle 2.6s ease-in-out infinite; }
+@keyframes steeridle { 50% { transform: translateY(-2px); } }
+.steer-cheer { animation: steercheer .6s ease-in-out 5 both; }
+@keyframes steercheer {
+  0%, 100% { transform: translateY(0); }
+  35% { transform: translateY(-28px) scale(1.05); }
+  65% { transform: translateY(0) scale(1.06, .94); }
+}
+/* "Start here": the hero hops to show it's the one to drag. */
+.steer-hop { animation: steerhop .5s ease-out; }
+@keyframes steerhop { 30% { transform: translateY(-22px) rotate(-4deg); } 60% { transform: translateY(0) rotate(3deg); } }
+
+/* Picked up: a ring and a burst of sparkles. */
+.steer-pop { animation: steerpop .8s ease-out forwards; pointer-events: none; }
+@keyframes steerpop { 0% { transform: scale(.35); opacity: 1; } 60% { opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.steer-pop-ring { fill: none; stroke: #ffffff; stroke-width: 5; }
+
+/* The pointing hand that shows the way. */
+.steer-hand { pointer-events: none; filter: drop-shadow(0 3px 2px rgba(60, 30, 90, .3)); }
+.steer-hand-press { fill: none; stroke: #ffffff; stroke-width: 5; opacity: 0; }
+.steer-hand.pressing .steer-hand-press { animation: steerpress .45s ease-out; }
+@keyframes steerpress { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.6); } }

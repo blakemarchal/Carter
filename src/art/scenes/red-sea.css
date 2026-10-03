@@ -1,0 +1,53 @@
+/* The Red Sea (art/scenes/red-sea.tsx and art/games/red-sea.tsx): motion its pictures and its mini-game
+   need that styles.css doesn't have. Like the pa-* classes, these only run inside an svg with class
+   "pa-anim" (story pictures and the game board both have it). Never on an element with a transform. */
+
+/* Moses walking in the game: a step-by-step bob and sway, pivoting at his feet. */
+.pa-anim .rs-walk { animation: rswalk .5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rswalk {
+  0%, 100% { transform: translateY(0) rotate(-2.5deg); }
+  25%, 75% { transform: translateY(-4px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(2.5deg); }
+}
+
+/* Fish in the walls of water, and other floating things: a slow bob. */
+.pa-anim .rs-bob { animation: rsbob 2.8s ease-in-out infinite alternate; }
+@keyframes rsbob { to { transform: translateY(-5px); } }
+
+/* Seaweed and palm fronds: a gentle sway from the bottom. */
+.pa-anim .rs-sway { animation: rssway 3.4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rssway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+
+/* Bubbles rising and fading. */
+.pa-anim .rs-bubble { animation: rsbubble 3.2s ease-in infinite; }
+@keyframes rsbubble { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-46px); opacity: 0; } }
+
+/* The pillar of fire: its flames flicker (a stretch and a squeeze from the bottom). */
+.pa-anim .rs-flicker { animation: rsflicker .9s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rsflicker { 0% { transform: scale(1, 1); } 50% { transform: scale(1.04, .97); } 100% { transform: scale(.97, 1.03); } }
+
+/* The pillar of cloud: its puffs drift a little. */
+.pa-anim .rs-drift { animation: rsdrift 4.5s ease-in-out infinite alternate; }
+@keyframes rsdrift { to { transform: translateX(6px); } }
+
+/* A tambourine shaken high: a quick rock from the hand. */
+.pa-anim .rs-shake { animation: rsshake .4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rsshake { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+
+/* Dancing: a happy bounce and sway. */
+.pa-anim .rs-dance { animation: rsdance .9s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rsdance { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+
+/* The strong wind: gusts blowing across and fading. */
+.pa-anim .rs-gust { animation: rsgust 2.6s ease-in-out infinite; }
+@keyframes rsgust { 0% { transform: translateX(-36px); opacity: 0; } 25%, 70% { opacity: .95; } 100% { transform: translateX(44px); opacity: 0; } }
+
+/* The sea splashing back together: the spray leaps up and settles. */
+.pa-anim .rs-splash { animation: rssplash 1.6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rssplash { from { transform: scale(.94, .9); } to { transform: scale(1.04, 1.06); } }
+
+/* Music notes floating up. */
+.pa-anim .rs-note { animation: rsnote 3s ease-in-out infinite; }
+@keyframes rsnote { 0% { transform: translateY(6px); opacity: 0; } 25%, 70% { opacity: 1; } 100% { transform: translateY(-26px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) { .pa-anim [class*="rs-"] { animation: none !important; } }

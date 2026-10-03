@@ -3,11 +3,16 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { SONGS, timedLines } from '../data/songs'
+import { SONGS, SONG_IDS, timedLines } from '../data/songs'
+import { islandById } from '../data/islands'
 
 describe('built-in songs', () => {
-  it('all six are there', () => {
-    expect(SONGS.map((s) => s.id)).toEqual(['jesus-loves-me', 'this-little-light', 'noah-boat', 'twinkle', 'away-in-a-manger', 'happy-birthday'])
+  it('every song is made, in the order listed', () => {
+    expect(SONGS.map((s) => s.id)).toEqual(SONG_IDS)
+  })
+
+  it("an island's song belongs to an island that's built", () => {
+    for (const s of SONGS) if (s.island) expect(islandById(s.island)?.steps, s.id).toBeTruthy()
   })
 
   it.each(SONGS.map((s) => [s.id, s] as const))('%s has both recordings and words in time order', (_, s) => {

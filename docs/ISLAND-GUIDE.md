@@ -1,24 +1,36 @@
 # Making an island
 
-How to add a story island to Ark Pals. An island is mostly content (text, data and pictures), checked before it ships. [GAME-PLAN.md](GAME-PLAN.md) covers where islands are heading: seas, three visits each, and signature mini-games. This guide covers what exists today.
+How to add a story island to Ark Pals. An island is mostly content (text, data and pictures), checked before it ships. [GAME-PLAN.md](GAME-PLAN.md) covers where the game is heading. This guide covers how an island is made today.
 
 ## The files
 
-Start with `npm run new-island -- red-sea "The Red Sea"`. It writes the two content files from a template, with TODOs to fill in, and prints the lines that register the island. Its place on the voyage (which sea, and in what order) is in `src/data/seas.ts`.
+Start with `npm run new-island -- red-sea "The Red Sea"`. It writes the three content files from a three-visit template, with TODOs to fill in, and prints the lines that register the island. Its place on the voyage (which sea, and in what order) is in `src/data/seas.ts`.
 
 | File | What goes in it |
 |---|---|
-| `src/data/<id>.ts` | The story pages, the activities, the memory verse, the battle intro and the reward. Export `<ID>_STEPS`. |
-| `src/art/scenes/<id>.tsx` | One component per story page, in order. Export `<ID>_ART`. |
+| `src/data/<id>.ts` | The story (two parts), the activities, the memory verse, the mini-game, the battle, the song and the reward. Export `<ID>_STEPS`. |
+| `src/art/scenes/<id>.tsx` | One component per story page, part 1 then part 2, in order. Export `<ID>_ART`. |
+| `src/art/games/<id>.tsx` | The kit of pictures for the island's mini-game (see "The signature mini-game"). |
 | `src/art/scenes/index.ts` | Register the art: `<id>: <ID>_ART`. |
-| `src/data/islands.ts` | Register the island: `{ id, name, emoji, color, at: [x, y], steps }`. The map is 1000 x 620, and the emoji is its landmark. |
-| `src/data/pals.ts` + `src/art/pals/<species>.tsx` + `src/art/pals/index.ts` | The island's two new Pals: the grumpy creature in the battle, and the reward Pal. |
+| `src/data/islands.ts` | Register the island: `{ id, name, emoji, color, steps }`. The emoji is its landmark on the map. Raise `version` when a finished island gets new content, so players see "New!". |
+| `src/data/pals.ts` + `src/art/pals/<species>.tsx` + `src/art/pals/index.ts` + `src/art/pals/faces.ts` | The island's two new Pals: the grumpy creature in the battle, and the reward Pal. |
+| `src/data/songs.ts` + `scripts/sing/scores.py` | The island's song (see "The song"). |
+| `src/art/items/isl-<id>.tsx` | New drawn things the island's activities need. |
 
-## The story (6–8 pages)
+## Three visits
+
+An island is played over three visits of about 8 to 10 minutes each, split by `pause` steps ([GAME-PLAN.md](GAME-PLAN.md) §3.1). The daily voyage counts visits, and the next visit starts after the pause.
+
+1. **The story:** story part 1, then the signature mini-game, then one learning activity, then a `pause` with a gentle cliffhanger ("Will the dove find dry land? Let's find out next time!").
+2. **The adventure:** story part 2, then two learning activities, then the memory verse, then a `pause`.
+3. **The rescue:** put the story in order (a `sequence` of story cards), then the `battle`, the `song` and the `reward`.
+
+## The story (10–12 pages, in two parts)
 
 - **Audience:** ages 4 to 7, read aloud. Keep sentences short and words concrete, with one idea per page. The text-to-speech voice reads it, so it must sound natural spoken: no symbols, no emoji, no "&" or "/". Write numbers as words.
 - **Faith:** grace first, with obedience as a loving response. **God is never drawn as a person**: His presence is light (`Glow`, `Rays`, `Sparkles`). Jesus is drawn as a person (`PEOPLE.jesus`). Stay true to the Bible, but tell it simply. Leave out anything frightening.
-- **The first page** is read as "<title>. <page 1>", so a title has no "!".
+- **Each part is a chapter**, with its own title. The first page of a part is read as "<title>. <page 1>", so a title has no "!".
+- **Part 2 says where its pictures start**: `first: <part 1's length>`. Its first page picks the story up again with a short reminder.
 - **End** with what the story shows about God ("God always keeps His promises!").
 
 ## The story pictures
@@ -33,21 +45,40 @@ Start with `npm run new-island -- red-sea "The Red Sea"`. It writes the two cont
 - **Living pictures:** wrap 2–4 things per page in `<Tap say="Baa!" sfx="pop">…</Tap>`. Tapping makes them hop, and their line is spoken when the narrator isn't mid-sentence. Never put a CSS class on an element that has a `transform` attribute; wrap it in a `<g>`.
 - **Motion** uses the existing classes in `styles.css` ("Story scenes"): `sc-float`, `sc-sway`, `sc-wing` and others.
 
-## Activities (2–4 per island, then the verse, battle and reward)
+## The signature mini-game
 
-All the step kinds are in `src/data/islands.ts`: `pairs`, `practice`, `sequence`, `sort`, `quiz`, `count`, `trace`, `maze`, `verse`, `battle` and `reward`.
+Each island has one game that only makes sense there ([GAME-PLAN.md](GAME-PLAN.md) §5.2). It's a reusable mechanic (`src/activities/games/`) played with the island's own kit of pictures (`src/art/games/<id>.tsx`). The step is `{ kind, title, intro, done, kit }`; the kit's shape for each kind is in `src/activities/games/types.ts`.
+
+| Kind | Game | For example |
+|---|---|---|
+| `build` | drag the parts onto their places | building the ark, getting the stable ready |
+| `spot` | find things in a big picture | the animals God made, Abraham's stars, the gentle lions |
+| `paint` | color by number | Joseph's coat |
+| `steer` | lead the hero along the way | the big fish to the beach, through the Red Sea |
+| `rhythm` | tap along with the music | David's harp |
+| `share` | give everyone the same | the loaves and fishes |
+
+A kit's backdrop is a whole `<Scene>`; its other pieces are SVG fragments centred on (0, 0). See every piece in place at `#gallery/kit/<id>`, and play the game with the island's kit at `#gallery/game/<kind>/<id>`.
+
+## Activities
+
+All the step kinds are in `src/data/islands.ts`: `pairs`, `practice`, `sequence`, `sort`, `quiz`, `count`, `trace`, `maze`, `verse`, the mini-games, `pause`, `battle`, `song` and `reward`.
 
 - **Pictures.** Activity pictures are `{ emoji, say, art? }`. The emoji names a drawn item, and the narrator says `say`. **The picture must show exactly what's said.**
   - "Fish and birds" needs a picture with fish *and* birds.
   - "Baby Jesus in the stable" needs the baby in the stable.
-  - When no item fits, add one to `src/art/items/` (see that folder's files for the style) rather than settling for a near-miss emoji.
-- **Story cards.** To retell the story (put in order, story questions), use the story's own pictures: `art: 'story:<id>:<page>'`.
+  - When no item fits, add one to `src/art/items/isl-<id>.tsx` (see `farm.tsx` for the style) rather than settling for a near-miss emoji.
+- **Story cards.** To retell the story (put in order, story questions), use the story's own pictures: `art: 'story:<id>:<page>'`, counting pages from 1 across both parts.
 - **Spoken text** follows the same rules as the story: no emoji or symbols. The tests check this.
-- Every island should teach something. Use one reading or number practice, and pick its `theme` emoji from the story (raindrops, stars, fish).
+- Every island should teach something. Mix reading and numbers, and pick a number practice's `theme` emoji from the story (raindrops, stars, fish).
 
 ## Memory verse
 
-Use the World English Bible, word for word, split into 2–4 chunks a child can build in order. Keep it short.
+Use the World English Bible, word for word, split into 2–4 chunks a child can build in order. Keep it short. The narrator always says "God", so prefer verses that say "God" over ones with "Yahweh".
+
+## The song
+
+Each island ends with its own song: new words to a public-domain tune, written note by note in `scripts/sing/scores.py` and listed in `src/data/songs.ts` with the island's id (it joins the sing-along once the island is done). Ara's word clips are fetched on the server (`scripts/sing/fetch-words.mjs`), then `scripts/sing/make.py` builds the audio. Until a song is made, its song step skips itself.
 
 ## The two new Pals
 
@@ -58,13 +89,14 @@ Every island adds two Pals, and each Pal belongs to one island only (the tests c
 
 For each one:
 - **In `pals.ts`:** three stages, with xp 0, 100 and 300. Give it moves using the listed effects, a fruit of the Spirit, and an intro that starts "is a".
-- **The art:** one species file drawing all three stages in a 200 x 200 box. Use the shared helpers in `src/art/kit.tsx` (`useShade`, `CuteFace`, `Shine`, `Anim`) so it matches the other Pals. Each stage adds something new: a bigger size, an accessory, a crown or wings.
+- **The art:** one species file drawing all three stages in a 200 x 200 box, happy and grumpy. Use the shared helpers in `src/art/kit.tsx` (`useShade`, `CuteFace`, `Shine`, `Anim`) so it matches the other Pals. Each stage adds something new: a bigger size, an accessory, a crown or wings.
+- **Its face in `faces.ts`:** where its face, yawn and party hat go. Check them at `#gallery/hats/<species>`.
 
 ## Before it ships
 
 1. Run `npx tsc -b` and `npm test`.
 2. Render the pictures at 2x and look at every one:
-   `node scripts/film/gallery.mjs <out> scenes/<id> --scale 2` and `node scripts/film/gallery.mjs <out> pals --scale 2`.
-3. Open `/#review/<id>` and read each page beside its picture, and each activity's pictures beside their words.
+   `node scripts/film/gallery.mjs <out> scenes/<id> kit/<id> pals/<species> hats/<species> --scale 2`.
+3. Open `/#review/<id>` and read each page beside its picture, visit by visit, with each activity's pictures beside their words.
 4. Get a fresh review from someone who didn't draw it, using the checklist in this guide. Fix everything marked HIGH or MED.
-5. Play it through on an iPad, or with `node scripts/film/play.mjs <out> <id> <step>` for each step.
+5. Play it through on an iPad, or step by step: `node scripts/film/step.mjs <out> <id> <step>` shows any step, `node scripts/film/play.mjs <out> <id> <step>` plays the classic activities with real drags, and `scripts/film/games/<kind>.mjs <out> <id>` plays the mini-game.

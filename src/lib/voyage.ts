@@ -13,33 +13,34 @@ export type IslandState = 'soon' | 'locked' | 'next' | 'done'
 const seaIndexOf = (id: string) => SEAS.findIndex((s) => s.islands.some((i) => i.id === id))
 
 /**
- * Whether a sea is open. Every sea up to the furthest one a player has finished an island in stays
- * open, so progress never locks again (a new island added to an earlier sea is just there to play).
- * The seas after that open in turn, once every built island from the furthest sea on is done.
+ * Whether a sea is open. Every sea up to the furthest one a player has finished or started an island
+ * in stays open, so progress never locks again (a new island added to an earlier sea is just there to
+ * play). The seas after that open in turn, once every built island from the furthest sea on is done.
+ * `started`: islands part-way through (a visit or more played), which stay open too.
  */
-export function seaOpen(sea: number, done: string[], built: IsBuilt, openAll = false): boolean {
+export function seaOpen(sea: number, done: string[], built: IsBuilt, openAll = false, started: string[] = []): boolean {
   if (openAll || sea <= 0) return true
-  const reached = Math.max(0, ...done.map(seaIndexOf))
+  const reached = Math.max(0, ...[...done, ...started].map(seaIndexOf))
   if (sea <= reached) return true
   return SEAS.slice(reached, sea).every((s) => s.islands.every((i) => !built(i.id) || done.includes(i.id)))
 }
 
 /** One island on its sea's map. */
-export function islandState(sea: number, index: number, done: string[], built: IsBuilt, openAll = false): IslandState {
+export function islandState(sea: number, index: number, done: string[], built: IsBuilt, openAll = false, started: string[] = []): IslandState {
   const isl = SEAS[sea].islands[index]
   if (!built(isl.id)) return 'soon'
   if (done.includes(isl.id)) return 'done'
-  if (openAll) return 'next'
-  if (!seaOpen(sea, done, built)) return 'locked'
+  if (openAll || started.includes(isl.id)) return 'next'
+  if (!seaOpen(sea, done, built, false, started)) return 'locked'
   const before = SEAS[sea].islands.slice(0, index).filter((i) => built(i.id))
   return before.every((i) => done.includes(i.id)) ? 'next' : 'locked'
 }
 
 /** The sea a player is up to: the first open sea with a built island still to do (else the last open sea). */
-export function currentSea(done: string[], built: IsBuilt, openAll = false): number {
+export function currentSea(done: string[], built: IsBuilt, openAll = false, started: string[] = []): number {
   let last = 0
   for (let s = 0; s < SEAS.length; s++) {
-    if (!seaOpen(s, done, built, openAll)) break
+    if (!seaOpen(s, done, built, openAll, started)) break
     last = s
     if (SEAS[s].islands.some((i) => built(i.id) && !done.includes(i.id))) return s
   }

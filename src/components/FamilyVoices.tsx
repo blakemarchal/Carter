@@ -8,12 +8,12 @@ import { deleteRecording, hasRecording, lineId, loadRecordings, onRecordingsChan
 import { getProgress } from '../lib/progress'
 import { setFamilyVoices, speak, stopSpeaking } from '../lib/speech'
 
-/** Every story line, exactly as the game speaks it (the first page includes the title). */
+/** Every story line, exactly as the game speaks it (each part's first page includes its title). */
 function groups() {
   const out: { name: string; lines: string[] }[] = []
   for (const isl of ISLANDS) {
-    const story = isl.steps?.find((s) => s.kind === 'story')
-    if (story?.kind === 'story') out.push({ name: isl.name, lines: story.pages.map((pg, i) => (i === 0 ? `${story.title}. ${pg.text}` : pg.text)) })
+    const lines = (isl.steps ?? []).flatMap((s) => (s.kind === 'story' ? s.pages.map((pg, i) => (i === 0 ? `${s.title}. ${pg.text}` : pg.text)) : []))
+    if (lines.length) out.push({ name: isl.name, lines })
   }
   out.push({ name: 'Bedtime', lines: BEDTIME_LINES })
   return out

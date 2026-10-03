@@ -41,6 +41,7 @@ export interface PalDef {
     | 'mouse' | 'dragon' | 'serpent' | 'dove' | 'cloud' | 'cat'
     | 'sun' | 'night' | 'lion' | 'goat' | 'whale' | 'wave'
     | 'donkey' | 'crab' | 'lamb' | 'snow' | 'cupcake' | 'balloon'
+    | 'camel' | 'star' | 'peacock' | 'chameleon' | 'wind' | 'tambourine' | 'cub' | 'owl'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -168,6 +169,58 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Pouty', xp: 0 }, { name: 'Floaty', xp: 100 }, { name: 'Partyloon', xp: 300 }],
     moves: { basic: { name: 'Floaty Hug', fx: 'hearts', icon: '🎈' }, brave: { name: 'Ribbon Twirl', fx: 'wind', icon: '🎀' }, super: { name: 'Love Lift', fx: 'hearts', icon: '💗' } },
     intro: 'is a Love Pal! {name} used to pout, but now {name} floats up happy, because God loves us every single day.',
+  },
+  // Abraham's Stars
+  {
+    id: 'humpy', species: 'camel', fruit: 'Patience',
+    stages: [{ name: 'Humpy', xp: 0 }, { name: 'Dunewalker', xp: 100 }, { name: 'Starcaravan', xp: 300 }],
+    moves: { basic: { name: 'Steady Steps', fx: 'rock', icon: '👣' }, brave: { name: 'Dune Roll', fx: 'roll', icon: '🏜️' }, super: { name: 'Starry Trek', fx: 'stars', icon: '✨' } },
+    intro: 'is a Patience Pal! {name} used to grumble on the long, long walk, but now {name} knows that waiting for God is worth it.',
+  },
+  {
+    id: 'twinkle', species: 'star', fruit: 'Goodness',
+    stages: [{ name: 'Twinkle', xp: 0 }, { name: 'Starbright', xp: 100 }, { name: 'Promisestar', xp: 300 }],
+    moves: { basic: { name: 'Twinkle Shine', fx: 'stars', icon: '⭐' }, brave: { name: 'Star Shower', fx: 'stars', icon: '🌠' }, super: { name: 'Promise Glow', fx: 'spark', icon: '🌟' } },
+    intro: 'is a Goodness Pal! {name} twinkles to remind us that God is good, and He always keeps His promises, just like He did for Abraham.',
+  },
+  // Joseph's Coat
+  {
+    id: 'sulky', species: 'peacock', fruit: 'Love',
+    stages: [{ name: 'Sulky', xp: 0 }, { name: 'Fanfeather', xp: 100 }, { name: 'Rainbowplume', xp: 300 }],
+    moves: { basic: { name: 'Feather Fan', fx: 'wind', icon: '🪶' }, brave: { name: 'Color Splash', fx: 'hearts', icon: '🎨' }, super: { name: 'Rainbow Tail', fx: 'stars', icon: '🌈' } },
+    intro: 'is a Love Pal! {name} used to be jealous, but now {name} knows that love is happy for others.',
+  },
+  {
+    id: 'patches', species: 'chameleon', fruit: 'Kindness',
+    stages: [{ name: 'Patches', xp: 0 }, { name: 'Colorcoat', xp: 100 }, { name: 'Rainbowrobe', xp: 300 }],
+    moves: { basic: { name: 'Color Swap', fx: 'spark', icon: '🦎' }, brave: { name: 'Forgiving Hug', fx: 'hearts', icon: '🤗' }, super: { name: 'Coat of Colors', fx: 'stars', icon: '🧥' } },
+    intro: 'is a Kindness Pal! {name} changes colors, and loves to forgive, just like Joseph forgave his brothers.',
+  },
+  // The Red Sea
+  {
+    id: 'gusty', species: 'wind', fruit: 'Self-Control',
+    stages: [{ name: 'Gusty', xp: 0 }, { name: 'Breezy', xp: 100 }, { name: 'Windsong', xp: 300 }],
+    moves: { basic: { name: 'Gentle Breeze', fx: 'wind', icon: '🌬️' }, brave: { name: 'Whirl Twirl', fx: 'roll', icon: '🌀' }, super: { name: 'Wind Song', fx: 'leaf', icon: '🍃' } },
+    intro: 'is a Self-Control Pal! {name} used to huff and puff, but now {name} blows soft and gentle, like the wind God sent across the sea.',
+  },
+  {
+    id: 'jingle', species: 'tambourine', fruit: 'Joy',
+    stages: [{ name: 'Jingle', xp: 0 }, { name: 'Timbrel', xp: 100 }, { name: 'Jubilee', xp: 300 }],
+    moves: { basic: { name: 'Jingle Jangle', fx: 'spark', icon: '🎵' }, brave: { name: 'Happy Dance', fx: 'stars', icon: '💃' }, super: { name: 'Song of Joy', fx: 'hearts', icon: '🎶' } },
+    intro: 'is a Joy Pal! {name} jingles and dances, just like Miriam did when God brought His people safely through the sea.',
+  },
+  // Daniel & the Lions
+  {
+    id: 'growly', species: 'cub', fruit: 'Gentleness',
+    stages: [{ name: 'Growly', xp: 0 }, { name: 'Purrcy', xp: 100 }, { name: 'Gentlemane', xp: 300 }],
+    moves: { basic: { name: 'Soft Paw', fx: 'hearts', icon: '🐾' }, brave: { name: 'Big Yawn', fx: 'wind', icon: '🥱' }, super: { name: 'Gentle Roar', fx: 'spark', icon: '🦁' } },
+    intro: 'is a Gentleness Pal! {name} used to growl, but God made the lions gentle, and now {name} purrs.',
+  },
+  {
+    id: 'hoot', species: 'owl', fruit: 'Faithfulness',
+    stages: [{ name: 'Hoot', xp: 0 }, { name: 'Hootwing', xp: 100 }, { name: 'Wiseglow', xp: 300 }],
+    moves: { basic: { name: 'Hoot Hello', fx: 'spark', icon: '🦉' }, brave: { name: 'Night Wing', fx: 'wind', icon: '🌙' }, super: { name: 'Prayer Glow', fx: 'stars', icon: '🙏' } },
+    intro: 'is a Faithfulness Pal! {name} keeps watch at night, and prays every day, just like Daniel.',
   },
 ]
 

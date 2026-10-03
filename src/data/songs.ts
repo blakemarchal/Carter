@@ -24,22 +24,39 @@ export interface Song {
   family?: boolean
   /** Where the birthday child's name goes (seconds): the tune plays on and the game says the name. */
   name?: [number, number]
+  /** An island's own song: it's in the sing-along once that island is done (its song spot plays it first). */
+  island?: string
 }
 
 /** Stands for the birthday child's name in a song's words. */
 export const NAME_SLOT = '{name}'
 
-const BUILT_IN: { id: keyof typeof gen; title: string; emoji: string; color: string }[] = [
+type Gen = { audio: Song['audio']; lines: unknown; beats?: number[]; name?: unknown }
+const GEN = gen as Record<string, Gen>
+
+const BUILT_IN: { id: string; title: string; emoji: string; color: string; island?: string }[] = [
   { id: 'jesus-loves-me', title: 'Jesus Loves Me', emoji: '💛', color: '#ffcf5a' },
   { id: 'this-little-light', title: 'This Little Light of Mine', emoji: '🕯️', color: '#ffa94d' },
   { id: 'noah-boat', title: 'Noah Built a Big Boat', emoji: '🚢', color: '#5ec8f2' },
   { id: 'twinkle', title: 'Twinkle, Twinkle, Little Star', emoji: '⭐', color: '#9b8cff' },
   { id: 'away-in-a-manger', title: 'Away in a Manger', emoji: '👶', color: '#7ed68a' },
   { id: 'happy-birthday', title: 'Happy Birthday', emoji: '🎂', color: '#ff8fc7' },
+  // Island songs: new words to public-domain tunes (docs/GAME-PLAN.md §10), sung at each island's song spot.
+  { id: 'song-creation', title: 'God Made It All', emoji: '🌍', color: '#5fd39a', island: 'creation' },
+  { id: 'song-abraham', title: 'Count the Stars', emoji: '✨', color: '#9b8cff', island: 'abraham' },
+  { id: 'song-joseph', title: "Joseph's Coat", emoji: '🧥', color: '#ff9b4a', island: 'joseph' },
+  { id: 'song-red-sea', title: 'Through the Sea', emoji: '🌊', color: '#4fb0d8', island: 'red-sea' },
+  { id: 'song-david', title: "David's Song", emoji: '🎵', color: '#ffb347', island: 'david' },
+  { id: 'song-daniel', title: 'Daniel Prayed', emoji: '🦁', color: '#e0a85a', island: 'daniel' },
+  { id: 'song-jonah', title: 'Jonah and the Big Fish', emoji: '🐋', color: '#5fb7ff', island: 'jonah' },
+  { id: 'song-loaves', title: 'Five Little Loaves', emoji: '🧺', color: '#ffd34d', island: 'loaves' },
 ]
 
-export const SONGS: Song[] = BUILT_IN.filter((s) => s.id in gen).map((s) => {
-  const g = gen[s.id]
+/** Every built-in song's id, made yet or not (an island's song step names one). */
+export const SONG_IDS = BUILT_IN.map((s) => s.id)
+
+export const SONGS: Song[] = BUILT_IN.filter((s) => s.id in GEN).map((s) => {
+  const g = GEN[s.id]
   return { ...s, audio: g.audio, lines: g.lines as SongLine[], beats: g.beats, name: 'name' in g ? (g.name as [number, number]) : undefined }
 })
 

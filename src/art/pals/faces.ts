@@ -43,6 +43,14 @@ export const PAL_FACES: Record<Species, PalFace> = {
   snow: face(86, 0.85, [96, 56], { y: 108.5, rx: 6, ry: 6 }),
   cupcake: face(136, 0.85, [100, [76, 52, 34]]),
   balloon: face(94, 1, [100, 38]),
+  camel: face(70, 0.8, [100, 45], { y: 106.5, rx: 7, ry: 7 }),
+  star: face(120, 0.9, [100, 68]),
+  peacock: face(86, 0.82, [100, 58], { y: 100, rx: 5, ry: 5.5 }),
+  chameleon: face(86, 0.85, [100, 58], { y: 107, rx: 7.5, ry: 7.5 }),
+  wind: face(106, 0.95, [100, 60]),
+  tambourine: face(108, 0.95, [100, 59]),
+  cub: face(87, 0.9, [100, 56], { y: 112, rx: 5.5, ry: 5.5 }),
+  owl: face(94, 1.08, [100, 62], { y: 107, rx: 5.5, ry: 6 }),
 }
 
 /** PalArt draws a Pal at stage n scaled about (100, 110) in its box. */

@@ -37,7 +37,11 @@ function Buddy({ beat, dancing }: { beat: number; dancing: boolean }) {
   )
 }
 
-function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
+/**
+ * One song playing. On an island (`inIsland`, the island's song spot) there's no back button (the
+ * island has its own), the button at the end goes on, and `say` sets the song up instead of "Let's sing…".
+ */
+export function Player({ song: picked, onDone, inIsland, say }: { song: Song; onDone: () => void; inIsland?: boolean; say?: string }) {
   const alive = useAlive()
   const name = playerName()
   const [song, setSong] = useState(() => withName(picked, name))
@@ -63,7 +67,7 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
       play.current = pb
       setSong(withName(withTimings(picked, buf.duration), name))
       if (picked.name) preload([`${name}!`])
-      await speak(`Let's sing ${picked.title}!`)
+      await speak(say ?? `Let's sing ${picked.title}!`)
       if (!alive.current) return
       pb.play(0)
       setState('playing')
@@ -138,7 +142,7 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
   return (
     <div className="screen sing" style={{ ['--song' as string]: song.color }}>
       <header>
-        <BackButton onClick={onDone} />
+        {inIsland ? <span /> : <BackButton onClick={onDone} />}
         <h2>{song.emoji} {song.title}</h2>
         {song.audio.sing
           ? <button className={`sing-mode ${mine ? 'mine' : ''}`} onClick={() => { sfx.pop(); switchVoice() }} disabled={state === 'loading'}>
@@ -171,12 +175,15 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
         {state === 'done' ? (
           <>
             <BigButton color="yellow" onClick={again}>🔁 Again!</BigButton>
-            <BigButton color="white" onClick={onDone}>🎵 More songs</BigButton>
+            {inIsland
+              ? <BigButton color="pink" onClick={() => { stopSpeaking(); onDone() }}>➡️</BigButton>
+              : <BigButton color="white" onClick={onDone}>🎵 More songs</BigButton>}
           </>
         ) : (
           <>
             <BigButton color="pink" onClick={toggle} disabled={state === 'loading' || state === 'error'}>{state === 'playing' ? '⏸' : '▶️'}</BigButton>
             <BigButton color="white" onClick={again} disabled={state === 'loading' || state === 'error'}>🔁</BigButton>
+            {inIsland && state === 'error' && <BigButton color="pink" onClick={onDone}>➡️</BigButton>}
           </>
         )}
       </div>
@@ -188,7 +195,9 @@ function Player({ song: picked, onDone }: { song: Song; onDone: () => void }) {
 export default function SingAlong({ onBack }: { onBack: () => void }) {
   const [song, setSong] = useState<Song | null>(null)
   const family = useFamilySongs()
-  const songs = [...SONGS, ...familyAsSongs(family)]
+  // (an island's song joins once the island is done)
+  const p = getProgress()
+  const songs = [...SONGS.filter((s) => !s.island || p.openAll || p.islandsDone.includes(s.island)), ...familyAsSongs(family)]
 
   useEffect(() => {
     stopSpeaking()

@@ -1,0 +1,77 @@
+/* Build it (BuildIt.tsx): the board with each part's place ghosted on it, the tray of loose parts under
+   it, and the part in the air, which floats above everything at the board's own scale. */
+.build-it { width: 100%; min-height: 0; }
+.build-it .practice-head { flex: 0 0 auto; }
+.build-again { flex: 0 0 auto; width: 54px; height: 54px; border-radius: 50%; background: #fff; font-size: 26px; box-shadow: 0 4px 0 rgba(0, 0, 0, .1); }
+.build-again:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, .1); }
+.build-again:disabled { opacity: .45; }
+
+/* Places: each part's own drawing, ghosted. A place lights up as a hint, or when its part is over it. */
+.build-ghost { opacity: .32; transition: opacity .25s; }
+.build-ghost.hot { opacity: 1; animation: build-pulse 1.1s ease-in-out infinite; }
+@keyframes build-pulse { 50% { opacity: .62; } }
+
+/* A part going in slides from where it was let go into its place, then lands with a little squash. */
+.build-snap { transform-box: fill-box; transform-origin: 50% 100%; animation: build-snap .5s cubic-bezier(.3, .7, .4, 1) both; }
+@keyframes build-snap {
+  0% { transform: translate(var(--dx), var(--dy)) scale(1.05); }
+  38% { transform: translate(0, 0) scale(1.05); }
+  56% { transform: scale(1.07, .9); }
+  76% { transform: scale(.97, 1.04); }
+  100% { transform: none; }
+}
+.build-spark { opacity: 0; transform-box: fill-box; transform-origin: center; animation: build-spark .75s ease-out both; }
+@keyframes build-spark {
+  0% { transform: translate(0, 0) scale(.3); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1.1); opacity: 0; }
+}
+
+/* All in: a happy wiggle, and the kit's Finished picture fades in over it. */
+.build-made { transform-box: fill-box; transform-origin: 50% 100%; }
+.build-it.finished .build-made { animation: build-wiggle 1.3s ease-in-out .15s; }
+@keyframes build-wiggle {
+  12% { transform: rotate(-2.5deg) scale(1.03); }
+  30% { transform: rotate(2.5deg) scale(1.05); }
+  48% { transform: rotate(-2deg) scale(1.04); }
+  66% { transform: rotate(1.5deg) scale(1.02); }
+  84% { transform: rotate(-.5deg); }
+  100% { transform: none; }
+}
+.build-finished { animation: build-show 1s ease-out both; }
+@keyframes build-show { from { opacity: 0; } }
+
+/* The tray of loose parts, under the board. */
+.build-tray { flex: 0 0 auto; width: 100%; max-width: 1120px; display: flex; justify-content: center; align-items: stretch; gap: 10px; padding: 0 6px 6px; }
+.build-slot {
+  position: relative; flex: 0 1 150px; min-width: 64px; height: 112px; padding: 8px; border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff; box-shadow: 0 6px 0 rgba(0, 0, 0, .1); touch-action: none; cursor: grab; -webkit-user-drag: none;
+  transition: opacity .3s, filter .3s;
+}
+/* (fits the slot, but BuildIt.tsx caps it at one and a half times the part's size on the board) */
+.build-slot svg { display: block; flex: 0 1 auto; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.build-tray:not(.ready) .build-slot { opacity: .6; }
+.build-tray.ready .build-slot { animation: build-wake .45s ease-out; animation-delay: calc(var(--i) * 70ms); }
+@keyframes build-wake { 0% { scale: .85; } 55% { scale: 1.08; } 100% { scale: 1; } }
+/* waiting for another part to go in first: a little dimmer */
+.build-slot.later { opacity: .62; filter: saturate(.5); }
+.build-slot.out, .build-slot.in { visibility: hidden; }
+/* "this one first" */
+.build-slot.nudge { opacity: 1; filter: none; }
+.build-slot.nudge::after { content: ''; position: absolute; inset: -5px; border-radius: 26px; pointer-events: none; animation: build-ring .8s ease-in-out 3 both; }
+@keyframes build-ring { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 225, 77, 0); } 50% { box-shadow: 0 0 0 7px #ffe14d, 0 0 28px 10px #ffd34d; } }
+
+/* Portrait: the board on top and a bigger tray under it in rows, the two together in the middle. */
+@media (max-aspect-ratio: 1/1) {
+  .build-it { justify-content: center; }
+  .build-it .game-wrap { flex: 0 0 auto; }
+  .build-tray { flex-wrap: wrap; max-width: 760px; }
+  .build-slot { flex: 0 0 calc((100% - (var(--cols) - 1) * 10px) / var(--cols)); height: 150px; }
+}
+
+/* The part in the air: its middle is placed with a translate; it's drawn at the board's own scale. */
+.build-float { position: fixed; left: 0; top: 0; width: 0; height: 0; z-index: 1000; pointer-events: none; will-change: transform; }
+.build-float-part { filter: drop-shadow(0 14px 10px rgba(0, 0, 0, .28)); }
+.build-float.over .build-float-part { filter: drop-shadow(0 0 10px #ffe14d) drop-shadow(0 10px 8px rgba(0, 0, 0, .22)); }
+.build-float-part svg { display: block; width: 100%; height: 100%; overflow: visible; }

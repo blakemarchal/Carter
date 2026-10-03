@@ -1,10 +1,13 @@
-// God Made Everything: one illustration per story page (see data/creation.ts for the words).
+// God Made Everything: one illustration per story page, both parts in one array (data/creation.ts has the
+// words). Part 1 (pages 1 to 6) is the six days; part 2 (pages 7 to 11) is God's special friends: Adam and
+// Eve, their garden, the animals' names, the seventh day, and the child playing.
 // God is never drawn as a person: His presence and voice are light (Glow, Rays, Sparkles).
-// These pages are also the cards in the "Seven Days" put-in-order step, so each one shows only its
-// own day (no birds before day five, no animals before day six) and the last one shows it all.
-import { useId, type ComponentType, type CSSProperties } from 'react'
-import { darken, ink } from '../kit'
-import { Person, type Look } from '../people'
+// Pages 1 to 5, 7 and 10 are also the cards in the "Seven Days" put-in-order step, so each one shows only
+// what was made by its day (no birds before day five, no animals before day six) and page 10 shows it all.
+// Adam and Eve look the same on every page (ADAM, EVE; Eve always has the flower in her hair).
+import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
+import { darken, ink, lighten, useShade } from '../kit'
+import { Person, type Look, type Pose } from '../people'
 import { usePlayer } from './player'
 import { Cloud, Dove, Emoji, Fish, Flower, Glow, Moon, Palm, Rays, Scene, Sea, Sparkles, Sun, Tap, Tree, sparkle } from './kit'
 
@@ -122,11 +125,127 @@ const LightFromAbove = () => (
   </>
 )
 
-const ADAM: Look = { skin: '#c68b5e', hair: 'short', hairColor: '#3b2a20', robe: '#c9a46a', sash: '#6cb45a' }
-const EVE: Look = { skin: '#d9a47a', hair: 'long', hairColor: '#4a3020', robe: '#7fc3a0', sash: '#f0d38a' }
+/** A fruit tree in God's garden: the kit Tree's shape, its leaves full of fruit. (x, y) is the foot of its trunk. */
+export function FruitTree({ x, y, s = 1, fruit = '#ff6b6b' }: { x: number; y: number; s?: number; fruit?: string }) {
+  const leaf = useShade('#5fc46a', 0.3, 0.2)
+  const line = ink('#5fc46a')
+  const spots = [[-22, -122], [8, -128], [28, -108], [-6, -102], [-38, -88], [-18, -78], [20, -84], [42, -72], [-48, -70]]
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>{leaf.def}</defs>
+      <path d="M-10 0 L-7 -70 L7 -70 L10 0 Z" fill="#9a6a3a" stroke="#6b4422" strokeWidth={3} />
+      <g className="sc-sway">
+        <circle cx={0} cy={-100} r={46} fill={leaf.fill} stroke={line} strokeWidth={3} />
+        <circle cx={-34} cy={-76} r={28} fill={leaf.fill} stroke={line} strokeWidth={3} />
+        <circle cx={34} cy={-76} r={28} fill={leaf.fill} stroke={line} strokeWidth={3} />
+        {spots.map(([fx, fy], i) => (
+          <g key={i}>
+            <circle cx={fx} cy={fy} r={7} fill={fruit} stroke={ink(fruit)} strokeWidth={2} />
+            <circle cx={fx - 2.2} cy={fy - 2.4} r={2} fill="#fff" opacity={0.55} />
+          </g>
+        ))}
+      </g>
+    </g>
+  )
+}
+
+/** A round leafy bush. (x, y) is the middle of its foot. */
+function Bush({ x, y, s = 1, color = '#4fb85a' }: { x: number; y: number; s?: number; color?: string }) {
+  const leaf = useShade(color, 0.3, 0.2)
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>{leaf.def}</defs>
+      <path d="M-46 0 C-58 -6 -56 -30 -38 -32 C-38 -50 -14 -56 -4 -44 C4 -60 32 -56 34 -38 C52 -40 60 -12 46 0 Z" fill={leaf.fill} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
+      <path d="M-24 -30 q6 -6 12 0 M10 -36 q6 -6 12 0" stroke={lighten(color, 0.35)} strokeWidth={2.5} fill="none" strokeLinecap="round" />
+    </g>
+  )
+}
+
+// ---------- People ----------
+
+// Adam and Eve, in simple clothes (as children's Bibles draw them). Shared looks: move into people.tsx's PEOPLE.
+export const ADAM: Look = { skin: '#c68b5e', hair: 'short', hairColor: '#3b2a20', robe: '#c9a46a', sash: '#6cb45a' }
+export const EVE: Look = { skin: '#d9a47a', hair: 'long', hairColor: '#4a3020', robe: '#7fc3a0', sash: '#f0d38a' }
+
+type Who = { x: number; y: number; s?: number; pose?: Pose; facing?: 'left' | 'right'; blinkDelay?: number; children?: ReactNode }
+
+/** Eve, always with the pink flower in her hair (on the same side of the picture whichever way she faces). */
+const Eve = ({ facing = 'right', children, ...p }: Who) => (
+  <Person {...p} facing={facing} look={EVE}>
+    <HairFlower x={facing === 'left' ? 16 : -16} y={-132} />
+    {children}
+  </Person>
+)
+
+/** Hands drawn again over something held in front (pose "hold": the hands are at y -60), in figure units. */
+const HandsOn = ({ look, x = 12, y = -60 }: { look: Look; x?: number; y?: number }) => (
+  <>{[-x, x].map((hx) => <circle key={hx} cx={hx} cy={y} r={6.5} fill={look.skin} stroke={ink(look.skin)} strokeWidth={2} />)}</>
+)
+
+/** A basket heaped with fruit, held in front (figure units, for pose "hold"). */
+const FruitBasket = ({ look }: { look: Look }) => (
+  <g>
+    {[[-11, -69, '#ff6b6b'], [11, -69, '#ffa63d'], [0, -74, '#ff6b6b'], [-3, -66, '#ffd34d'], [8, -64, '#9b6bd0']].map(([fx, fy, c]) => (
+      <circle key={`${fx}${fy}`} cx={fx as number} cy={fy as number} r={6} fill={c as string} stroke={ink(c as string)} strokeWidth={1.6} />
+    ))}
+    <path d="M-1 -80 q3 -4 6 -3" stroke="#4f8a3a" strokeWidth={2} fill="none" strokeLinecap="round" />
+    <path d="M-21 -64 L21 -64 L16 -42 L-16 -42 Z" fill="#c98448" stroke="#8a5428" strokeWidth={2.5} strokeLinejoin="round" />
+    <path d="M-19.5 -57 H19.5 M-17.5 -49.5 H17.5" stroke="#8a5428" strokeWidth={1.6} />
+    <HandsOn look={look} x={14} y={-60} />
+  </g>
+)
+
+/**
+ * A clay jar held in front and tipped to the right, pouring water down onto the ground in front of the
+ * holder's right foot (figure units, for pose "hold"; facing right, it pours to the picture's right).
+ */
+const WaterJar = ({ look }: { look: Look }) => (
+  <g>
+    {/* the water: a stream from the jar's mouth curving down onto the flowers, splashing at the bottom */}
+    <path d="M26 -55 C34 -48 39 -34 40 -6" stroke="#7cc6ef" strokeWidth={9} fill="none" strokeLinecap="round" />
+    <path d="M26 -55 C34 -48 39 -34 40 -6" stroke="#bfe8ff" strokeWidth={5.5} fill="none" strokeLinecap="round" />
+    <path d="M28 -52 C33 -47 36 -36 37 -14" stroke="#ffffff" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+    {[[31, -10, 2.2, -30], [49, -9, 2.2, 30], [45, -18, 1.8, 20]].map(([dx, dy, r, a]) => (
+      <path key={dx} d={drop(r)} transform={`translate(${dx} ${dy}) rotate(${a})`} fill="#bfe8ff" stroke="#7cc6ef" strokeWidth={1} />
+    ))}
+    {/* the clay jar, tipped right over so its mouth points down at the flowers */}
+    <g transform="translate(4 -64) rotate(112) scale(1.3)">
+      <path d="M-12 -6 C-16 4 -12 14 0 15 C12 14 16 4 12 -6 C9 -11 5 -12 4 -14 L4 -18 L-4 -18 L-4 -14 C-5 -12 -9 -11 -12 -6 Z" fill="#d98a52" stroke="#9a5a2a" strokeWidth={2.4} strokeLinejoin="round" />
+      <ellipse cx={0} cy={-18.5} rx={7} ry={2.6} fill="#c27a44" stroke="#9a5a2a" strokeWidth={2} />
+      <path d="M-13.5 1 Q0 5 13.5 1" stroke="#b86a34" strokeWidth={2.2} fill="none" />
+      <ellipse cx={-6} cy={-2} rx={3} ry={5} fill="#fff" opacity={0.3} />
+    </g>
+    {[[-12, -70], [14, -56]].map(([hx, hy]) => <circle key={hx} cx={hx} cy={hy} r={6.5} fill={look.skin} stroke={ink(look.skin)} strokeWidth={2} />)}
+  </g>
+)
 
 /** The middle of an animal's picture (see kit Emoji) for an animal of `size` standing with its feet at (x, feet). */
 const stand = (x: number, feet: number, size: number) => ({ x, y: feet - 0.42 * size, size })
+
+// ---------- The garden of Eden ----------
+
+/** Eden's river, winding down from the far hills to the front of the picture. */
+const RIVER = 'M597 266 C580 280 566 290 569 304 C572 320 560 330 566 344 C574 364 596 376 606 394 C620 418 638 432 640 450 L796 450 C778 428 736 410 704 390 C676 372 642 360 634 342 C626 324 614 314 611 302 C608 288 612 276 613 266 Z'
+
+/** The garden's land: far hills with little trees, the meadow, and the sparkling river. */
+function GardenLand() {
+  return (
+    <g>
+      <path d="M0 296 Q120 246 260 272 Q400 236 540 264 Q680 238 800 262 L800 450 L0 450 Z" fill="#a8d8a0" />
+      {[[60, 290, 0.42], [200, 276, 0.36], [330, 268, 0.4], [470, 264, 0.34], [700, 262, 0.38], [770, 270, 0.34]].map(([tx, ty, ts], i) => (
+        <Tree key={i} x={tx} y={ty} s={ts} />
+      ))}
+      <path d="M0 330 Q160 300 340 318 Q480 330 560 312 Q680 292 800 306 L800 450 L0 450 Z" fill="#8fd18a" />
+      <path d={RIVER} fill="#6cc0f2" stroke="#4f9fd8" strokeWidth={3} strokeLinejoin="round" />
+      <path d="M603 282 C590 300 586 320 594 340 C604 362 630 380 660 404" stroke="#a6dcff" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.8} />
+      {/* (ripples pulse in place: the sea's sliding waves would slide off a narrow river) */}
+      {[[584, 318], [616, 376], [690, 424], [740, 440]].map(([wx, wy], i) => (
+        <path key={i} className="pa-twinkle" style={{ animationDelay: `${i * 0.45}s` }} d={`M${wx} ${wy} q8 -6 16 0`} stroke="#fff" strokeWidth={2.5} fill="none" opacity={0.75} />
+      ))}
+      <path d="M0 384 Q200 356 400 384 Q500 398 560 386 L612 450 L0 450 Z" fill="#6cc46a" />
+    </g>
+  )
+}
 
 // ---------- Pages ----------
 
@@ -233,17 +352,32 @@ const Page5 = () => (
   </Scene>
 )
 
-// 6. Day six: animals of every kind (true to size: the giraffe and elephant tower over people), then Adam and Eve.
+// 6. Day six: animals of every kind (true to size: the giraffe and elephant tower over the rest). This is
+// page 7's meadow before Adam and Eve were made, with a zebra and a monkey where they will stand.
 const Page6 = () => (
+  <Scene sky="day" ground="meadow" sun>
+    <Glow x={428} y={150} r={170} />
+    <Emoji e="🦒" {...stand(115, 345, 250)} flip />
+    <Tap say="Toot, toot!" sfx="whoosh"><Emoji e="🐘" {...stand(222, 404, 232)} /></Tap>
+    <Emoji e="🦓" {...stand(400, 406, 200)} flip />
+    <Tap say="Ooh, ooh, ah, ah!" sfx="pop"><Emoji e="🐒" {...stand(502, 414, 88)} /></Tap>
+    <Tap say="Roar!" sfx="pop"><Emoji e="🦁" {...stand(605, 410, 138)} /></Tap>
+    <Tap say="Hop, hop!" sfx="pop"><Emoji e="🐰" {...stand(720, 414, 54)} /></Tap>
+    <Sparkles spots={[[366, 150, 8], [496, 140, 10], [430, 110, 6]]} />
+  </Scene>
+)
+
+// 7. Part 2 begins, still on day six: "after God made the animals, He made the first people, Adam and Eve!
+// God loved them, and He made them to be His friends." The meadow again, now with Adam and Eve in God's
+// light, and His love (the heart). Also the "day six, animals and people" card.
+const Page7 = () => (
   <Scene sky="day" ground="meadow" sun>
     <Glow x={428} y={150} r={170} />
     <Emoji e="🦒" {...stand(115, 345, 250)} flip />
     <Tap say="Toot, toot!" sfx="whoosh"><Emoji e="🐘" {...stand(222, 404, 232)} /></Tap>
     <Tap say="God made us, and God loves us!" sfx="sparkle">
       <Person x={382} y={410} s={1.15} look={ADAM} pose="wave" />
-      <Person x={477} y={414} s={1.1} look={EVE} pose="wave" facing="left" blinkDelay={1.6}>
-        <HairFlower x={16} y={-132} />
-      </Person>
+      <Eve x={477} y={414} s={1.1} pose="wave" facing="left" blinkDelay={1.6} />
     </Tap>
     <Emoji e="💛" x={430} y={170} size={44} bob />
     <Tap say="Roar!" sfx="pop"><Emoji e="🦁" {...stand(605, 410, 138)} /></Tap>
@@ -252,12 +386,58 @@ const Page6 = () => (
   </Scene>
 )
 
+// 8. "God gave Adam and Eve a beautiful garden called Eden. It had a sparkly river and trees full of yummy
+// fruit. God asked them to take good care of it." Eve has picked a basket of fruit; Adam waters the flowers
+// with water from the river. God's light shines down on the garden.
+const Page8 = () => (
+  <Scene sky="day" ground="none" sun>
+    <Rays x={400} y={-60} r={560} n={16} color="#fff6c0" opacity={0.2} />
+    <GardenLand />
+    <FruitTree x={724} y={344} s={0.78} fruit="#ffa63d" />
+    <Tap say="Splish, splash!" sfx="plop">
+      <Sparkles spots={[[592, 300, 7], [612, 352, 9], [668, 398, 8], [720, 432, 10]]} color="#ffffff" />
+    </Tap>
+    <Tap say="So much yummy fruit!" sfx="chomp"><FruitTree x={128} y={372} s={1.38} /></Tap>
+    <Bush x={58} y={424} s={0.8} />
+    {[[210, 432, '#ffd34d'], [356, 436, '#c9a8ff'], [538, 430, '#ffffff']].map(([fx, fy, c], i) => <Flower key={i} x={fx as number} y={fy as number} color={c as string} s={1.2} />)}
+    <Tap say="Thank you, God, for this beautiful garden!" sfx="sparkle">
+      <Eve x={268} y={414} s={1.05} pose="hold" blinkDelay={1.2}><FruitBasket look={EVE} /></Eve>
+    </Tap>
+    <Tap say="I will take good care of God's garden!" sfx="good">
+      <Person x={420} y={412} s={1.08} look={ADAM} pose="hold"><WaterJar look={ADAM} /></Person>
+    </Tap>
+    {/* the flowers Adam is watering, at the foot of the water */}
+    {[[458, 420, '#ff8cc0'], [478, 426, '#ffd34d'], [498, 418, '#ff8cc0']].map(([fx, fy, c], i) => <Flower key={i} x={fx as number} y={fy as number} color={c as string} s={1.1} />)}
+    <Sparkles spots={[[320, 120, 9], [470, 96, 7], [400, 160, 6]]} />
+  </Scene>
+)
+
+// 9. "God brought the animals to Adam, and Adam gave each one a name. Zebra! Monkey! Bear! What a fun job!"
+// The animals wait their turn in a line, the zebra first; Adam points to it. (Eve isn't in this picture:
+// in Genesis, Adam named the animals before Eve was made.)
+const Page9 = () => (
+  <Scene sky="day" ground="none" sun>
+    <Rays x={400} y={-60} r={560} n={16} color="#fff6c0" opacity={0.16} />
+    <GardenLand />
+    <Emoji e="🦒" {...stand(686, 384, 220)} />
+    <Glow x={420} y={250} r={150} />
+    <Tap say="You are a zebra!" sfx="good">
+      <Person x={146} y={414} s={1.12} look={ADAM} pose="point" />
+    </Tap>
+    <Tap say="Neigh! I love my name!" sfx="pop"><Emoji e="🦓" {...stand(306, 412, 200)} /></Tap>
+    <Tap say="Ooh, ooh, ah, ah!" sfx="pop"><Emoji e="🐒" {...stand(432, 416, 90)} /></Tap>
+    <Tap say="Grr! Hello, Adam!" sfx="pop"><Emoji e="🐻" {...stand(540, 418, 122)} /></Tap>
+    {[[36, 434, '#ff8cc0'], [236, 438, '#ffd34d'], [600, 440, '#ffffff']].map(([fx, fy, c], i) => <Flower key={i} x={fx as number} y={fy as number} color={c as string} s={1.1} />)}
+    <Sparkles spots={[[300, 196, 8], [420, 300, 6], [530, 250, 7]]} />
+  </Scene>
+)
+
 /** The child playing (God made you, too!), drawn from their profile. */
 const Kid = ({ x, y, s }: { x: number; y: number; s: number }) => <Person x={x} y={y} s={s} look={usePlayer().look} pose="arms-up" />
 
-// 7. Day seven: God rested, because all His work was done. Everything He made, calm at sunset: the light,
+// 10. Day seven: God rested, because all His work was done. Everything He made, calm at sunset: the light,
 // the sky and sea, land and plants, the sun, moon and stars, a fish and a bird, animals, and you.
-const Page7 = () => (
+const Page10 = () => (
   <Scene sky="dusk" ground="none" stars moon>
     <Rays x={400} y={-70} r={430} n={16} color="#fff1c9" opacity={0.2} />
     <Sun x={612} y={302} s={1.15} />
@@ -278,4 +458,46 @@ const Page7 = () => (
   </Scene>
 )
 
-export const CREATION_ART: ComponentType[] = [Page1, Page2, Page3, Page4, Page5, Page6, Page7]
+/** Little lines either side of two hands meeting: a clap. (0, y) is where the hands meet, in figure units. */
+const ClapLines = ({ y = -60 }: { y?: number }) => (
+  <g className="pa-twinkle" stroke="#ffb020" strokeWidth={2.6} strokeLinecap="round">
+    {[-1, 1].flatMap((side) => [-38, 0, 38].map((a) => {
+      const dx = Math.cos((a * Math.PI) / 180) * side, dy = Math.sin((a * Math.PI) / 180)
+      return <path key={`${side}${a}`} d={`M${dx * 17} ${y + dy * 17} L${dx * 24} ${y + dy * 24}`} />
+    }))}
+  </g>
+)
+
+// 11. "Yes, you! God made your eyes to see, your ears to hear, and your hands to clap. You are wonderfully
+// made, and God loves you so much!" The child playing, clapping in God's light: a butterfly to see, a
+// bird singing to hear, and God's love (the hearts).
+function Page11() {
+  const p = usePlayer()
+  return (
+    <Scene sky="day" ground="meadow" clouds={false}>
+      <Rays x={400} y={-30} r={620} n={18} color="#fff6c0" opacity={0.3} />
+      <Glow x={400} y={250} r={200} />
+      <Tree x={660} y={340} s={1.15} />
+      <Tap say="Tweet, tweet! Can you hear me sing?" sfx="ding">
+        <Emoji e="🐦" x={640} y={186} size={62} />
+        <g className="sc-float">
+          <text x={590} y={160} fontSize={30} fill="#5ba8f0" fontWeight={800} fontFamily="'Baloo 2', system-ui, sans-serif">♪</text>
+          <text x={562} y={136} fontSize={24} fill="#ff8cc0" fontWeight={800} fontFamily="'Baloo 2', system-ui, sans-serif">♫</text>
+        </g>
+      </Tap>
+      <Tap say="Flutter, flutter! Can you see me?" sfx="whoosh"><Emoji e="🦋" x={232} y={196} size={64} bob /></Tap>
+      <Tap say="God made me, and I am wonderfully made!" sfx="sparkle">
+        <Person x={400} y={420} s={1.75} look={p.look} pose="hold"><ClapLines /></Person>
+      </Tap>
+      <Tap say="God loves you so much!" sfx="sparkle">
+        <Emoji e="💛" x={400} y={110} size={50} bob />
+      </Tap>
+      <Emoji e="💛" x={300} y={140} size={30} bob />
+      <Emoji e="💛" x={508} y={136} size={32} bob />
+      <Emoji e="🐰" {...stand(560, 424, 56)} />
+      <Sparkles spots={[[330, 230, 7], [470, 226, 8], [400, 180, 6]]} />
+    </Scene>
+  )
+}
+
+export const CREATION_ART: ComponentType[] = [Page1, Page2, Page3, Page4, Page5, Page6, Page7, Page8, Page9, Page10, Page11]

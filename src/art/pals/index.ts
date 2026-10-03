@@ -20,6 +20,14 @@ import Lamb from './lamb'
 import Snow from './snow'
 import Cupcake from './cupcake'
 import Balloon from './balloon'
+import Camel from './camel'
+import Star from './star'
+import Peacock from './peacock'
+import Chameleon from './chameleon'
+import Wind from './wind'
+import Tambourine from './tambourine'
+import Cub from './cub'
+import Owl from './owl'
 
 export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   mouse: Mouse,
@@ -40,4 +48,12 @@ export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   snow: Snow,
   cupcake: Cupcake,
   balloon: Balloon,
+  camel: Camel,
+  star: Star,
+  peacock: Peacock,
+  chameleon: Chameleon,
+  wind: Wind,
+  tambourine: Tambourine,
+  cub: Cub,
+  owl: Owl,
 }

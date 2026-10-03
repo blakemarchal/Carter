@@ -1,0 +1,98 @@
+/* Paint it (PaintIt.tsx): color by number. */
+
+.paint-head { gap: 16px; }
+.paint-head h2 { white-space: nowrap; }
+.paint-again { width: 56px; height: 56px; font-size: 30px; flex: none; }
+.paint-again:disabled { opacity: .45; }
+
+/* The picture, with the paint pots beside it (below it when the screen stands up). */
+.paint-play { flex: 1; min-height: 0; width: 100%; display: flex; align-items: stretch; justify-content: center; gap: 16px; }
+.paint-play > .game-wrap { flex: 1; min-width: 0; width: auto; }
+/* The board: as big as fits next to the pots, always 16:9. */
+@supports (width: 1cqw) {
+  .paint-play > .game-wrap { container-type: size; }
+  .paint-play .game-board { width: min(100cqw, calc(100cqh * 16 / 9)); height: auto; max-width: none; max-height: none; }
+}
+.paint-it .game-board { touch-action: none; }
+.paint-nums, .paint-fx { pointer-events: none; }
+
+/* A column of pots (two columns when there are more than six: --rows is how many go in each). */
+.paint-pots { flex: none; display: grid; grid-auto-flow: column; grid-template-rows: repeat(var(--rows), auto); align-content: center; justify-items: center; gap: 12px; padding: 12px 4px; }
+.paint-pot {
+  position: relative; flex: none; padding: 4px 6px; aspect-ratio: 100 / 124;
+  height: max(72px, min(124px, calc((100vh - 250px) / var(--rows) - 12px)));
+  background: #fff; border-radius: 24px; box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+  transition: translate .18s, scale .18s, box-shadow .18s;
+  touch-action: none; /* (a finger can carry paint from a pot onto the picture: no scrolling while it does) */
+}
+.paint-pot:active { translate: 0 3px; }
+/* The blob of paint carried from a pot, under the finger. */
+.paint-blob {
+  display: none; position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none;
+  width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 46% 54% 50% 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .7), transparent 38%), var(--blob, #ff6fae);
+  box-shadow: 0 0 0 4px #fff, 0 6px 14px rgba(0, 0, 0, .22);
+}
+/* (Waiting for the intro to be said.) */
+.paint-it:not(.ready) .paint-pot { opacity: .6; }
+/* Picked: lifted, ringed in its color, with a brush in it. */
+.paint-pot.on { translate: 0 -8px; scale: 1.08; box-shadow: 0 0 0 5px var(--pot), 0 12px 18px rgba(0, 0, 0, .18); }
+/* "This one!": a golden halo, and it hops. */
+.paint-pot.glow { animation: paintpotglow .9s ease-in-out infinite; }
+@keyframes paintpotglow {
+  0%, 100% { box-shadow: 0 0 0 4px #ffe680, 0 0 14px 6px rgba(255, 200, 40, .6); translate: 0 0; }
+  50% { box-shadow: 0 0 0 7px #ffe680, 0 0 30px 16px rgba(255, 200, 40, .75); translate: 0 -10px; }
+}
+.paint-pot-art { width: 100%; height: 100%; display: block; overflow: visible; }
+.paint-pot-n { font-size: 34px; font-weight: 800; fill: #3b2a4a; }
+.paint-brush { animation: paintbrush .35s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes paintbrush { from { transform: translateY(26px); opacity: 0; } }
+.paint-done-mark { position: absolute; top: -10px; right: -10px; width: 36px; height: 36px; animation: pop .4s both; }
+/* Standing up: the title, the picture and a row of pots under it sit together in the middle of the screen. */
+@media (max-aspect-ratio: 1/1) {
+  .paint-it { justify-content: center; }
+  .paint-play { flex: 0 1 auto; flex-direction: column; align-items: center; gap: 6px; }
+  .paint-play > .game-wrap { flex: 0 1 auto; width: 100%; }
+  .paint-pots { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 18px 4px 8px; }
+  .paint-pot { height: auto; width: min(118px, calc((100vw - 64px) / var(--pots) - 14px)); }
+}
+@supports (width: 1cqw) {
+  @media (max-aspect-ratio: 1/1) { .paint-play > .game-wrap { container-type: inline-size; } }
+}
+
+/* The numbers: a clear rounded figure with a white outline, so it reads on any color. */
+.paint-digit {
+  font-family: 'Baloo 2', 'Chalkboard SE', system-ui, sans-serif; font-weight: 800; text-anchor: middle;
+  fill: #3b2a4a; stroke: #fff; stroke-width: .24em; stroke-linejoin: round; paint-order: stroke;
+}
+.paint-num { transition: opacity .35s; }
+.paint-num.gone { opacity: 0; }
+.paint-num.pulse { animation: paintnumpulse .8s ease-in-out infinite; }
+@keyframes paintnumpulse { 50% { transform: scale(1.35); } }
+.paint-wiggle { animation: paintwiggle .6s ease-in-out; }
+@keyframes paintwiggle {
+  0%, 100% { transform: rotate(0) scale(1); }
+  20% { transform: rotate(-14deg) scale(1.3); }
+  45% { transform: rotate(12deg) scale(1.3); }
+  70% { transform: rotate(-8deg) scale(1.15); }
+}
+
+/* Drops of paint fly out where the brush lands. */
+.paint-drop { stroke: rgba(59, 42, 74, .25); stroke-width: 1.5; animation: paintdrop .6s ease-out forwards; }
+@keyframes paintdrop {
+  from { transform: rotate(var(--a)) translateY(-4px) scale(.6); opacity: 1; }
+  to { transform: rotate(var(--a)) translateY(-38px) scale(1); opacity: 0; }
+}
+
+/* The hint: the region to paint pulses with a soft golden light. */
+.paint-pulse { animation: paintpulse .9s ease-in-out infinite; }
+.paint-pulse * { fill: #fff8c2; fill-opacity: .6; stroke: #ffc21a; stroke-width: 7px; stroke-opacity: 1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+@keyframes paintpulse { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+
+/* All painted: a band of light sweeps across, sparkles twinkle, and the picture does a happy bounce. */
+.paint-shine { animation: paintshine 1.3s ease-in-out .15s 2 both; }
+@keyframes paintshine { from { transform: translateX(0); } to { transform: translateX(1400px); } }
+.paint-twinkle { fill: #fffbe0; stroke: #ffc21a; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: painttwinkle 1s ease-in-out 3 both; }
+@keyframes painttwinkle { 0%, 100% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.25); opacity: 1; } }
+.game-board.paint-cheer { animation: paintboard .9s ease-out; box-shadow: 0 0 0 6px #fff6b0, 0 0 46px 14px rgba(255, 211, 77, .55); transition: box-shadow .6s; }
+@keyframes paintboard { 30% { transform: scale(1.02) rotate(-.5deg); } 60% { transform: scale(1.01) rotate(.4deg); } }

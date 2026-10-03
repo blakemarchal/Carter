@@ -105,7 +105,7 @@ export default function FamilySongs() {
   return (
     <section>
       <h3>Sing-along songs</h3>
-      <p>Ara sings 6 songs built into the game. You can add your own too: any recording you own (an mp3 or m4a, like a song you bought or recorded), plus its words. Then tap along once so the words light up in time.</p>
+      <p>Ara sings the songs built into the game (each island adds its own song once it’s done). You can add your own too: any recording you own (an mp3 or m4a, like a song you bought or recorded), plus its words. Then tap along once so the words light up in time.</p>
       {list.length > 0 && (
         <div className="backup-list">
           {list.map((s) => (
