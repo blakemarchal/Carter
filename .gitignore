@@ -6,3 +6,4 @@ dist
 .backups
 preview
 __pycache__
+*.stackdump
