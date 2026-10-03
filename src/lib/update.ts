@@ -1,6 +1,6 @@
 // App updates. Every build has an id (baked in here, and published by the server as /version.json).
 // When the server has a newer build, the app shows an "Update" button. Updating drops the cached app
-// and the service worker, then reloads from the server. Saved progress and narration clips are kept.
+// and the service worker, then reloads from the server. Saved progress, narration clips and songs are kept.
 import { useSyncExternalStore } from 'react'
 
 export const BUILD = __BUILD_ID__
@@ -31,13 +31,14 @@ export function useUpdateAvailable() {
   )
 }
 
-/** Throw away the cached app (not progress or narration clips) and load the newest version. */
+/** Throw away the cached app (not progress, narration clips or songs) and load the newest version. */
 export async function applyUpdate() {
   try {
     const regs = (await navigator.serviceWorker?.getRegistrations()) ?? []
     await Promise.all(regs.map((r) => r.unregister()))
     const keys = await caches.keys()
-    await Promise.all(keys.filter((k) => k !== 'narration').map((k) => caches.delete(k)))
+    // Narration clips and sing-along songs never go stale (new ones get new URLs), so keep them.
+    await Promise.all(keys.filter((k) => k !== 'narration' && k !== 'songs').map((k) => caches.delete(k)))
   } finally {
     location.reload()
   }
