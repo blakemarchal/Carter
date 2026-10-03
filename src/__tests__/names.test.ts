@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // No child is written into the code: names, birthdays and families come from the players and the
 // Parent Corner. (The game's first storage name, "carters-ark", is only kept for moving old saves.)
 import { readdirSync, readFileSync, statSync } from 'node:fs'

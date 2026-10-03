@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // Checks the sing-along songs: every built-in song has its recordings, and its words are timed
 // in order (so the highlighted word only ever moves forward).
 import { existsSync } from 'node:fs'

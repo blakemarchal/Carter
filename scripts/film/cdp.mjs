@@ -6,7 +6,10 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+// Chrome on the Windows laptop; set CHROME to use another browser (e.g. Chromium on Linux).
+const CHROME = process.env.CHROME ?? (process.platform === 'win32'
+  ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+  : '/opt/pw-browsers/chromium')
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 const SPEECH_STUB = `(() => {
@@ -36,7 +39,10 @@ export async function launch({ port, width = 1180, height = 820, touch = true } 
   const proc = spawn(CHROME, [
     '--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${dir}`, '--no-first-run',
     '--no-default-browser-check', '--autoplay-policy=no-user-gesture-required', '--mute-audio',
-    '--hide-scrollbars', `--window-size=${width},${height}`, 'about:blank',
+    '--hide-scrollbars', `--window-size=${width},${height}`,
+    // (running as root, as in a Linux container, Chrome needs its sandbox off)
+    ...(process.getuid?.() === 0 ? ['--no-sandbox'] : []),
+    'about:blank',
   ], { stdio: 'ignore' })
   let info
   for (let i = 0; i < 80 && !info; i++) {
@@ -78,6 +84,8 @@ export async function launch({ port, width = 1180, height = 820, touch = true } 
   const page = {
     s, errors,
     async goto(url) {
+      // The scripts name the usual dev server; ARK_URL points them at another (e.g. a second copy on another port).
+      if (process.env.ARK_URL) url = url.replace('http://localhost:5179', process.env.ARK_URL.replace(/\/$/, ''))
       const loaded = new Promise((r) => { const f = (d) => { if (d.method === 'Page.loadEventFired') { listeners.delete(f); r() } }; listeners.add(f) })
       await s('Page.navigate', { url })
       await loaded
