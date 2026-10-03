@@ -19,6 +19,12 @@ describe('toSpoken', () => {
     expect(toSpoken('You got a 🌈 sticker! 👍🏽', 'grok')).toBe('You got a sticker!')
     expect(toSpoken('David & Goliath', 'grok')).toBe('David and Goliath')
   })
+  it('says the dress-up bow like "go", not "bow down"', () => {
+    expect(toSpoken('Pip looks great in the bow!', 'grok')).toBe('Pip looks great in the /boʊ/!')
+    expect(toSpoken('Pip looks great in the bow!', 'device')).toBe('Pip looks great in the beau!')
+    expect(toSpoken('The wise men bow down.', 'grok')).toBe('The wise men bow down.')
+    expect(toSpoken('A rainbow and an elbow', 'grok')).toBe('A rainbow and an elbow')
+  })
   it('uses IPA for the Grok voice and a spelling for the device voice', () => {
     expect(toSpoken(`the ${letterSound('n')} sound`, 'grok')).toBe('the /nː/ sound')
     expect(toSpoken(`the ${letterSound('n')} sound`, 'device')).toBe('the nnn sound')

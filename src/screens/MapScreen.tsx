@@ -37,10 +37,16 @@ function Palm({ x, y, s = 1, flip = false }: { x: number; y: number; s?: number;
   )
 }
 
-function IslandShape({ isl, state }: { isl: Island; state: 'locked' | 'open' | 'next' | 'done' }) {
+/**
+ * One island. The press-in effect scales the inner group around its own centre, and a still,
+ * invisible hit area on top takes the tap: a CSS transform on the positioned group itself would
+ * replace its position (SVG), sliding the island out from under her finger mid-tap.
+ */
+function IslandShape({ isl, state, pressed }: { isl: Island; state: 'locked' | 'open' | 'next' | 'done'; pressed: boolean }) {
   const [x, y] = isl.at
   return (
-    <g transform={`translate(${x} ${y})`} className={`map-island ${state}`}>
+    <g transform={`translate(${x} ${y})`}>
+    <g className={`map-island ${state} ${pressed ? 'pressed' : ''}`}>
       {state === 'next' && <ellipse className="map-ring" cx={0} cy={6} rx={104} ry={52} />}
       <ellipse cx={0} cy={14} rx={92} ry={40} fill="#3a9bd8" opacity={0.35} />
       <ellipse cx={0} cy={6} rx={86} ry={36} fill="#f6dfa2" />
@@ -69,6 +75,8 @@ function IslandShape({ isl, state }: { isl: Island; state: 'locked' | 'open' | '
       )}
       {state === 'next' && <text className="map-point" x={4} y={-70} textAnchor="middle">👇</text>}
     </g>
+    <ellipse className="map-hit" cx={0} cy={0} rx={104} ry={70} />
+    </g>
   )
 }
 
@@ -95,6 +103,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const startAt = Math.max(0, ISLANDS.findIndex((i) => i.id === p.mapAt))
   const [boat, setBoat] = useState<{ x: number; y: number; flip: boolean }>({ x: docks[startAt][0], y: docks[startAt][1], flip: false })
   const [sailing, setSailing] = useState(false)
+  const [pressed, setPressed] = useState<number | null>(null)
   const at = useRef(startAt)
 
   useEffect(() => { speak('Where should we go? Tap an island!') }, [])
@@ -194,14 +203,28 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
           {/* Things to spot: clouds, seagulls, a whale and a jumping fish */}
           <g className="sea-cloud c1"><ellipse cx={0} cy={0} rx={46} ry={18} /><ellipse cx={30} cy={-10} rx={30} ry={18} /><ellipse cx={-26} cy={-6} rx={24} ry={14} /></g>
           <g className="sea-cloud c2"><ellipse cx={0} cy={0} rx={38} ry={15} /><ellipse cx={24} cy={-8} rx={24} ry={14} /></g>
-          <g className="sea-gull g1"><path d="M0 0 q8 -8 16 0 q8 -8 16 0" /></g>
-          <g className="sea-gull g2"><path d="M0 0 q6 -6 12 0 q6 -6 12 0" /></g>
+          <g className="sea-gull g1"><g className="gull-flap"><path d="M0 0 q8 -8 16 0 q8 -8 16 0" /></g></g>
+          <g className="sea-gull g2"><g className="gull-flap slow"><path d="M0 0 q6 -6 12 0 q6 -6 12 0" /></g></g>
           <text className="sea-whale" x={700} y={560} fontSize={44}>🐳</text>
-          <text className="sea-fish" x={420} y={600} fontSize={30}>🐟</text>
+          {/* A fish leaps out of the water and dives back in, with a splash each time. */}
+          <ellipse className="sea-splash s1" cx={437} cy={598} rx={16} ry={5} />
+          <ellipse className="sea-splash s2" cx={347} cy={598} rx={16} ry={5} />
+          <g className="sea-fish">
+            {/* drawn (not an emoji), so it faces the way it leaps on every device */}
+            <g transform="translate(437 588)">
+              <path d="M11 0 L25 -9 Q21 0 25 9 Z" fill="#ffb347" stroke="#c8641a" strokeWidth={2} strokeLinejoin="round" />
+              <path d="M-2 -7 Q5 -16 10 -6 Z" fill="#ffb347" stroke="#c8641a" strokeWidth={2} strokeLinejoin="round" />
+              <ellipse cx={0} cy={0} rx={15} ry={9.5} fill="#ff9f43" stroke="#c8641a" strokeWidth={2} />
+              <path d="M2 -6 Q6 0 2 6" fill="none" stroke="#e07a28" strokeWidth={2} strokeLinecap="round" />
+              <circle cx={-7} cy={-2} r={2.6} fill="#2b2140" />
+              <circle cx={-7.8} cy={-2.8} r={0.9} fill="#fff" />
+            </g>
+          </g>
           <path ref={route} d={d} className="sea-route" />
           {ISLANDS.map((isl, i) => (
-            <g key={isl.id} onClick={() => tapIsland(i)} style={{ cursor: 'pointer' }}>
-              <IslandShape isl={isl} state={states[i]} />
+            <g key={isl.id} onClick={() => tapIsland(i)} style={{ cursor: 'pointer' }}
+              onPointerDown={() => setPressed(i)} onPointerUp={() => setPressed(null)} onPointerCancel={() => setPressed(null)} onPointerLeave={() => setPressed(null)}>
+              <IslandShape isl={isl} state={states[i]} pressed={pressed === i} />
             </g>
           ))}
           <g transform={`translate(${boat.x} ${boat.y}) scale(${boat.flip ? -1 : 1} 1)`} onClick={() => { if (!sailing) { sfx.pop(); onArk() } }} style={{ cursor: 'pointer' }}>

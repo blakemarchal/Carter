@@ -106,11 +106,28 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
 .sea-gull.g2 { animation: gull2 19s linear infinite; }
 @keyframes gull1 { 0% { transform: translate(-40px, 260px); } 50% { transform: translate(500px, 220px); } 100% { transform: translate(1040px, 250px); } }
 @keyframes gull2 { 0% { transform: translate(1040px, 90px); } 100% { transform: translate(-40px, 130px); } }
-.sea-whale { animation: bob 3s ease-in-out infinite; }
-.sea-fish { animation: fishjump 5s ease-in-out infinite; }
-@keyframes fishjump { 0%, 70%, 100% { transform: translate(0, 0) rotate(0); opacity: 0; } 75% { opacity: 1; } 80% { transform: translate(20px, -60px) rotate(-30deg); } 88% { transform: translate(40px, -10px) rotate(30deg); opacity: 1; } 92% { opacity: 0; } }
-.map-island { transition: transform .2s; }
-.map-island:active { transform: scale(.96); }
+/* Wings beat: the "v" squashes flat and flips, around its own middle. */
+.gull-flap { transform-box: fill-box; transform-origin: center; animation: flap .32s ease-in-out infinite alternate; }
+.gull-flap.slow { animation-duration: .42s; }
+@keyframes flap { to { transform: scaleY(-.45); } }
+/* SVG transforms pivot on the map's corner unless told otherwise: every animated sea creature turns
+   and scales around its own centre (transform-box). */
+.sea-whale { transform-box: fill-box; transform-origin: center; animation: bob 3s ease-in-out infinite; }
+.sea-fish { transform-box: fill-box; transform-origin: center; animation: fishjump 6s ease-in-out infinite; }
+@keyframes fishjump {
+  0%, 62% { transform: translate(0, 26px) rotate(45deg); opacity: 0; }
+  65% { transform: translate(-8px, 2px) rotate(38deg); opacity: 1; }
+  74% { transform: translate(-45px, -62px) rotate(0deg); }
+  83% { transform: translate(-84px, 2px) rotate(-38deg); opacity: 1; }
+  86%, 100% { transform: translate(-92px, 26px) rotate(-45deg); opacity: 0; }
+}
+.sea-splash { fill: none; stroke: #fff; stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; animation: splash 6s linear infinite; }
+.sea-splash.s2 { animation-name: splash2; }
+@keyframes splash { 0%, 62% { opacity: 0; transform: scale(.3); } 64% { opacity: .9; } 72%, 100% { opacity: 0; transform: scale(1.8); } }
+@keyframes splash2 { 0%, 83% { opacity: 0; transform: scale(.3); } 85% { opacity: .9; } 93%, 100% { opacity: 0; transform: scale(1.8); } }
+.map-island { transform-box: fill-box; transform-origin: 50% 55%; transition: transform .15s; }
+.map-island.pressed { transform: scale(.95); }
+.map-hit { fill: transparent; }
 .map-island.locked > *:not(.map-fog) { filter: grayscale(.6); opacity: .75; }
 .map-landmark { font-size: 54px; }
 .map-label { fill: #fff; opacity: .92; }

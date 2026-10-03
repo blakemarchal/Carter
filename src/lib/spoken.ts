@@ -35,8 +35,20 @@ export const letterSound = (letter: string) => `⟦${letter.toLowerCase()}⟧`
 
 const EMOJI = /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}\u{FE0F}\u{200D}\u{20E3}]/gu
 
+/**
+ * Words spelled the same but said two ways, where the game only ever means one of them.
+ * The dress-up bow (🎀) rhymes with "go"; voices tend to say the bend-at-the-waist "bow".
+ * (Not "bow down", which is the other one.)
+ */
+const HETERONYMS: { re: RegExp; grok: string; device: string }[] = [
+  { re: /\b([Bb])ows\b(?!\s+down)/g, grok: '/boʊz/', device: '$1eaus' },
+  { re: /\b([Bb])ow\b(?!\s+down)/g, grok: '/boʊ/', device: '$1eau' },
+]
+
 export function toSpoken(text: string, voice: 'grok' | 'device'): string {
-  return text
+  let out = text
+  for (const h of HETERONYMS) out = out.replace(h.re, voice === 'grok' ? h.grok : h.device)
+  return out
     .replace(/⟦([a-z])⟧/g, (_, l: string) => (voice === 'grok' ? `/${PHONICS[l].ipa}/` : PHONICS[l].say))
     .replace(EMOJI, '')
     .replace(/(\d+):(\d+)/g, '$1, $2') // Bible references: "Genesis 9:13" -> "Genesis nine, thirteen"
