@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import type { Question, Visual } from '../lib/questions'
 import { letterSound } from '../lib/spoken'
 import { praise, retry, speak } from '../lib/speech'
@@ -6,6 +6,8 @@ import { sfx } from '../lib/sfx'
 import { recordAnswer } from '../lib/progress'
 import { wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from './Pic'
+import { ScoreContext } from '../lib/score'
 
 function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
   switch (v.kind) {
@@ -20,7 +22,7 @@ function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
         </div>
       )
     case 'emoji':
-      return <div className="q-emoji">{v.items.map((e, i) => <span key={i} style={{ animationDelay: `${i * 0.05}s` }}>{e}</span>)}</div>
+      return <div className="q-emoji">{v.items.map((e, i) => <span key={i} style={{ animationDelay: `${i * 0.05}s` }}><Pic e={e} /></span>)}</div>
     case 'sequence':
       return (
         <div className="q-seq">
@@ -30,8 +32,8 @@ function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
     case 'sum':
       return (
         <div className="q-sum">
-          <span className="grp">{Array(v.a).fill(v.emoji).map((e, i) => <i key={i} className={v.op === '-' && i >= v.a - v.b ? 'gone' : ''}>{e}</i>)}</span>
-          {v.op === '+' && <><b>+</b><span className="grp">{Array(v.b).fill(v.emoji).map((e, i) => <i key={i}>{e}</i>)}</span></>}
+          <span className="grp">{Array(v.a).fill(v.emoji).map((e, i) => <i key={i} className={v.op === '-' && i >= v.a - v.b ? 'gone' : ''}><Pic e={e} /></i>)}</span>
+          {v.op === '+' && <><b>+</b><span className="grp">{Array(v.b).fill(v.emoji).map((e, i) => <i key={i}><Pic e={e} /></i>)}</span></>}
           {v.op === '-' && <b>− {v.b}</b>}
         </div>
       )
@@ -52,6 +54,7 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
   const alive = useAlive()
+  const score = useContext(ScoreContext)
 
   useEffect(() => { speak(q.say) }, [q])
 
@@ -59,6 +62,7 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
     if (solved) return
     if (i === q.answer) {
       setSolved(true)
+      score?.(misses === 0)
       sfx.good()
       if (record && (recordMisses || misses === 0)) recordAnswer(q.skill, misses === 0)
       if (!quiet) {
@@ -86,7 +90,7 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
           <button key={i}
             className={`q-choice ${wrong === i ? 'wiggle' : ''} ${misses >= 2 && i === q.answer ? 'glow' : ''} ${solved && i === q.answer ? 'right' : ''}`}
             onClick={() => choose(i)}>
-            {c.label}
+            {textChoices ? c.label : <Pic e={c.label} art={c.art} />}
           </button>
         ))}
       </div>

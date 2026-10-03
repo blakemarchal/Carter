@@ -3,11 +3,14 @@
 //   #gallery/scenes/<island>   that island's story pictures (or "all")
 //   #gallery/scenes/<island>/family   the same, for a made-up family (baby, big sister, pets, turning 5)
 //   #gallery/pals              every Pal at every stage
+//   #gallery/items[/<group>]   every drawn item (art/items), large and at activity sizes
 import { STORY_ART } from '../art/scenes'
 import { BuddyContext } from '../art/scenes/buddy'
 import { PlayerContext, type PlayerArt } from '../art/scenes/player'
 import { grownupLook, kidLook, siblingLook } from '../art/people'
 import PalArt from '../components/PalArt'
+import Pic from '../components/Pic'
+import { ITEM_GROUPS } from '../art/items'
 import { PALS } from '../data/pals'
 import type { KidLook } from '../lib/look'
 
@@ -25,6 +28,20 @@ const SAMPLE: PlayerArt = {
 
 export default function Gallery({ route }: { route: string }) {
   const [, kind, which, variant] = route.split('/')
+  if (kind === 'items') {
+    const groups = which ? { [which]: ITEM_GROUPS[which] ?? [] } : ITEM_GROUPS
+    return (
+      <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto', alignContent: 'flex-start' }}>
+        {Object.entries(groups).flatMap(([g, list]) => list.map((it) => (
+          <div key={it.id} data-name={`${g}: ${it.id}`} style={{ width: 200, textAlign: 'center', fontSize: 13, background: '#f7f3fa', borderRadius: 12, padding: 6 }}>
+            <div style={{ fontSize: 150, lineHeight: 1 }}><Pic e={it.emoji?.[0] ?? ''} art={it.id} /></div>
+            <div style={{ fontSize: 40, display: 'flex', justifyContent: 'center', gap: 4 }}><Pic e="" art={it.id} /><span style={{ fontSize: 28 }}><Pic e="" art={it.id} /></span><span style={{ opacity: 0.8 }}>{it.emoji?.[0]}</span></div>
+            <div><b>{it.id}</b> · {it.name}</div>
+          </div>
+        )))}
+      </div>
+    )
+  }
   if (kind === 'pals') {
     return (
       <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto' }}>

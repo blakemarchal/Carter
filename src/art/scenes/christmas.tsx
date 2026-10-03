@@ -1,13 +1,17 @@
 // Baby Jesus Is Born: one illustration per story page (see data/christmas.ts for the words).
-// God is never drawn as a person: His glory is light (the 'glory' sky, Glow, rays, Sparkles).
+// God is never drawn as a person: His glory is light (GloryLight, Glow, Rays, Sparkles).
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, useShade } from '../kit'
 import { Baby, Person, PEOPLE, type Look } from '../people'
-import { BigStar, Emoji, Glow, Manger, Palm, Scene, Sheep, Sparkles, Stable } from './kit'
+import { Cow, Glow, Manger, Palm, Rays, Scene, Sheep, Sparkles, Stable, Tap, sparkle } from './kit'
 
 // ---------- Local props ----------
 
-/** A friendly little donkey, side view facing right (origin at the hooves). `rider` sits on its back. */
+/**
+ * A friendly little donkey, side view facing right (origin at the hooves). `rider` sits side-saddle on
+ * its back, facing us: her top half above the saddle, her hands resting in her lap and her feet
+ * hanging down the donkey's side.
+ */
 function Donkey({ x, y, s = 1, flip, rider, blinkDelay = 0 }: { x: number; y: number; s?: number; flip?: boolean; rider?: Look; blinkDelay?: number }) {
   const c = '#a89c9e'
   const coat = useShade(c, 0.3, 0.2)
@@ -22,7 +26,8 @@ function Donkey({ x, y, s = 1, flip, rider, blinkDelay = 0 }: { x: number; y: nu
     <g transform={`translate(${x} ${y}) scale(${flip ? -s : s} ${s})`}>
       <defs>
         {coat.def}
-        <clipPath id={clip}><rect x={-90} y={-280} width={180} height={196} /></clipPath>
+        {/* the rider shows from the saddle up */}
+        <clipPath id={clip}><rect x={-90} y={-280} width={180} height={190} /></clipPath>
       </defs>
       <g className="pa-tail" style={{ '--o': '100% 0%' } as CSSProperties}>
         <path d="M-50 -66 Q-64 -54 -62 -32" stroke={ink(c)} strokeWidth={5} fill="none" strokeLinecap="round" />
@@ -51,33 +56,43 @@ function Donkey({ x, y, s = 1, flip, rider, blinkDelay = 0 }: { x: number; y: nu
         <circle cx={68.6} cy={-118} r={1.6} fill="#fff" />
       </g>
       <ellipse cx={74} cy={-104} rx={4} ry={2.5} fill="#ff7fb0" opacity={0.5} />
-      {rider ? (
-        <>
-          <g clipPath={`url(#${clip})`}><Person x={-6} y={-40} s={0.8} look={rider} pose="hold" blinkDelay={blinkDelay + 0.7} /></g>
-          <path d="M-34 -84 Q-6 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z" fill="#c0504d" stroke={ink('#c0504d')} strokeWidth={2.5} strokeLinejoin="round" />
-          <path d="M-26 -88 Q-6 -94 14 -88 L22 -60 Q12 -50 2 -52 L-16 -56 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
-          <ellipse cx={14} cy={-52} rx={8} ry={4.5} fill="#7a5233" />
-        </>
-      ) : (
-        <path d="M-30 -86 Q-2 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z" fill="#c0504d" stroke={ink('#c0504d')} strokeWidth={2.5} strokeLinejoin="round" />
+      {rider && <g clipPath={`url(#${clip})`}><Person x={-6} y={-40} s={0.8} look={rider} pose="hold" blinkDelay={blinkDelay + 0.7} /></g>}
+      {/* saddle blanket with a little gold fringe */}
+      <path d={rider ? 'M-34 -84 Q-6 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z' : 'M-30 -86 Q-2 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z'} fill="#c0504d" stroke={ink('#c0504d')} strokeWidth={2.5} strokeLinejoin="round" />
+      {(rider ? [-29, 22, 27] : [-24, -12, 0, 12, 24]).map((fx) => <circle key={fx} cx={fx} cy={-56} r={2.6} fill="#ffd34d" />)}
+      {rider && (
+        <g>
+          {/* feet, peeking out under the hem */}
+          <ellipse cx={-14} cy={-45} rx={7} ry={4} fill="#7a5233" />
+          <ellipse cx={4} cy={-45} rx={7} ry={4} fill="#7a5233" />
+          {/* her legs hanging down the donkey's side (two of them, a fold between) */}
+          <path d="M-24 -86 L14 -86 L13 -52 Q-4 -46 -22 -51 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
+          <path d="M-5 -78 L-5 -50" stroke={ink(rider.robe)} strokeWidth={1.8} opacity={0.6} strokeLinecap="round" />
+          {/* her lap on the saddle, and her hands resting in it */}
+          <path d="M-29 -91 Q-6 -98 17 -91 Q21 -85 17 -79 Q-6 -74 -29 -79 Q-33 -85 -29 -91 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
+          {[-13, 1].map((hx) => <circle key={hx} cx={hx} cy={-88} r={5.6} fill={rider.skin} stroke={ink(rider.skin)} strokeWidth={1.8} />)}
+        </g>
       )}
-      {[-24, -12, 0, 12, 24].map((fx) => <circle key={fx} cx={fx} cy={-56} r={2.6} fill="#ffd34d" />)}
     </g>
   )
 }
 
-/** A Bethlehem house: flat roof, arched door; `lit` glows its windows for the night. */
+/**
+ * A Bethlehem house: flat roof, an arched door and window(s); `lit` glows them for the night. The door
+ * is kept below and beside the windows, so the two never merge into a shape like a person.
+ */
 function FlatHouse({ x, y, w = 60, h = 50, color = '#ecd9b0', lit, win = 1 }: { x: number; y: number; w?: number; h?: number; color?: string; lit?: boolean; win?: number }) {
   const glass = lit ? '#ffd76a' : '#6b4422'
+  const dh = Math.min(23, h * 0.55) // door height
+  const dx = win === 1 ? x - w * 0.18 : x // door middle
+  const wh = Math.min(11, h * 0.3) // window height
+  const wins = win === 1 ? [x + w * 0.22] : Array.from({ length: win }, (_, i) => x - w / 2 + ((i + 1) * w) / (win + 1))
   return (
     <g>
       <rect x={x - w / 2} y={y - h} width={w} height={h} fill={color} stroke={ink(color)} strokeWidth={2.5} />
       <rect x={x - w / 2 - 3} y={y - h - 6} width={w + 6} height={8} rx={2} fill={darken(color, 0.12)} />
-      <path d={`M${x - 7} ${y} L${x - 7} ${y - 15} Q${x} ${y - 23} ${x + 7} ${y - 15} L${x + 7} ${y} Z`} fill={lit ? '#e8a640' : '#8a5a2e'} />
-      {Array.from({ length: win }, (_, i) => {
-        const wx = x - w / 2 + ((i + 1) * w) / (win + 1)
-        return <rect key={i} x={wx - 5} y={y - h + 10} width={10} height={11} rx={4} fill={glass} />
-      })}
+      <path d={`M${dx - 6} ${y} L${dx - 6} ${y - dh * 0.62} Q${dx} ${y - dh * 1.08} ${dx + 6} ${y - dh * 0.62} L${dx + 6} ${y} Z`} fill={lit ? '#e8a640' : '#8a5a2e'} />
+      {wins.map((wx, i) => <rect key={i} x={wx - 5} y={y - h + 8} width={10} height={wh} rx={Math.min(4, wh / 2 - 0.5)} fill={glass} />)}
     </g>
   )
 }
@@ -116,27 +131,81 @@ const Note = ({ x, y, s = 1, color = '#ffe680', d = 0 }: { x: number; y: number;
   </g>
 )
 
-/** Soft beams of light fanning out from (x, y); they turn very slowly. */
-function Rays({ x, y, r = 520, n = 16, color = '#fff6b0', opacity = 0.25 }: { x: number; y: number; r?: number; n?: number; color?: string; opacity?: number }) {
-  const w = (Math.PI * r) / n / 2.4
+/** A still, soft circle of light (a moon's or a star's halo): fades out, so it never reads as a grey disc. */
+function SoftLight({ x, y, r, color = '#fff3c0', o = 0.4 }: { x: number; y: number; r: number; color?: string; o?: number }) {
+  const id = `sl${useId().replace(/[^a-zA-Z0-9]/g, '')}`
   return (
-    <g className="pa-spin">
-      {Array.from({ length: n }, (_, i) => (
-        <path key={i} d={`M0 0 L${-w} ${-r} L${w} ${-r} Z`} transform={`translate(${x} ${y}) rotate(${(i * 360) / n})`} fill={color} opacity={opacity} />
-      ))}
+    <g>
+      <defs><radialGradient id={id}><stop offset="0" stopColor={color} stopOpacity={o} /><stop offset="1" stopColor={color} stopOpacity={0} /></radialGradient></defs>
+      <circle cx={x} cy={y} r={r} fill={`url(#${id})`} />
+    </g>
+  )
+}
+
+/** The moon with a soft halo. */
+function NightMoon({ x = 650, y = 85 }: { x?: number; y?: number }) {
+  return (
+    <g>
+      <SoftLight x={x + 6} y={y} r={74} o={0.32} />
+      <path d={`M${x - 6} ${y - 36} A36 36 0 1 0 ${x + 34} ${y + 10} A30 30 0 0 1 ${x - 6} ${y - 36} Z`} fill="#fff3b0" stroke="#e8d27a" strokeWidth={3} />
+    </g>
+  )
+}
+
+/** One bright star in the night sky (just a star: it doesn't point anywhere). */
+function BrightStar({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g>
+      <SoftLight x={x} y={y} r={80 * s} color="#fff3a0" o={0.5} />
+      <path d={sparkle(x, y, 54 * s)} fill="#fff3a0" stroke="#e8c84a" strokeWidth={3} />
+      <g className="pa-twinkle"><path d={sparkle(x, y, 26 * s)} fill="#ffffff" transform={`rotate(45 ${x} ${y})`} /></g>
+    </g>
+  )
+}
+
+/** God's glory as light: a big warm glow that lights up the night (never a person). */
+function GloryLight({ x, y, r }: { x: number; y: number; r: number }) {
+  const id = `gy${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  return (
+    <g>
+      <defs>
+        <radialGradient id={id}>
+          <stop offset="0" stopColor="#fffbe8" stopOpacity={1} />
+          <stop offset="0.42" stopColor="#fff0b0" stopOpacity={0.96} />
+          <stop offset="0.7" stopColor="#ffd98a" stopOpacity={0.78} />
+          <stop offset="0.88" stopColor="#f5b27a" stopOpacity={0.36} />
+          <stop offset="1" stopColor="#e8a0a0" stopOpacity={0} />
+        </radialGradient>
+      </defs>
+      <circle cx={x} cy={y} r={r} fill={`url(#${id})`} />
     </g>
   )
 }
 
 /** A stable seen from outside at night, glowing warm inside; `children` are drawn in the doorway. */
 function GlowingStable({ x, y, s = 1, children }: { x: number; y: number; s?: number; children?: ReactNode }) {
+  const clip = `gs${useId().replace(/[^a-zA-Z0-9]/g, '')}`
   return (
     <g>
       <Stable x={x} y={y} s={s} />
+      <defs><clipPath id={clip}><rect x={x - 100 * s} y={y - 90 * s} width={200 * s} height={90 * s} /></clipPath></defs>
       <rect x={x - 100 * s} y={y - 90 * s} width={200 * s} height={90 * s} fill="#ffd98a" opacity={0.9} />
-      <Glow x={x} y={y - 30 * s} r={110 * s} color="#fff3c0" />
+      {/* (the glow stays inside the doorway: spilling onto the dark ground it read as grey fog) */}
+      <g clipPath={`url(#${clip})`}><Glow x={x} y={y - 30 * s} r={110 * s} color="#fff3c0" /></g>
       <path d={`M${x - 100 * s} ${y} L${x + 100 * s} ${y} L${x + 100 * s} ${y - 14 * s} Q${x} ${y - 24 * s} ${x - 100 * s} ${y - 14 * s} Z`} fill="#e8c86a" />
       {children}
+    </g>
+  )
+}
+
+/** A little floating heart: God's love. */
+function Heart({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g className="sc-float">
+      <g transform={`translate(${x} ${y}) scale(${s})`}>
+        <path d="M0 13 C-20 0 -17 -17 -7 -17 C-3 -17 0 -14 0 -10 C0 -14 3 -17 7 -17 C17 -17 20 0 0 13 Z" fill="#ff6f91" stroke="#d94a6e" strokeWidth={2.5} strokeLinejoin="round" />
+        <ellipse cx={-8} cy={-9} rx={3.6} ry={2.2} fill="#fff" opacity={0.65} transform="rotate(-35 -8 -9)" />
+      </g>
     </g>
   )
 }
@@ -147,7 +216,7 @@ const SHEPHERD_BOY: Look = { ...PEOPLE.shepherd, build: 'child', beard: undefine
 
 // ---------- Pages ----------
 
-// 1. "Mary and Joseph took a long trip to the little town of Bethlehem. Mary was going to have a very special baby!"
+// 1. "Mary and Joseph took a long trip to Bethlehem, King David's little town. Mary was going to have a very special baby!"
 const Page1 = () => (
   <Scene sky="dawn" ground="none">
     <path d="M430 312 Q610 226 800 286 L800 340 L430 340 Z" fill="#efcf96" />
@@ -159,24 +228,26 @@ const Page1 = () => (
     <path d="M40 450 Q240 404 420 372 Q540 344 610 312 L628 314 Q570 356 450 392 Q300 432 200 450 Z" fill="#fbe6bd" opacity={0.85} />
     <Palm x={110} y={392} s={0.85} />
     <Glow x={300} y={300} r={90} color="#fff3c8" />
-    <Donkey x={300} y={420} s={1.05} rider={PEOPLE.mary} />
-    <Person x={450} y={414} s={1.05} look={PEOPLE.joseph} holding="staff" blinkDelay={1.3} />
+    <Tap say="Hee-haw!" sfx="wobble"><Donkey x={300} y={420} s={1.05} rider={PEOPLE.mary} /></Tap>
+    <Tap say="Bethlehem is just ahead!"><Person x={450} y={414} s={1.05} look={PEOPLE.joseph} holding="stick" blinkDelay={1.3} /></Tap>
     <Sparkles spots={[[250, 210, 8], [350, 200, 6], [300, 175, 5]]} />
   </Scene>
 )
 
 // 2. "The town was so busy, there was no room for them to stay. So they stayed in a place where animals sleep."
 const Page2 = () => (
-  <Scene sky="night" ground="none" moon>
+  <Scene sky="night" ground="none">
+    <NightMoon />
     <path d="M0 330 Q200 300 400 318 T800 312 L800 450 L0 450 Z" fill="#6a5f96" />
     <FlatHouse x={350} y={318} w={70} h={56} color="#a898c4" lit win={2} />
     <FlatHouse x={432} y={322} w={56} h={44} color="#9a8ab8" lit />
     <FlatHouse x={505} y={316} w={64} h={52} color="#a898c4" lit win={2} />
     <path d="M0 384 Q240 364 480 386 T800 376 L800 450 L0 450 Z" fill="#5a5088" />
+    {/* the inn, full up: someone at every window */}
     <g>
       <rect x={90} y={236} width={200} height={170} fill="#b6a6d0" stroke="#7c6c9a" strokeWidth={3} />
       <rect x={84} y={228} width={212} height={12} rx={3} fill="#8c7cae" />
-      {[[110, 256], [170, 256], [230, 256], [110, 312], [230, 312]].map(([wx, wy], i) => (
+      {[[110, 256], [230, 256], [110, 312], [230, 312]].map(([wx, wy], i) => (
         <g key={i}>
           <rect x={wx} y={wy} width={40} height={36} rx={14} fill="#ffd76a" />
           <circle cx={wx + 20} cy={wy + 26} r={9} fill="#8a6a50" opacity={0.7} />
@@ -185,17 +256,18 @@ const Page2 = () => (
       ))}
       <path d="M160 406 L160 330 Q190 306 220 330 L220 406 Z" fill="#ffcf6a" />
     </g>
-    <Person x={190} y={404} s={0.8} look={INNKEEPER} pose="point" />
-    <GlowingStable x={630} y={398} s={0.62}>
-      <Emoji e="🐄" x={608} y={366} size={34} />
-      <Emoji e="🐑" x={656} y={374} size={26} />
+    <Tap say="So sorry, the inn is full! You can stay where the animals sleep."><Person x={190} y={404} s={0.92} look={INNKEEPER} pose="point" /></Tap>
+    <GlowingStable x={672} y={398} s={0.62}>
+      <Tap say="Moo!" sfx="wobble"><Cow x={646} y={396} s={0.42} facing="left" /></Tap>
+      <Sheep x={702} y={396} s={0.36} facing="left" />
     </GlowingStable>
-    <Person x={360} y={414} s={1.05} look={PEOPLE.joseph} holding="staff" facing="left" blinkDelay={0.5} />
+    <Tap say="Hee-haw!" sfx="wobble"><Donkey x={566} y={420} s={0.72} flip blinkDelay={2.6} /></Tap>
+    <Tap say="Is there any room for us?"><Person x={360} y={414} s={1.05} look={PEOPLE.joseph} holding="stick" facing="left" blinkDelay={0.5} /></Tap>
     <Person x={450} y={418} s={1} look={PEOPLE.mary} pose="hold" facing="left" blinkDelay={1.8} />
   </Scene>
 )
 
-// 3. "That night, baby Jesus was born! Mary wrapped Him up snug and warm, and laid Him in a manger, …"
+// 3. "One night, baby Jesus was born! Mary wrapped Him up snug and warm, and laid Him in a manger, …"
 const Page3 = () => (
   <Scene sky="night" ground="stable">
     <rect x={130} y={56} width={110} height={96} rx={8} fill="#2a2660" stroke="#7a5233" strokeWidth={8} />
@@ -205,94 +277,115 @@ const Page3 = () => (
     <Glow x={640} y={84} r={70} color="#ffd98a" />
     <rect x={624} y={60} width={32} height={44} rx={8} fill="#ffe8a0" stroke="#7a5233" strokeWidth={4} />
     <Glow x={400} y={330} r={170} color="#fff3c0" />
-    <Emoji e="🐄" x={140} y={316} size={76} />
-    <Donkey x={680} y={366} s={0.62} flip blinkDelay={2.2} />
-    <Person x={270} y={420} s={1.15} look={PEOPLE.mary} pose="pray" blinkDelay={0.4} />
-    <Person x={540} y={420} s={1.15} look={PEOPLE.joseph} holding="staff" facing="left" blinkDelay={1.6} />
-    <Manger x={400} y={418} s={1.45} baby={<Baby x={6} y={-54} s={1} />} />
+    {/* the animals, at real size, both looking at the baby */}
+    <Tap say="Moo!" sfx="wobble"><Cow x={124} y={380} s={0.95} /></Tap>
+    <Tap say="Hee-haw!" sfx="wobble"><Donkey x={692} y={398} s={0.9} flip blinkDelay={2.2} /></Tap>
+    <Tap say="His name is Jesus."><Person x={270} y={420} s={1.15} look={PEOPLE.mary} pose="pray" blinkDelay={0.4} /></Tap>
+    <Person x={540} y={420} s={1.15} look={PEOPLE.joseph} holding="stick" facing="left" blinkDelay={1.6} />
+    <Tap say="Baby Jesus is fast asleep." sfx="sparkle"><Manger x={400} y={418} s={1.45} baby={<Baby x={6} y={-64} s={1} />} /></Tap>
     <Sparkles spots={[[340, 270, 8], [460, 260, 10], [400, 230, 6]]} />
   </Scene>
 )
 
 // 4. "Out in the fields, shepherds were watching their sheep in the night."
 const Page4 = () => (
-  <Scene sky="night" ground="none" moon>
+  <Scene sky="night" ground="none">
+    <NightMoon />
     <path d="M420 296 Q560 226 720 280 L720 320 L420 320 Z" fill="#4a5c96" />
     {[[508, 268, 34, 24], [542, 260, 38, 30], [580, 256, 34, 26], [616, 262, 36, 26]].map(([hx, hy, w, h], i) => (
       <FlatHouse key={i} x={hx} y={hy} w={w} h={h} color="#8a86b8" lit />
     ))}
     <NightHills />
-    <Campfire x={400} y={410} s={1} />
-    <Person x={220} y={410} s={1.15} look={PEOPLE.shepherd} holding="staff" />
+    <Tap say="Crackle, crackle!" sfx="sizzle"><Campfire x={400} y={410} s={1} /></Tap>
+    <Tap say="I keep my sheep safe, all night long."><Person x={220} y={410} s={1.15} look={PEOPLE.shepherd} holding="staff" /></Tap>
     <Person x={310} y={418} s={1.2} look={SHEPHERD_BOY} pose="hold" blinkDelay={1.2} />
+    <Sheep x={735} y={346} s={0.42} facing="left" />
     <Sheep x={600} y={360} s={0.6} facing="left" />
-    <Sheep x={520} y={414} s={0.9} />
-    <Sheep x={650} y={404} s={0.85} facing="left" />
+    <Tap say="Baa!" sfx="wobble"><Sheep x={520} y={414} s={0.9} /></Tap>
+    <Tap say="Baa!" sfx="wobble"><Sheep x={650} y={404} s={0.85} facing="left" /></Tap>
   </Scene>
 )
 
-// 5. "Suddenly, an angel came, and God's bright glory shone all around! The angel said, don't be afraid! …"
-const Page5 = () => (
-  <Scene sky="glory" ground="none" clouds={false}>
-    <Rays x={410} y={150} r={600} n={18} color="#ffe28a" opacity={0.35} />
-    <path d="M0 300 Q160 262 340 292 Q540 250 800 286 L800 450 L0 450 Z" fill="#c9dc9a" />
-    <path d="M0 362 Q220 330 440 360 T800 350 L800 450 L0 450 Z" fill="#a8cf84" />
-    <Glow x={410} y={170} r={240} color="#ffd970" />
-    <g className="sc-float">
-      <Person x={410} y={290} s={1.3} look={PEOPLE.angel} pose="wave" />
-    </g>
-    <Person x={150} y={412} s={1.05} look={PEOPLE.shepherd} pose="arms-up" />
-    <Person x={238} y={420} s={1.1} look={SHEPHERD_BOY} pose="arms-up" blinkDelay={0.7} />
-    <Sheep x={590} y={414} s={0.85} facing="left" />
-    <Sheep x={670} y={392} s={0.7} facing="left" />
-    <Sparkles spots={[[260, 120, 12], [570, 110, 10], [300, 230, 7], [540, 240, 8], [410, 50, 9]]} />
-  </Scene>
-)
+// 5. "Suddenly, an angel came, and God's bright glory shone all around! The angel said, "Don't be afraid! …""
+// Still night, but the glory lights up the sky and the field all around them.
+const Page5 = () => {
+  const id = useId().replace(/[^a-zA-Z0-9]/g, '')
+  return (
+    <Scene sky="night" ground="none">
+      <GloryLight x={410} y={210} r={440} />
+      <Rays x={410} y={160} r={560} n={18} color="#ffe28a" opacity={0.6} />
+      <defs>
+        <radialGradient id={`hb${id}`} gradientUnits="userSpaceOnUse" cx={400} cy={300} r={470}>
+          <stop offset="0" stopColor="#dfe0a0" /><stop offset="0.5" stopColor="#c6d290" /><stop offset="0.8" stopColor="#7f9086" /><stop offset="1" stopColor="#3e5e86" />
+        </radialGradient>
+        <radialGradient id={`hf${id}`} gradientUnits="userSpaceOnUse" cx={400} cy={330} r={470}>
+          <stop offset="0" stopColor="#c8dc90" /><stop offset="0.5" stopColor="#abd086" /><stop offset="0.8" stopColor="#6c8e7c" /><stop offset="1" stopColor="#35577a" />
+        </radialGradient>
+      </defs>
+      <path d="M0 300 Q160 262 340 292 Q540 250 800 286 L800 450 L0 450 Z" fill={`url(#hb${id})`} />
+      <path d="M0 362 Q220 330 440 360 T800 350 L800 450 L0 450 Z" fill={`url(#hf${id})`} />
+      <Glow x={410} y={170} r={240} color="#ffd970" />
+      <Tap say="Don't be afraid! I bring you happy news!" sfx="sparkle">
+        <g className="sc-float">
+          <Person x={410} y={290} s={1.3} look={PEOPLE.angel} pose="wave" />
+        </g>
+      </Tap>
+      <Tap say="Wow, an angel!"><Person x={150} y={412} s={1.05} look={PEOPLE.shepherd} pose="arms-up" /></Tap>
+      <Person x={238} y={420} s={1.1} look={SHEPHERD_BOY} pose="arms-up" blinkDelay={0.7} />
+      <Tap say="Baa!" sfx="wobble"><Sheep x={590} y={414} s={0.85} facing="left" /></Tap>
+      <Sheep x={670} y={392} s={0.7} facing="left" />
+      <Sparkles spots={[[260, 120, 12], [570, 110, 10], [300, 230, 7], [540, 240, 8], [410, 50, 9]]} />
+    </Scene>
+  )
+}
 
-// 6. "The angel said, today a Savior is born for you, Christ the Lord! Then lots and lots of angels sang, glory to God!"
+// 6. "The angel said, "Today a Savior is born for you, Christ the Lord! …" Then lots and lots of angels sang, "Glory to God!""
 const ANGELS: [number, number, number, 'arms-up' | 'pray'][] = [
   [300, 120, 0.42, 'pray'], [500, 116, 0.42, 'pray'], [150, 220, 0.5, 'arms-up'], [650, 218, 0.5, 'arms-up'],
   [270, 260, 0.58, 'arms-up'], [530, 258, 0.58, 'arms-up'], [400, 230, 0.75, 'pray'],
 ]
 const Page6 = () => (
   <Scene sky="night" ground="none">
-    <Glow x={400} y={170} r={260} color="#fff3c0" />
     <NightHills />
-    {ANGELS.map(([ax, ay, s, pose], i) => (
-      <g key={i} className="sc-float" style={{ animationDelay: `${i * 0.4}s` }}>
-        <Glow x={ax} y={ay - 80 * s} r={110 * s} color="#fff3c0" />
-        <Person x={ax} y={ay} s={s} look={SINGER} pose={pose} blinkDelay={i * 0.6} />
-      </g>
-    ))}
+    {/* the whole choir hops and sings together */}
+    <Tap say="Glory to God!" sfx="ding">
+      {ANGELS.map(([ax, ay, s, pose], i) => (
+        <g key={i} className="sc-float" style={{ animationDelay: `${i * 0.4}s` }}>
+          <Glow x={ax} y={ay - 80 * s} r={110 * s} color="#fff3c0" />
+          <Person x={ax} y={ay} s={s} look={SINGER} pose={pose} blinkDelay={i * 0.6} />
+        </g>
+      ))}
+    </Tap>
     <Note x={200} y={120} s={1.1} />
     <Note x={600} y={100} s={1.2} d={0.8} color="#ffd6ee" />
     <Note x={360} y={70} d={1.4} color="#ffd6ee" />
     <Note x={450} y={300} s={0.9} d={0.5} />
     <Note x={120} y={330} s={0.8} d={1.1} color="#ffd6ee" />
-    <Person x={600} y={420} s={0.85} look={PEOPLE.shepherd} pose="arms-up" facing="left" blinkDelay={0.9} />
+    <Sparkles spots={[[90, 90, 6], [710, 150, 7], [215, 300, 5], [590, 300, 6]]} />
+    <Tap say="Let's go to Bethlehem!"><Person x={600} y={420} s={0.85} look={PEOPLE.shepherd} pose="arms-up" facing="left" blinkDelay={0.9} /></Tap>
     <Person x={672} y={424} s={0.9} look={SHEPHERD_BOY} pose="arms-up" facing="left" blinkDelay={1.9} />
-    <Sheep x={210} y={420} s={0.7} />
+    <Tap say="Baa!" sfx="wobble"><Sheep x={210} y={420} s={0.7} /></Tap>
     <Sheep x={300} y={410} s={0.6} facing="left" />
   </Scene>
 )
 
-// 7. "The shepherds hurried and found baby Jesus, just like the angel said! Jesus is God's best gift to us, …"
+// 7. "The shepherds hurried and found baby Jesus, just like the angel said! Jesus is God's best gift to us. …"
+// Everyone at one size, in the stable: Joseph and Mary, the manger, and the shepherds at the manger.
 const Page7 = () => (
   <Scene sky="night" ground="none">
     <NightHills />
-    <path d="M420 104 L330 260 L510 260 Z" fill="#fff6b0" opacity={0.18} />
-    <BigStar x={420} y={70} s={0.72} />
-    <GlowingStable x={420} y={404} s={1.35}>
-      <Person x={348} y={402} s={0.68} look={PEOPLE.mary} pose="pray" blinkDelay={0.6} />
-      <Person x={494} y={402} s={0.7} look={PEOPLE.joseph} holding="staff" facing="left" blinkDelay={1.4} />
-      <Manger x={420} y={404} s={0.85} baby={<Baby x={6} y={-54} s={1} />} />
+    <BrightStar x={660} y={62} s={0.5} />
+    <GlowingStable x={420} y={404} s={1.75}>
+      <Person x={282} y={402} s={0.85} look={PEOPLE.joseph} holding="stick" blinkDelay={1.4} />
+      <Person x={350} y={402} s={0.85} look={PEOPLE.mary} pose="pray" blinkDelay={0.6} />
+      <Tap say="Baby Jesus, God's best gift!" sfx="sparkle"><Manger x={432} y={404} s={1} baby={<Baby x={6} y={-64} s={1} />} /></Tap>
+      <Person x={508} y={404} s={0.85} look={SHEPHERD_BOY} pose="pray" facing="left" blinkDelay={1} />
+      <Tap say="We found Him, just like the angel said!"><Person x={562} y={402} s={0.85} look={PEOPLE.shepherd} pose="pray" facing="left" blinkDelay={2.1} /></Tap>
     </GlowingStable>
-    <Person x={130} y={414} s={1.05} look={PEOPLE.shepherd} pose="pray" blinkDelay={2.1} />
-    <Person x={204} y={420} s={1.05} look={SHEPHERD_BOY} pose="pray" blinkDelay={1} />
-    <Sheep x={668} y={420} s={0.8} facing="left" />
-    <Sheep x={612} y={430} s={0.6} facing="left" />
-    <Emoji e="💛" x={420} y={318} size={26} bob />
-    <Sparkles spots={[[340, 250, 6], [500, 240, 7]]} />
+    <Tap say="Baa!" sfx="wobble"><Sheep x={694} y={430} s={0.7} facing="left" /></Tap>
+    <Sheep x={110} y={428} s={0.6} />
+    <Tap say="God loves you so much!" sfx="ding"><Heart x={432} y={300} s={1} /></Tap>
+    <Sparkles spots={[[370, 262, 6], [500, 256, 7], [432, 240, 5]]} />
   </Scene>
 )
 

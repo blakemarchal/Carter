@@ -31,6 +31,8 @@ export type MoveFx = 'spark' | 'flame' | 'rock' | 'leaf' | 'hearts' | 'stars' | 
  *   super  charged by 3 first-try answers in a row, fills 3 hearts
  */
 export type MoveKind = 'basic' | 'brave' | 'super'
+/** `icon` shows the move itself, so a child who can't read yet can tell it apart: 🫧 for bubbles,
+ *  🌊 for a splashing tail, 🌬️ for a breeze (not 💦 sweat drops, a 🐳 spout or a ⛵ boat). */
 export interface Move { name: string; fx: MoveFx; icon: string }
 
 export interface PalDef {
@@ -56,7 +58,7 @@ export const PALS: PalDef[] = [
   {
     id: 'ember', species: 'dragon', fruit: 'Faithfulness', starter: true,
     stages: [{ name: 'Ember', xp: 0 }, { name: 'Flarewing', xp: 100 }, { name: 'Glorydrake', xp: 300 }],
-    moves: { basic: { name: 'Brave Flame', fx: 'flame', icon: '🔥' }, brave: { name: 'Wing Gust', fx: 'wind', icon: '🌪️' }, super: { name: 'Glory Blaze', fx: 'flame', icon: '☄️' } },
+    moves: { basic: { name: 'Brave Flame', fx: 'flame', icon: '🔥' }, brave: { name: 'Wing Gust', fx: 'wind', icon: '💨' }, super: { name: 'Glory Blaze', fx: 'flame', icon: '☄️' } },
     intro: 'is a Faithfulness Pal! {name} is brave and always keeps promises, just like God.',
   },
   {
@@ -74,7 +76,7 @@ export const PALS: PalDef[] = [
   {
     id: 'rumble', species: 'cloud', fruit: 'Kindness',
     stages: [{ name: 'Rumble', xp: 0 }, { name: 'Drizzle', xp: 100 }, { name: 'Rainbowl', xp: 300 }],
-    moves: { basic: { name: 'Rainbow Hug', fx: 'hearts', icon: '🌈' }, brave: { name: 'Puddle Splash', fx: 'bubbles', icon: '💦' }, super: { name: 'Double Rainbow', fx: 'hearts', icon: '🌈' } },
+    moves: { basic: { name: 'Rainbow Hug', fx: 'hearts', icon: '🌈' }, brave: { name: 'Puddle Splash', fx: 'bubbles', icon: '💦' }, super: { name: 'Double Rainbow', fx: 'hearts', icon: '✨' } },
     intro: 'is a Kindness Pal! {name} used to be grumpy, but kindness made {name} a friend.',
   },
   {
@@ -102,7 +104,7 @@ export const PALS: PalDef[] = [
   {
     id: 'lionel', species: 'lion', fruit: 'Faithfulness',
     stages: [{ name: 'Lionel', xp: 0 }, { name: 'Roary', xp: 100 }, { name: 'Braveheart', xp: 300 }],
-    moves: { basic: { name: 'Brave Roar', fx: 'wind', icon: '🦁' }, brave: { name: 'Golden Mane', fx: 'stars', icon: '🌟' }, super: { name: 'Lionheart Roar', fx: 'wind', icon: '👑' } },
+    moves: { basic: { name: 'Brave Roar', fx: 'wind', icon: '🦁' }, brave: { name: 'Golden Mane', fx: 'stars', icon: '🌟' }, super: { name: 'Lionheart Roar', fx: 'wind', icon: '📣' } },
     intro: 'is a Faithfulness Pal! {name} is brave like David, because God is always with us.',
   },
   {
@@ -116,13 +118,13 @@ export const PALS: PalDef[] = [
   {
     id: 'bubbles', species: 'whale', fruit: 'Patience',
     stages: [{ name: 'Bubbles', xp: 0 }, { name: 'Splashy', xp: 100 }, { name: 'Oceana', xp: 300 }],
-    moves: { basic: { name: 'Bubble Blow', fx: 'bubbles', icon: '💦' }, brave: { name: 'Tail Swish', fx: 'wind', icon: '🐳' }, super: { name: 'Whale of a Hug', fx: 'bubbles', icon: '🐋' } },
-    intro: 'is a Patience Pal! {name} kept Jonah safe inside for three days while he prayed to God.',
+    moves: { basic: { name: 'Bubble Blow', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Tail Swish', fx: 'wind', icon: '🌊' }, super: { name: 'Whale of a Hug', fx: 'bubbles', icon: '🐋' } },
+    intro: 'is a Patience Pal! God used {name} to keep Jonah safe for three days and three nights while Jonah prayed.',
   },
   {
     id: 'wavey', species: 'wave', fruit: 'Peace',
     stages: [{ name: 'Wavey', xp: 0 }, { name: 'Ripple', xp: 100 }, { name: 'Tidekeeper', xp: 300 }],
-    moves: { basic: { name: 'Gentle Ripple', fx: 'bubbles', icon: '💧' }, brave: { name: 'Sea Breeze', fx: 'wind', icon: '⛵' }, super: { name: 'Peaceful Tide', fx: 'bubbles', icon: '🌊' } },
+    moves: { basic: { name: 'Gentle Ripple', fx: 'bubbles', icon: '💧' }, brave: { name: 'Sea Breeze', fx: 'wind', icon: '🌬️' }, super: { name: 'Peaceful Tide', fx: 'bubbles', icon: '🌊' } },
     intro: 'is a Peace Pal! {name} was a big stormy wave, but God made the sea calm, and now {name} is calm too.',
   },
 
@@ -136,7 +138,7 @@ export const PALS: PalDef[] = [
   {
     id: 'crabby', species: 'crab', fruit: 'Goodness',
     stages: [{ name: 'Crabby', xp: 0 }, { name: 'Sharewell', xp: 100 }, { name: 'Kingclaw', xp: 300 }],
-    moves: { basic: { name: 'Sea Bubbles', fx: 'bubbles', icon: '🦀' }, brave: { name: 'Shell Roll', fx: 'roll', icon: '🐚' }, super: { name: 'Treasure Share', fx: 'hearts', icon: '💝' } },
+    moves: { basic: { name: 'Sea Bubbles', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Shell Roll', fx: 'roll', icon: '🐚' }, super: { name: 'Treasure Share', fx: 'hearts', icon: '💝' } },
     intro: 'is a Goodness Pal! {name} loves to share, just like the boy who gave Jesus his five loaves and two fish.',
   },
 

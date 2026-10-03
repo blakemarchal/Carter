@@ -39,6 +39,25 @@ export function othersBirthdayToday(me: Profile, players: Profile[], family: Fam
   return names.filter((n, i) => n && !same(n, me.name) && names.findIndex((m) => same(m, n)) === i)
 }
 
+/** How many big brothers and sisters, babies and pets the birthday pictures can show. The story names only those. */
+export const PICTURED = { kids: 4, babies: 2, pets: 4 }
+
+/** The brothers and sisters the birthday pictures show (and the story names), in family order. */
+export function pictured<S extends { baby: boolean }>(siblings: S[]): S[] {
+  let kids = 0, babies = 0
+  return siblings.filter((s) => (s.baby ? babies++ < PICTURED.babies : kids++ < PICTURED.kids))
+}
+
+/** Letters that don't come apart into a plain letter and an accent. */
+const PLAIN: Record<string, string> = { Ø: 'O', Æ: 'AE', Œ: 'OE', Ł: 'L', Đ: 'D', Þ: 'TH' }
+
+/** A name for the birthday bunting, in plain capitals ("Zoë" → ZOE, "Mary-Kate" → MARY KATE); HOORAY if it won't fit. */
+export function bannerName(name: string) {
+  const up = name.normalize('NFD').replace(/\p{M}/gu, '').toUpperCase()
+    .replace(/[ØÆŒŁĐÞ]/g, (c) => PLAIN[c]).replace(/[-_.]+/g, ' ').replace(/[^A-Z ]/g, '').replace(/\s+/g, ' ').trim()
+  return up && up.length <= 12 ? up : 'HOORAY'
+}
+
 /** "Sam", "Sam and Jo", "Sam, Jo and Kit". */
 export const andList = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`)
 

@@ -6,8 +6,10 @@ import { sfx } from '../lib/sfx'
 import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from '../components/Pic'
+import { Ark } from '../art/scenes/kit'
 
-const INTRO = 'Help Noah! Find the animals that match, two by two. Drag an animal to its twin.'
+const INTRO = 'Help Noah! The animals go into the ark two by two. Find the two that look the same!'
 
 function Animal({ id, a, picked, boarded, onMatch, onTap }: {
   id: number; a: string; picked: boolean; boarded: boolean; onMatch: (from: number, to: number) => boolean; onTap: (id: number) => void
@@ -15,7 +17,7 @@ function Animal({ id, a, picked, boarded, onMatch, onTap }: {
   // Each animal can be picked up and dropped on its twin, and is a place a twin can be dropped.
   const target = useDropTarget(`animal-${id}`, (d: { id: number; a: string }) => d.id !== id && !boarded, 6)
   const drag = useDrag({ data: { id, a }, disabled: boarded, onStart: sfx.lift, onDrop: (t) => t.startsWith('animal-') && onMatch(id, Number(t.slice(7))), onTap: () => onTap(id) })
-  return <button ref={target} data-card={id} className={`pair-card ${picked ? 'picked' : ''} ${boarded ? 'boarded' : ''}`} {...drag}>{a}</button>
+  return <button ref={target} data-card={id} className={`pair-card ${picked ? 'picked' : ''} ${boarded ? 'boarded' : ''}`} {...drag}><Pic e={a} /></button>
 }
 
 export default function TwoByTwo({ animals, names, onDone }: { animals: string[]; names: Record<string, string>; onDone: () => void }) {
@@ -49,11 +51,15 @@ export default function TwoByTwo({ animals, names, onDone }: { animals: string[]
     }
     setBoarded(all)
     sfx.plop()
-    if (all.length < animals.length) return void speak(`Two ${names[a] ?? 'animals'}!`)
+    // Every pair is named as it boards, the last one too.
+    const pair = `Two ${names[a] ?? 'animals'}!`
+    if (all.length < animals.length) return void speak(pair)
     busy.current = true
+    await speak(pair)
+    if (!alive.current) return
     await speak(praise())
     if (!alive.current) return
-    await speak("Now let's count them into the ark by twos!")
+    await speak("Let's count the animals, two at a time!")
     for (let n = 1; n <= animals.length; n++) {
       if (!alive.current) return
       setCounting(n * 2)
@@ -100,13 +106,16 @@ export default function TwoByTwo({ animals, names, onDone }: { animals: string[]
         ))}
       </div>
       <div className="ark-dock">
-        <span className="ark-emoji">🚢</span>
+        {/* Noah's ark (the story's own drawing), where the pairs fly. Sized in em from .ark-emoji, like the emoji it replaced. */}
+        <svg className="ark-emoji" viewBox="-180 -160 360 200" width="1.6em" height="0.9em" role="img" aria-label="the ark">
+          <Ark x={0} y={0} s={1} door />
+        </svg>
         <div className="ark-riders">
           {boarded.map((a, i) => {
             // While counting by twos, the pair being counted bounces and glows; counted pairs stay lit.
             const n = counting === null ? 0 : counting / 2
             const cls = i + 1 === n ? 'counting' : i + 1 < n ? 'counted' : ''
-            return <span key={a} className={cls}>{a}{a}</span>
+            return <span key={a} className={cls}><Pic e={a} /><Pic e={a} /></span>
           })}
         </div>
         {counting !== null && <div className="count-bubble" key={counting}>{counting}</div>}

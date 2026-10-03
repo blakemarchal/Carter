@@ -16,7 +16,7 @@ export default function Quiz({ title, questions, onDone }: {
   // Shuffle the choices so the answer isn't always in the same place.
   const [qs] = useState<Question[]>(() => questions.map((x) => {
     const right = x.choices[x.answer]
-    const choices = shuffle(x.choices).map((c) => ({ label: c.emoji, say: c.say }))
+    const choices = shuffle(x.choices).map((c) => ({ label: c.emoji, say: c.say, art: c.art }))
     return { skill: 'reading', say: x.say, visual: { kind: 'listen' }, choices, answer: choices.findIndex((c) => c.say === right.say && c.label === right.emoji) }
   }))
 

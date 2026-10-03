@@ -1,14 +1,15 @@
 // Plays one activity on an island with real finger drags, taking pictures along the way.
-//   node play.mjs <out dir> <island> <step>
+//   node play.mjs <out dir> <island> <step> [right/asked, for the stars at the end, e.g. 3/5]
 import { mkdirSync } from 'node:fs'
 import { fixture, launch, sleep } from './cdp.mjs'
-const [OUT, ISLAND, STEP] = process.argv.slice(2)
+const [OUT, ISLAND, STEP, SCORE] = process.argv.slice(2)
 mkdirSync(OUT, { recursive: true })
 const page = await launch()
 const today = new Date().toISOString().slice(0, 10)
 const fx = fixture({ today })
 fx.islandStep = { [ISLAND]: Number(STEP) }
 fx.mapAt = ISLAND
+if (SCORE) fx.islandScore = { [ISLAND]: SCORE.split('/').map(Number) }
 await page.goto('http://localhost:5179/')
 await page.eval(`localStorage.clear(); localStorage.setItem('ark-pals:profiles', JSON.stringify({ active: 'tester', list: [{ id: 'tester', name: 'Tester', emoji: '🧪' }] }));
   localStorage.setItem('ark-pals:v1:tester', ${JSON.stringify(JSON.stringify(fx))}); true`)
@@ -17,7 +18,7 @@ await sleep(700)
 await page.tapOn('button.player')
 await sleep(1000)
 // the boat is already at this island: tapping it opens it straight away
-const isl = await page.eval(`(() => { const ids = ['noah','creation','david','jonah','loaves','christmas','birthday']; const g = document.querySelectorAll('.map-island')[ids.indexOf('${ISLAND}')]; const r = g.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2] })()`)
+const isl = await page.eval(`(() => { const g = document.querySelector('[data-island="${ISLAND}"] .map-hit'); const r = g.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2] })()`)
 await page.tap(isl[0], isl[1])
 await sleep(1500)
 
@@ -32,7 +33,7 @@ const waitIdle = (ms = 400) => sleep(ms)
 if (kind.includes('two-by-two')) {
   await sleep(2500)
   for (let round = 0; round < 6; round++) {
-    const pair = await page.eval(`(() => { const cs = [...document.querySelectorAll('.pair-card:not(.boarded)')].filter((c) => c.style.visibility !== 'hidden'); for (const a of cs) for (const b of cs) if (a !== b && a.textContent === b.textContent) return [a.dataset.card, b.dataset.card]; return null })()`)
+    const pair = await page.eval(`(() => { const cs = [...document.querySelectorAll('.pair-card:not(.boarded)')].filter((c) => c.style.visibility !== 'hidden'); const what = (c) => c.querySelector('[aria-label]')?.getAttribute('aria-label') ?? c.textContent; for (const a of cs) for (const b of cs) if (a !== b && what(a) === what(b)) return [a.dataset.card, b.dataset.card]; return null })()`)
     if (!pair) break
     const a = await boxOf(`document.querySelector('[data-card="${pair[0]}"]')`)
     const b = await boxOf(`document.querySelector('[data-card="${pair[1]}"]')`)
@@ -78,8 +79,10 @@ if (kind.includes('two-by-two')) {
   }
   await snap('sort-done')
 } else if (kind.includes('count-basket')) {
-  await sleep(4000)
+  // (Done stays greyed out while the narrator is talking, and so does the basket.)
+  const ready = async () => { for (let w = 0; w < 60 && (await page.eval(`!!document.querySelector('.count-basket button:disabled')`)); w++) await sleep(250) }
   for (let round = 0; round < 4; round++) {
+    await ready()
     const need = await page.eval(`+document.querySelector('.count-goal b')?.textContent`)
     if (!need) break
     for (let k = 0; k < need; k++) {
@@ -102,7 +105,7 @@ if (kind.includes('two-by-two')) {
     }
     await snap(`count-full-${round}`)
     await page.tapOn('.big-btn', 'Done')
-    await sleep(3500)
+    await sleep(1500)
   }
 } else if (kind.includes('maze')) {
   await sleep(3000)
@@ -121,6 +124,25 @@ if (kind.includes('two-by-two')) {
   pts.push(route[route.length - 1])
   await page.drag(pts, 45, { onStep: async (i) => { if (i % 12 === 3) await snap(`maze-${i}`) } })
   for (let k = 0; k < 3; k++) { await sleep(250); await snap(`maze-end-${k}`) }
+} else if (kind.includes('quiz')) {
+  await page.tapOn('.start-tap'); await sleep(1500)
+  for (let q = 0; q < 8; q++) {
+    if (!(await page.eval(`!!document.querySelector('.quiz .q-choice')`))) break
+    await snap(`quiz-${q}`)
+    const nChoices = await page.eval(`document.querySelectorAll('.q-choice').length`)
+    for (let i = 0; i < nChoices; i++) {
+      const c = await boxOf(`document.querySelectorAll('.q-choice')[${i}]`)
+      if (!c) break
+      await page.tap(c.x, c.y); await sleep(500)
+      if (await page.eval(`!!document.querySelector('.q-choice.right')`)) break
+    }
+    await snap(`quiz-${q}-right`)
+    await sleep(2500)
+  }
+  await snap('quiz-after')
+} else if (kind.includes('reward')) {
+  for (let k = 0; k < 8; k++) { await sleep(300); await snap(`reward-${k}`) }
+  console.log('stars:', await page.eval(`document.querySelector('.reward-stars')?.getAttribute('aria-label') ?? 'none'`))
 } else if (kind.includes('verse')) {
   // While it's read aloud every slot shows its words: note the order.
   await page.waitFor(`[...document.querySelectorAll('.verse-slot')].every((s) => s.textContent !== '…')`, 20000)

@@ -1,6 +1,7 @@
 // Basket → Trotter → Gentlehoof: a gentle donkey facing you, with long twitchy ears and a big soft muzzle.
-// Basket carries one basket of bread; Trotter wears a green saddle blanket with two baskets and a
-// taller forelock; Gentlehoof's baskets have fish poking out, and he wears a crown.
+// Basket carries one basket of bread; Trotter wears a fringed green saddle blanket with two baskets and a
+// taller forelock; Gentlehoof's baskets have fish poking out, and he wears a crown. The baskets hang from
+// straps that run up over the donkey's back (without them they seemed to float beside it).
 import { type BodyProps, Anim, Crown, CuteFace, ink, Shine, useShade } from '../kit'
 
 const FUR = '#b9accb'
@@ -12,6 +13,7 @@ const BLANKET = '#5fd39a' // Kindness green
 const WICKER = '#d9a05b'
 const BREAD = '#f0bb6e'
 const FISH = '#7cc6ff'
+const STRAP = '#a8703a'
 
 // Forelock between the ears, falling over the forehead in soft points: small, then taller and spikier.
 const TUFT = [
@@ -82,9 +84,22 @@ export default function Donkey({ stage, mood }: BodyProps) {
           <>
             <path d="M60 140 C60 124 80 117 100 117 C120 117 140 124 140 140 L138 152 Q120 145 100 147 Q80 145 62 152 Z" fill={blanket.fill} stroke={ink(BLANKET)} strokeWidth={2.5} strokeLinejoin="round" />
             {[70, 130].map((x) => <circle key={x} cx={x} cy={147} r={3} fill="#ffd34d" stroke="#e0a800" strokeWidth={1.2} />)}
+            {/* A fringe along the hem, so it reads as a blanket rather than a shirt */}
+            <path d="M82 147 V153 M88 147 V153.5 M94 147 V154 M100 147 V154 M106 147 V154 M112 147 V153.5 M118 147 V153" stroke={ink(BLANKET)} strokeWidth={2.5} strokeLinecap="round" />
           </>
         )}
       </g>
+
+      {/* Straps up over the back that the baskets hang from (the basket rims hide their lower ends) */}
+      {(stage >= 1 ? [-1, 1] : [1]).map((side) => {
+        const d = stage >= 1 ? 'M130 145 Q128 130 122 118' : 'M128 144 Q125 129 119 120'
+        return (
+          <g key={side} transform={side < 0 ? 'translate(200 0) scale(-1 1)' : undefined} fill="none" strokeLinecap="round">
+            <path d={d} stroke={ink(STRAP)} strokeWidth={7} />
+            <path d={d} stroke={STRAP} strokeWidth={4} />
+          </g>
+        )
+      })}
 
       {/* Bread baskets: one at first, then one each side */}
       {stage >= 1 && <Basket x={52} y={146} f={f} fish={stage >= 2} flip />}

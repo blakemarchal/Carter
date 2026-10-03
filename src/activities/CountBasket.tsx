@@ -9,11 +9,12 @@ import { sfx } from '../lib/sfx'
 import { fly, showDrag, useDrag, useDropTarget } from '../lib/drag'
 import { wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from '../components/Pic'
 
 function Loose({ emoji, onIn, onTap }: { emoji: string; onIn: () => boolean; onTap: (el: HTMLElement) => void }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: 'in', onStart: sfx.lift, onDrop: (t) => t === 'basket' && onIn(), onTap: () => ref.current && onTap(ref.current) })
-  return <button ref={ref} className="count-thing" {...drag}>{emoji}</button>
+  return <button ref={ref} className="count-thing" {...drag}><Pic e={emoji} /></button>
 }
 
 /** Where the i-th thing sits in the basket (% of the basket box): the bottom row first, piling up. */
@@ -26,11 +27,12 @@ function Inside({ emoji, i, onOut, onTap }: { emoji: string; i: number; onOut: (
   const drag = useDrag({ data: 'out', onStart: sfx.lift, onDrop: (t) => t === 'loose' && onOut(), onTap: () => ref.current && onTap(ref.current) })
   const [x, y] = SLOTS[Math.min(i, SLOTS.length - 1)]
   // (The basket is drawn over them, so they sit in it with their tops peeking out.)
-  return <span ref={ref} style={{ left: `${x}%`, top: `${y}%` }} {...drag}>{emoji}</span>
+  return <span ref={ref} style={{ left: `${x}%`, top: `${y}%` }} {...drag}><Pic e={emoji} /></span>
 }
 
-export default function CountBasket({ title, intro, item, plural, basket, into = 'the basket', rounds, onDone }: {
-  title: string; intro: string; item: Thing; plural: string; basket: string; into?: string; rounds: number[]; onDone: () => void
+/** `basket`: the container's emoji (drawn with Pic); `done`: a line from the story, said after the last round. */
+export default function CountBasket({ title, intro, item, plural, basket, basketArt, into = 'the basket', rounds, done: outro, onDone }: {
+  title: string; intro: string; item: Thing; plural: string; basket: string; basketArt?: string; into?: string; rounds: number[]; done?: string; onDone: () => void
 }) {
   const [round, setRound] = useState(0)
   const target = rounds[round]
@@ -118,6 +120,10 @@ export default function CountBasket({ title, intro, item, plural, basket, into =
     if (!alive.current) return
     if (round + 1 >= rounds.length) {
       sfx.fanfare()
+      if (outro) {
+        await speak(outro)
+        if (!alive.current) return
+      }
       await wait(500)
       if (alive.current) onDone()
       return
@@ -132,7 +138,7 @@ export default function CountBasket({ title, intro, item, plural, basket, into =
   return (
     <div className="activity count-basket">
       <div className="practice-head">
-        <span className="decor">{basket}</span>
+        <span className="decor"><Pic e={basket} art={basketArt} /></span>
         <h2>{title}</h2>
         <div className="count-goal" onClick={() => ask(round)}>Put <b>{target}</b> in!</div>
       </div>
@@ -142,7 +148,7 @@ export default function CountBasket({ title, intro, item, plural, basket, into =
         </div>
         <button ref={binRef} className="count-bin" aria-label={`${into}: drag things in`}>
           <span className="count-in">{st.inside.map((id, i) => <Inside key={`${round}-${id}`} i={i} emoji={item.emoji} onOut={() => takeOut(id)} onTap={(el) => tapOut(id, el)} />)}</span>
-          <span className="count-bowl">{basket}</span>
+          <span className="count-bowl"><Pic e={basket} art={basketArt} /></span>
           <span className="count-n" key={n}>{n}</span>
         </button>
       </div>

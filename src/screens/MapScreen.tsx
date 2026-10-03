@@ -1,12 +1,20 @@
-// The Adventure Map: an ocean with story islands joined by a sea route. Her Ark (with her Pal
-// aboard) sits at the island she visited last; tapping an open island sails it there, then the
-// island starts. Locked islands hide under clouds. In the week before their birthday, balloons are
-// tied to the boat and their Pal counts the sleeps; on a brother's or sister's birthday, a banner
-// says so. Styles: styles.css, "Map".
+// The Adventure Map: the voyage through the Bible, one sea at a time (data/seas.ts, lib/voyage.ts).
+// Each sea is an ocean with its islands joined by a sea route; arrows at the sides sail to the sea
+// before or after (the next opens once this sea's islands are done). Her Ark (with her Pal aboard)
+// sits at the island she visited last; tapping an open island sails it there, then the island
+// starts. Islands still ahead hide under clouds; ones not built yet say "coming soon". The daily
+// voyage: a few new island visits a day (Parent Corner), then the crew rests (finished islands, the
+// Ark, songs and bedtime stay open). In the week before their birthday, balloons are tied to the
+// boat and their Pal counts the sleeps; on a brother's or sister's birthday, a banner says so.
+// Styles: styles.css, "Map".
 import { useEffect, useMemo, useRef, useState } from 'react'
 import PalArt from '../components/PalArt'
 import { HoldButton } from '../components/ui'
-import { ISLANDS, islandOpen, type Island } from '../data/islands'
+import { islandById } from '../data/islands'
+import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
+import { currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
+import { count } from '../lib/stats'
+import { Emoji } from '../art/scenes/kit'
 import { palById, stageFor } from '../data/pals'
 import { activeProfile, today, update, useFamily, useProfiles, useProgress } from '../lib/progress'
 import { hungryPals } from '../lib/kitchen'
@@ -17,9 +25,13 @@ import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
 type P = [number, number]
+/** An island on this sea's map: where it sits, and whether it's built yet. */
+type MapIsland = SeaIsland & { at: P; color: string; built: boolean }
 
-/** Where the boat docks at each island: in the water just right of it. */
-const dock = (i: Island): P => [i.at[0] + 116, i.at[1] + 40]
+/** Where the boat docks at each island: in the water just right of it, clear of its name. */
+const dock = (i: MapIsland): P => [i.at[0] + 134, i.at[1] + 6]
+/** Built islands have content (data/islands.ts); the rest are coming soon. */
+const built = (id: string) => !!islandById(id)?.steps
 
 /** A smooth curve through the docks (Catmull-Rom as cubic Béziers). */
 function routePath(pts: P[]) {
@@ -42,15 +54,21 @@ function Palm({ x, y, s = 1, flip = false }: { x: number; y: number; s?: number;
   )
 }
 
+/** A five-pointed star centred on (x, y). */
+const starPath = (x: number, y: number, r: number) => Array.from({ length: 10 }, (_, i) => {
+  const a = (Math.PI / 5) * i - Math.PI / 2, d = i % 2 ? r * 0.48 : r
+  return `${i ? 'L' : 'M'}${(x + Math.cos(a) * d).toFixed(1)} ${(y + Math.sin(a) * d).toFixed(1)}`
+}).join(' ') + 'Z'
+
 /**
  * One island. The press-in effect scales the inner group around its own centre, and a still,
  * invisible hit area on top takes the tap: a CSS transform on the positioned group itself would
  * replace its position (SVG), sliding the island out from under her finger mid-tap.
  */
-function IslandShape({ isl, state, pressed }: { isl: Island; state: 'locked' | 'open' | 'next' | 'done'; pressed: boolean }) {
+function IslandShape({ isl, state, pressed, stars, resting }: { isl: MapIsland; state: IslandState; pressed: boolean; stars: number; resting: boolean }) {
   const [x, y] = isl.at
   return (
-    <g transform={`translate(${x} ${y})`}>
+    <g transform={`translate(${x} ${y})`} data-island={isl.id}>
     <g className={`map-island ${state} ${pressed ? 'pressed' : ''}`}>
       {state === 'next' && <ellipse className="map-ring" cx={0} cy={6} rx={104} ry={52} />}
       <ellipse cx={0} cy={14} rx={92} ry={40} fill="#3a9bd8" opacity={0.35} />
@@ -59,12 +77,18 @@ function IslandShape({ isl, state, pressed }: { isl: Island; state: 'locked' | '
       <path d="M-40 -6 Q-20 -24 10 -22" stroke={isl.color} strokeWidth={8} strokeLinecap="round" fill="none" opacity={0.7} />
       <Palm x={-48} y={6} s={0.9} />
       <Palm x={54} y={4} s={0.8} flip />
-      <text className="map-landmark" x={4} y={-12} textAnchor="middle">{isl.emoji}</text>
+      {/* The landmark: its drawing, or else the emoji. It was 54px emoji text on the baseline y = -12,
+          which centres the picture about 19 units higher; Emoji centres on (x, y). */}
+      <g className="map-landmark"><Emoji e={isl.emoji} x={4} y={-31} size={54} /></g>
       {state === 'done' && (
         <g transform="translate(36 -64)">
           <line x1={0} y1={0} x2={0} y2={40} stroke="#7a5a3a" strokeWidth={4} />
           <path d="M0 0 L30 8 L0 16Z" fill="#ff6fae" />
-          <text x={12} y={13} fontSize={12} textAnchor="middle">⭐</text>
+        </g>
+      )}
+      {state === 'done' && stars > 0 && (
+        <g transform="translate(0 84)" className="map-stars" aria-label={`${stars} stars`}>
+          {[0, 1, 2].map((k) => <path key={k} d={starPath(-26 + k * 26, 0, 11)} fill={k < stars ? '#ffd34d' : '#ffffff'} stroke={k < stars ? '#e0a800' : '#c9d6e6'} strokeWidth={2} strokeLinejoin="round" opacity={k < stars ? 1 : 0.8} />)}
         </g>
       )}
       <g transform="translate(0 52)">
@@ -78,7 +102,14 @@ function IslandShape({ isl, state, pressed }: { isl: Island; state: 'locked' | '
           <text x={0} y={8} textAnchor="middle" fontSize={34}>🔒</text>
         </g>
       )}
-      {state === 'next' && <text className="map-point" x={4} y={-70} textAnchor="middle">👇</text>}
+      {state === 'soon' && (
+        <g transform="translate(0 84)">
+          <rect x={-58} y={-14} width={116} height={26} rx={13} className="map-soon" />
+          <text className="map-soon-text" x={0} y={5} textAnchor="middle">Coming soon</text>
+        </g>
+      )}
+      {state === 'next' && !resting && <text className="map-point" x={4} y={-70} textAnchor="middle">👇</text>}
+      {state === 'next' && resting && <text className="map-point resting" x={4} y={-70} textAnchor="middle">🌙</text>}
     </g>
     <ellipse className="map-hit" cx={0} cy={0} rx={104} ry={70} />
     </g>
@@ -144,13 +175,33 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const myDay = isBirthday(me.birthday)
   const others = othersBirthdayToday(me, list, family)
   const route = useRef<SVGPathElement>(null)
-  const docks = useMemo(() => ISLANDS.map(dock), [])
+  // The sea on screen: where the boat is (if that sea is open), else the one they're up to.
+  const [sea, setSea] = useState(() => {
+    const s = seaOf(p.mapAt)
+    return s >= 0 && seaOpen(s, p.islandsDone, built, p.openAll) ? s : currentSea(p.islandsDone, built, p.openAll)
+  })
+  const def = SEAS[sea]
+  const islands: MapIsland[] = useMemo(() => {
+    const spots = islandSpots(def.islands.length)
+    return def.islands.map((i, k) => ({ ...i, at: spots[k], color: islandById(i.id)?.color ?? def.color, built: built(i.id) }))
+  }, [def])
+  const docks = useMemo(() => islands.map(dock), [islands])
   const d = useMemo(() => routePath(docks), [docks])
-  const startAt = Math.max(0, ISLANDS.findIndex((i) => i.id === p.mapAt))
+  const startAt = Math.max(0, islands.findIndex((i) => i.id === p.mapAt))
   const [boat, setBoat] = useState<{ x: number; y: number; flip: boolean }>({ x: docks[startAt][0], y: docks[startAt][1], flip: false })
   const [sailing, setSailing] = useState(false)
   const [pressed, setPressed] = useState<number | null>(null)
   const at = useRef(startAt)
+  // A new sea on screen: the boat waits at its island there (or the first one).
+  useEffect(() => {
+    const k = Math.max(0, islands.findIndex((i) => i.id === p.mapAt))
+    at.current = k
+    setBoat({ x: docks[k][0], y: docks[k][1], flip: false })
+  }, [sea])
+  const resting = visitsLeft(p.voyage, today(), p.dailyVisits) <= 0
+  const prevOpen = sea > 0
+  const nextOpen = sea + 1 < SEAS.length && seaOpen(sea + 1, p.islandsDone, built, p.openAll)
+  const seaDone = islands.every((i) => !i.built || p.islandsDone.includes(i.id))
 
   useEffect(() => {
     // Said once a day: whose birthday it is today, or how many sleeps until theirs.
@@ -168,11 +219,20 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
     speak('Where should we go? Tap an island!', { interrupt: false })
   }, [])
 
-  const states = ISLANDS.map((isl, i) => {
-    if (!islandOpen(i, p.islandsDone, p.openAll)) return 'locked' as const
-    if (p.islandsDone.includes(isl.id)) return 'done' as const
-    return 'next' as const
-  })
+  const states = islands.map((_, i) => islandState(sea, i, p.islandsDone, built, p.openAll))
+  /** Whether going into an island now starts a new visit (rather than replaying, or finishing one). */
+  const startsNewVisit = (id: string) => {
+    if (p.islandsDone.includes(id)) return false
+    const steps = islandById(id)?.steps ?? []
+    const k = p.islandStep[id] ?? 0
+    return k === 0 || steps[k - 1]?.kind === 'pause'
+  }
+  const goSea = (n: number) => {
+    if (sailing || n < 0 || n >= SEAS.length) return
+    sfx.whoosh()
+    setSea(n)
+    speak(`${SEAS[n].name}! Tap an island!`)
+  }
 
   /** Where along the route each dock is (by sampling the path). */
   const lengthAt = (pt: P) => {
@@ -189,7 +249,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
 
   const sailTo = (i: number) => {
     const path = route.current
-    if (!path || i === at.current) return onIsland(ISLANDS[i].id)
+    if (!path || i === at.current) return onIsland(islands[i].id)
     setSailing(true)
     sfx.whoosh()
     const from = lengthAt(docks[at.current]), to = lengthAt(docks[i])
@@ -200,9 +260,9 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
       if (arrived) return
       arrived = true
       at.current = i
-      update((x) => ({ ...x, mapAt: ISLANDS[i].id }))
+      update((x) => ({ ...x, mapAt: islands[i].id }))
       setSailing(false)
-      onIsland(ISLANDS[i].id)
+      onIsland(islands[i].id)
     }
     const step = (now: number) => {
       if (arrived) return
@@ -223,10 +283,16 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const tapIsland = (i: number) => {
     if (sailing) return
     sfx.pop()
-    const isl = ISLANDS[i]
+    const isl = islands[i]
+    if (states[i] === 'soon') return void speak(`${isl.name} is coming soon!`)
     if (states[i] === 'locked') {
-      const prev = ISLANDS[i - 1]
-      speak(isl.steps && prev ? `Finish ${prev.name.replace(/!$/, '')} first, then sail here!` : `${isl.name.replace(/!$/, '')} is coming soon!`)
+      const before = islands.slice(0, i).reverse().find((x) => x.built && !p.islandsDone.includes(x.id))
+      speak(before ? `Finish ${before.name} first, then sail here!` : 'Finish the islands in the sea before this one first!')
+      return
+    }
+    if (resting && startsNewVisit(isl.id)) {
+      count('rest-day')
+      speak("The Ark is resting until tomorrow! You can play an island you've finished, visit your Pals, sing, or have a bedtime story.")
       return
     }
     sailTo(i)
@@ -240,7 +306,12 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
           <span>My Ark</span>
           {hungryPals(p, me.id).length > 0 && <span className="hungry-badge small">🍽️</span>}
         </button>
-        <h2>Adventure Map</h2>
+        <div className="map-title">
+          <h2>{def.name}</h2>
+          <div className="sea-dots" aria-label={`Sea ${sea + 1} of ${SEAS.length}`}>
+            {SEAS.map((x, k) => <i key={x.id} className={k === sea ? 'now' : seaOpen(k, p.islandsDone, built, p.openAll) ? 'open' : ''} />)}
+          </div>
+        </div>
         <div className="map-tools">
           <button className="who-chip" aria-label="Switch player" onClick={() => { sfx.pop(); onPlayers() }}>
             <span>{me.emoji}</span>{me.name.trim() || 'Player'}
@@ -254,7 +325,13 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
       </header>
       <div className="sea">
         {others.length > 0 && <div className="map-banner">🎂 Today is {andList(others)}&rsquo;s birthday! 🎉</div>}
-        <svg className="sea-map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet">
+        {resting && !others.length && states.includes('next') && <div className="map-banner rest">🌙 The crew is resting until tomorrow!</div>}
+        {prevOpen && <button className="sea-arrow prev" aria-label={`Back to ${SEAS[sea - 1].name}`} onClick={() => goSea(sea - 1)}>◀</button>}
+        {sea + 1 < SEAS.length && (
+          <button className={`sea-arrow next ${nextOpen ? '' : 'locked'} ${nextOpen && seaDone ? 'go' : ''}`} aria-label={`On to ${SEAS[sea + 1].name}`}
+            onClick={() => (nextOpen ? goSea(sea + 1) : (sfx.pop(), speak('Finish the islands in this sea, then sail on!')))}>{nextOpen ? '▶' : '🔒'}</button>
+        )}
+        <svg className="sea-map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" key={sea}>
           <defs>
             <pattern id="waves" width="80" height="40" patternUnits="userSpaceOnUse">
               <path d="M6 22 q10 -8 20 0 q10 8 20 0" stroke="#ffffff" strokeOpacity={0.35} strokeWidth={3} fill="none" strokeLinecap="round" />
@@ -266,7 +343,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
           <g className="sea-cloud c2"><ellipse cx={0} cy={0} rx={38} ry={15} /><ellipse cx={24} cy={-8} rx={24} ry={14} /></g>
           <g className="sea-gull g1"><g className="gull-flap"><path d="M0 0 q8 -8 16 0 q8 -8 16 0" /></g></g>
           <g className="sea-gull g2"><g className="gull-flap slow"><path d="M0 0 q6 -6 12 0 q6 -6 12 0" /></g></g>
-          <text className="sea-whale" x={700} y={560} fontSize={44}>🐳</text>
+          <g className="sea-whale"><Emoji e="🐳" x={724} y={548} size={52} /></g>
           {/* A fish leaps out of the water and dives back in, with a splash each time. */}
           <ellipse className="sea-splash s1" cx={437} cy={598} rx={16} ry={5} />
           <ellipse className="sea-splash s2" cx={347} cy={598} rx={16} ry={5} />
@@ -282,10 +359,10 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
             </g>
           </g>
           <path ref={route} d={d} className="sea-route" />
-          {ISLANDS.map((isl, i) => (
+          {islands.map((isl, i) => (
             <g key={isl.id} onClick={() => tapIsland(i)} style={{ cursor: 'pointer' }}
               onPointerDown={() => setPressed(i)} onPointerUp={() => setPressed(null)} onPointerCancel={() => setPressed(null)} onPointerLeave={() => setPressed(null)}>
-              <IslandShape isl={isl} state={states[i]} pressed={pressed === i} />
+              <IslandShape isl={isl} state={states[i]} pressed={pressed === i} stars={p.stars[isl.id] ?? 0} resting={resting} />
             </g>
           ))}
           <g transform={`translate(${boat.x} ${boat.y}) scale(${boat.flip ? -1 : 1} 1)`} onClick={() => { if (!sailing) { sfx.pop(); onArk() } }} style={{ cursor: 'pointer' }}>

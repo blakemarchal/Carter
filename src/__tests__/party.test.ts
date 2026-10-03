@@ -1,6 +1,6 @@
 // The birthday party: who's in the family story, whose birthday it is, and the words of the story.
 import { describe, expect, it } from 'vitest'
-import { castFor, isGrownup, othersBirthdayToday, stickerAge, ageSticker, hasAgeSticker } from '../lib/party'
+import { castFor, isGrownup, othersBirthdayToday, stickerAge, ageSticker, hasAgeSticker, bannerName, pictured, PICTURED } from '../lib/party'
 import { partyStory } from '../data/birthday'
 import type { FamilyCast, Profile } from '../lib/progress'
 
@@ -54,7 +54,8 @@ describe('the birthday story', () => {
   it('works with no family and no age', () => {
     const pages = partyStory({ name: 'Sam', grownups: [], siblings: [], pets: [] })
     expect(pages[0].text).toBe('Not so long ago, a wonderful baby was born. It was you, Sam!')
-    expect(pages[3].text).toBe('Your family thanks God for you every day! They love you so much.')
+    // (the picture is the birthday child with their own Pal)
+    expect(pages[3].text).toBe('God gives you people who love you and thank Him for you every day! And all your Ark Pals love you, too.')
     expect(pages[4].text).toBe("And now it's your birthday! Hooray! It's party time!")
   })
 
@@ -63,4 +64,25 @@ describe('the birthday story', () => {
     expect(pages[0].text.startsWith('One year ago,')).toBe(true)
     expect(pages[3].text).toBe('Your family thanks God for you every day! Mama loves you so much. And Lou gives you big, giggly hugs!')
   })
+
+  it('names only the brothers, sisters and pets the picture can show', () => {
+    const kids = ['Ann', 'Ben', 'Cal', 'Dee', 'Eve'].map((name) => ({ name, baby: false }))
+    const babies = ['Pip', 'Pop', 'Pat'].map((name) => ({ name, baby: true }))
+    expect(pictured([...kids, ...babies]).map((s) => s.name)).toEqual(['Ann', 'Ben', 'Cal', 'Dee', 'Pip', 'Pop'])
+    const pages = partyStory({ name: 'Max', grownups: ['Mom'], siblings: [...kids, ...babies], pets: ['Rex', 'Tom', 'Bo', 'Mo', 'Jo'] })
+    expect(pages[3].text).toBe("Your family thanks God for you every day! Mom loves you so much. And Ann, Ben, Cal, Dee, baby Pip and baby Pop give you big, giggly hugs! Even Rex, Tom, Bo and Mo are happy you're here!")
+    expect(PICTURED).toEqual({ kids: 4, babies: 2, pets: 4 })
+  })
+})
+
+it('writes their name on the birthday bunting', () => {
+  expect(bannerName('Robin')).toBe('ROBIN')
+  expect(bannerName('Zoë')).toBe('ZOE')
+  expect(bannerName('José')).toBe('JOSE')
+  expect(bannerName('Søren')).toBe('SOREN')
+  expect(bannerName('Mary-Kate')).toBe('MARY KATE')
+  expect(bannerName('Christopher')).toBe('CHRISTOPHER')
+  expect(bannerName('Maximilianus')).toBe('MAXIMILIANUS')
+  expect(bannerName('Bartholomew Jr')).toBe('HOORAY')
+  expect(bannerName('小明')).toBe('HOORAY')
 })

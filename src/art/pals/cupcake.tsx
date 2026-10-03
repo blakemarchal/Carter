@@ -39,18 +39,6 @@ export default function Cupcake({ stage, mood }: BodyProps) {
       <defs>{cup.def}{icing.def}{icing2.def}{cherry.def}</defs>
 
       <g className="pa-breathe">
-        {/* Birthday candles with flickering flames */}
-        {stage >= 2 && [48, 152].map((x, i) => (
-          <g key={x}>
-            <rect x={x - 5} y={66} width={10} height={40} rx={3} fill={i ? '#5fd39a' : '#7cc6ff'} stroke={ink(i ? '#5fd39a' : '#7cc6ff')} strokeWidth={2.5} />
-            <path d={`M${x - 5} 78 L${x + 5} 73 M${x - 5} 90 L${x + 5} 85`} stroke="#fff" strokeWidth={2.5} strokeLinecap="round" />
-            <Anim cls="pa-twinkle" delay={i * 0.4}>
-              <path d={`M${x} 44 Q${x + 9} 56 ${x} 63 Q${x - 9} 56 ${x} 44 Z`} fill="#ffc928" stroke="#ff9b4a" strokeWidth={2} strokeLinejoin="round" />
-              <ellipse cx={x} cy={57} rx={2.5} ry={4} fill="#fff6c2" />
-            </Anim>
-          </g>
-        ))}
-
         {/* Little feet */}
         {[84, 116].map((x) => <ellipse key={x} cx={x} cy={174} rx={12} ry={6.5} fill={cup.fill} stroke={LINE} strokeWidth={3} />)}
 
@@ -73,6 +61,19 @@ export default function Cupcake({ stage, mood }: BodyProps) {
             <path d={tier(30, 66, 27, 4)} fill={icing.fill} stroke={ICING_LINE} strokeWidth={3} strokeLinejoin="round" />
             <path d="M80 48 Q100 38 120 48" stroke={ICING_LINE} strokeWidth={2.5} fill="none" strokeLinecap="round" opacity={0.6} />
             <Sprinkles at={[[90, 50, 40], [110, 52, -40], [100, 40, 0]]} />
+            {/* Birthday candles standing in the middle tier of frosting (a dab of icing hides each base),
+                with flickering flames. Behind the cake they looked like sticks, not candles. */}
+            {[65, 135].map((x, i) => (
+              <g key={x}>
+                <rect x={x - 5} y={40} width={10} height={30} rx={3} fill={i ? '#5fd39a' : '#7cc6ff'} stroke={ink(i ? '#5fd39a' : '#7cc6ff')} strokeWidth={2.5} />
+                <path d={`M${x - 5} 50 L${x + 5} 45 M${x - 5} 61 L${x + 5} 56`} stroke="#fff" strokeWidth={2.5} strokeLinecap="round" />
+                <ellipse cx={x} cy={70.5} rx={5.5} ry={3.5} fill={icing.fill} stroke={ICING_LINE} strokeWidth={2.5} />
+                <Anim cls="pa-twinkle" delay={i * 0.4}>
+                  <path d={`M${x} 18 Q${x + 9} 30 ${x} 37 Q${x - 9} 30 ${x} 18 Z`} fill="#ffc928" stroke="#ff9b4a" strokeWidth={2} strokeLinejoin="round" />
+                  <ellipse cx={x} cy={31} rx={2.5} ry={4} fill="#fff6c2" />
+                </Anim>
+              </g>
+            ))}
           </>
         ) : (
           <>

@@ -13,6 +13,12 @@ const SIZE = 420 // CSS px
 const FONT = `800 380px "Baloo 2", system-ui, sans-serif`
 const BRUSH = 40
 
+/**
+ * "the big D" or "the little d": said aloud, D and d sound the same. (The name is written as a
+ * capital, as elsewhere, so the voice says the letter's name: a lone "a" would be read "uh".)
+ */
+const named = (l: string) => `the ${l === l.toUpperCase() ? 'big' : 'little'} ${l.toUpperCase()}`
+
 export default function TraceLetter({ title, intro, letters, onDone }: { title: string; intro: string; letters: string[]; onDone: () => void }) {
   const [i, setI] = useState(0)
   const [done, setDone] = useState(false)
@@ -63,7 +69,7 @@ export default function TraceLetter({ title, intro, letters, onDone }: { title: 
   useEffect(() => {
     setup()
     if (i === 0) speak(intro)
-    else speak(`Now trace the letter ${letter}!`)
+    else speak(`Now trace ${named(letter)}!`)
   }, [i])
 
   const pos = (e: React.PointerEvent): [number, number] => {
@@ -112,7 +118,7 @@ export default function TraceLetter({ title, intro, letters, onDone }: { title: 
       setDone(true)
       sfx.fanfare()
       const l = letter.toLowerCase()
-      await speak(`${praise()} That's ${letter}! ${letter.toUpperCase()} says ${letterSound(l)}!`)
+      await speak(`${praise()} That's ${named(letter)}! ${letter.toUpperCase()} says ${letterSound(l)}!`)
       if (!alive.current) return
       await wait(400)
       if (!alive.current) return
@@ -132,7 +138,7 @@ export default function TraceLetter({ title, intro, letters, onDone }: { title: 
       <canvas ref={canvas} className={`trace-canvas ${done ? 'done' : ''}`} style={{ width: SIZE, height: SIZE }}
         onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} />
       <div className="trace-tools">
-        <button className="instruction" onClick={() => speak(`Trace the letter ${letter} with your finger!`)}>🔊 {letter}</button>
+        <button className="instruction" onClick={() => speak(`Trace ${named(letter)} with your finger!`)}>🔊 {letter}</button>
         <BigButton color="white" onClick={() => setup()}>🧽 Start over</BigButton>
       </div>
     </div>

@@ -73,12 +73,13 @@ export default function Night({ stage, mood }: BodyProps) {
       ))}
 
       <g className="pa-float">
-        {/* Wispy tail with a star on the tip (mirrored twice so the wag swings it in towards the body, not out of the picture) */}
+        {/* Wispy tail with a star on the tip (mirrored twice so the wag swings it in towards the body, not out of the picture).
+            It grows from low at the back, like a cat's tail: rooted halfway up the side, it looked like one raised arm. */}
         {stage >= 1 && (
           <g transform={MIRROR}>
             <Anim cls="pa-tail" origin="85% 100%">
               <g transform={MIRROR}>
-                <path d={tube([142, 128], [184, 130], [176, 88], 20, 8)} fill={body.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
+                <path d={tube([122, 160], [192, 168], [176, 88], 18, 7)} fill={body.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
                 <path d={starPath(176, 80, 12)} fill={moon.fill} stroke={moonLine} strokeWidth={2.5} strokeLinejoin="round" />
               </g>
             </Anim>

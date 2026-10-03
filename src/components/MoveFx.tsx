@@ -70,6 +70,15 @@ const RockShape = () => (
   </svg>
 )
 
+/** A snowball (a snowman icon would roll a whole snowman across the arena). */
+const SnowballShape = () => (
+  <svg viewBox="0 0 60 60" width={58} height={58}>
+    <circle cx={30} cy={30} r={25} fill="#f4f9ff" stroke="#a9c4e0" strokeWidth={3} />
+    <path d="M14 24 Q22 14 34 12" stroke="#ffffff" strokeWidth={5} fill="none" strokeLinecap="round" />
+    <circle cx={38} cy={38} r={3} fill="#d8e6f5" /><circle cx={24} cy={42} r={2.4} fill="#d8e6f5" />
+  </svg>
+)
+
 function Rock({ to, big }: Ends) {
   // The Pal stomps (arena shakes, see .arena.fx-rock), then rocks pop up under the creature.
   return (
@@ -138,7 +147,7 @@ function Roll({ from, to, icon }: Ends) {
   // Something rolls along the ground and bumps the creature: a boulder, or the move's own icon (a shell, a snowball).
   return (
     <>
-      <div className="fx-roll" style={{ top: `${Math.max(from.y, to.y) + 12}%` }}>{!icon || icon === '🎳' || icon === '🪨' ? <RockShape /> : <span className="fx-roll-icon">{icon}</span>}</div>
+      <div className="fx-roll" style={{ top: `${Math.max(from.y, to.y) + 12}%` }}>{!icon || icon === '🎳' || icon === '🪨' ? <RockShape /> : icon === '⛄' ? <SnowballShape /> : <span className="fx-roll-icon">{icon}</span>}</div>
       <Burst x={to.x} y={Math.max(from.y, to.y) + 14} chars={['💨', '✨']} n={8} dist={60} />
     </>
   )

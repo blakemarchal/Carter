@@ -5,8 +5,10 @@ import type { CSSProperties, ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from './kit'
 import type { KidLook } from '../lib/look'
 
-export type Pose = 'stand' | 'wave' | 'pray' | 'arms-up' | 'hold' | 'point'
-export type Holding = 'staff' | 'sling' | 'baby' | 'basket' | 'bread' | 'hammer' | 'lunch' | 'scroll'
+/** `hammer`: the right arm raised with a hammer, swinging (building the ark). */
+export type Pose = 'stand' | 'wave' | 'pray' | 'arms-up' | 'hold' | 'point' | 'hammer'
+/** `stick`: a plain walking stick (a shepherd's `staff` has a crook). `sling-empty`: the stone has flown. */
+export type Holding = 'staff' | 'stick' | 'sling' | 'sling-empty' | 'baby' | 'basket' | 'bread' | 'hammer' | 'lunch' | 'scroll'
 export type Hair = 'short' | 'long' | 'curly' | 'bald' | 'covered' | 'ponytail' | 'pigtails'
 
 export interface Look {
@@ -35,15 +37,20 @@ function Held({ what, x, y }: { what: Holding; x: number; y: number }) {
     case 'staff':
       // From above the head down to the ground, at the hand.
       return <path d={`M${x + 2} -146 Q${x + 12} -160 ${x + 2} -166 Q${x - 6} -162 ${x - 2} -154 M${x + 2} -146 L${x} -2`} stroke="#8a5a2e" strokeWidth={5} fill="none" strokeLinecap="round" />
+    case 'stick':
+      return <path d={`M${x + 1} -150 L${x} -2`} stroke="#8a5a2e" strokeWidth={5} fill="none" strokeLinecap="round" />
     case 'sling':
+    case 'sling-empty':
       return (
         <g>
           <path d={`M${x} ${y} Q${x + 14} ${y + 26} ${x + 26} ${y + 8}`} stroke="#8a5a2e" strokeWidth={3} fill="none" />
-          <circle cx={x + 26} cy={y + 8} r={6} fill="#b8b1a6" stroke="#7d766d" strokeWidth={2} />
+          <ellipse cx={x + 26} cy={y + 8} rx={7} ry={4} fill="#a0703f" stroke="#6b4422" strokeWidth={1.5} />
+          {what === 'sling' && <circle cx={x + 26} cy={y + 5} r={6} fill="#b8b1a6" stroke="#7d766d" strokeWidth={2} />}
         </g>
       )
     case 'hammer':
-      return <g><path d={`M${x} ${y} L${x + 4} ${y - 30}`} stroke="#8a5a2e" strokeWidth={5} strokeLinecap="round" /><rect x={x - 8} y={y - 40} width={24} height={12} rx={3} fill="#8d95a8" stroke="#5d6578" strokeWidth={2} /></g>
+      // Held up from the hand: the handle, then a heavy head across its top.
+      return <g><path d={`M${x} ${y + 4} L${x + 4} ${y - 30}`} stroke="#8a5a2e" strokeWidth={5} strokeLinecap="round" /><rect x={x - 10} y={y - 42} width={28} height={13} rx={3} fill="#8d95a8" stroke="#5d6578" strokeWidth={2} /></g>
     case 'scroll':
       return <g><rect x={x - 14} y={y - 10} width={28} height={20} rx={4} fill="#fff3d6" stroke="#c9a46a" strokeWidth={2} /><circle cx={x - 14} cy={y} r={5} fill="#c9a46a" /><circle cx={x + 14} cy={y} r={5} fill="#c9a46a" /></g>
     case 'bread':
@@ -69,6 +76,8 @@ export function Baby({ x, y, s = 1, blanket = '#fff7e8' }: { x: number; y: numbe
     <g transform={`translate(${x} ${y}) scale(${s})`}>
       <ellipse cx={0} cy={6} rx={30} ry={18} fill={blanket} stroke={ink(blanket)} strokeWidth={2.5} />
       <path d="M-28 6 Q0 20 28 6" stroke={ink(blanket)} strokeWidth={2} fill="none" />
+      {/* wrapped up snug: swaddling bands */}
+      <path d="M-4 -8 Q6 4 2 22 M12 -10 Q22 4 18 20" stroke={ink(blanket)} strokeWidth={2.5} fill="none" opacity={0.55} strokeLinecap="round" />
       <circle cx={-12} cy={-2} r={14} fill={SKIN.medium} stroke={ink(SKIN.medium)} strokeWidth={2} />
       <path d="M-18 -4 q3 2 6 0 M-8 -4 q3 2 6 0" stroke="#2b2140" strokeWidth={2} fill="none" strokeLinecap="round" />
       <ellipse cx={-21} cy={2} rx={3.5} ry={2.2} fill="#ff7fb0" opacity={0.5} />
@@ -81,10 +90,12 @@ export function Baby({ x, y, s = 1, blanket = '#fff7e8' }: { x: number; y: numbe
 const ARMS: Record<Pose, [[number, number], [number, number]][]> = {
   stand: [[[-20, -86], [-30, -46]], [[20, -86], [30, -46]]],
   wave: [[[-20, -86], [-30, -46]], [[20, -86], [42, -128]]],
-  pray: [[[-20, -86], [-4, -70]], [[20, -86], [4, -70]]],
+  // (the hands are drawn last, pressed together below the chin, so a beard never hides them)
+  pray: [[[-20, -86], [-6, -60]], [[20, -86], [6, -60]]],
   'arms-up': [[[-20, -86], [-42, -130]], [[20, -86], [42, -130]]],
   hold: [[[-20, -86], [-8, -60]], [[20, -86], [8, -60]]],
   point: [[[-20, -86], [-30, -46]], [[20, -86], [54, -90]]],
+  hammer: [[[-20, -86], [-30, -46]], [[20, -86], [38, -124]]],
 }
 
 export function Person({ x, y, s = 1, look, pose = 'stand', holding, facing = 'right', blinkDelay = 0, children }: {
@@ -97,14 +108,19 @@ export function Person({ x, y, s = 1, look, pose = 'stand', holding, facing = 'r
   const skin = useShade(look.skin, 0.25, 0.12)
   const hair = useShade(look.hairColor, 0.25, 0.15)
   const arms = ARMS[pose]
-  const hand = pose === 'point' || pose === 'wave' ? arms[1][1] : pose === 'hold' || pose === 'pray' ? [0, -62] : arms[1][1]
+  // Something held in front (a baby, a basket) sits between the hands; anything else is in the right
+  // hand, and moves with that arm.
+  const inFront = pose === 'hold' || pose === 'pray'
+  const swing = pose === 'wave' ? 'pa-wing' : pose === 'hammer' ? 'pa-hammer' : undefined
   return (
     <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -scale : scale} ${scale})`}>
       <defs>{robe.def}{skin.def}{hair.def}</defs>
       {look.glow && <circle cx={0} cy={-90} r={95} fill="#fff6b0" opacity={0.35} className="pa-twinkle" />}
       {look.wings && [-1, 1].map((side) => (
-        <g key={side} className="pa-wing" style={{ '--o': side < 0 ? '100% 60%' : '0% 60%' } as CSSProperties}>
-          <path transform={`scale(${side} 1)`} d="M14 -92 C40 -130 78 -118 84 -96 C70 -96 70 -86 80 -76 C62 -74 58 -64 64 -54 C44 -58 26 -66 14 -76 Z" fill="#ffffff" stroke="#d8c98a" strokeWidth={3} strokeLinejoin="round" />
+        <g key={side} transform={`scale(${side} 1)`}>
+          <g className="pa-wing" style={{ '--o': '0% 60%' } as CSSProperties}>
+            <path d="M14 -92 C40 -130 78 -118 84 -96 C70 -96 70 -86 80 -76 C62 -74 58 -64 64 -54 C44 -58 26 -66 14 -76 Z" fill="#ffffff" stroke="#d8c98a" strokeWidth={3} strokeLinejoin="round" />
+          </g>
         </g>
       ))}
       <g className="pa-breathe">
@@ -117,13 +133,15 @@ export function Person({ x, y, s = 1, look, pose = 'stand', holding, facing = 'r
         {look.helmet && <path d="M-24 -88 Q0 -96 24 -88 L26 -60 Q0 -54 -26 -60 Z" fill="#a9b1c2" stroke="#6b7385" strokeWidth={3} />}
         {/* arms */}
         {arms.map(([[sx, sy], [hx, hy]], i) => (
-          <g key={i} className={pose === 'wave' && i === 1 ? 'pa-wing' : undefined} style={pose === 'wave' && i === 1 ? ({ '--o': '0% 100%' } as CSSProperties) : undefined}>
+          <g key={i} className={i === 1 ? swing : undefined} style={i === 1 && swing ? ({ '--o': '0% 100%' } as CSSProperties) : undefined}>
+            <path d={`M${sx} ${sy} L${hx} ${hy}`} stroke={ink(look.robe)} strokeWidth={17} strokeLinecap="round" />
             <path d={`M${sx} ${sy} L${hx} ${hy}`} stroke={look.robe} strokeWidth={14} strokeLinecap="round" />
             <path d={`M${sx} ${sy} L${hx} ${hy}`} stroke={lighten(look.robe, 0.15)} strokeWidth={8} strokeLinecap="round" />
-            <circle cx={hx} cy={hy} r={7} fill={skin.fill} stroke={ink(look.skin)} strokeWidth={2} />
+            {pose !== 'pray' && <circle cx={hx} cy={hy} r={7} fill={skin.fill} stroke={ink(look.skin)} strokeWidth={2} />}
+            {holding && !inFront && i === 1 && <Held what={holding} x={hx} y={hy} />}
           </g>
         ))}
-        {holding && <Held what={holding} x={hand[0]} y={hand[1]} />}
+        {holding && inFront && <Held what={holding} x={0} y={-62} />}
         {/* neck and head */}
         <rect x={-6} y={-100} width={12} height={10} fill={look.skin} />
         {look.hair === 'long' || look.hair === 'covered' ? (
@@ -141,11 +159,23 @@ export function Person({ x, y, s = 1, look, pose = 'stand', holding, facing = 'r
         </g>
         <ellipse cx={-13} cy={-106} rx={4} ry={2.6} fill="#ff7fb0" opacity={0.5} />
         <ellipse cx={13} cy={-106} rx={4} ry={2.6} fill="#ff7fb0" opacity={0.5} />
-        {look.beard ? (
-          <path d={look.beard === 'long' ? 'M-18 -110 Q-20 -72 0 -66 Q20 -72 18 -110 Q10 -100 0 -101 Q-10 -100 -18 -110 Z' : 'M-17 -110 Q-16 -90 0 -88 Q16 -90 17 -110 Q10 -101 0 -102 Q-10 -101 -17 -110 Z'}
-            fill={look.beardColor ?? look.hairColor} stroke={ink(look.beardColor ?? look.hairColor)} strokeWidth={2} />
-        ) : null}
-        <path d={look.beard ? 'M-4 -103 Q0 -100 4 -103' : 'M-5 -106 Q0 -101 5 -106'} stroke="#6b2a3a" strokeWidth={2.2} fill="none" strokeLinecap="round" />
+        {look.beard ? (() => {
+          const bc = look.beardColor ?? look.hairColor
+          return (
+            <g fill={bc} stroke={ink(bc)} strokeWidth={2} strokeLinejoin="round">
+              {(look.hair === 'covered' || look.hair === 'bald') && <path d="M-23 -118 L-17 -104 L-13 -107 L-18 -119 Z M23 -118 L17 -104 L13 -107 L18 -119 Z" />}
+              <path d={look.beard === 'long' ? 'M-18 -110 Q-20 -72 0 -66 Q20 -72 18 -110 Q10 -100 0 -101 Q-10 -100 -18 -110 Z' : 'M-17 -110 Q-16 -90 0 -88 Q16 -90 17 -110 Q10 -101 0 -102 Q-10 -101 -17 -110 Z'} />
+              <path d="M-10 -103 Q-5 -108 0 -105 Q5 -108 10 -103 Q5 -101 0 -102.5 Q-5 -101 -10 -103 Z" strokeWidth={1.4} />
+            </g>
+          )
+        })() : null}
+        <path d={look.beard ? 'M-3.5 -99 Q0 -96.5 3.5 -99' : 'M-5 -106 Q0 -101 5 -106'} stroke={look.beard ? '#d0707e' : '#6b2a3a'} strokeWidth={2.2} fill="none" strokeLinecap="round" />
+        {pose === 'pray' && (
+          <g>
+            <path d="M-7 -49 Q-9 -64 -1 -74 L1 -74 Q9 -64 7 -49 Q0 -46 -7 -49 Z" fill={skin.fill} stroke={ink(look.skin)} strokeWidth={2} strokeLinejoin="round" />
+            <path d="M0 -73 L0 -50" stroke={ink(look.skin)} strokeWidth={1.4} />
+          </g>
+        )}
         {/* hair / headwear */}
         {look.hair === 'covered' ? (
           <path d="M-25 -112 Q-26 -142 0 -142 Q26 -142 25 -112 Q14 -128 0 -127 Q-14 -128 -25 -112 Z" fill={look.wrap ?? '#7cb0e0'} stroke={ink(look.wrap ?? '#7cb0e0')} strokeWidth={2.5} />
@@ -159,7 +189,7 @@ export function Person({ x, y, s = 1, look, pose = 'stand', holding, facing = 'r
         {look.hair === 'ponytail' && <ellipse cx={26} cy={-122} rx={9} ry={13} fill={hair.fill} stroke={ink(look.hairColor)} strokeWidth={2} transform="rotate(25 26 -122)" />}
         {look.hair === 'pigtails' && [-1, 1].map((d) => <ellipse key={d} cx={d * 27} cy={-112} rx={8} ry={12} fill={hair.fill} stroke={ink(look.hairColor)} strokeWidth={2} />)}
         {look.bow && <path d="M14 -136 l10 -6 l0 12 Z M14 -136 l-10 -6 l0 12 Z" fill={look.bow} stroke={ink(look.bow)} strokeWidth={1.5} />}
-        {look.helmet && <path d="M-24 -116 Q-24 -144 0 -144 Q24 -144 24 -116 Z M-4 -144 Q0 -162 10 -160 Q4 -150 4 -144 Z" fill="#a9b1c2" stroke="#6b7385" strokeWidth={3} />}
+        {look.helmet && <path d="M-24 -122 Q-24 -149 0 -149 Q24 -149 24 -122 Z M-4 -149 Q0 -167 10 -165 Q4 -155 4 -149 Z" fill="#a9b1c2" stroke="#6b7385" strokeWidth={3} />}
         {look.crown && <path d="M-16 -134 L-16 -148 L-8 -140 L0 -152 L8 -140 L16 -148 L16 -134 Z" fill="#ffd34d" stroke="#e0a800" strokeWidth={2} />}
         {children}
       </g>

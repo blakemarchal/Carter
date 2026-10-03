@@ -15,27 +15,35 @@ export default function Dove({ stage, mood }: BodyProps) {
     <g>
       <defs>{body.def}{wing.def}</defs>
 
-      {/* Tail feathers, fanned behind (longer plumes at stage 2) */}
+      {/* Tail feathers, fanned behind the body so only their tips peek out below it (a fuller fan at stage 2).
+          Kept narrow on purpose: spread wider, the side plumes poke out of the belly like extra wings. */}
       <Anim cls="pa-tail" origin="50% 0%">
-        {(stage >= 2 ? [-46, -24, 0, 24, 46] : [-22, 0, 22]).map((a) => (
-          <ellipse key={a} cx={100} cy={stage >= 2 ? 172 : 170} rx={13} ry={stage >= 2 ? 26 : 18} fill={wing.fill} stroke={LINE} strokeWidth={3}
-            transform={`rotate(${a * (stage >= 2 ? 1.6 : 1)} 100 140)`} />
+        {(stage >= 2 ? [-30, -15, 0, 15, 30] : [-22, 0, 22]).map((a) => (
+          <g key={a} transform={`rotate(${a} 100 140)`}>
+            <ellipse cx={100} cy={stage >= 2 ? 172 : 170} rx={13} ry={stage >= 2 ? 22 : 18} fill={wing.fill} stroke={LINE} strokeWidth={3} />
+            <path d={`M100 158 V${stage >= 2 ? 190 : 184}`} stroke={LINE} strokeWidth={2} strokeLinecap="round" opacity={0.8} />
+          </g>
         ))}
       </Anim>
 
-      {/* Wings: tucked at the sides, or raised up high once grown */}
+      {/* Wings: tucked at the sides, or raised up high once grown. Each is the left wing (mirrored for the right),
+          with the flap inside the mirror so both wings beat together, pivoting at the shoulder. */}
       {[-1, 1].map((side) => (
-        <Anim key={side} cls="pa-wing" origin={side < 0 ? '100% 80%' : '0% 80%'} delay={side > 0 ? 0.1 : 0}>
-          <g transform={`translate(100 0) scale(${side} 1) translate(-100 0)`}>
+        <g key={side} transform={`translate(100 0) scale(${side} 1) translate(-100 0)`}>
+          <Anim cls="pa-wing" origin={big ? '85% 95%' : '90% 15%'} delay={side < 0 ? 0.1 : 0}>
             {big ? (
               <path d="M58 118 C30 108 14 78 22 52 C34 62 44 60 52 76 C56 64 64 62 70 74 C74 88 72 108 66 124 Z" fill={wing.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
             ) : (
               <path d="M56 112 C38 116 30 136 38 150 C48 150 58 144 66 132 Z" fill={wing.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
             )}
             {big && <path d="M36 70 C42 80 48 86 58 92 M30 86 C38 94 46 98 56 102" stroke={LINE} strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.8} />}
-          </g>
-        </Anim>
+          </Anim>
+        </g>
       ))}
+
+      {/* Head crest (bigger once grown), behind the head so it grows out of it */}
+      <path d={big ? 'M92 46 C86 26 96 18 100 14 C102 26 108 30 112 24 C114 36 108 42 106 46 Z' : 'M95 46 C92 36 98 32 101 30 C102 38 106 40 108 37 C108 42 106 45 104 47 Z'}
+        fill={body.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
 
       {/* Body and head */}
       <g className="pa-breathe">
@@ -44,10 +52,6 @@ export default function Dove({ stage, mood }: BodyProps) {
         <circle cx={100} cy={82} r={38} fill={body.fill} stroke={LINE} strokeWidth={3} />
         <Shine x={84} y={60} rx={11} ry={6} />
       </g>
-
-      {/* Head crest (bigger once grown) */}
-      <path d={big ? 'M92 46 C86 26 96 18 100 14 C102 26 108 30 112 24 C114 36 108 42 106 46 Z' : 'M95 46 C92 36 98 32 101 30 C102 38 106 40 108 37 C108 42 106 45 104 47 Z'}
-        fill={body.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
 
       <CuteFace x={100} y={80} s={0.82} gap={14} mood={mood} mouth={false} />
 
@@ -64,7 +68,8 @@ export default function Dove({ stage, mood }: BodyProps) {
 
       {stage >= 2 && (
         <>
-          <Crown x={100} y={20} />
+          {/* On the head, with the crest rising out of it like a plume */}
+          <Crown x={100} y={48} />
           {[[40, 40], [160, 46], [150, 150]].map(([x, y]) => (
             <path key={`${x}`} className="pa-twinkle" d={`M${x} ${y - 8} L${x + 2} ${y - 2} L${x + 8} ${y} L${x + 2} ${y + 2} L${x} ${y + 8} L${x - 2} ${y + 2} L${x - 8} ${y} L${x - 2} ${y - 2} Z`} fill="#ffe680" />
           ))}

@@ -2,6 +2,7 @@
 import PalArt from './PalArt'
 import type { PalDef } from '../data/pals'
 import { PartyHat } from '../art/partyHat'
+import { partyHatVars } from '../art/pals/faces'
 import { accessoryById, type Accessory } from '../lib/care'
 
 /** An accessory's picture: its emoji, or the drawn party hat. */
@@ -14,7 +15,7 @@ export default function DressedPal({ pal, stage = 0, size = 160, outfit, classNa
 }) {
   const acc = accessoryById(outfit)
   return (
-    <span className={`dressed ${className ?? ''}`} style={{ width: size, height: size }}>
+    <span className={`dressed ${className ?? ''}`} style={{ width: size, height: size, ...partyHatVars(pal.species, stage) }}>
       <PalArt pal={pal} stage={stage} size={size} mood={mood} />
       {acc && (acc.id === 'partyhat'
         ? <PartyHat className="dressed-hat" size={size * 0.3} />

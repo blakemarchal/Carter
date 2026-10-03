@@ -1,6 +1,6 @@
 // Question generators for each skill, tuned by level (see progress.recordAnswer).
 import type { Skill } from './progress'
-import { CVC, SIGHT, LETTER_PICS } from '../data/words'
+import { CVC, SIGHT, LETTER_PICS, type Picture } from '../data/words'
 import { letterSound } from './spoken'
 import { pick, randInt, shuffle } from './util'
 
@@ -14,6 +14,8 @@ export type Visual =
 
 export interface Choice {
   label: string
+  /** A particular drawing for a picture choice (see components/Pic.tsx). */
+  art?: string
   say: string
 }
 
@@ -37,12 +39,19 @@ const numChoice = (n: number): Choice => ({ label: String(n), say: String(n) })
 // One-letter words are unclear alone ("a" can sound like "uh"), so say them in a little phrase.
 const CARRIER: Record<string, string> = { a: 'a, like a cat', I: 'I, like I love you' }
 const sayWord = (w: string) => CARRIER[w] ?? w
+/** Could she call this picture something that starts with `letter`? (🐶 is a "puppy" too.) */
+const goesBy = (p: Picture, letter: string) => [p.word, ...(p.alsoCalled ?? [])].some((name) => name.startsWith(letter))
 function readingQ(level: number): Question {
   if (level <= 1) {
     const letters = Object.keys(LETTER_PICS)
     const letter = pick(letters)
     const right = pick(LETTER_PICS[letter])
-    const wrong = shuffle(letters.filter((l) => l !== letter)).slice(0, 2).map((l) => pick(LETTER_PICS[l]))
+    // A wrong picture mustn't look right: no 🐶 ("puppy") as a wrong answer for P.
+    const wrong = shuffle(letters.filter((l) => l !== letter))
+      .map((l) => LETTER_PICS[l].filter((p) => !goesBy(p, letter)))
+      .filter((pics) => pics.length)
+      .slice(0, 2)
+      .map((pics) => pick(pics))
     return build('reading', `Which picture starts with the ${letterSound(letter)} sound, like the letter ${letter.toUpperCase()}?`,
       { kind: 'letter', text: letter.toUpperCase() + letter },
       { label: right.emoji, say: right.word }, wrong.map((w) => ({ label: w.emoji, say: w.word })))

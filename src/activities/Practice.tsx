@@ -4,6 +4,7 @@ import QuestionCard from '../components/QuestionCard'
 import { makeQuestion, type Question } from '../lib/questions'
 import { getProgress, type Skill } from '../lib/progress'
 import { speak } from '../lib/speech'
+import Pic from '../components/Pic'
 
 export default function Practice({ skill, title, intro, count = 5, decor, theme, onDone }: {
   skill: Skill; title: string; intro: string; count?: number; decor: string; theme?: string; onDone: () => void
@@ -26,7 +27,7 @@ export default function Practice({ skill, title, intro, count = 5, decor, theme,
   return (
     <div className={`activity practice ${skill}`}>
       <div className="practice-head">
-        <span className="decor">{decor}</span>
+        <span className="decor"><Pic e={decor} /></span>
         <h2>{title}</h2>
         <div className="mini-dots">{Array.from({ length: count }).map((_, i) => <span key={i} className={i < n ? 'done' : ''}>{i < n ? '⭐' : '☆'}</span>)}</div>
       </div>

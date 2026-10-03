@@ -7,14 +7,15 @@ import { sfx } from '../lib/sfx'
 import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from '../components/Pic'
 
-function Slot({ k, filled, emoji, next }: { k: number; filled: boolean; emoji: string; next: boolean }) {
+function Slot({ k, filled, t, next }: { k: number; filled: boolean; t: Thing; next: boolean }) {
   // Only the next empty slot takes a picture.
   const target = useDropTarget(`seq-${k}`, () => next, 16)
   return (
     <div ref={target} className={`seq-slot ${filled ? 'filled' : ''} ${next ? 'next' : ''}`} data-slot={k}>
       <span className="seq-num">{k + 1}</span>
-      {filled && <span className="seq-emoji">{emoji}</span>}
+      {filled && <span className="seq-emoji"><Pic e={t.emoji} art={t.art} /></span>}
     </div>
   )
 }
@@ -22,7 +23,7 @@ function Slot({ k, filled, emoji, next }: { k: number; filled: boolean; emoji: s
 function Card({ t, used, wrong, glow, onDrop, onTap }: { t: Thing & { i: number }; used: boolean; wrong: boolean; glow: boolean; onDrop: () => boolean; onTap: (el: HTMLElement) => void }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: t.i, disabled: used, onStart: sfx.lift, onDrop: (id) => id.startsWith('seq-') && onDrop(), onTap: () => ref.current && onTap(ref.current) })
-  return <button ref={ref} className={`seq-card ${used ? 'used' : ''} ${wrong ? 'wiggle' : ''} ${glow ? 'glow' : ''}`} disabled={used} {...drag}>{t.emoji}</button>
+  return <button ref={ref} className={`seq-card ${used ? 'used' : ''} ${wrong ? 'wiggle' : ''} ${glow ? 'glow' : ''}`} disabled={used} {...drag}><Pic e={t.emoji} art={t.art} /></button>
 }
 
 export default function Sequence({ title, intro, items, onDone }: { title: string; intro: string; items: Thing[]; onDone: () => void }) {
@@ -40,11 +41,12 @@ export default function Sequence({ title, intro, items, onDone }: { title: strin
 
   useEffect(() => { speak(intro) }, [])
 
+  /** A card out of order: say what she picked, so the order gets taught, not just tested. */
   const miss = (i: number) => {
     sfx.oops()
     setWrong(i)
     setMisses((m) => m + 1)
-    speak('Hmm, what comes next?')
+    speak(`That's ${items[i].say.replace(/[.!?]+$/, '')}. Which one comes next?`)
     setTimeout(() => setWrong(null), 600)
   }
   const place = async (i: number) => {
@@ -82,10 +84,10 @@ export default function Sequence({ title, intro, items, onDone }: { title: strin
   }
 
   return (
-    <div className="activity sequence">
+    <div className={`activity sequence ${items.some((t) => t.art?.startsWith('story:')) ? 'cards' : ''}`}>
       <h2>{title}</h2>
       <div className="seq-slots">
-        {items.map((t, k) => <Slot key={k} k={k} filled={k < placed} emoji={t.emoji} next={k === placed} />)}
+        {items.map((t, k) => <Slot key={k} k={k} filled={k < placed} t={t} next={k === placed} />)}
       </div>
       <div className="seq-pool">
         {pool.map((t) => (

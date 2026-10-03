@@ -65,7 +65,8 @@ export default function Lamb({ stage, mood }: BodyProps) {
       {/* Head, woolly topknot and face */}
       <ellipse cx={100} cy={89} rx={30} ry={27} fill={face.fill} stroke={LINE} strokeWidth={3} />
       <path d={top} fill={wool.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
-      <Shine x={84} y={stage >= 1 ? 54 : 59} rx={7} ry={4} />
+      {/* (inside the topknot: further left, at stage 0 it washed out a patch of the outline) */}
+      <Shine x={stage >= 1 ? 84 : 92} y={stage >= 1 ? 54 : 62} rx={7} ry={4} />
       <CuteFace x={100} y={93} s={0.78} gap={15} mood={mood} blinkDelay={0.8} />
 
       {/* Shepherdee's scarf, its loose end fluttering */}

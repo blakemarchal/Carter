@@ -1,6 +1,7 @@
 // Rumble → Drizzle → Rainbowl: a puffy cloud that floats along on a rainbow.
 // Grumpy, it turns into a grey storm cloud with raindrops and a little zap. Each stage puffs it bigger;
-// stage 1 grows little puff arms and a wider rainbow, stage 2 has a double rainbow and a crown.
+// stage 1 (Drizzle) grows little puff arms and a wider rainbow and lets fall a light drizzle,
+// stage 2 has a double rainbow and a crown.
 import { type BodyProps, Anim, Crown, CuteFace, Shine, pt, twinklePath, useShade } from '../kit'
 
 type Circle = [number, number, number]
@@ -37,6 +38,10 @@ const PUFFS: Circle[][] = [
 ]
 
 const RAINBOW = ['#ff6b6b', '#ffa94d', '#ffe14d', '#5fd39a', '#5fb7ff', '#a98cff']
+
+/** A raindrop, point up, around (x, y); k scales it. */
+const drop = (x: number, y: number, k = 1) =>
+  `M${x} ${y - 11 * k} Q${x + 7 * k} ${y - k} ${x + 6 * k} ${y + 3 * k} A${6 * k} ${6 * k} 0 0 1 ${x - 6 * k} ${y + 3 * k} Q${x - 7 * k} ${y - k} ${x} ${y - 11 * k} Z`
 
 /** A rainbow arch centred at (100, cy), outer radius r, made of six bands of width w. */
 function Rainbow({ cy, r, w, opacity = 1 }: { cy: number; r: number; w: number; opacity?: number }) {
@@ -78,6 +83,12 @@ export default function Cloud({ stage, mood }: BodyProps) {
         </>
       )}
 
+      {/* Drizzle's light shower, falling between the rainbow's feet */}
+      {s === 1 && !grumpy && [[84, 156], [100, 164], [116, 156]].map(([x, y], i) => (
+        <path key={x} className="pa-twinkle" style={{ animationDelay: `${i * 0.5}s` }} d={drop(x, y, 0.7)}
+          fill="#a6dcff" stroke="#5aa9e6" strokeWidth={2} strokeLinejoin="round" />
+      ))}
+
       {s >= 1 && [1, -1].map((side) => (
         <g key={side} transform={side < 0 ? `translate(${mirror} 0) scale(-1 1)` : undefined}>
           <Anim cls="pa-wing" origin="100% 30%" delay={side < 0 ? 0.3 : 0}>
@@ -90,8 +101,7 @@ export default function Cloud({ stage, mood }: BodyProps) {
       {grumpy && (
         <>
           {[[72, 160], [100, 168], [128, 160]].map(([x, y], i) => (
-            <path key={x} className="pa-twinkle" style={{ animationDelay: `${i * 0.6}s` }}
-              d={`M${x} ${y - 11} Q${x + 7} ${y - 1} ${x + 6} ${y + 3} A6 6 0 0 1 ${x - 6} ${y + 3} Q${x - 7} ${y - 1} ${x} ${y - 11} Z`}
+            <path key={x} className="pa-twinkle" style={{ animationDelay: `${i * 0.6}s` }} d={drop(x, y)}
               fill="#7cc6ff" stroke="#4a92d0" strokeWidth={2} strokeLinejoin="round" />
           ))}
           <path d="M150 140 L140 158 L148 158 L142 174 L158 152 L150 152 L156 140 Z" fill="#ffe14d" stroke="#d9a400" strokeWidth={2} strokeLinejoin="round" />

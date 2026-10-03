@@ -15,6 +15,8 @@ import { birthdayLabel, daysUntil } from '../lib/birthday'
 import { isGrownup } from '../lib/party'
 import { PLAYER_EMOJIS } from '../lib/look'
 import { ISLANDS } from '../data/islands'
+import { DAILY_VISIT_CHOICES } from '../lib/voyage'
+import { flushStats, setStatsOn, statsOn } from '../lib/stats'
 import type { Progress } from '../lib/progress'
 
 const SKILL_LABEL: Record<Skill, string[]> = {
@@ -143,6 +145,13 @@ function Islands({ p }: { p: Progress }) {
         </button>
       </div>
       <p className="muted">Normally each island opens when the one before it is finished. &ldquo;All islands open&rdquo; is for this player only.</p>
+      <h3 style={{ marginTop: 12 }}>New adventures a day</h3>
+      <div className="level-row">
+        {DAILY_VISIT_CHOICES.map((n) => (
+          <button key={n} className={p.dailyVisits === n ? 'on' : ''} onClick={() => update((x) => ({ ...x, dailyVisits: n }))}>{n || 'No limit'}</button>
+        ))}
+      </div>
+      <p className="muted">How many new island visits {activeProfile().name || 'this player'} can sail to each day. Finished islands, songs, the Ark and bedtime are always open. A little each day helps it stick, and the adventure lasts longer.</p>
     </section>
   )
 }
@@ -212,6 +221,22 @@ The current progress is saved to the server first, so you can undo this.`)) retu
         </div>
       )}
       {status && <p className="muted">{status}</p>}
+    </section>
+  )
+}
+
+/** Play totals (opt-in): counts only, to our own server, to make the game better. */
+function Improve() {
+  const [on, setOn] = useState(statsOn())
+  return (
+    <section>
+      <h3>Help make Ark Pals better</h3>
+      <div className="level-row">
+        <button className={on ? 'on' : ''} onClick={() => { setStatsOn(!on); setOn(!on); if (!on) flushStats() }}>
+          {on ? '✅ Sharing play totals' : 'Share play totals'}
+        </button>
+      </div>
+      <p className="muted">Counts only, sent to our own server and no one else: how often each island is started, finished or left part-way, stars earned, and minutes played. No names, no answers, nothing personal.</p>
     </section>
   )
 }
@@ -308,6 +333,7 @@ export default function ParentScreen({ onBack, onParty }: { onBack: () => void; 
       <Voices p={p} />
       <FamilySongs />
       <Backup />
+      <Improve />
       <AppVersion />
       <p className="muted">Progress is stored only on this device. No ads, no chat, no accounts. Narration text is sent to xAI to create the voice; nothing else is shared.</p>
     </div>

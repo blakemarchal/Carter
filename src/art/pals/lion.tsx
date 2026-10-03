@@ -67,7 +67,8 @@ export default function Lion({ stage, mood }: BodyProps) {
   const furLine = ink(FUR)
   const maneLine = ink(stage >= 2 ? MANE_RED : MANE)
   const [n, R, r] = stage >= 2 ? [13, 49, 16] : stage >= 1 ? [12, 44, 15] : [11, 38, 12]
-  const tip: Pt = stage >= 1 ? [172, 112] : [164, 124]
+  // Grown, the tuft sits low and well out to the side, so the wag doesn't tuck it behind the bigger mane.
+  const tip: Pt = stage >= 1 ? [178, 132] : [164, 124]
   return (
     <g>
       <defs>{fur.def}{mane.def}{inner.def}{muzzle.def}</defs>
@@ -76,7 +77,7 @@ export default function Lion({ stage, mood }: BodyProps) {
       <g transform={MIRROR}>
         <Anim cls="pa-tail" origin="100% 100%">
           <g transform={MIRROR}>
-            <path d={tube([128, 160], stage >= 1 ? [184, 166] : [170, 166], tip, 10, 8)} fill={fur.fill} stroke={furLine} strokeWidth={3} strokeLinejoin="round" />
+            <path d={tube([128, 160], stage >= 1 ? [192, 170] : [170, 166], tip, 10, 8)} fill={fur.fill} stroke={furLine} strokeWidth={3} strokeLinejoin="round" />
             {stage >= 2 ? (
               <path d={`M${tip[0]} ${tip[1] + 6} C${tip[0] - 16} ${tip[1] - 4} ${tip[0] - 12} ${tip[1] - 20} ${tip[0]} ${tip[1] - 12} C${tip[0] + 12} ${tip[1] - 20} ${tip[0] + 16} ${tip[1] - 4} ${tip[0]} ${tip[1] + 6} Z`}
                 fill={mane.fill} stroke={maneLine} strokeWidth={2.5} strokeLinejoin="round" />

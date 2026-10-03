@@ -9,6 +9,7 @@ import { setMood } from '../lib/music'
 import { speak, stopSpeaking } from '../lib/speech'
 import { STORY_ART } from '../art/scenes'
 import { BuddyContext } from '../art/scenes/buddy'
+import { useTapPictures } from '../lib/useTapPictures'
 
 interface Page { scene: string; text: (name: string, pal: string) => string }
 
@@ -17,7 +18,7 @@ const PAGES: Page[] = [
   { scene: '✨⭐✨', text: () => 'One by one, the stars came out. God knows every star by name. And He knows you, too.' },
   { scene: '💤', text: (_, pal) => `All the Ark Pals are getting sleepy. ${pal} gives a great big yawn.` },
   { scene: '🙏', text: () => "Let's tell God thank you. Thank you, God, for today. Thank you for my family, and for my friends. Thank you for loving me." },
-  { scene: '📖💛', text: () => 'The Bible says: casting all your worries on him, because he cares for you. God cares for you, all night long.' },
+  { scene: '📖💛', text: () => 'The Bible says to give all your worries to God, because He cares for you. You can tell God about anything that makes you sad or scared. He cares for you, all night long.' },
   { scene: '🌙😴', text: (name) => `Goodnight, ${name}. God loves you so much. Sweet dreams!` },
 ]
 
@@ -38,13 +39,15 @@ export default function Bedtime({ onDone }: { onDone: () => void }) {
     return () => { stopSpeaking(); setMood('home') }
   }, [])
   useEffect(() => { speak(text) }, [i])
+  // Living pictures: things to tap in the picture (lib/useTapPictures.ts).
+  const tap = useTapPictures(i)
 
   const last = i === PAGES.length - 1
   return (
     <div className={`screen bedtime ${last ? 'asleep' : ''}`}>
       <div className="bed-stars" aria-hidden />
       {Art ? (
-        <div className="bed-art" key={i}><BuddyContext.Provider value={{ id: buddy.id, stage }}><Art /></BuddyContext.Provider></div>
+        <div className="bed-art" key={i} onClick={tap}><BuddyContext.Provider value={{ id: buddy.id, stage }}><Art /></BuddyContext.Provider></div>
       ) : (
         <>
           <div className="bed-scene" key={i}>{page.scene}</div>

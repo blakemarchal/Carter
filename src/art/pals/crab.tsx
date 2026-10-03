@@ -1,5 +1,6 @@
 // Crabby → Sharewell → Kingclaw: a round little crab facing you, its eyes bulging up on top of its shell.
-// Stage 1 raises bigger claws and grows an extra pair of legs; stage 2 has huge claws, a spiky shell and a crown.
+// It has four pairs of legs at every stage, like a real crab. Stage 1 raises bigger claws; stage 2 has huge
+// claws, a spiky shell and a crown.
 // Grumpy: a darker red, with its claws up.
 import { type BodyProps, Anim, Crown, CuteFace, ink, lighten, Shine, useShade } from '../kit'
 
@@ -21,10 +22,10 @@ export default function Crab({ stage, mood }: BodyProps) {
   const [cx, cy, rot] = stage >= 2 ? [34, 58, -18] : up ? [32, 68, -18] : [28, 104, -40]
   const arm = up ? `M56 124 Q36 114 ${cx + 4} ${cy + 14}` : `M56 128 Q40 126 ${cx + 8} ${cy + 10}`
   const legs = [
+    'M52 128 Q32 122 21 137 L16 149',
     'M54 138 Q34 136 26 158 L24 172',
     'M58 150 Q42 152 38 168 L38 178',
     'M68 160 Q58 166 56 178',
-    ...(stage >= 1 ? ['M52 128 Q32 122 21 137 L16 149'] : []),
   ].join(' ')
 
   return (

@@ -1,11 +1,16 @@
 // Bedtime: one calm illustration per bedtime page (the words are PAGES in screens/Bedtime.tsx).
-// Slow, sleepy colors; God's care is shown as soft light, never as a person.
-import { useId, type ComponentType, type ReactNode } from 'react'
+// Slow, sleepy colors; God's care is shown as soft light, never as a person. Pages 4 to 6 are one bedroom
+// (the window, the family photo, the nightstand with its lamp and Bible, the bed and its quilt), from
+// saying thank you to fast asleep.
+import { useContext, useId, type ComponentType, type ReactNode } from 'react'
+import { palById } from '../../data/pals'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Person, type Pose } from '../people'
+import { faceBottom } from '../pals/faces'
+import { Person, type Look, type Pose } from '../people'
+import { BuddyContext } from './buddy'
 import { usePlayer } from './player'
-import { PalAt, Room } from './birthday'
-import { Cloud, Emoji, Glow, Moon, Scene, Sparkles, Sun, sparkle } from './kit'
+import { apartLooks, Heart, Little, PalAt, Room } from './birthday'
+import { Cloud, Emoji, Glow, Moon, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
 
 // ---------- Local props ----------
 
@@ -35,19 +40,29 @@ function NightArk({ x, y, s = 1, deck, still }: { x: number; y: number; s?: numb
   )
 }
 
-/** A calm sea at night, with the moon's light shimmering on it under (mx). */
-function NightSea({ y = 330, mx = 650 }: { y?: number; mx?: number }) {
+const SEA = {
+  night: { base: '#2a4f8a', wave: '#33609e', deep: '#264a84', shine: '#fff3b0' },
+  dusk: { base: '#7466b4', wave: '#8577c2', deep: '#665aa6', shine: '#ffd9a0' },
+}
+const waves = (y: number, h: number) => `M-80 ${y} ${Array.from({ length: 12 }, () => `q40 -${h} 80 0`).join(' ')} L880 450 L-80 450 Z`
+
+/** A calm sea from y down, with the moon's light (or the setting sun's, at `dusk`) shimmering on it under (mx). */
+function NightSea({ y = 330, mx = 650, dusk }: { y?: number; mx?: number; dusk?: boolean }) {
+  const c = dusk ? SEA.dusk : SEA.night
   return (
     <g>
-      <rect x={0} y={y} width={800} height={450 - y} fill="#2a4f8a" />
-      <path className="sc-wave" d={`M-80 ${y} ${Array.from({ length: 12 }, () => 'q40 -12 80 0').join(' ')} L880 450 L-80 450 Z`} fill="#33609e" />
-      <path className="sc-wave slow" d={`M-80 ${y + 40} ${Array.from({ length: 12 }, () => 'q40 -10 80 0').join(' ')} L880 450 L-80 450 Z`} fill="#264a84" opacity={0.9} />
+      <rect x={0} y={y} width={800} height={450 - y} fill={c.base} />
+      <path className="sc-wave" d={waves(y, 12)} fill={c.wave} />
+      <path className="sc-wave slow" d={waves(y + 40, 10)} fill={c.deep} opacity={0.9} />
       {[[0, 16, 30], [8, 40, 50], [-6, 66, 38], [6, 94, 60]].map(([dx, dy, w], i) => (
-        <ellipse key={i} className="pa-twinkle" style={{ animationDelay: `${i * 0.5}s`, animationDuration: '3s' }} cx={mx + dx} cy={y + dy} rx={w / 2} ry={3} fill="#fff3b0" opacity={0.75} />
+        <ellipse key={i} className="pa-twinkle" style={{ animationDelay: `${i * 0.5}s`, animationDuration: '3s' }} cx={mx + dx} cy={y + dy} rx={w / 2} ry={3} fill={c.shine} opacity={0.75} />
       ))}
     </g>
   )
 }
+
+/** A band of little waves drawn in front of a boat, so it sits in the water. */
+const SeaFront = ({ y, dusk }: { y: number; dusk?: boolean }) => <path className="sc-wave slow" d={waves(y, 9)} fill={(dusk ? SEA.dusk : SEA.night).deep} />
 
 /** Extra stars of many sizes, twinkling slowly one by one. */
 const MANY_STARS = [[90, 60, 5], [180, 30, 4], [260, 95, 6], [330, 40, 4], [400, 110, 5], [470, 60, 7], [540, 30, 4], [110, 150, 4], [200, 200, 5],
@@ -114,7 +129,7 @@ function Lamp({ x, y, s = 1, on = true }: { x: number; y: number; s?: number; on
       {on && <Glow x={0} y={-56} r={110} color="#ffd98a" />}
       <path d="M-16 0 Q0 -10 16 0 Z" fill="#c98aa8" stroke="#9a5a7a" strokeWidth={2.5} />
       <rect x={-3} y={-40} width={6} height={38} fill="#c98aa8" />
-      <path d="M-26 -40 L-16 -78 L16 -78 L26 -40 Z" fill={on ? '#fff0b8' : '#e8d8c8'} stroke="#d0a860" strokeWidth={3} strokeLinejoin="round" />
+      <path d="M-26 -40 L-16 -78 L16 -78 L26 -40 Z" fill={on ? '#fff0b8' : '#8a80b0'} stroke={on ? '#d0a860' : '#6a6090'} strokeWidth={3} strokeLinejoin="round" />
     </g>
   )
 }
@@ -158,7 +173,73 @@ const Zzz = ({ x, y, size = 30, d = 0 }: { x: number; y: number; size?: number; 
   <g className="sc-float" style={{ animationDelay: `${d}s`, animationDuration: '4s' }}><Emoji e="💤" x={x} y={y} size={size} /></g>
 )
 
-const NIGHT_ROOM = { wall: '#6a64a8', floor: '#8c6f78', stripes: 0.22 }
+/** The child playing, as drawn from their profile. */
+const Kid = ({ x, y, s, pose }: { x: number; y: number; s: number; pose?: Pose }) => <Person x={x} y={y} s={s} look={usePlayer().look} pose={pose} />
+
+/** The family photo on the bedroom wall, from the family in the Parent Corner (just the child and their Pal
+ *  when there's nobody else). `dim`: the lights are out. */
+function FamilyPhoto({ x, y, dim }: { x: number; y: number; dim?: boolean }) {
+  const p = usePlayer()
+  const clip = `fp${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  const [g1, g2] = p.grownups
+  const kids = apartLooks(p.look, p.siblings.filter((s) => !s.baby).map((s) => s.look)).slice(0, 3)
+  const baby = p.siblings.find((s) => s.baby)
+  // Left to right: a grown-up, the child (holding the baby), brothers and sisters, the other grown-up.
+  const row: { look: Look; grown?: boolean; baby?: Look }[] = [
+    ...(g1 ? [{ look: g1.look, grown: true }] : []),
+    { look: p.look, baby: baby?.look },
+    ...kids.map((look) => ({ look })),
+    ...(g2 ? [{ look: g2.look, grown: true }] : []),
+  ]
+  const alone = row.length === 1
+  const step = 30, w = Math.max(96, (row.length + (alone ? 1 : 0)) * step + 26), h = 76
+  const left = x - w / 2, top = y - h / 2
+  return (
+    <g>
+      <defs><clipPath id={clip}><rect x={left} y={top} width={w} height={h} rx={5} /></clipPath></defs>
+      <rect x={left - 6} y={top - 6} width={w + 12} height={h + 12} rx={8} fill="#fff8ec" stroke="#c98448" strokeWidth={6} />
+      <g clipPath={`url(#${clip})`}>
+        <rect x={left} y={top} width={w} height={h} fill="#dff0ff" />
+        <path d={`M${left} ${top + h - 14} Q${x} ${top + h - 22} ${left + w} ${top + h - 14} L${left + w} ${top + h} L${left} ${top + h} Z`} fill="#b8e0a8" />
+        {row.map((m, i) => (
+          <Person key={i} x={left + 13 + step / 2 + i * step} y={top + h - 4} s={0.42} look={m.look} pose={m.baby ? 'hold' : 'stand'} blinkDelay={i * 0.7}>
+            {m.baby && <Little x={0} y={-60} s={1} blanket={lighten(m.baby.robe, 0.45)} skin={p.look.skin} awake />}
+          </Person>
+        ))}
+        {alone && <PalAt id="buddy" x={left + 13 + step * 1.5} y={top + h - 4} size={40} />}
+      </g>
+      {dim && <rect x={left - 6} y={top - 6} width={w + 12} height={h + 12} rx={8} fill="#1b1640" opacity={0.45} />}
+    </g>
+  )
+}
+
+// ---------- The bedroom (pages 4 to 6) ----------
+
+const ROOM = { wall: '#6a64a8', floor: '#8c6f78', stripes: 0.22 }
+const ROOM_DARK = { wall: '#3b3770', floor: '#5a4a5e', stripes: 0.18 }
+const BED = { x: 300, y: 432, w: 370 }
+/** Their quilt is in their favorite color. */
+const quiltOf = (look: Look) => lighten(look.robe, 0.3)
+
+/** The child's bedroom, the same on every page: the window, the family photo, and the nightstand with its lamp
+ *  and Bible (`bible="open"`: open, with soft light rising from it). `dark`: the light is off. */
+function Bedroom({ dark, bible = 'closed' }: { dark?: boolean; bible?: 'open' | 'closed' }) {
+  return (
+    <>
+      <Room {...(dark ? ROOM_DARK : ROOM)} win={{ x: 80, y: 60, w: 140, h: 120, night: true, curtain: dark ? '#8a7ac0' : '#c9a8ff' }}>
+        <Tap say="My family!" sfx="ding"><FamilyPhoto x={648} y={130} dim={dark} /></Tap>
+      </Room>
+      <Nightstand x={214} y={BED.y} w={140} h={100} />
+      <Tap sfx="ding"><Lamp x={170} y={324} s={0.95} on={!dark} /></Tap>
+      {bible === 'open' ? (
+        <>
+          <Beam x={240} y={318} w={110} h={150} />
+          <Tap say="God cares for you!" sfx="sparkle"><Bible x={240} y={322} s={0.85} open /></Tap>
+        </>
+      ) : <Bible x={246} y={324} s={0.62} />}
+    </>
+  )
+}
 
 // ---------- Pages ----------
 
@@ -167,118 +248,134 @@ const Page1 = () => (
   <Scene sky="dusk" ground="none" clouds={false}>
     <StarField stars={[[520, 50, 4], [600, 150, 3], [700, 60, 5], [740, 200, 3], [460, 120, 3]]} />
     <Glow x={170} y={300} r={200} color="#ffc49a" />
-    <Sun x={170} y={300} s={1.15} />
-    <Moon x={630} y={120} s={1.1} />
+    <Tap say="Goodnight, sun!" sfx="whoosh"><Sun x={170} y={300} s={1.15} /></Tap>
+    <Tap say="Hello, moon!" sfx="sparkle"><Moon x={630} y={120} s={1.1} /></Tap>
     <Cloud x={330} y={120} s={0.8} slow />
-    <path d="M0 300 Q180 262 380 292 Q560 250 800 280 L800 450 L0 450 Z" fill="#9a88c2" />
-    <NightArk x={440} y={354} s={0.62} still />
-    <path d="M0 352 Q220 318 440 348 T800 340 L800 450 L0 450 Z" fill="#7c72b2" />
-    <path d="M0 404 Q260 384 520 406 T800 398 L800 450 L0 450 Z" fill="#665f9e" />
-    <g stroke="#4a3f78" strokeWidth={3} fill="none" strokeLinecap="round">
-      <path d="M300 170 q8 -7 14 0 q6 -7 14 0" /><path d="M340 196 q6 -5 11 0 q5 -5 11 0" /><path d="M276 204 q5 -4 9 0 q4 -4 9 0" />
-    </g>
+    <NightSea y={298} mx={170} dusk />
+    <Tap say="Time for bed, Ark Pals!" sfx="ding"><NightArk x={480} y={356} s={0.7} /></Tap>
+    <SeaFront y={370} dusk />
+    <Tap say="Time to fly home!" sfx="swish">
+      <g stroke="#4a3f78" strokeWidth={3} fill="none" strokeLinecap="round">
+        <path d="M300 170 q8 -7 14 0 q6 -7 14 0" /><path d="M340 196 q6 -5 11 0 q5 -5 11 0" /><path d="M276 204 q5 -4 9 0 q4 -4 9 0" />
+      </g>
+    </Tap>
   </Scene>
 )
-
-/** The child playing, as drawn from their profile. */
-const Kid = ({ x, y, s, pose }: { x: number; y: number; s: number; pose?: Pose }) => <Person x={x} y={y} s={s} look={usePlayer().look} pose={pose} />
 
 // 2. "One by one, the stars came out. God knows every star by name. And He knows you, too."
 const Page2 = () => (
   <Scene sky="night" ground="none" moon>
     <StarField />
-    <g className="pa-twinkle" style={{ animationDuration: '5s' }}>
-      <path d="M180 120 L300 170" stroke="#fff8d0" strokeWidth={3} strokeLinecap="round" opacity={0.6} />
-      <path d={sparkle(300, 170, 9)} fill="#fff8d0" />
-    </g>
+    {[[160, 70, 10], [430, 40, 9], [700, 190, 8]].map(([sx, sy, r]) => (
+      <Tap key={sx} say="Twinkle, twinkle!" sfx="sparkle"><path className="pa-twinkle" d={sparkle(sx, sy, r)} fill="#fff8d0" /></Tap>
+    ))}
+    <Tap say="A shooting star!" sfx="whoosh">
+      <g className="pa-twinkle" style={{ animationDuration: '5s' }}>
+        <path d="M180 120 L300 170" stroke="#fff8d0" strokeWidth={3} strokeLinecap="round" opacity={0.6} />
+        <path d={sparkle(300, 170, 9)} fill="#fff8d0" />
+      </g>
+    </Tap>
     <path d="M0 330 Q200 300 380 326 Q560 290 800 320 L800 450 L0 450 Z" fill="#3e5e86" />
     <path d="M300 450 Q420 340 560 350 Q700 356 800 380 L800 450 Z" fill="#35577a" />
     <Glow x={520} y={290} r={130} color="#fff3c0" />
-    <Kid x={500} y={404} s={1.45} pose="wave" />
-    <PalAt id="buddy" x={610} y={404} size={120} />
+    <Tap say="Hello, stars!" sfx="sparkle"><Kid x={500} y={404} s={1.45} pose="wave" /></Tap>
+    <Tap say="Goodnight, stars!" sfx="ding"><PalAt id="buddy" x={610} y={404} size={120} /></Tap>
     <Sparkles spots={[[440, 230, 6], [590, 220, 5]]} />
   </Scene>
 )
 
 // 3. "All the Ark Pals are getting sleepy. <Pal> gives a great big yawn."
-const Page3 = () => (
-  <Scene sky="night" ground="none" moon>
-    <SleepyEyes />
-    <NightSea y={330} mx={650} />
-    <NightArk x={390} y={336} s={1.4} deck={
-      <>
-        <PalAt id="ember" x={-122} y={-14} size={104} sleepy />
-        <PalAt id="starling" x={-42} y={-14} size={102} sleepy />
-        <PalAt id="buddy" x={40} y={-12} size={108} sleepy yawn />
-        <PalAt id="pebble" x={122} y={-16} size={98} sleepy />
-      </>
-    } />
-    <Zzz x={250} y={170} />
-    <Zzz x={340} y={150} size={26} d={1.2} />
-    <Zzz x={470} y={140} size={34} d={0.6} />
-    <Zzz x={560} y={176} size={26} d={1.8} />
-  </Scene>
-)
+//    Their own Pals on the deck (friends fill in), each lifted so its face clears the rail; their buddy yawns.
+const DECK: [number, number, number][] = [[-122, -14, 104], [-42, -14, 102], [40, -12, 108], [122, -16, 98]]
+const Page3 = () => {
+  const p = usePlayer()
+  const buddy = useContext(BuddyContext)
+  const own = p.pals.filter((x) => x.id !== buddy.id)
+  const fill = ['ember', 'starling', 'pebble', 'zippy', 'pip'].filter((id) => id !== buddy.id && !own.some((x) => x.id === id)).map((id) => ({ id, stage: 0 }))
+  const [a, b, c] = [...own, ...fill]
+  const deck = [a, b, { id: 'buddy', stage: buddy.stage }, c]
+  /** How far to raise a Pal so the bottom of its face is just above the rail (y -40). */
+  const lift = (id: string, stage: number, y: number, size: number) => {
+    const species = palById(id === 'buddy' ? buddy.id : id).species
+    return Math.max(0, y - size * 0.92 + (faceBottom(species, stage) * size) / 200 + 46)
+  }
+  return (
+    <Scene sky="night" ground="none" moon>
+      <SleepyEyes />
+      <NightSea y={330} mx={650} />
+      <NightArk x={390} y={336} s={1.4} deck={
+        <>
+          {deck.map((pal, i) => {
+            const [x, y, size] = DECK[i]
+            const isBuddy = pal.id === 'buddy'
+            return (
+              <Tap key={pal.id} say={isBuddy ? 'So sleepy!' : 'Goodnight!'} sfx="ding">
+                <PalAt id={pal.id} stage={pal.stage} x={x} y={y - lift(pal.id, pal.stage, y, size)} size={size} sleepy yawn={isBuddy} exact={!isBuddy} />
+              </Tap>
+            )
+          })}
+        </>
+      } />
+      <Zzz x={250} y={170} />
+      <Zzz x={340} y={150} size={26} d={1.2} />
+      <Zzz x={470} y={140} size={34} d={0.6} />
+      <Zzz x={560} y={176} size={26} d={1.8} />
+    </Scene>
+  )
+}
 
 // 4. "Let's tell God thank you. Thank you, God, for today. Thank you for my family, and for my friends. Thank you for loving me."
-const Page4 = () => (
-  <Scene sky="night" ground="none" clouds={false}>
-    <SleepyEyes />
-    <Room {...NIGHT_ROOM} win={{ x: 110, y: 70, w: 130, h: 120, night: true, curtain: '#c9a8ff' }}>
-      <g>
-        <rect x={560} y={96} width={110} height={84} rx={6} fill="#fff8ec" stroke="#c98448" strokeWidth={6} />
-        {[[590, 140, '#c9a8ff', '#7a4a24'], [615, 134, '#5fb7ff', '#5a3a24'], [640, 142, '#ff8cc0', '#7a4a24']].map(([fx, fy, robe, hair], i) => (
-          <g key={i}>
-            <path d={`M${(fx as number) - 12} 172 Q${fx} ${(fy as number) + 8} ${(fx as number) + 12} 172 Z`} fill={robe as string} />
-            <circle cx={fx as number} cy={fy as number} r={10} fill="#f6d2b8" />
-            <path d={`M${(fx as number) - 10} ${(fy as number) - 2} Q${fx} ${(fy as number) - 16} ${(fx as number) + 10} ${(fy as number) - 2} Z`} fill={hair as string} />
-          </g>
-        ))}
-        <circle cx={655} cy={158} r={7} fill="#f6d2b8" />
-      </g>
-    </Room>
-    <Nightstand x={130} y={420} w={100} h={92} />
-    <Lamp x={118} y={320} s={0.9} />
-    <Glow x={480} y={120} r={160} />
-    <Bed x={300} y={420} w={360} behind={<Kid x={480} y={388} s={1.5} pose="pray" />}>
-      <g className="bt-sleepy"><PalAt id="buddy" x={384} y={316} size={84} /></g>
-    </Bed>
-    <Sparkles spots={[[440, 170, 7], [520, 150, 9], [480, 110, 6], [400, 140, 5]]} />
-    <Emoji e="💛" x={530} y={200} size={28} bob />
-  </Scene>
-)
+//    Kneeling at the bed with eyes closed, their Pal asleep on the pillow, their own family in the photo on the wall.
+const Page4 = () => {
+  const { look } = usePlayer()
+  return (
+    <Scene sky="night" ground="none" clouds={false}>
+      <SleepyEyes />
+      <Bedroom />
+      <Glow x={470} y={130} r={160} />
+      <Bed {...BED} quilt={quiltOf(look)} behind={<Tap say="Thank you, God!" sfx="sparkle"><g className="bt-sleepy"><Kid x={480} y={392} s={1.5} pose="pray" /></g></Tap>}>
+        <Tap say="Goodnight!" sfx="ding"><g className="bt-sleepy"><PalAt id="buddy" x={384} y={318} size={84} /></g></Tap>
+      </Bed>
+      <Sparkles spots={[[430, 170, 7], [510, 150, 9], [470, 110, 6], [390, 140, 5]]} />
+      <Heart x={548} y={214} r={13} color="#ffd34d" />
+    </Scene>
+  )
+}
 
-// 5. "The Bible says: casting all your worries on him, because he cares for you. God cares for you, all night long."
-const Page5 = () => (
-  <Scene sky="night" ground="none" clouds={false}>
-    <Room {...NIGHT_ROOM} win={{ x: 560, y: 60, w: 140, h: 120, night: true, curtain: '#c9a8ff' }} />
-    <Bed x={400} y={430} w={360} sleeper quilt="#9ad0ff" />
-    <Nightstand x={250} y={430} w={190} h={130} />
-    <Lamp x={170} y={292} s={1.1} />
-    <Beam x={290} y={290} w={150} h={230} />
-    <Bible x={290} y={292} s={1.2} open />
-    <Sparkles spots={[[250, 200, 7], [330, 170, 9], [290, 120, 6], [360, 230, 5]]} />
-    <Emoji e="💛" x={470} y={232} size={30} bob />
-  </Scene>
-)
+// 5. "The Bible says to give all your worries to God, because He cares for you. … He cares for you, all night long."
+const Page5 = () => {
+  const { look } = usePlayer()
+  return (
+    <Scene sky="night" ground="none" clouds={false}>
+      <SleepyEyes />
+      <Bedroom bible="open" />
+      <Bed {...BED} sleeper quilt={quiltOf(look)}>
+        <Tap say="Goodnight!" sfx="ding"><g className="bt-sleepy"><PalAt id="buddy" x={600} y={332} size={86} /></g></Tap>
+      </Bed>
+      <Sparkles spots={[[204, 250, 6], [290, 214, 8], [250, 190, 6], [318, 262, 5]]} />
+      <Heart x={470} y={236} r={14} color="#ffd34d" />
+    </Scene>
+  )
+}
 
 // 6. "Goodnight, <name>. God loves you so much. Sweet dreams!"
-const Page6 = () => (
-  <Scene sky="dark" ground="none" clouds={false}>
-    <SleepyEyes />
-    <Room wall="#3b3770" floor="#5a4a5e" stripes={0.18} win={{ x: 120, y: 60, w: 150, h: 140, night: true, curtain: '#8a7ac0' }} />
-    <path d="M150 200 L270 200 L620 430 L380 440 Z" fill="#fff6c8" opacity={0.12} />
-    <Bed x={300} y={432} w={380} sleeper asleep quilt="#c9a8ff">
-      <g className="bt-sleepy"><PalAt id="buddy" x={606} y={330} size={92} /></g>
-    </Bed>
-    <g opacity={0.4}><Glow x={420} y={250} r={150} color="#fff3c0" /></g>
-    <Zzz x={460} y={226} size={34} />
-    <Zzz x={640} y={238} size={26} d={1.5} />
-    <Glow x={130} y={330} r={60} color="#ffe7a0" />
-    <rect x={120} y={326} width={20} height={22} rx={5} fill="#e8e0f0" />
-    <Moon x={132} y={326} s={0.3} />
-    <Sparkles spots={[[520, 150, 8], [600, 110, 6], [420, 120, 7], [700, 170, 5]]} color="#fff3c0" />
-  </Scene>
-)
+const Page6 = () => {
+  const { look } = usePlayer()
+  return (
+    <Scene sky="dark" ground="none" clouds={false}>
+      <SleepyEyes />
+      <Bedroom dark />
+      {/* moonlight from the window across the floor */}
+      <path d="M96 186 L220 186 L600 434 L330 442 Z" fill="#fff6c8" opacity={0.12} />
+      <Bed {...BED} sleeper asleep quilt={darken(quiltOf(look), 0.3)}>
+        <Tap say="Shh. Sleeping." sfx="ding"><g className="bt-sleepy"><PalAt id="buddy" x={600} y={332} size={90} /></g></Tap>
+      </Bed>
+      <g opacity={0.4}><Glow x={420} y={250} r={150} color="#fff3c0" /></g>
+      <Zzz x={460} y={226} size={34} />
+      <Zzz x={640} y={238} size={26} d={1.5} />
+      <Sparkles spots={[[520, 150, 8], [440, 104, 6], [370, 170, 7], [566, 250, 5]]} color="#fff3c0" />
+    </Scene>
+  )
+}
 
 export const BEDTIME_ART: ComponentType[] = [Page1, Page2, Page3, Page4, Page5, Page6]

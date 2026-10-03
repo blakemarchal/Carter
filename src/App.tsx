@@ -16,6 +16,7 @@ import { PALS, stageFor } from './data/pals'
 import { getProgress, playerName, switchProfile, tickPlayTime, today, useProfiles, useProgress } from './lib/progress'
 import { isBirthday } from './lib/birthday'
 import { useToday } from './lib/useToday'
+import { count, flushStats } from './lib/stats'
 import { encouragements, preload, setFamilyVoices, setNarrator, setRate, unlockSpeech } from './lib/speech'
 import { loadRecordings } from './lib/recordings'
 import { setSfxEnabled } from './lib/sfx'
@@ -70,6 +71,7 @@ export default function App() {
       last = now
       if (document.hidden) return
       tickPlayTime(secs)
+      count('play-seconds', secs)
       const key = `${active}|${today()}`
       if (getProgress().playSeconds >= DAILY_MINUTES * 60 && reminded.current !== key) {
         reminded.current = key
@@ -112,6 +114,7 @@ export default function App() {
     if (party) setParty({ mode: 'day', back: 'map' })
     setScreen(!me.starter ? 'starter' : party ? 'party' : 'map')
     backupSoon()
+    flushStats()
     loadRecordings()
     warmEgg()
     preload([

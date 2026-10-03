@@ -7,6 +7,7 @@ import { praise, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from '../components/Pic'
 
 const W = 6, H = 4
 
@@ -29,7 +30,10 @@ function makeMaze(): Set<string> {
   return open
 }
 
-export default function Maze({ title, intro, hero, goal, onDone }: { title: string; intro: string; hero: Thing; goal: Thing; onDone: () => void }) {
+/** `trail`: the mark left on squares the hero has been (default footprints); `theme: 'water'`: a sea maze. */
+export default function Maze({ title, intro, hero, goal, trail: mark = '👣', theme, onDone }: {
+  title: string; intro: string; hero: Thing; goal: Thing; trail?: string; theme?: 'water'; onDone: () => void
+}) {
   const open = useMemo(makeMaze, [])
   const linked = (a: number, b: number) => open.has(`${Math.min(a, b)}|${Math.max(a, b)}`)
   const GOAL = W * H - 1
@@ -106,7 +110,7 @@ export default function Maze({ title, intro, hero, goal, onDone }: { title: stri
 
   const x = at % W, y = Math.floor(at / W)
   return (
-    <div className="activity maze">
+    <div className={`activity maze ${theme ?? ''}`}>
       <h2>{title}</h2>
       <div className="maze-grid" style={{ gridTemplateColumns: `repeat(${W}, 1fr)` }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         {Array.from({ length: W * H }, (_, c) => {
@@ -118,14 +122,14 @@ export default function Maze({ title, intro, hero, goal, onDone }: { title: stri
                 borderTopColor: wall(c - W, c >= W), borderBottomColor: wall(c + W, c < W * (H - 1)),
                 borderLeftColor: wall(c - 1, cx > 0), borderRightColor: wall(c + 1, cx < W - 1),
               }}>
-              {c === GOAL ? <span className="maze-goal">{goal.emoji}</span>
-                : trail.includes(c) && c !== at ? <span className="maze-step">👣</span> : null}
+              {c === GOAL ? <span className="maze-goal"><Pic e={goal.emoji} art={goal.art} /></span>
+                : trail.includes(c) && c !== at ? <span className="maze-step"><Pic e={mark} /></span> : null}
             </button>
           )
         })}
         {/* The hero walks between squares (it isn't inside one), and can be dragged. */}
         <span className={`maze-hero ${won ? 'won' : ''}`} style={{ left: `${((x + 0.5) / W) * 100}%`, top: `${((y + 0.5) / H) * 100}%` }}>
-          <span className="maze-hero-face" style={{ transform: `scaleX(${facing})` }}>{hero.emoji}</span>
+          <span className="maze-hero-face" style={{ transform: `scaleX(${facing})` }}><Pic e={hero.emoji} art={hero.art} /></span>
         </span>
       </div>
       <button className="instruction" onClick={() => speak(intro)}>🔊 Hear it again</button>

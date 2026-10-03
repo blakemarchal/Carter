@@ -4,6 +4,8 @@ A CSS rule that sets `transform` (directly, in an animation's keyframes, through
 on :active/:hover) REPLACES an SVG element's transform="..." attribute and any inline
 style transform. Lists every JSX element that has such a class plus a transform attribute or an
 inline style transform. Also lists SVG-only classes animating rotate/scale without transform-box.
+(An animation that only moves translate/scale/rotate adds to an HTML element's own inline transform,
+around the element's centre, so that pair is fine; on SVG they pivot around the parent's origin.)
 """
 import os
 import re
@@ -13,28 +15,34 @@ ROOT = sys.argv[1]
 css = open(os.path.join(ROOT, 'src', 'styles.css'), encoding='utf8').read()
 css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
 
-# keyframes that touch transform
-kf_transform = set()
+# keyframes that touch transform (kf_sets: the ones that set `transform` itself)
+kf_transform, kf_sets = set(), set()
 for m in re.finditer(r'@keyframes\s+([\w-]+)\s*\{((?:[^{}]*\{[^{}]*\})*)[^{}]*\}', css):
     if 'transform' in m.group(2) or 'translate' in m.group(2) or 'scale' in m.group(2) or 'rotate' in m.group(2):
         kf_transform.add(m.group(1))
+    if re.search(r'(^|[;{\s])transform\s*:', m.group(2)):
+        kf_sets.add(m.group(1))
 
 # rules (skip keyframes bodies)
 body = re.sub(r'@keyframes\s+[\w-]+\s*\{((?:[^{}]*\{[^{}]*\})*)[^{}]*\}', '', css)
 body = re.sub(r'@media[^{]*\{', '', body)
 rules = re.findall(r'([^{}]+)\{([^{}]*)\}', body)
 cls_rules = {}
+cls_replace = set()  # classes with a rule that sets `transform` itself (replaces an inline one too)
 for sel, decl in rules:
-    touches = False
+    touches = replaces = False
     why = []
     if re.search(r'(^|;)\s*transform\s*:', decl):
-        touches, why = True, why + ['transform']
+        touches = replaces = True
+        why += ['transform']
     for am in re.finditer(r'animation(?:-name)?\s*:\s*([^;]+)', decl):
         for name in re.findall(r'[\w-]+', am.group(1)):
             if name in kf_transform:
                 touches, why = True, why + [f'animation {name}']
+                replaces = replaces or name in kf_sets
     if re.search(r'transition\s*:[^;]*(transform|all)', decl):
-        touches, why = True, why + ['transition']
+        touches = replaces = True
+        why += ['transition']
     if not touches:
         continue
     for s in sel.split(','):
@@ -42,6 +50,8 @@ for sel, decl in rules:
         last = re.split(r'\s+|>|\+|~', s)[-1]
         for c in re.findall(r'\.([\w-]+)', last):
             cls_rules.setdefault(c, set()).add(f'{s} -> {", ".join(why)}')
+            if replaces:
+                cls_replace.add(c)
 
 # JSX elements
 SVG_TAGS = {'g', 'path', 'ellipse', 'circle', 'rect', 'text', 'svg', 'use', 'image', 'polygon', 'polyline', 'line', 'tspan'}
@@ -81,11 +91,11 @@ for dirpath, _, files in os.walk(os.path.join(ROOT, 'src')):
             if not cm:
                 continue
             classes = set(re.findall(r'[\w-]+', cm.group(1)))
-            hit = classes & set(cls_rules)
-            if not hit:
-                continue
             has_attr = re.search(r'\btransform=', attrs) is not None
             has_style_tf = re.search(r'style=\{\{[^}]*transform', attrs) is not None
+            hit = classes & (set(cls_rules) if has_attr or tag in SVG_TAGS else cls_replace)
+            if not hit:
+                continue
             if has_attr or has_style_tf:
                 line = src.count('\n', 0, m.start()) + 1
                 found.append((os.path.relpath(p, ROOT), line, tag, sorted(hit), 'transform attr' if has_attr else 'inline style transform', attrs.strip()[:140].replace('\n', ' ')))

@@ -1,6 +1,7 @@
 // Checks every island and Pal, so a typo in new content can't ship.
 import { describe, expect, it } from 'vitest'
-import { ISLANDS, islandOpen } from '../data/islands'
+import { ISLANDS } from '../data/islands'
+import { SEAS } from '../data/seas'
 import { PARTY_FOE, PARTY_PAL } from '../data/birthday'
 import { PALS } from '../data/pals'
 import { RECIPES, recipeFor } from '../data/recipes'
@@ -52,6 +53,7 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
           const groups = new Set(s.groups.map((g) => g.id))
           for (const item of s.items) expect(groups.has(item.group), item.say).toBe(true)
           spoken.push(s.intro, ...s.groups.map((g) => g.say), ...s.items.map((t) => t.say))
+          if (s.hint) spoken.push(s.hint)
           break
         }
         case 'quiz':
@@ -64,6 +66,7 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
         case 'count':
           for (const n of s.rounds) expect(n >= 1 && n <= 10).toBe(true)
           spoken.push(s.intro, s.item.say, s.plural)
+          if (s.done) spoken.push(s.done)
           break
         case 'trace':
           for (const l of s.letters) expect(l).toMatch(/^[A-Za-z]$/)
@@ -75,6 +78,9 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
         case 'verse':
           expect(s.chunks.length).toBeGreaterThanOrEqual(2)
           expect(s.ref).toMatch(/\d+:\d+/)
+          break
+        case 'pause':
+          spoken.push(s.line)
           break
         case 'battle':
           expect(palIds.has(s.foe), s.foe).toBe(true)
@@ -123,9 +129,7 @@ it('each grumpy creature and reward Pal belongs to one island (or the birthday p
   }
 })
 
-it('islands open in order', () => {
-  expect(islandOpen(0, [])).toBe(true)
-  expect(islandOpen(1, [])).toBe(false)
-  expect(islandOpen(1, [ISLANDS[0].id])).toBe(true)
-  expect(islandOpen(ISLANDS.length - 1, [], true)).toBe(true)
+it('every built island has its place on the voyage', () => {
+  const placed = new Set(SEAS.flatMap((s) => s.islands.map((i) => i.id)))
+  for (const isl of ISLANDS) expect(placed.has(isl.id), isl.id).toBe(true)
 })

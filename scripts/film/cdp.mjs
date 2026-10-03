@@ -1,6 +1,7 @@
 // A tiny Chrome DevTools Protocol driver for filming the game: headless Chrome at iPad size with
 // touch, fake speech (lines "finish" after a realistic time), screenshots in quick succession.
 import { spawn } from 'node:child_process'
+import { createServer } from 'node:net'
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -22,7 +23,15 @@ const SPEECH_STUB = `(() => {
   window.SpeechSynthesisUtterance = window.SpeechSynthesisUtterance || function (t) { this.text = t };
 })();`
 
-export async function launch({ port = 9333, width = 1180, height = 820, touch = true } = {}) {
+/** A free local port, so several films can run at once without closing each other's browser. */
+const freePort = () => new Promise((resolve, reject) => {
+  const srv = createServer()
+  srv.on('error', reject)
+  srv.listen(0, '127.0.0.1', () => { const { port } = srv.address(); srv.close(() => resolve(port)) })
+})
+
+export async function launch({ port, width = 1180, height = 820, touch = true } = {}) {
+  port ??= await freePort()
   const dir = mkdtempSync(join(tmpdir(), 'ark-film-'))
   const proc = spawn(CHROME, [
     '--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${dir}`, '--no-first-run',

@@ -83,7 +83,8 @@ export function PlayerDetails({ profile }: { profile: Profile }) {
   )
 }
 
-const PETS = ['🐶', '🐱', '🐰', '🐹', '🐠', '🐦', '🐢', '🦎', '🐴']
+// (Each of these is drawn in the birthday pictures: art/items, or the hamster and turtle in art/scenes/birthday.tsx.)
+const PETS = ['🐶', '🐱', '🐰', '🐹', '🐠', '🐦', '🐢']
 
 /** The family cast: what the children call their grown-ups, brothers and sisters, and pets. */
 export function FamilyCastEditor() {

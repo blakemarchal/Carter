@@ -43,6 +43,13 @@ export interface Progress {
   /** The days the birthday countdown and "it's ___'s birthday" were last said, so they're said once a day. */
   countdownSaid?: string
   siblingSaid?: string
+  /** The daily voyage: new visits finished today (lib/voyage.ts), and how many a day (0 = no limit). */
+  voyage?: { day: string; visits: number }
+  dailyVisits: number
+  /** Stars earned on each island (1 to 3): the best first-try score. */
+  stars: Record<string, number>
+  /** The island being played: first-try answers so far [right, asked] (kept across visits). */
+  islandScore?: Record<string, [number, number]>
 }
 
 export { DEFAULT_LOOK, type KidLook } from './look'
@@ -103,6 +110,8 @@ const fresh = (): Progress => ({
   narrator: 'ara',
   music: true,
   sfx: true,
+  dailyVisits: 2,
+  stars: {},
 })
 
 /** Today's date on the device (local time, so the daily play time resets at midnight, not 7 PM). */

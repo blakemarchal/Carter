@@ -140,7 +140,6 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
 .map-boat-inner { animation: boatbob 2.4s ease-in-out infinite; }
 @keyframes boatbob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
 .map-head { width: 100%; display: flex; align-items: center; justify-content: space-between; }
-.map-head h2 { font-size: 44px; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.15); }
 .ark-btn { display: flex; align-items: center; gap: 6px; background: #fff; border-radius: 999px; padding: 4px 22px 4px 8px; font-size: 28px; font-weight: 800; box-shadow: 0 6px 0 rgba(0,0,0,.12); }
 .island-head { width: 100%; display: flex; align-items: center; justify-content: space-between; }
 .island-body { flex: 1; width: 100%; display: flex; animation: fadein .35s; min-height: 0; }
@@ -544,8 +543,10 @@ input { -webkit-user-select: text; user-select: text; }
 .sort-item { height: 170px; display: grid; place-items: center; }
 .sort-card { font-size: 120px; line-height: 1; animation: pop .5s; }
 .sort-groups { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
-.sort-bin { width: 230px; min-height: 180px; border-radius: 30px; background: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.1); display: flex; flex-direction: column; align-items: center; padding: 10px; gap: 4px; }
-.sort-bin .bin-emoji { font-size: 80px; line-height: 1.1; }
+.sort-bin { width: 250px; min-height: 180px; border-radius: 30px; background: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.1); display: flex; flex-direction: column; align-items: center; padding: 10px; gap: 4px; }
+/* A group's picture is at least as big as the picture being sorted (.sort-card, 120px): a smaller
+   one makes an ant look bigger than the "big" elephant. */
+.sort-bin .bin-emoji { font-size: 130px; line-height: 1.05; }
 .sort-bin .bin-items { font-size: 30px; letter-spacing: 2px; min-height: 36px; text-align: center; }
 .sort-bin .bin-items span { display: inline-block; animation: plop .45s ease-out both; }
 .sort-bin { transition: scale .15s, box-shadow .15s; }
@@ -576,6 +577,11 @@ input { -webkit-user-select: text; user-select: text; }
 .maze-hero.won .maze-hero-face { animation: pop .6s; }
 .maze-goal { animation: pulse 1.4s infinite; }
 .maze-step { font-size: 26px; opacity: .45; }
+/* A sea maze (theme: 'water'), for swimmers: light-blue water, deep sea-blue walls. The squares to
+   tap still glow yellow (re-stated: the water floor would otherwise cover it). */
+.maze.water { --maze-wall: #3d9de6; }
+.maze.water .maze-grid, .maze.water .maze-cell { background: #bfe6ff; }
+.maze.water .maze-cell.can { background: #fff6b0; }
 
 /* Parent Corner: this week */
 .week { display: flex; gap: 10px; align-items: flex-end; height: 120px; margin: 6px 0; }
@@ -851,6 +857,11 @@ input { -webkit-user-select: text; user-select: text; }
 .scene .sc-rock { animation: scrock 4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 90%; }
 @keyframes scrock { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(2deg) translateY(-4px); } }
 .scene .sc-float { animation: pafloat 3s ease-in-out infinite; }
+/* A bird's wings beating from the shoulder (the far wing a beat behind). */
+.scene .sc-wing { animation: scwing .9s ease-in-out infinite; transform-box: fill-box; transform-origin: var(--o, 90% 100%); }
+.scene .sc-wing.far { animation-delay: -.08s; animation-name: scwingfar; }
+@keyframes scwing { 50% { transform: rotate(-34deg) scaleY(.9); } }
+@keyframes scwingfar { 50% { transform: rotate(-22deg) scaleY(.92); } }
 .scene .sc-sway { animation: scsway 5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
 @keyframes scsway { 50% { transform: rotate(2deg); } }
 .scene .sc-spout { animation: scspout 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
@@ -858,8 +869,8 @@ input { -webkit-user-select: text; user-select: text; }
 .scene .sc-fadein { animation: fadein 1.6s ease-out; }
 @media (prefers-reduced-motion: reduce) { .scene * { animation: none !important; } }
 
-/* Story pages with an illustration: the picture fills the top of the card (cropping a little sky and
-   ground to fit), the words sit in a strip underneath, and big arrows turn the page at the sides. */
+/* Story pages with an illustration: the whole picture (never cropped: feet, pets and cake stay in),
+   as big as fits above the words, with the page-turn arrows in the bands at its sides. */
 .story.illustrated { position: relative; padding: 0 0 12px; overflow: hidden; justify-content: flex-start; gap: 10px; background: #fff7fb !important; }
 .story-art { flex: 1; min-height: 0; width: 100%; animation: pagein .6s ease-out; }
 @keyframes pagein { from { opacity: 0; transform: scale(1.03); } }
@@ -1049,8 +1060,9 @@ input { -webkit-user-select: text; user-select: text; }
 /* A birthday sticker: a cake with the age on it. */
 .age-sticker { position: relative; display: inline-block; line-height: 1; }
 .age-sticker b { position: absolute; right: -.14em; bottom: -.08em; min-width: 1.3em; height: 1.3em; border-radius: 50%; background: var(--pink); color: #fff; font-size: .42em; line-height: 1.3em; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.15); font-family: 'Baloo 2', system-ui, sans-serif; }
-/* The party hat on a Pal (the birthday outfit). */
-.dressed-hat { position: absolute; left: 50%; top: -9%; translate: -46% 0; rotate: -14deg; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,.15)); }
+/* The party hat on a Pal (the birthday outfit): the middle of its brim at (--hat-x, --hat-y) of the Pal's box,
+   on its head. Set them per kind of Pal with partyHatVars() (art/pals/faces.ts); the fallback is a middling head. */
+.dressed-hat { position: absolute; left: var(--hat-x, 51%); top: var(--hat-y, 24%); translate: -50% -89%; rotate: var(--hat-tilt, -14deg); transform-origin: 50% 89%; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,.15)); }
 .k-cake-btn { animation: pulse 1.6s infinite; }
 @media (max-width: 760px) {
   .age-grid { grid-template-columns: repeat(4, 1fr); }
@@ -1111,3 +1123,99 @@ input { -webkit-user-select: text; user-select: text; }
 .cast-list > button, .cast-row button.danger { padding: 6px 14px; border-radius: 10px; background: #fff; border: 2px solid #f0c4da; font-size: 16px; }
 .cast-row button.danger { background: #ffe2e2; border-color: #ffc9c9; color: #b42318; }
 .check { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; }
+
+/* Drawn pictures of things (components/Pic.tsx): sized like the emoji they replace. */
+.pic { display: inline-block; width: 1em; height: 1em; vertical-align: -0.14em; overflow: visible; }
+.pic-row { display: inline-flex; align-items: center; gap: .04em; }
+.pic-row .pic { width: .82em; height: .82em; }
+.pic-card { display: inline-block; width: 1.6em; height: .9em; border-radius: .12em; overflow: hidden; vertical-align: middle; box-shadow: 0 .03em .08em rgba(0,0,0,.18); background: #fff; }
+.pic-card .scene { width: 100%; height: 100%; }
+
+/* Review page (screens/Review.tsx): grown-ups proofreading pictures against narration */
+.review { height: 100%; overflow-y: auto; background: #fff; padding: 16px 24px 80px; font-family: system-ui, sans-serif; -webkit-user-select: text; user-select: text; }
+.review h1 { font-family: 'Baloo 2', system-ui; color: var(--pink-deep); }
+.review h2 { font-family: 'Baloo 2', system-ui; margin: 28px 0 10px; font-size: 30px; border-top: 3px solid #f3d6e6; padding-top: 14px; }
+.review h3 { font-size: 18px; margin: 14px 0 6px; }
+.review a { color: var(--pink-deep); margin-right: 10px; }
+.review section { background: #fbf4f8; border-radius: 14px; padding: 8px 14px; margin: 8px 0; }
+.rv-page { display: flex; gap: 16px; align-items: flex-start; margin: 10px 0; }
+.rv-art { flex: 0 0 auto; width: min(480px, 55vw); aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; outline: 1px solid #eee; }
+.rv-art .scene { width: 100%; height: 100%; }
+.rv-scene { font-size: 80px; display: grid; place-items: center; height: 100%; }
+.rv-text p { font-size: 20px; line-height: 1.4; margin: 4px 0; }
+.rv-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 4px 0; }
+.rv-thing { display: inline-flex; align-items: center; gap: 6px; background: #fff; border-radius: 10px; padding: 4px 10px; }
+.rv-pic { font-size: 44px; line-height: 1; }
+.rv-right .rv-thing { outline: 3px solid #5fd39a; }
+.rv-q p { margin: 6px 0 2px; }
+
+/* Living pictures: things to tap in story pictures (<Tap> in art/scenes/kit.tsx) */
+.story-art .tap, .bed-art .tap { cursor: pointer; }
+.story-art .tap.tapped, .bed-art .tap.tapped { animation: taphop .7s ease-out; }
+@keyframes taphop { 30% { translate: 0 -14px; } 60% { translate: 0 0; } 80% { translate: 0 -5px; } }
+
+/* Put in order with the story's own pictures (story cards) */
+.sequence.cards .seq-slots, .sequence.cards .seq-pool { max-width: 940px; }
+.sequence.cards .seq-slot { width: 212px; height: 126px; border-radius: 18px; }
+.sequence.cards .seq-emoji { font-size: 124px; line-height: 0; }
+.sequence.cards .seq-card { width: 212px; height: 126px; font-size: 124px; border-radius: 18px; padding: 0; line-height: 0; }
+@media (max-width: 900px) { .sequence.cards .seq-slot, .sequence.cards .seq-card { width: 150px; height: 92px; } .sequence.cards .seq-emoji, .sequence.cards .seq-card { font-size: 88px; } }
+.sequence.cards .pic-card { border-radius: 12px; }
+
+/* A person hammering: the raised arm swings down and back (people.tsx, pose "hammer"). */
+.pa-anim .pa-hammer { animation: pahammer .9s ease-in-out infinite; transform-box: fill-box; transform-origin: var(--o, 0% 100%); }
+@keyframes pahammer { 45% { transform: rotate(34deg); } 55% { transform: rotate(36deg); } }
+
+/* A gentle breath for animals standing in a picture (sheep): they stay on the ground. */
+.scene .sc-breathe { animation: scbreathe 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes scbreathe { 50% { transform: scale(1.015, 1.035); } }
+
+/* The story picture is a true 16:9 picture, centred (the bands at the sides hold the arrows). */
+.story-art { display: flex; align-items: center; justify-content: center; padding-top: 10px; }
+.story-art > .scene, .bed-art > .scene { width: auto; height: 100%; max-width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 26px; box-shadow: 0 6px 18px rgba(120, 60, 100, .16); }
+@media (max-aspect-ratio: 1/1) { .story-art > .scene, .bed-art > .scene { width: 100%; height: auto; max-height: 100%; } }
+.bed-art { display: flex; align-items: center; justify-content: center; overflow: visible; box-shadow: none; border-radius: 0; }
+.bed-art > .scene { box-shadow: 0 0 0 6px rgba(255,255,255,.12); }
+
+/* The voyage: sea name and dots, arrows to the next or last sea, coming-soon islands, stars, resting */
+.map-title { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.map-title h2, .ark-btn span { white-space: nowrap; }
+.map-title h2 { text-shadow: 0 3px 0 rgba(0,0,0,.15); }
+/* Narrow screens: the sea's name gets its own row under the buttons when standing up (iPad
+   portrait), and everything shrinks a little on a small screen on its side (a phone). */
+@media (max-aspect-ratio: 1/1) {
+  .map-head { flex-wrap: wrap; row-gap: 4px; }
+  .map-title { order: 3; width: 100%; }
+}
+@media (min-aspect-ratio: 1/1) and (max-width: 1000px) {
+  .screen > .map-head h2 { font-size: 30px; }
+  .ark-btn { font-size: 22px; padding-right: 14px; }
+  .ark-btn > svg { width: 52px; height: 52px; }
+  .map-tools { gap: 8px; }
+  .map-tools .icon-btn { width: 56px; height: 56px; font-size: 30px; }
+  .who-chip { font-size: 20px; padding: 4px 14px 4px 8px; }
+}
+.sea-dots { display: flex; gap: 6px; }
+.sea-dots i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.sea-dots i.open { background: rgba(255,255,255,.75); }
+.sea-dots i.now { background: #fff; box-shadow: 0 0 0 3px var(--yellow); }
+.sea-arrow { position: absolute; z-index: 2; bottom: 16px; width: 72px; height: 72px; border-radius: 50%; background: #fff; color: var(--pink-deep); font-size: 32px; font-weight: 800; box-shadow: 0 6px 0 rgba(0,0,0,.14); }
+.sea-arrow.prev { left: 12px; }
+.sea-arrow.next { right: 12px; }
+.sea-arrow.locked { opacity: .6; font-size: 26px; }
+.sea-arrow.go { animation: glow 1.4s infinite; }
+.map-soon { fill: #fff8d6; stroke: #e8c86a; stroke-width: 2; }
+.map-soon-text { font-family: 'Baloo 2', system-ui; font-size: 16px; font-weight: 800; fill: #a07a20; }
+.map-island.soon > *:not(g) { opacity: .7; }
+.map-island.soon .map-landmark { opacity: .55; }
+.map-point.resting { animation: none; }
+.map-banner.rest { background: #2f2a6b; color: #fff; }
+
+/* Stars on the reward screen */
+.reward-stars { display: flex; gap: 10px; font-size: 54px; line-height: 1; }
+.reward-stars span { color: #ffffff; -webkit-text-stroke: 2px #e0c7a0; animation: pop .5s both; }
+.reward-stars span.on { color: #ffd34d; -webkit-text-stroke: 2px #e0a800; }
+/* The end of a visit (components/VisitPause.tsx) */
+.visit-pause { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; }
+.visit-pause h2 { font-size: 52px; color: var(--pink-deep); }
+.visit-pause p { font-size: 32px; font-weight: 700; max-width: 760px; margin: 0; background: rgba(255,255,255,.85); padding: 12px 24px; border-radius: 24px; }

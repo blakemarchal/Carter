@@ -12,7 +12,8 @@ export interface Ingredient { emoji: string; say: string; plural: string }
 
 export type CookStep =
   | { kind: 'add'; item: Ingredient; n: number }
-  | { kind: 'find'; word: string; emoji: string; others: string[] }
+  /** `emoji` is what's inside the right jar; `art` picks a particular drawing of it (see components/Pic.tsx). */
+  | { kind: 'find'; word: string; emoji: string; art?: string; others: string[] }
   | { kind: 'pattern'; items: string[]; names: string[]; shown: number }
   | { kind: 'cut'; food: string; foodName: string; cut: 'halves' | 'triangles' | 'quarters' }
   | { kind: 'stir'; times: number }
@@ -87,7 +88,7 @@ export const RECIPES: Recipe[] = [
       { kind: 'add', item: I.carrot, n: 4 },
       { kind: 'add', item: I.tomato, n: 2 },
       { kind: 'stir', times: 4 },
-      { kind: 'find', word: 'pot', emoji: '🍲', others: ['cup', 'pan'] },
+      { kind: 'find', word: 'pot', emoji: '🍲', art: 'pot', others: ['cup', 'pan'] },
     ],
   },
   {

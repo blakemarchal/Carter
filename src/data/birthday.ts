@@ -3,7 +3,7 @@
 // player's profile and the family cast in the Parent Corner. Pictures: art/scenes/birthday.tsx.
 import type { StoryPage } from './islands'
 import { birthdaySpoken, type Birthday } from '../lib/birthday'
-import { andList } from '../lib/party'
+import { andList, pictured, PICTURED } from '../lib/party'
 import { numberWords } from '../lib/spoken'
 
 export interface PartyPeople {
@@ -25,13 +25,21 @@ export const storyTitle = (name: string) => `Happy Birthday, ${name}`
 
 export function partyStory(c: PartyPeople): StoryPage[] {
   const born = `${c.age ? cap(years(c.age)) + ' ago' : 'Not so long ago'}${c.birthday ? `, on ${birthdaySpoken(c.birthday)}` : ''}`
-  const kids = c.siblings.map((s) => (s.baby ? `baby ${s.name}` : s.name))
-  const family = [
+  // Only the brothers, sisters and pets the picture can show (art/scenes/birthday.tsx), so everyone named is there.
+  const kids = pictured(c.siblings).map((s) => (s.baby ? `baby ${s.name}` : s.name))
+  const pets = c.pets.slice(0, PICTURED.pets)
+  const petsLine = pets.length ? `${andList(pets)} ${pets.length > 1 ? 'are' : 'is'} happy you're here!` : ''
+  // With nobody in the family cast, the picture is the birthday child with their own Pal.
+  const family = (c.grownups.length || kids.length ? [
     'Your family thanks God for you every day!',
     c.grownups.length ? `${andList(c.grownups)} ${c.grownups.length > 1 ? 'love' : 'loves'} you so much.` : 'They love you so much.',
     kids.length ? `And ${andList(kids)} ${kids.length > 1 ? 'give' : 'gives'} you big, giggly hugs!` : '',
-    c.pets.length ? `Even ${andList(c.pets)} ${c.pets.length > 1 ? 'are' : 'is'} happy you're here!` : '',
-  ].filter(Boolean).join(' ')
+    petsLine && `Even ${petsLine}`,
+  ] : [
+    'God gives you people who love you and thank Him for you every day!',
+    'And all your Ark Pals love you, too.',
+    petsLine && `Even ${petsLine}`,
+  ]).filter(Boolean).join(' ')
   return [
     { scene: '👶🎀💗', bg: 'linear-gradient(#ffe0f0,#fff3c9)', text: `${born}, a wonderful baby was born. It was you, ${c.name}!` },
     { scene: '✨😊💗', bg: 'linear-gradient(#ffd6ec,#e6d9ff)', text: `God made you, ${c.name}! He made your bright eyes, your happy giggles, and your smart brain. God made you wonderfully!` },

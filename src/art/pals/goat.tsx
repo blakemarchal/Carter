@@ -1,32 +1,11 @@
 // Huffy → Hornsby → Summit: a little goat facing you, with floppy side ears that twitch.
-// The horns grow from nubs to swept-back horns to big curly ram horns; Hornsby grows a beard and a
-// forelock, and Summit a shaggy coat and a crown. Grumpy Huffy turns greyer and huffs out steam.
+// The horns grow from nubs to swept-back horns to long, ridged mountain-goat horns; Hornsby grows a beard
+// and a forelock, and Summit a shaggy fringe and a crown. (Summit stays a goat: no curly ram horns or
+// round wool curls, which would make it look like a sheep, and like Starling the lamb.)
+// Grumpy Huffy turns greyer and huffs out steam.
 import { type BodyProps, Anim, Crown, CuteFace, ink, pt, Shine, useShade } from '../kit'
 
 type Pt = [number, number]
-type Circle = [number, number, number]
-
-/** Outline of a fluffy shape: the union of circles listed clockwise around its middle. */
-function puff(cs: Circle[]) {
-  const n = cs.length
-  // Where each circle meets the next, on the outside (to the left of the way round).
-  const meet = cs.map(([x1, y1, r1], i): Pt => {
-    const [x2, y2, r2] = cs[(i + 1) % n]
-    const d = Math.hypot(x2 - x1, y2 - y1)
-    const a = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
-    const h = Math.sqrt(Math.max(0, r1 * r1 - a * a))
-    const bx = x1 + (a * (x2 - x1)) / d, by = y1 + (a * (y2 - y1)) / d
-    return [bx + (h * (y2 - y1)) / d, by - (h * (x2 - x1)) / d]
-  })
-  let d = `M${pt(...meet[n - 1])}`
-  cs.forEach(([x, y, r], i) => {
-    const s = meet[(i + n - 1) % n], e = meet[i]
-    let turn = Math.atan2(e[1] - y, e[0] - x) - Math.atan2(s[1] - y, s[0] - x)
-    if (turn < 0) turn += Math.PI * 2
-    d += ` A${r} ${r} 0 ${turn > Math.PI ? 1 : 0} 1 ${pt(...e)}`
-  })
-  return `${d}Z`
-}
 
 /** A smooth tapering tube along the centerline f(t), t = 0…1, with width w(t) and round ends. */
 function tube(f: (t: number) => Pt, w: (t: number) => number, n = 28) {
@@ -51,23 +30,17 @@ const bez = (a: Pt, b: Pt, c: Pt) => (t: number): Pt => {
 
 /** The left horn for each stage (the right one is its mirror image). */
 function hornPath(stage: number) {
-  if (stage >= 2) {
-    // A curly ram horn: up from the head, out, down and round in a spiral.
-    const a0 = 0.15, turns = 1.05
-    return tube((t) => {
-      const a = a0 - t * turns * Math.PI * 2, r = 33 - 24 * t
-      return [58 + Math.cos(a) * r, 66 + Math.sin(a) * r]
-    }, (t) => 15 - 10 * t, 40)
-  }
+  // Summit: a longer, thicker version of Hornsby's swept-back horn (ridges are drawn on top).
+  if (stage >= 2) return tube(bez([90, 68], [82, 22], [46, 12]), (t) => 15 - 11 * t)
   if (stage >= 1) return tube(bez([90, 68], [86, 36], [60, 28]), (t) => 13 - 9 * t)
   return tube(bez([90, 68], [87, 58], [82, 50]), (t) => 12 - 4 * t, 10)
 }
 
-// Summit's thick woolly coat: a ring of fluffy curls round the body.
-const COAT = puff(Array.from({ length: 12 }, (_, i): Circle => {
-  const a = (i / 12) * Math.PI * 2 - Math.PI / 2
-  return [100 + Math.cos(a) * 36, 137 + Math.sin(a) * 15, 12.5]
-}))
+// Ridges across Summit's left horn, each square to the horn at 30%, 50% and 70% of the way up.
+const RIDGES = 'M79 45.5 L87 41.5 M72 33 L78 29 M63.5 23.5 L67 19'
+
+// Summit's shaggy fringe: long pointed locks hanging below the body (behind it).
+const FRINGE = 'M64 146 L62 168 L72 160 L76 176 L86 164 L92 178 L100 166 L108 178 L114 164 L124 176 L128 160 L138 168 L136 146 Z'
 
 export default function Goat({ stage, mood }: BodyProps) {
   const g = mood === 'grumpy'
@@ -76,13 +49,15 @@ export default function Goat({ stage, mood }: BodyProps) {
   const NOSE = g ? '#d2c6b8' : '#f1e3d1'
   const HORN = g ? '#a1a6b0' : '#a9b4cb'
   const HOOF = '#6b7890'
+  const BEARD = g ? '#bcb1a5' : '#e2d4bd' // a shade darker than the wool, so it reads as a beard, not a collar
   const wool = useShade(WOOL, 0.6, 0.1)
   const nose = useShade(NOSE, 0.4, 0.1)
   const horn = useShade(HORN, 0.35, 0.18)
+  const beard = useShade(BEARD, 0.35, 0.1)
   const horns = hornPath(stage)
   return (
     <g>
-      <defs>{wool.def}{nose.def}{horn.def}</defs>
+      <defs>{wool.def}{nose.def}{horn.def}{beard.def}</defs>
 
       {/* Legs with little hooves */}
       {[85, 115].map((x) => (
@@ -92,18 +67,18 @@ export default function Goat({ stage, mood }: BodyProps) {
         </g>
       ))}
 
-      {/* Body (a shaggy coat at stage 2) */}
+      {/* Body (with a shaggy fringe hanging below it at stage 2) */}
       <g className="pa-breathe">
-        {stage >= 2
-          ? <path d={COAT} fill={wool.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
-          : <ellipse cx={100} cy={144} rx={38} ry={26} fill={wool.fill} stroke={LINE} strokeWidth={3} />}
+        {stage >= 2 && <path d={FRINGE} fill={wool.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />}
+        <ellipse cx={100} cy={144} rx={38} ry={26} fill={wool.fill} stroke={LINE} strokeWidth={3} />
         <ellipse cx={100} cy={150} rx={20} ry={13} fill="#fff" opacity={0.7} />
       </g>
 
-      {/* Horns */}
+      {/* Horns (ridged at stage 2) */}
       {[1, -1].map((side) => (
         <g key={side} transform={side < 0 ? 'translate(200 0) scale(-1 1)' : undefined}>
           <path d={horns} fill={horn.fill} stroke={ink(HORN)} strokeWidth={3} strokeLinejoin="round" />
+          {stage >= 2 && <path d={RIDGES} stroke={ink(HORN)} strokeWidth={2} strokeLinecap="round" opacity={0.7} />}
         </g>
       ))}
 
@@ -117,8 +92,13 @@ export default function Goat({ stage, mood }: BodyProps) {
         </Anim>
       ))}
 
-      {/* Beard (stage 1+) hangs under the chin */}
-      {stage >= 1 && <path d="M90 124 C92 138 96 146 100 152 C104 146 108 138 110 124 Z" fill={wool.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />}
+      {/* Beard (stage 1+) hangs under the chin: a darker, wispy tuft with a few hair strands */}
+      {stage >= 1 && (
+        <g>
+          <path d="M90 124 C92 138 96 148 100 158 C104 148 108 138 110 124 Z" fill={beard.fill} stroke={LINE} strokeWidth={3} strokeLinejoin="round" />
+          <path d="M96 132 Q97 140 99 148 M104 132 Q103 140 101 146" stroke={LINE} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.6} />
+        </g>
+      )}
 
       {/* Head and soft nose */}
       <ellipse cx={100} cy={90} rx={32} ry={30} fill={wool.fill} stroke={LINE} strokeWidth={3} />

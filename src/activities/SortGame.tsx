@@ -7,31 +7,33 @@ import { sfx } from '../lib/sfx'
 import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from '../components/Pic'
 
 type Group = Thing & { id: string }
 type Item = Thing & { group: string }
 
-function Bin({ g, wrong, glow, items, onTap }: { g: Group; wrong: boolean; glow: boolean; items: string[]; onTap: (g: Group) => void }) {
+function Bin({ g, wrong, glow, items, onTap }: { g: Group; wrong: boolean; glow: boolean; items: Thing[]; onTap: (g: Group) => void }) {
   const target = useDropTarget(`bin-${g.id}`)
   return (
     <button ref={target} className={`sort-bin ${wrong ? 'wiggle' : ''} ${glow ? 'glow' : ''}`} onClick={() => onTap(g)}>
-      <span className="bin-emoji">{g.emoji}</span>
-      <span className="bin-items">{items.map((e, i) => <span key={i}>{e}</span>)}</span>
+      <span className="bin-emoji"><Pic e={g.emoji} art={g.art} /></span>
+      <span className="bin-items">{items.map((t, i) => <span key={i}><Pic e={t.emoji} art={t.art} /></span>)}</span>
     </button>
   )
 }
 
 function Card({ item, onDrop, onTap }: { item: Item; onDrop: (bin: string) => boolean; onTap: () => void }) {
   const drag = useDrag({ data: item, onStart: sfx.lift, onDrop: (t) => t.startsWith('bin-') && onDrop(t.slice(4)), onTap })
-  return <button className="sort-card" {...drag}>{item.emoji}</button>
+  return <button className="sort-card" {...drag}><Pic e={item.emoji} art={item.art} /></button>
 }
 
-export default function SortGame({ title, intro, groups, items, onDone }: {
-  title: string; intro: string; groups: Group[]; items: Item[]; onDone: () => void
+/** `hint`: the line under the groups. The default suits animal homes; other sorts (big or small…) set their own. */
+export default function SortGame({ title, intro, hint = 'Drag it to where it lives!', groups, items, onDone }: {
+  title: string; intro: string; hint?: string; groups: Group[]; items: Item[]; onDone: () => void
 }) {
   const order = useMemo(() => shuffle(items), [items])
   const [n, setN] = useState(0)
-  const [sorted, setSorted] = useState<Record<string, string[]>>({})
+  const [sorted, setSorted] = useState<Record<string, Thing[]>>({})
   const [wrong, setWrong] = useState<string | null>(null)
   const [misses, setMisses] = useState(0)
   const [flying, setFlying] = useState(false)
@@ -63,7 +65,7 @@ export default function SortGame({ title, intro, groups, items, onDone }: {
     busy.current = true
     setFlying(true)
     setMisses(0)
-    setSorted((s) => ({ ...s, [g.id]: [...(s[g.id] ?? []), item.emoji] }))
+    setSorted((s) => ({ ...s, [g.id]: [...(s[g.id] ?? []), item] }))
     const last = n + 1 >= order.length
     await speak(`That's right, ${g.say}!${last ? ` ${praise()}` : ''}`)
     if (!alive.current) return
@@ -111,7 +113,7 @@ export default function SortGame({ title, intro, groups, items, onDone }: {
           <Bin key={g.id} g={g} wrong={wrong === g.id} glow={misses >= 2 && item?.group === g.id} items={sorted[g.id] ?? []} onTap={tapBin} />
         ))}
       </div>
-      <p className="muted">Drag it to where it lives!</p>
+      <p className="muted">{hint}</p>
     </div>
   )
 }

@@ -16,6 +16,7 @@ import { sfx } from '../lib/sfx'
 import { fly, showDrag, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import Pic from './Pic'
 
 type Done = () => void
 
@@ -37,14 +38,14 @@ const BATTER: Record<string, Batter> = {
 function PileItem({ emoji, onIn, onTap }: { emoji: string; onIn: () => boolean; onTap: (el: HTMLElement) => void }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: 'in', onStart: sfx.lift, onDrop: (t) => t === 'bowl' && onIn(), onTap: () => ref.current && onTap(ref.current) })
-  return <button ref={ref} className="k-thing" aria-label={`Drag ${emoji} into the bowl`} {...drag}>{emoji}</button>
+  return <button ref={ref} className="k-thing" aria-label="Drag it into the bowl" {...drag}><Pic e={emoji} /></button>
 }
 
 function BowlItem({ emoji, i, onOut, onTap }: { emoji: string; i: number; onOut: () => boolean; onTap: (el: HTMLElement) => void }) {
   const ref = useRef<HTMLSpanElement>(null)
   const slot = bowlSlot(i)
   const drag = useDrag({ data: 'out', onStart: sfx.lift, onDrop: (t) => t === 'pile' && onOut(), onTap: () => ref.current && onTap(ref.current) })
-  return <span ref={ref} className="bowl-item" style={{ left: slot.left, top: slot.top, zIndex: slot.z }} {...drag}>{emoji}</span>
+  return <span ref={ref} className="bowl-item" style={{ left: slot.left, top: slot.top, zIndex: slot.z }} {...drag}><Pic e={emoji} /></span>
 }
 
 /** Count ingredients into the bowl: drag them in (or out again), then Done. */
@@ -115,7 +116,7 @@ function AddStep({ step, onDone }: { step: Extract<CookStep, { kind: 'add' }>; o
   const count = st.bowl.length
   return (
     <div className="k-station">
-      <div className="k-ask" onClick={ask}>Put <b>{n}</b> {item.emoji} in!</div>
+      <div className="k-ask" onClick={ask}>Put <b>{n}</b> <Pic e={item.emoji} /> in!</div>
       <div className="k-row">
         <div className="k-pile" ref={pileRef}>
           {st.pile.map((id) => <PileItem key={id} emoji={item.emoji} onIn={() => putIn(id)} onTap={(el) => tapIn(id, el)} />)}
@@ -163,7 +164,7 @@ function FindStep({ step, onDone }: { step: Extract<CookStep, { kind: 'find' }>;
         {jars.map((w) => (
           <button key={w} className={`k-jar ${wrong === w ? 'wiggle' : ''} ${opened === w ? 'open' : ''}`} onClick={() => tap(w)}>
             {opened === w && <span className="k-lid" aria-hidden />}
-            <span className="k-jar-pic" key={opened === w ? 'open' : 'shut'}>{opened === w ? step.emoji : '🫙'}</span>
+            <span className="k-jar-pic" key={opened === w ? 'open' : 'shut'}><Pic e={opened === w ? step.emoji : '🫙'} art={opened === w ? step.art : 'jar'} /></span>
             <span className="k-label">{w}</span>
           </button>
         ))}
@@ -488,7 +489,7 @@ function Plate({ emoji, onGive, onTap }: { emoji: string; onGive: () => boolean;
   const drag = useDrag({ data: 'dish', onStart: sfx.lift, onDrop: (t) => t === 'k-pal' && onGive(), onTap: () => ref.current && onTap(ref.current) })
   return (
     <div ref={ref} className="k-plate" {...drag}>
-      <span className="k-dish">{emoji}</span>
+      <span className="k-dish"><Pic e={emoji} /></span>
       <span className="k-steam" aria-hidden><i /><i /><i /></span>
     </div>
   )
@@ -563,12 +564,12 @@ export default function Kitchen({ pal, hungry, special, onClose }: {
         <h2>🍳 {recipe.name} for {name}</h2>
         <div className="k-card">
           {recipe.steps.map((s, k) => <span key={k} className={k < i ? 'done' : k === i ? 'now' : ''}>{k < i ? '✅' : ICON[s.kind]}</span>)}
-          <span className={finished ? 'now' : ''}>{recipe.emoji}</span>
+          <span className={finished ? 'now' : ''}><Pic e={recipe.emoji} /></span>
         </div>
       </header>
       <div className="k-main">
         <div ref={palRef} className="k-pal">
-          <div className="k-think">{recipe.emoji}</div>
+          <div className="k-think"><Pic e={recipe.emoji} /></div>
           <DressedPal pal={pal} stage={stage} size={190} outfit={p.outfits[pal.id]} className={served !== null ? 'k-happy' : eating ? 'k-chomp' : 'bob'} />
           <div className="name">{name}</div>
           {eating && served === null && <span className="k-crumbs" aria-hidden><i /><i /><i /><i /></span>}

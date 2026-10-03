@@ -139,9 +139,14 @@ async function playClip(mp3: ArrayBuffer, g: number): Promise<boolean> {
 let gen = 0 // bumped on every interruption; stale lines check it and bow out
 let queue: Promise<void> = Promise.resolve()
 
+let talking = 0
+/** True while the narrator is saying something. */
+export const isSpeaking = () => talking > 0
+
 async function sayNow(text: string, pitch: number, g: number) {
   if (g !== gen || !toSpoken(text, 'device')) return
   duck(true)
+  talking++
   try {
     // A family recording of this exact line comes first.
     if (familyVoices) {
@@ -158,6 +163,7 @@ async function sayNow(text: string, pitch: number, g: number) {
     }
     if (g === gen) await deviceSpeak(toSpoken(text, 'device'), pitch)
   } finally {
+    talking--
     duck(false)
   }
 }

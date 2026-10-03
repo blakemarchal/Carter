@@ -14,6 +14,7 @@ import { extname, join, normalize, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createTtsCache, MAX_CHARS, SPEEDS, VOICES } from './tts.mjs'
 import { createBackups } from './backup.mjs'
+import { createStats } from './stats.mjs'
 import { createRecordings } from './recordings.mjs'
 import { createSongs } from './songs.mjs'
 
@@ -42,6 +43,22 @@ const backups = createBackups(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.
 const recordings = createRecordings(join(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'), 'recordings'))
 
 const songs = createSongs(join(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'), 'songs'))
+const stats = createStats(join(process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups'), 'stats'))
+
+/** POST /stats adds a day's play totals (opt-in, counts only); GET /stats is the last 30 days. */
+async function handleStats(req, res) {
+  if (req.method === 'POST') {
+    try {
+      await stats.add((await readBody(req, 32 * 1024)).toString('utf8'))
+      res.writeHead(204)
+    } catch (e) {
+      res.writeHead(e.status ?? 400)
+    }
+    return res.end()
+  }
+  res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
+  return res.end(JSON.stringify(await stats.recent()))
+}
 
 async function readBody(req, max) {
   const chunks = []
@@ -315,6 +332,7 @@ createServer(async (req, res) => {
     if ((url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) || (url.pathname === '/backups' && req.method === 'GET')) return await handleBackup(req, res, url)
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url)
+    if (url.pathname === '/stats' && (req.method === 'POST' || req.method === 'GET')) return await handleStats(req, res)
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()
