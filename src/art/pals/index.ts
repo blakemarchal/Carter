@@ -62,6 +62,7 @@ import Snail from './snail'
 import Chick from './chick'
 import Parrot from './parrot'
 import Firefly from './firefly'
+import Shade from './shade'
 
 export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   mouse: Mouse,
@@ -124,4 +125,5 @@ export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   chick: Chick,
   parrot: Parrot,
   firefly: Firefly,
+  shade: Shade,
 }

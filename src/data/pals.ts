@@ -48,6 +48,7 @@ export interface PalDef {
     | 'pelican' | 'fish' | 'seagull' | 'kingfisher' | 'mole' | 'puppy'
     | 'ostrich' | 'ladybug' | 'squirrel' | 'frog'
     | 'stone' | 'palm' | 'snail' | 'chick' | 'parrot' | 'firefly'
+    | 'shade'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -448,6 +449,13 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Flicker', xp: 0 }, { name: 'Glowbug', xp: 100 }, { name: 'Lanternwing', xp: 300 }],
     moves: { basic: { name: 'Little Glow', fx: 'spark', icon: '✨' }, brave: { name: 'Light Dance', fx: 'stars', icon: '🌟' }, super: { name: 'Shine Bright', fx: 'flame', icon: '🔥' } },
     intro: 'is a Kindness Pal! {name} shines a little light, like the little flames at Pentecost, and helps friends find their way in the dark.',
+  },
+  // The voyage's own Pal: Grumbleshade, the grumpy shadow from every battle, made glad on Easter Morning
+  {
+    id: 'gladshade', species: 'shade', fruit: 'Love',
+    stages: [{ name: 'Gladshade', xp: 0 }, { name: 'Brightshade', xp: 100 }, { name: 'Shinelight', xp: 300 }],
+    moves: { basic: { name: 'Glad Glow', fx: 'spark', icon: '✨' }, brave: { name: 'Sunny Swirl', fx: 'wind', icon: '🌀' }, super: { name: 'Love Light', fx: 'hearts', icon: '💖' } },
+    intro: 'is a Love Pal! {name} used to be Grumbleshade, a grumpy shadow who thought nobody could love him. Then he heard the good news: God loves everyone, even him!',
   },
 ]
 
