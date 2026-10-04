@@ -783,8 +783,8 @@ function Notes({ spots }: { spots: [number, number, string?][] }) {
 
 // ---------- The pages ----------
 
-// 1. "Long ago, God's people lived in Egypt. The king, called Pharaoh, made them work very hard, making
-// bricks all day long. But God loved His people, and He had a plan to help them."
+// 1. "Long ago, God's people lived in Egypt. The king of Egypt was called Pharaoh. He made God's people
+// work very hard, making bricks all day long. But God loved His people, and He had a plan."
 // God's people carry bricks, straw and water; Pharaoh points from under his sunshade. God's light shines on them.
 const Page1 = () => (
   <Scene sky="day" ground="none" sun>
@@ -992,7 +992,6 @@ const Page5 = () => (
   </Scene>
 )
 
-/** The dry path through the middle of the sea, seen from the side: the far wall of water, the sea floor, the shores. */
 /**
  * Where the sea stands up, seen from the side (story page 6 and the mini-game): the far wall of water,
  * the dry sea floor in front of it, and (with `front`) the near wall's top along the bottom. With `shores`
@@ -1135,7 +1134,8 @@ const Page7 = () => (
 // 8. "Then Moses held out his hand over the sea, and the water came rushing back together. Splash! Now
 // Pharaoh's chariots could not follow them."
 // From the beach on the far shore: the two walls of water curl over and splash back together where the
-// path was. Everyone is safe on the beach (nobody in the water, no chariots).
+// path was. Everyone is safe on the beach (nobody in the water, no chariots). Moses holds his hand and
+// staff up and out toward the splash, as on page 5 (a level point would aim at the mom beside him).
 const Page8 = () => (
   <Scene sky="day" ground="none">
     <Tap say="Splash! Crash! The sea came back together." sfx="whoosh">
@@ -1158,7 +1158,7 @@ const Page8 = () => (
     </Person>
     <Tap say="God made a way for us, and now the way is closed." sfx="ding">
       <Person x={600} y={436} s={1.04} look={MOSES} pose="point" facing="left">
-        <StaffInLeftHand />
+        <RaisedStaff />
       </Person>
     </Tap>
   </Scene>
@@ -1270,8 +1270,8 @@ const Page9 = () => (
   </Scene>
 )
 
-// 10. "Then Miriam, Moses' sister, picked up her tambourine. Jingle, jingle! The women danced, and everyone
-// sang a happy song to God."
+// 10. "Then Miriam, the big sister of Moses, picked up her tambourine. Jingle, jingle! The women danced, and
+// everyone sang a happy song to God."
 // Miriam leads the dance with her tambourine; the women dance with theirs; everyone sings.
 const Page10 = () => (
   <Scene sky="day" ground="none" sun>
@@ -1349,5 +1349,3 @@ export const RED_SEA_ART = [Page1, Page2, Page3, Page4, Page5, Page6, Page7, Pag
 
 // (Used by the mini-game: art/games/red-sea.tsx.)
 export { Grip }
-
-

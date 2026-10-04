@@ -26,11 +26,12 @@ export const RED_SEA_STORY_2: StoryPage[] = [
   { scene: '🌅💛', bg: 'linear-gradient(#c9b8ff,#ffe9c9)', text: 'God made a way for His people, right through the sea! And God is with you, too. He loves you, and He will always help you.' },
 ]
 
-// World English Bible (public domain), word for word: Psalm 136:13 (the verse goes on into verse 14, so
-// it ends with a full stop here, as Noah's verse does).
+// World English Bible (public domain), word for word: Psalm 136:13, with the WEB's semicolon after
+// "apart". (The WEB's verse ends with another semicolon, as the psalm goes on into verse 14, so it ends
+// with a full stop here, as Noah's verse does.)
 export const RED_SEA_VERSE = {
   ref: 'Psalm 136:13',
-  chunks: ['To him who divided', 'the Red Sea apart,', 'for his loving kindness', 'endures forever.'],
+  chunks: ['To him who divided', 'the Red Sea apart;', 'for his loving kindness', 'endures forever.'],
 }
 
 export const RED_SEA_STEPS: Step[] = [
@@ -42,9 +43,11 @@ export const RED_SEA_STEPS: Step[] = [
     done: 'Hooray! Everyone walked through the sea, safe and sound. And you found five seashells!',
     kit: RED_SEA_GAME,
   },
-  // (The intro fits every level: counting, what comes next, adding.)
-  { kind: 'practice', skill: 'numbers', title: 'Seashell Numbers', decor: '🌊', theme: '🐚', intro: 'Look at all the pretty seashells from the sea floor! Let\'s play number games with them.' },
-  { kind: 'pause', line: 'Pharaoh\'s chariots were still coming! What will God do? Let\'s find out next time!' },
+  // (The intro fits every level: counting, what comes next, adding. Only counting and adding show the
+  // seashells, so it doesn't promise any.)
+  { kind: 'practice', skill: 'numbers', title: 'Seashell Numbers', decor: '🌊', theme: '🐚', intro: 'Splish, splash! Let\'s play some number games by the sea.' },
+  // (A cliffhanger of wonder, not worry: the game just ended with everyone safe on the far shore.)
+  { kind: 'pause', line: 'Everyone is safe! But the water is still standing up like two tall walls. What will God do next? Let\'s find out next time!' },
 
   // Visit 2: the adventure
   { kind: 'story', title: 'God Makes a Way', pages: RED_SEA_STORY_2, first: RED_SEA_STORY_1.length },
@@ -87,6 +90,7 @@ export const RED_SEA_STEPS: Step[] = [
   },
   { kind: 'battle', foe: 'gusty', intro: 'Whoosh! A huffy puff of wind named Gusty is blowing sand all over the beach! Gusty just needs a friend.' },
   { kind: 'song', song: 'song-red-sea', intro: 'Let\'s sing about how God made a way through the sea! You can sing it on your Ark any time, too.' },
-  // (A seashell for now: stickers are drawn by emoji, and there's no tambourine emoji. See the report.)
+  // (A seashell, like the ones picked up on the way through the sea: a sticker is named by its emoji, and
+  // there's no tambourine emoji to name Miriam's tambourine by.)
   { kind: 'reward', pal: 'jingle', sticker: '🐚', stickerName: 'seashell' },
 ]

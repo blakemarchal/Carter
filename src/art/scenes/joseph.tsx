@@ -1183,8 +1183,10 @@ const Page7 = () => (
       {Array.from({ length: 7 }, (_, i) => (
         <Tap key={`s${i}`} count="skinny cows" sfx="pop"><DreamCow x={352 + i * 60} y={146} s={0.4} /></Tap>
       ))}
-      {Array.from({ length: 7 }, (_, i) => (
-        <Tap key={`f${i}`} count="fat cows" sfx="pop"><DreamCow x={350 + i * 60} y={292} s={0.5} fat /></Tap>
+      {/* (the fat cows are wider than the gaps between them, so they're drawn from the right: each one's
+          face comes in front of the next cow's tail, and all seven faces show to be counted) */}
+      {Array.from({ length: 7 }, (_, k) => 6 - k).map((i) => (
+        <Tap key={`f${i}`} count="fat cows" sfx="pop"><DreamCow x={352 + i * 61} y={292} s={0.46} fat /></Tap>
       ))}
     </Dream>
   </Scene>
@@ -1241,16 +1243,18 @@ const Page9 = () => (
 
 // 10. "Soon there was no food anywhere. Joseph's hungry brothers came to Egypt to buy food. They bowed down
 // low, just like in Joseph's dream! But they did not know it was Joseph." All eleven brothers kneel low
-// before Joseph at the storehouse; Joseph remembers the bundles bowing in his dream.
+// before Joseph at the storehouse; Joseph remembers the bundles bowing in his dream. (They kneel with
+// their hands on their knees, not pressed together: hands together with eyes closed is how children are
+// shown praying, and the brothers are bowing to a man, not praying to him.)
 const Page10 = () => (
   <Scene sky="day" ground="desert">
     <Granary x={744} y={318} s={0.92} ladder={false} />
     <GrainSack x={566} y={352} s={0.9} />
     <Dais x={662} y={360} w={240} />
     <Tap say="Please, sir, may we buy some food?" sfx="pop">
-      {[0, 1, 2, 4, 5].map((b, i) => <Figure key={b} x={62 + i * 92} y={352} s={0.84} look={BROTHERS[b]} kneel pose="pray" blinkDelay={i * 0.5} />)}
-      {[3, 6, 7, 8, 9].map((b, i) => <Figure key={b} x={92 + i * 92} y={438} s={0.94} look={BROTHERS[b]} kneel pose="pray" blinkDelay={i * 0.3} />)}
-      <Figure x={546} y={440} s={0.96} look={P.benjamin} kneel pose="pray" />
+      {[0, 1, 2, 4, 5].map((b, i) => <Figure key={b} x={62 + i * 92} y={352} s={0.84} look={BROTHERS[b]} kneel blinkDelay={i * 0.5} />)}
+      {[3, 6, 7, 8, 9].map((b, i) => <Figure key={b} x={92 + i * 92} y={438} s={0.94} look={BROTHERS[b]} kneel blinkDelay={i * 0.3} />)}
+      <Figure x={546} y={440} s={0.96} look={P.benjamin} kneel />
     </Tap>
     <Tap say="Just like my dream!" sfx="sparkle">
       <Dream x={336} y={30} w={226} h={122} from={[628, 196]} to={[548, 160]} sky="#fff4c8">
