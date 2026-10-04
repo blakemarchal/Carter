@@ -63,12 +63,12 @@ export const PAL_FACES: Record<Species, PalFace> = {
   hare: face(83, 0.88, [100, 55], { y: 104.5, rx: 5.5, ry: 5 }),
   bat: face(83, 0.86, [100, 57], { y: 104.5, rx: 5.5, ry: 5 }),
   fennec: face(81, 0.84, [100, 57], { y: 107, rx: 5, ry: 4.5 }),
-  cactus: face(100, 0.9, [100, 58]),
-  raven: face(100, 0.9, [100, 58]),
-  rooster: face(100, 0.9, [100, 58]),
-  butterfly: face(100, 0.9, [100, 58]),
-  gecko: face(100, 0.9, [100, 58]),
-  sparrow: face(100, 0.9, [100, 58]),
+  cactus: face(116, 0.92, [100, 76]),
+  raven: face(99, 0.88, [100, 72], { y: 112, rx: 5.5, ry: 6 }),
+  rooster: face(80, 0.82, [100, 60], { y: 92, rx: 5, ry: 5.5 }),
+  butterfly: face(83, 0.82, [100, 57]),
+  gecko: face(90, 0.95, [100, 67], { y: 107.5, rx: 8, ry: 7.5 }),
+  sparrow: face(89, 0.84, [100, 60], { y: 101.5, rx: 5.5, ry: 5.5 }),
 }
 
 /** PalArt draws a Pal at stage n scaled about (100, 110) in its box. */
