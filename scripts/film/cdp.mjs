@@ -2,7 +2,7 @@
 // touch, fake speech (lines "finish" after a realistic time), screenshots in quick succession.
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:net'
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -11,6 +11,16 @@ const CHROME = process.env.CHROME ?? (process.platform === 'win32'
   ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
   : '/opt/pw-browsers/chromium')
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+/**
+ * An island's content version, read from its line in src/data/islands.ts (1 when it has none). A saved
+ * step only counts for the version it was saved at, so a fixture that opens an island at a step needs it.
+ */
+export function islandVersion(id) {
+  const src = readFileSync(new URL('../../src/data/islands.ts', import.meta.url), 'utf8')
+  const line = src.split('\n').find((l) => l.includes(`{ id: '${id}',`))
+  return Number(line?.match(/version: (\d+)/)?.[1] ?? 1)
+}
 
 const SPEECH_STUB = `(() => {
   const fake = {

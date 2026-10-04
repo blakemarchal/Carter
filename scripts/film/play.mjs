@@ -1,13 +1,14 @@
 // Plays one activity on an island with real finger drags, taking pictures along the way.
 //   node play.mjs <out dir> <island> <step> [right/asked, for the stars at the end, e.g. 3/5]
 import { mkdirSync } from 'node:fs'
-import { fixture, launch, sleep } from './cdp.mjs'
+import { fixture, launch, sleep, islandVersion } from './cdp.mjs'
 const [OUT, ISLAND, STEP, SCORE] = process.argv.slice(2)
 mkdirSync(OUT, { recursive: true })
 const page = await launch()
 const today = new Date().toISOString().slice(0, 10)
 const fx = fixture({ today })
 fx.islandStep = { [ISLAND]: Number(STEP) }
+fx.islandStepVersion = { [ISLAND]: islandVersion(ISLAND) }
 fx.mapAt = ISLAND
 if (SCORE) fx.islandScore = { [ISLAND]: SCORE.split('/').map(Number) }
 await page.goto('http://localhost:5179/')

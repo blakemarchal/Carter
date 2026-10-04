@@ -2,7 +2,7 @@
 //   node scripts/film/step.mjs <out dir> <island> <step> [seconds = 6] [--portrait]
 // (Steps count from 0, in the island's data. Pauses and visits are just steps here.)
 import { mkdirSync } from 'node:fs'
-import { fixture, launch, sleep } from './cdp.mjs'
+import { fixture, launch, sleep, islandVersion } from './cdp.mjs'
 
 const args = process.argv.slice(2)
 const portrait = args.includes('--portrait')
@@ -12,6 +12,7 @@ const page = await launch(portrait ? { width: 820, height: 1180 } : {})
 const today = new Date().toISOString().slice(0, 10)
 const fx = fixture({ today })
 fx.islandStep = { [ISLAND]: Number(STEP) }
+fx.islandStepVersion = { [ISLAND]: islandVersion(ISLAND) }
 fx.mapAt = ISLAND
 fx.dailyVisits = 0 // no daily limit
 await page.goto('http://localhost:5179/')
