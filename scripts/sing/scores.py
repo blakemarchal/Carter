@@ -757,7 +757,7 @@ ZACCHAEUS_SONG = dict(
               'Je-sus stopped be-neath the tree,', 'Look-ing up, He called out:',
               '"Hur-ry down, Zac-chae-us, come! I\'m stay-ing at your house now!"')
     + _doodle('Zac-chae-us hur-ried down so fast, he was so glad and hap-py!',
-              'But some folks grum-bled, grum-ble, grum! "Why vis-it such a bad man?"',
+              'But some folks grum-bled, grum-ble, grum! "Why go to his house, Je-sus?"',
               'Then Zac-chae-us stood up tall:', '"I will give and share now!',
               'If I took too much from you, I\'ll pay back four times o-ver!"')
     + _doodle('So Je-sus smiled and said, "Hoo-ray! To-day God\'s love has found you!',
