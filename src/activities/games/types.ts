@@ -123,3 +123,25 @@ export interface ShareKit {
   /** Each round: how many things to share among how many of the people (it always comes out even). */
   rounds: { items: number; people: number }[]
 }
+
+// ---------- Catch it: catch what falls (manna into a basket, rain into a jar, fish into a net) ----------
+
+export interface CatchKit {
+  /** Behind everything; `caught` counts what's been caught so far. A whole <Scene>. */
+  Backdrop: ComponentType<{ caught: number }>
+  /**
+   * What the child moves left and right (a basket, a jar, a net): a piece, centred on (0, 0) at the middle
+   * of its opening. `fill` (0 to 1) is how full it is, so the pile inside can grow.
+   */
+  Catcher: ComponentType<{ fill: number }>
+  /** How wide the catcher's opening is, in board units: a falling thing that lands within it is caught. */
+  width: number
+  /** What falls: pieces, centred on (0, 0). With more than one, they take turns. */
+  falling: ComponentType[]
+  /** How many to catch. Each one is counted aloud as it's caught. */
+  goal: number
+  /** Where the catcher's opening runs: its height on the board, and how far left and right it can go. */
+  lane: { y: number; from: number; to: number }
+  /** Drawn over everything (a ridge of sand, a tent flap). A piece, in board units. */
+  Front?: ComponentType
+}

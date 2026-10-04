@@ -40,6 +40,15 @@ function KitPicture({ s }: { s: Step }) {
   } else if (s.kind === 'rhythm') {
     const k = s.kit
     layers = <k.Backdrop beat={0} hits={0} />
+  } else if (s.kind === 'catch') {
+    const k = s.kit
+    layers = (
+      <><k.Backdrop caught={0} /><BoardLayer>
+        {k.falling.map((F, i) => <g key={i} transform={`translate(${k.lane.from + ((i + 1) * (k.lane.to - k.lane.from)) / (k.falling.length + 1)} 120)`}><F /></g>)}
+        <g transform={`translate(${(k.lane.from + k.lane.to) / 2} ${k.lane.y})`}><k.Catcher fill={0.5} /></g>
+        {k.Front && <k.Front />}
+      </BoardLayer></>
+    )
   } else if (s.kind === 'share') {
     const k = s.kit
     layers = <BoardLayer><rect width={800} height={450} fill="#fff4e0" />{k.people.map((p, i) => <g key={p.id} transform={`translate(${130 + i * (540 / Math.max(1, k.people.length - 1))} 250)`}><p.Draw /></g>)}</BoardLayer>
@@ -70,6 +79,8 @@ function StepView({ s, n }: { s: Step; n: number }) {
       return game('rhythm', s.title, s.intro, s.done, <>{s.kit.instrument}, {s.kit.notes.length} notes at {s.kit.bpm} beats a minute</>)
     case 'share':
       return game('share it', s.title, s.intro, s.done, <>{say(s.kit.item)} ({s.kit.plural}) among {s.kit.people.map((p) => p.say).join(', ')}; rounds {s.kit.rounds.map((r) => `${r.items} for ${r.people}`).join(', ')}</>)
+    case 'catch':
+      return game('catch it', s.title, s.intro, s.done, <>Catch {s.kit.goal} {s.plural}</>)
     case 'song': {
       const song = SONGS.find((x) => x.id === s.song)
       return (

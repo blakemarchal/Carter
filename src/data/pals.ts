@@ -42,6 +42,7 @@ export interface PalDef {
     | 'sun' | 'night' | 'lion' | 'goat' | 'whale' | 'wave'
     | 'donkey' | 'crab' | 'lamb' | 'snow' | 'cupcake' | 'balloon'
     | 'camel' | 'star' | 'peacock' | 'chameleon' | 'wind' | 'tambourine' | 'cub' | 'owl'
+    | 'crocodile' | 'lily' | 'hedgehog' | 'hyrax' | 'tortoise' | 'quail'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -221,6 +222,45 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Hoot', xp: 0 }, { name: 'Hootwing', xp: 100 }, { name: 'Wiseglow', xp: 300 }],
     moves: { basic: { name: 'Hoot Hello', fx: 'spark', icon: '🦉' }, brave: { name: 'Night Wing', fx: 'wind', icon: '🌙' }, super: { name: 'Prayer Glow', fx: 'stars', icon: '🙏' } },
     intro: 'is a Faithfulness Pal! {name} keeps watch at night, and prays every day, just like Daniel.',
+  },
+  // Baby Moses
+  {
+    id: 'snappy', species: 'crocodile', fruit: 'Self-Control',
+    stages: [{ name: 'Snappy', xp: 0 }, { name: 'Grinny', xp: 100 }, { name: 'Riverking', xp: 300 }],
+    moves: { basic: { name: 'Bubble Blow', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Tail Splash', fx: 'bubbles', icon: '🌊' }, super: { name: 'River Hug', fx: 'hearts', icon: '💙' } },
+    intro: 'is a Self-Control Pal! {name} used to go snap, snap, snap, but now {name} keeps a gentle smile, like the river that carried baby Moses safely.',
+  },
+  {
+    id: 'lily', species: 'lily', fruit: 'Peace',
+    stages: [{ name: 'Lily', xp: 0 }, { name: 'Lotusbloom', xp: 100 }, { name: 'Nilegrace', xp: 300 }],
+    moves: { basic: { name: 'Petal Puff', fx: 'leaf', icon: '🌸' }, brave: { name: 'Lily Pad Hop', fx: 'roll', icon: '🪷' }, super: { name: 'Lotus Glow', fx: 'stars', icon: '✨' } },
+    intro: 'is a Peace Pal! {name} floats calm and peaceful on the river, where God kept baby Moses safe in his basket.',
+  },
+  // The Burning Bush
+  {
+    id: 'prickles', species: 'hedgehog', fruit: 'Gentleness',
+    stages: [{ name: 'Prickles', xp: 0 }, { name: 'Puffball', xp: 100 }, { name: 'Velvetquill', xp: 300 }],
+    moves: { basic: { name: 'Soft Roll', fx: 'roll', icon: '🦔' }, brave: { name: 'Quill Tickle', fx: 'spark', icon: '🪶' }, super: { name: 'Snuggle Ball', fx: 'hearts', icon: '🤗' } },
+    intro: "is a Gentleness Pal! {name} used to be all prickles, but now {name} is soft and kind, like God's gentle voice from the bush.",
+  },
+  {
+    id: 'nibbles', species: 'hyrax', fruit: 'Goodness',
+    stages: [{ name: 'Nibbles', xp: 0 }, { name: 'Rockhopper', xp: 100 }, { name: 'Cliffcrown', xp: 300 }],
+    moves: { basic: { name: 'Rock Hop', fx: 'rock', icon: '🪨' }, brave: { name: 'Cliff Dash', fx: 'wind', icon: '💨' }, super: { name: 'Mountain Song', fx: 'stars', icon: '⛰️' } },
+    intro: 'is a Goodness Pal! {name} lives in the rocks on the mountain, where God spoke to Moses from the bush that burned but did not burn up.',
+  },
+  // Manna in the Desert
+  {
+    id: 'shelly', species: 'tortoise', fruit: 'Patience',
+    stages: [{ name: 'Shelly', xp: 0 }, { name: 'Sunshell', xp: 100 }, { name: 'Desertdome', xp: 300 }],
+    moves: { basic: { name: 'Slow and Steady', fx: 'rock', icon: '🐢' }, brave: { name: 'Shell Spin', fx: 'roll', icon: '🌀' }, super: { name: 'Patient Glow', fx: 'stars', icon: '⭐' } },
+    intro: 'is a Patience Pal! {name} used to grumble that dinner was too slow, but now {name} trusts God, who gives us what we need every day.',
+  },
+  {
+    id: 'quilly', species: 'quail', fruit: 'Love',
+    stages: [{ name: 'Quilly', xp: 0 }, { name: 'Quailbell', xp: 100 }, { name: 'Morningwing', xp: 300 }],
+    moves: { basic: { name: 'Morning Peep', fx: 'spark', icon: '🐦' }, brave: { name: 'Feather Flurry', fx: 'wind', icon: '🪶' }, super: { name: 'Daily Bread', fx: 'hearts', icon: '🍞' } },
+    intro: 'is a Love Pal! {name} remembers how God fed His people in the desert, with quail in the evening and bread from heaven every morning.',
   },
 ]
 

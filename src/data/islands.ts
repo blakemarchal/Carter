@@ -2,7 +2,7 @@
 // that IslandScreen plays in order. Adding an island = adding an entry here with its steps.
 // An island has up to three visits, split by 'pause' steps (docs/GAME-PLAN.md §3.1).
 import type { Skill } from '../lib/progress'
-import type { BuildKit, PaintKit, RhythmKit, ShareKit, SpotKit, SteerKit } from '../activities/games/types'
+import type { BuildKit, CatchKit, PaintKit, RhythmKit, ShareKit, SpotKit, SteerKit } from '../activities/games/types'
 import { NOAH_STEPS } from './noah'
 import { CREATION_STEPS } from './creation'
 import { DAVID_STEPS } from './david'
@@ -13,6 +13,9 @@ import { ABRAHAM_STEPS } from './abraham'
 import { JOSEPH_STEPS } from './joseph'
 import { RED_SEA_STEPS } from './red-sea'
 import { DANIEL_STEPS } from './daniel'
+import { BABY_MOSES_STEPS } from './baby-moses'
+import { BURNING_BUSH_STEPS } from './burning-bush'
+import { MANNA_STEPS } from './manna'
 
 export interface StoryPage {
   scene: string // emoji scene for now; replaced by illustrations later
@@ -75,6 +78,8 @@ export type Step =
   | { kind: 'steer'; title: string; intro: string; done: string; kit: SteerKit }
   | { kind: 'rhythm'; title: string; intro: string; done: string; kit: RhythmKit }
   | { kind: 'share'; title: string; intro: string; done: string; kit: ShareKit }
+  /** Catch what falls; `plural` names it ("pieces of manna"), for hints. */
+  | { kind: 'catch'; title: string; intro: string; done: string; plural: string; kit: CatchKit }
   /** The island's song (a song id in data/songs.ts) to sing along with; then it's in the sing-along on the Ark. */
   | { kind: 'song'; song: string; intro: string }
   /** Friendly battle against a grumpy creature (a Pal id), who joins the Ark at the end. */
@@ -107,6 +112,9 @@ export const ISLANDS: Island[] = [
   { id: 'joseph', name: "Joseph's Coat", emoji: '🧥', color: '#ff9b4a', steps: JOSEPH_STEPS },
   { id: 'red-sea', name: 'The Red Sea', emoji: '🌊', color: '#4fb0d8', steps: RED_SEA_STEPS },
   { id: 'daniel', name: 'Daniel & the Lions', emoji: '🦁', color: '#e0a85a', steps: DANIEL_STEPS },
+  { id: 'baby-moses', name: 'Baby Moses', emoji: '👶', color: '#7ec8e3', steps: BABY_MOSES_STEPS },
+  { id: 'burning-bush', name: 'The Burning Bush', emoji: '🔥', color: '#ff7a45', steps: BURNING_BUSH_STEPS },
+  { id: 'manna', name: 'Manna in the Desert', emoji: '🍯', color: '#e8c25a', steps: MANNA_STEPS },
 ]
 
 export const islandById = (id: string) => ISLANDS.find((i) => i.id === id)

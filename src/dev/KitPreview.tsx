@@ -89,6 +89,22 @@ export default function KitPreview({ island }: { island: string }) {
         <Tile key={`${n}b`} name={`${at}: playing`}><k.Backdrop beat={6.5} hits={6} /></Tile>,
       )
     }
+    if (s.kind === 'catch') {
+      const k = s.kit
+      for (const fill of [0, 1]) {
+        tiles.push(
+          <Tile key={`${n}${fill}`} name={`${at}: ${fill ? 'full' : 'empty'}`}>
+            <k.Backdrop caught={fill ? k.goal : 0} />
+            <BoardLayer>
+              <line x1={k.lane.from} y1={k.lane.y} x2={k.lane.to} y2={k.lane.y} stroke="#ff2d7a" strokeWidth={3} strokeDasharray="8 6" />
+              {k.falling.map((F, i) => <g key={i} transform={`translate(${k.lane.from + ((i + 1) * (k.lane.to - k.lane.from)) / (k.falling.length + 1)} 110)`}><F /></g>)}
+              <g transform={`translate(${fill ? k.lane.to - k.width / 2 : k.lane.from + k.width / 2} ${k.lane.y})`}><k.Catcher fill={fill} /></g>
+              {k.Front && <k.Front />}
+            </BoardLayer>
+          </Tile>,
+        )
+      }
+    }
     if (s.kind === 'share') {
       const k = s.kit
       tiles.push(

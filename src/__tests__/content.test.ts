@@ -140,6 +140,13 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
           }
           spoken.push(s.intro, s.done, s.kit.item.say, s.kit.plural, ...s.kit.people.map((p) => p.say))
           break
+        case 'catch':
+          expect(s.kit.goal >= 3 && s.kit.goal <= 30, 'goal').toBe(true)
+          expect(s.kit.width, 'catcher width').toBeGreaterThanOrEqual(60)
+          expect(s.kit.lane.from >= 0 && s.kit.lane.to <= 800 && s.kit.lane.from < s.kit.lane.to, 'lane').toBe(true)
+          expect(s.kit.falling.length).toBeGreaterThanOrEqual(1)
+          spoken.push(s.intro, s.done, s.plural)
+          break
         case 'song':
           expect(SONG_IDS, s.song).toContain(s.song)
           spoken.push(s.intro)

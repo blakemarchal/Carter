@@ -1,6 +1,6 @@
 // Development only: a small kit for each mini-game mechanic, for trying it out at #gallery/game/<kind>
 // before any island's kit is ready. Plain shapes on purpose; the islands draw the real ones.
-import type { BuildKit, PaintKit, RhythmKit, ShareKit, SpotKit, SteerKit } from '../../activities/games/types'
+import type { BuildKit, CatchKit, PaintKit, RhythmKit, ShareKit, SpotKit, SteerKit } from '../../activities/games/types'
 import { Scene } from '../../art/scenes/kit'
 import { Person, PEOPLE } from '../../art/people'
 import { Sheep, Tree } from '../../art/scenes/kit' // (spot and paint)
@@ -188,6 +188,21 @@ const share: ShareKit = {
   rounds: [{ items: 4, people: 2 }, { items: 6, people: 3 }, { items: 8, people: 4 }],
 }
 
+// Catch: raindrops into a bucket that fills up.
+const catcher: CatchKit = {
+  Backdrop: () => <Scene sky="day" ground="meadow" />,
+  Catcher: ({ fill }) => (
+    <g>
+      <path d="M-55 -10 L55 -10 L42 60 L-42 60 Z" fill="#9fb8d0" stroke="#4a6a8a" strokeWidth={3} />
+      <rect x={-50} y={50 - 58 * fill} width={100} height={58 * fill} fill="#7cc6ff" opacity={0.85} />
+    </g>
+  ),
+  width: 110,
+  falling: [() => <path d="M0 -16 Q12 2 0 14 Q-12 2 0 -16 Z" fill="#5fb7ff" stroke="#2f7fc0" strokeWidth={2} />],
+  goal: 8,
+  lane: { y: 370, from: 90, to: 710 },
+}
+
 export const DEMO_GAMES = {
   build: { title: 'Build a House', intro: "Let's build a little house! Drag each piece to its place.", done: 'You built a house!', kit: build },
   spot: { title: 'Find the Sheep', intro: 'Five little sheep are hiding! Can you find them all?', done: 'You found all five sheep!', plural: 'sheep', kit: spot },
@@ -195,4 +210,5 @@ export const DEMO_GAMES = {
   steer: { title: 'Lead the Sheep Home', intro: 'Help the little sheep get home! Drag it along the path.', done: 'The sheep are home!', kit: steer },
   rhythm: { title: 'Play the Harp', intro: 'Tap the harp when the notes come!', done: 'What beautiful music!', kit: rhythm },
   share: { title: 'Share the Bread', intro: "Let's share the bread, so everyone gets the same!", done: 'Everyone has the same. That is fair!', kit: share },
+  catch: { title: 'Catch the Rain', intro: 'Rain is falling! Move the bucket and catch eight raindrops.', done: 'The bucket is full!', plural: 'raindrops', kit: catcher },
 }

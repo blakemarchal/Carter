@@ -11,7 +11,8 @@ import { useId } from 'react'
 import type { At, SteerKit } from '../../activities/games/types'
 import { Person } from '../people'
 import { Cloud, Emoji, Palm, Scene, Sparkles, Sun, sparkle } from '../scenes/kit'
-import { Crossing, Goat, Grip, HEBREWS, Lamb, MOSES, NearWall, PillarOfCloud, SEA_X1, SEA_X2, SilverHair } from '../scenes/red-sea'
+import { Goat, Grip, HEBREWS, Lamb, MOSES, PillarOfCloud, SilverHair } from '../scenes/moses'
+import { Crossing, NearWall, SEA_X1, SEA_X2 } from '../scenes/red-sea'
 
 // ---------- The way ----------
 

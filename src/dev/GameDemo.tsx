@@ -7,10 +7,11 @@ import PaintIt from '../activities/games/PaintIt'
 import SteerIt from '../activities/games/SteerIt'
 import Rhythm from '../activities/games/Rhythm'
 import ShareIt from '../activities/games/ShareIt'
+import CatchIt from '../activities/games/CatchIt'
 import { islandById, type Step } from '../data/islands'
 import { DEMO_GAMES } from './demo/games'
 
-type GameStep = Extract<Step, { kind: 'build' | 'spot' | 'paint' | 'steer' | 'rhythm' | 'share' }>
+type GameStep = Extract<Step, { kind: 'build' | 'spot' | 'paint' | 'steer' | 'rhythm' | 'share' | 'catch' }>
 
 export default function GameDemo({ kind, island }: { kind: string; island?: string }) {
   const [round, setRound] = useState(0)
@@ -28,6 +29,7 @@ export default function GameDemo({ kind, island }: { kind: string; island?: stri
     case 'steer': body = <SteerIt title={step.title} intro={step.intro} done={step.done} kit={step.kit} onDone={onDone} />; break
     case 'rhythm': body = <Rhythm title={step.title} intro={step.intro} done={step.done} kit={step.kit} onDone={onDone} />; break
     case 'share': body = <ShareIt title={step.title} intro={step.intro} done={step.done} kit={step.kit} onDone={onDone} />; break
+    case 'catch': body = <CatchIt title={step.title} intro={step.intro} done={step.done} plural={step.plural} kit={step.kit} onDone={onDone} />; break
   }
   return (
     <div className="screen island-screen" data-game-done={done ? 'yes' : 'no'}>
