@@ -40,6 +40,12 @@ import Grasshopper from './grasshopper'
 import Hare from './hare'
 import Bat from './bat'
 import Fennec from './fennec'
+import Cactus from './cactus'
+import Raven from './raven'
+import Rooster from './rooster'
+import Butterfly from './butterfly'
+import Gecko from './gecko'
+import Sparrow from './sparrow'
 
 export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   mouse: Mouse,
@@ -80,4 +86,10 @@ export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   hare: Hare,
   bat: Bat,
   fennec: Fennec,
+  cactus: Cactus,
+  raven: Raven,
+  rooster: Rooster,
+  butterfly: Butterfly,
+  gecko: Gecko,
+  sparrow: Sparrow,
 }

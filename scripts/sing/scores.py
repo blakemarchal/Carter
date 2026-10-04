@@ -34,6 +34,8 @@ SAY = {
     'des-ert': '/ˈdɛzərt/',  # the dry land, not "to desert"
     'sam-uel': '/ˈsæmjəl/',  # two syllables, as it's sung
     'bo-az': '/ˈboʊæz/',
+    'ha-man': '/ˈheɪmən/',
+    'mor-de-cai': '/ˈmɔːrdəkaɪ/',
 }
 
 JESUS_LOVES_ME = dict(
@@ -543,7 +545,79 @@ SAMUEL_SONG = dict(
     chords='G:2 D7:2 ' + ('G:4 D7:4 C:2 D7:2 G:4 ' * 2 + 'C:4 C:2 G:2 Am:2 D7:2 G:2 D7:2 ' + 'G:4 D7:4 C:2 D7:2 G:4 ') * 3,
 )
 
+
+# "Michael, Row the Boat Ashore" (a spiritual, printed in "Slave Songs of the United States", 1867), as Musica
+# Viva's ABC (K:G, on abcnotation.com). Erich Rickheit's ABC (K:D) has every pitch the same; it dots two other
+# notes, and this follows Musica Viva's rhythm.
+def _michael(a, b, last=False):
+    return [
+        # "Mi-chael, row the boat a-shore, Hal-le-lu-jah!"
+        (a, 'G4:1 B4:1 D5:1.5 B4:.5 D5:1 E5:1 D5:2 B4:1 D5:1 E5:4 D5:1 r:1'),
+        (b, 'B4:1 D5:1 D5:1.5 B4:.5 C5:1 B4:1 A4:2 G4:1 A4:1 B4:2 +A4:2 ' + ('G4:4' if last else 'G4:1 r:1')),
+    ]
+
+
+ELIJAH_SONG = dict(
+    id='song-elijah', title='Fire from Heaven', style='gospel', meter=4, tempo=92, transpose=-5,
+    start=2,  # (each verse starts with a two-beat pickup: "God sent")
+    lines=_michael('God sent rav-ens with some bread, Hal-le-lu-jah!', 'E-li-jah had food to eat, Hal-le-lu-jah!')
+    + _michael('Then a wid-ow shared her bread, Hal-le-lu-jah!', 'God made her flour last and last, Hal-le-lu-jah!')
+    + _michael('E-li-jah prayed on the hill, Hal-le-lu-jah!', 'Down came fire from heav-en high, Hal-le-lu-jah!')
+    + _michael('Then the rain came pour-ing down, Hal-le-lu-jah!', 'Our God an-swers when we pray, Hal-le-lu-jah!', last=True),
+    chords='G:2 D7:2 ' + 'G:8 C:4 G:8 D7:8 G:4 ' * 4,
+)
+
+
+# "London Bridge" (a traditional English singing game), as "The Everyday Song Book" (1927, John Chambers'
+# transcription on abcnotation.com, K:F): the tune is its top line.
+def _bridge(a, b, last=False):
+    return [
+        (a, 'C5:1.5 D5:.5 C5:1 A#4:1 A4:1 A#4:1 C5:2 G4:1 A4:1 A#4:2 A4:1 A#4:1 C5:2'),  # "Lon-don Bridge is fall-ing down, fall-ing down, fall-ing down,"
+        (b, 'C5:1.5 D5:.5 C5:1 A#4:1 A4:1 A#4:1 C5:2 G4:2 C5:2 A4:1 ' + ('F4:3' if last else 'F4:2 r:1')),  # "Lon-don Bridge is fall-ing down, My fair La-dy."
+    ]
+
+
+ESTHER_SONG = dict(
+    id='song-esther', title='Brave Queen Esther', style='bouncy', meter=4, tempo=108, transpose=-2, start=4,
+    lines=_bridge('Es-ther was a lov-ing queen, lov-ing queen, lov-ing queen;', 'Es-ther was a lov-ing queen. God was with her.')
+    + _bridge('Proud old Ha-man made a plan, made a plan, made a plan;', 'Proud old Ha-man made a plan, such a mean one!')
+    + _bridge('"Es-ther, will you help us now, help us now, help us now?"', 'Mor-de-cai said, "Help us now! Be so brave, Queen!"')
+    + _bridge('Es-ther prayed and was so brave, was so brave, was so brave;', 'Es-ther prayed and was so brave. God was with her!')
+    + _bridge("God's own peo-ple all were saved, all were saved, all were saved;", "God's own peo-ple all were saved! Let's all praise Him!", last=True),
+    chords='F:2 C7:2 ' + 'F:8 C7:4 F:12 C7:4 F:4 ' * 5,
+)
+
+
+# "Oh! Dear, What Can the Matter Be?" (English, 18th century; "Johnny's so long at the fair"), as "The Everyday
+# Song Book" (1927, John Chambers' transcription on abcnotation.com, K:Eb): its chorus. 6/8: the dotted
+# quarter is the beat.
+def _oh_dear(a, last=False):
+    return [(a, 'A#4:.5 r:.5 A#4:.5 r:.5 '                                  # "Oh! dear,"
+                'A#4:.25 G4:.25 D#5:.5 A#4:.25 G4:.25 D#4:.5 '              # "what can the mat-ter be?"
+                'G#4:.5 r:.5 G#4:.5 r:.5 '                                  # "Dear! dear!"
+                'G#4:.25 F4:.25 G4:.5 G#4:.25 G4:.25 F4:.5 '                # "what can the mat-ter be?"
+                'A#4:.5 r:.5 A#4:.5 r:.5 '
+                'A#4:.25 G4:.25 D#5:.5 A#4:.25 G4:.25 D#4:.5 '
+                'C4:.25 D#4:.25 G#4:.5 G4:.25 G#4:.25 F4:.5 '               # "John-ny's so long at the"
+                + ('D#4:3' if last else 'D#4:1.5 r:.5'))]                    # "fair."
+
+
+BOY_JESUS_SONG = dict(
+    id='song-boy-jesus', title='Where Can Our Jesus Be?', style='hymn', meter=2, tempo=72, swing=2 / 3,
+    transpose=-1, start=4,
+    lines=_oh_dear('Hap-py! Off to Je-ru-sa-lem! Hap-py! Off to the Pass-o-ver! Je-sus, Ma-ry and Jo-seph went '
+                   'all the way up to the feast!')
+    + _oh_dear("Oh, dear! Where can our Je-sus be? Oh, dear! Where can our Je-sus be? Oh, dear! Where can our Je-sus be? "
+               "Look-ing for Him ev-'ry-where!")
+    + _oh_dear("Look, there! There is our Je-sus, there! In God's house, in His Fa-ther's house! Teach-ers lis-tened, "
+               "a-mazed at Him. Then He went home with them all.")
+    + _oh_dear("Je-sus grew up so strong and wise, lov-ing God and His fam-'ly, too. God loves you, and He loves me, too! "
+               'Thank You, God, for lov-ing us!', last=True),
+    chords='Eb:2 Bb7:2 ' + 'Eb:4 Bb7:4 Eb:4 Ab:1 Bb7:1 Eb:2 ' * 4 + 'Eb:2',
+)
+
 ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG,
-                BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG, JERICHO_SONG, RUTH_SONG, SAMUEL_SONG]
+                BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG, JERICHO_SONG, RUTH_SONG, SAMUEL_SONG,
+                ELIJAH_SONG, ESTHER_SONG, BOY_JESUS_SONG]
 
 SONGS = [JESUS_LOVES_ME, THIS_LITTLE_LIGHT, AWAY_IN_A_MANGER, TWINKLE, HAPPY_BIRTHDAY, NOAH] + ISLAND_SONGS

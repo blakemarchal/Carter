@@ -44,6 +44,7 @@ export interface PalDef {
     | 'camel' | 'star' | 'peacock' | 'chameleon' | 'wind' | 'tambourine' | 'cub' | 'owl'
     | 'crocodile' | 'lily' | 'hedgehog' | 'hyrax' | 'tortoise' | 'quail'
     | 'ram' | 'trumpet' | 'grasshopper' | 'hare' | 'bat' | 'fennec'
+    | 'cactus' | 'raven' | 'rooster' | 'butterfly' | 'gecko' | 'sparrow'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -301,6 +302,45 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Echo', xp: 0 }, { name: 'Bigears', xp: 100 }, { name: 'Dawnlistener', xp: 300 }],
     moves: { basic: { name: 'Listening Ears', fx: 'spark', icon: '👂' }, brave: { name: 'Sand Skip', fx: 'roll', icon: '🏜️' }, super: { name: 'Lamp Light', fx: 'flame', icon: '🪔' } },
     intro: 'is a Faithfulness Pal! {name} has great big ears for listening, just like Samuel, who listened when God called his name.',
+  },
+  // Elijah
+  {
+    id: 'spike', species: 'cactus', fruit: 'Patience',
+    stages: [{ name: 'Spike', xp: 0 }, { name: 'Bloomspike', xp: 100 }, { name: 'Desertbloom', xp: 300 }],
+    moves: { basic: { name: 'Soft Spines', fx: 'spark', icon: '🌵' }, brave: { name: 'Desert Bloom', fx: 'leaf', icon: '🌸' }, super: { name: 'Rain Dance', fx: 'bubbles', icon: '🌧️' } },
+    intro: "is a Patience Pal! {name} used to be prickly and cross in the long, dry days, but now {name} waits for God's rain, like Elijah.",
+  },
+  {
+    id: 'crumbs', species: 'raven', fruit: 'Kindness',
+    stages: [{ name: 'Crumbs', xp: 0 }, { name: 'Breadwing', xp: 100 }, { name: 'Skycarrier', xp: 300 }],
+    moves: { basic: { name: 'Bread Drop', fx: 'leaf', icon: '🍞' }, brave: { name: 'Wing Swoop', fx: 'wind', icon: '🪶' }, super: { name: 'Kind Delivery', fx: 'hearts', icon: '💝' } },
+    intro: 'is a Kindness Pal! {name} remembers how God sent ravens with food every morning and evening, to take care of Elijah.',
+  },
+  // Queen Esther
+  {
+    id: 'strut', species: 'rooster', fruit: 'Gentleness',
+    stages: [{ name: 'Strut', xp: 0 }, { name: 'Plumecrest', xp: 100 }, { name: 'Gentlecomb', xp: 300 }],
+    moves: { basic: { name: 'Gentle Peck', fx: 'spark', icon: '🐓' }, brave: { name: 'Tail Fan', fx: 'wind', icon: '🪶' }, super: { name: 'Morning Song', fx: 'stars', icon: '🌅' } },
+    intro: 'is a Gentleness Pal! {name} used to strut about, all puffed up and proud, but now {name} is gentle and kind to everyone.',
+  },
+  {
+    id: 'glimmer', species: 'butterfly', fruit: 'Joy',
+    stages: [{ name: 'Glimmer', xp: 0 }, { name: 'Silkwing', xp: 100 }, { name: 'Royalwing', xp: 300 }],
+    moves: { basic: { name: 'Flutter', fx: 'wind', icon: '🦋' }, brave: { name: 'Sparkle Wings', fx: 'stars', icon: '✨' }, super: { name: 'Royal Dance', fx: 'hearts', icon: '👑' } },
+    intro: "is a Joy Pal! {name} dances for joy, like God's people at the happy party after brave Queen Esther helped save them.",
+  },
+  // Boy Jesus at the Temple
+  {
+    id: 'sticky', species: 'gecko', fruit: 'Peace',
+    stages: [{ name: 'Sticky', xp: 0 }, { name: 'Wallwalker', xp: 100 }, { name: 'Sunbasker', xp: 300 }],
+    moves: { basic: { name: 'Sticky Toes', fx: 'spark', icon: '🦎' }, brave: { name: 'Wall Climb', fx: 'roll', icon: '🧗' }, super: { name: 'Sunny Rest', fx: 'stars', icon: '☀️' } },
+    intro: 'is a Peace Pal! {name} used to scurry and fuss all over the walls, but now {name} rests in the sun, calm and peaceful.',
+  },
+  {
+    id: 'chirp', species: 'sparrow', fruit: 'Love',
+    stages: [{ name: 'Chirp', xp: 0 }, { name: 'Songsparrow', xp: 100 }, { name: 'Skysinger', xp: 300 }],
+    moves: { basic: { name: 'Happy Chirp', fx: 'spark', icon: '🎵' }, brave: { name: 'Feather Flutter', fx: 'wind', icon: '🪶' }, super: { name: 'Love Song', fx: 'hearts', icon: '💛' } },
+    intro: 'is a Love Pal! {name} sings that God takes care of every little sparrow, and He cares for you even more.',
   },
 ]
 
