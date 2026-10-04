@@ -95,9 +95,9 @@ const DoorOnDeck = () => <><ArkDoor />{sill(-17.5, 17.5)}</>
 
 export const NOAH_GAME: BuildKit = {
   Backdrop,
-  // (Each part names everything that goes in before it, the boat too: tried too early, the roof hears
-  // "First the boat and the house!" while the boat lights up in the tray, so the words and the light
-  // agree. The ramp only needs the boat to lean on.)
+  // (Each part names everything that goes in before it, the boat too. Tried too early, a part hears the
+  // first one still to go in ("First the boat!") while that one lights up in the tray. The ramp only
+  // needs the boat to lean on.)
   parts: [
     part('boat', 'the boat', [-170, -40, 170, 30], ArkHull),
     part('house', 'the house', [-90, -110, 90, -40], HouseOnDeck, ['boat']),

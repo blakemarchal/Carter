@@ -178,8 +178,8 @@ function Finished() {
 export const CHRISTMAS_GAME: BuildKit = {
   Backdrop,
   // (the cozy mat first, then the manger and what goes in it, then the light: the lamp and the star.
-  // The blanket names the manger too: tried first, it hears "First the manger and the soft hay!" while
-  // the manger lights up in the tray, so the words and the light agree.)
+  // The blanket names the manger too: tried first, it hears "First the manger!" while the manger
+  // lights up in the tray.)
   parts: [
     { id: 'mat', say: 'the cozy mat', Draw: Mat, at: [190, 410], size: [212, 36] },
     { id: 'manger', say: 'the manger', Draw: Manger, at: [400, 385], size: [176, 72] },
