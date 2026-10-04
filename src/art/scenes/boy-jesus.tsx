@@ -77,19 +77,23 @@ const P_ROBES = ['#e6b85a', '#7cb06a', '#5f8fc0', '#c98aa8', '#b5794a', '#e07a5f
 const P_WRAPS = ['#f5f0e6', '#c0504d', '#7cb0e0', '#e8dcc0', '#d9b56a', '#a98cff', '#86cdb2']
 const P_HAIRS = ['#3b2a20', '#4a3020', '#2b1f18', '#5a3a24']
 
-/** Someone at the feast (`i` picks how they look): men in head cloths or with short hair and beards, women in head scarves; or a `child`. */
+/**
+ * Someone at the feast (`i` picks how they look): men in head cloths or with short hair and beards, women in head scarves;
+ * or a `child`. (No woman wears a blue head scarf like Mary's, so nobody in a crowd looks like a second Mary.)
+ */
 export function pilgrim(i: number, child = false): Look {
   const skin = P_SKINS[(i * 3 + 1) % P_SKINS.length]
   const robe = P_ROBES[(i * 7 + 3) % P_ROBES.length]
   const wrap = P_WRAPS[(i * 5 + 2) % P_WRAPS.length]
+  const scarf = wrap === '#7cb0e0' ? '#e8875a' : wrap
   const hairColor = P_HAIRS[(i * 3) % P_HAIRS.length]
   const sash = ['#f5f0e6', '#e6b85a', '#c0504d', '#5f8fc0'][(i * 5) % 4]
   if (child) return { skin, hair: i % 2 ? 'curly' : 'short', hairColor, robe, sash, build: 'child' }
   switch (i % 4) {
     case 0: return { skin, hair: 'covered', hairColor, wrap, beard: 'short', beardColor: hairColor, robe, sash }
-    case 1: return { skin, hair: 'covered', hairColor, wrap, robe, sash }
+    case 1: return { skin, hair: 'covered', hairColor, wrap: scarf, robe, sash }
     case 2: return { skin, hair: 'short', hairColor, beard: 'short', beardColor: hairColor, robe, sash }
-    default: return { skin, hair: 'covered', hairColor, wrap, robe, sash: '#f5f0e6' }
+    default: return { skin, hair: 'covered', hairColor, wrap: scarf, robe, sash: '#f5f0e6' }
   }
 }
 
@@ -713,7 +717,8 @@ function Campfire({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 
 /**
  * A market stall: a striped cloth roof on two poles, and a table with baskets of red pomegranates, purple figs and bread.
- * (x, y) = the middle of its foot. `keeper` stands behind the table (drawn after the poles, before the table).
+ * (x, y) = the middle of its foot. `keeper` stands behind the table (drawn after the poles, before the table), in the gap
+ * between the figs and the bread (at about x + 22).
  */
 function Stall({ x, y, keeper }: { x: number; y: number; keeper?: ReactNode }) {
   const basket = (bx: number, fruit: string, line: string) => (
@@ -729,9 +734,9 @@ function Stall({ x, y, keeper }: { x: number; y: number; keeper?: ReactNode }) {
       {keeper}
       <rect x={x - 84} y={y - 52} width={168} height={52} fill="#c98a52" stroke="#7a4f2a" strokeWidth={2.5} />
       <path d={`M${x - 84} ${y - 36} H${x + 84} M${x - 84} ${y - 18} H${x + 84}`} stroke="#a8703e" strokeWidth={1.6} />
-      {basket(x - 52, '#d84a4a', '#9a2a2a')}
-      {basket(x, '#8a5aa8', '#5a3a72')}
-      {[[-12, -60], [10, -60], [-1, -67]].map(([fx, fy], i) => <ellipse key={i} cx={x + 52 + fx} cy={y + fy} rx={11} ry={6.5} fill="#e0a75e" stroke="#a8702c" strokeWidth={1.8} />)}
+      {basket(x - 60, '#d84a4a', '#9a2a2a')}
+      {basket(x - 20, '#8a5aa8', '#5a3a72')}
+      {[[-12, -60], [10, -60], [-1, -67]].map(([fx, fy], i) => <ellipse key={i} cx={x + 60 + fx} cy={y + fy} rx={11} ry={6.5} fill="#e0a75e" stroke="#a8702c" strokeWidth={1.8} />)}
       <path d={`M${x - 104} ${top} L${x + 104} ${top} L${x + 104} ${top + 24} ${Array.from({ length: 8 }, (_, i) => `Q${x + 104 - i * 26 - 13} ${top + 36} ${x + 104 - (i + 1) * 26} ${top + 24}`).join(' ')} Z`}
         fill="#f5ead2" stroke="#b9945a" strokeWidth={2.5} strokeLinejoin="round" />
       {[-78, -26, 26, 78].map((sx) => <rect key={sx} x={x + sx - 13} y={top} width={26} height={24} fill="#d9604f" opacity={0.85} />)}
@@ -924,7 +929,7 @@ function Page5() {
 // 6. "When the feast was over, everyone set off for home, walking and talking together. But Jesus stayed behind in
 //    Jerusalem, and Mary and Joseph didn't know!"
 // The city wall and its gate: everyone walks off down the road for home (the aunt, Mary, a cousin, Joseph and the donkey),
-// but Jesus is still inside the city, up in the doorway of God's house.
+// but Jesus is still inside the city, up at God's house, standing in front of its steps.
 function Page6() {
   return (
     <Scene sky="day" ground="none" sun>
@@ -934,7 +939,7 @@ function Page6() {
       <FarHouses spots={[[52, 282, 26], [92, 274, 22], [286, 272, 24], [326, 282, 26], [364, 290, 22]]} />
       <Tap say="I want to stay in God's house a little longer." sfx="sparkle">
         <Temple x={176} y={250} s={0.66} shine />
-        <BoyJesus x={176} y={236} s={0.6} blinkDelay={0.3} />
+        <BoyJesus x={200} y={258} s={0.6} blinkDelay={0.3} />
       </Tap>
       <CityWall x0={-10} x1={420} y={392} h={96} gx={336} through={<rect x={296} y={250} width={80} height={150} fill="#f0dcb2" />} />
       <path d="M420 330 Q600 300 800 312 L800 450 L420 450 Z" fill="#b9cf8e" />
@@ -989,11 +994,11 @@ function Page8() {
       <rect x={0} y={318} width={200} height={20} fill="#d9b67a" stroke="#a8804a" strokeWidth={2} />
       <Tap say="Meow! Have you seen Jesus?" sfx="pop"><Emoji e="🐱" x={60} y={292} size={58} /></Tap>
       <Stall x={640} y={420} keeper={
-        <Tap say="Have you looked in God's house?"><Figure x={650} y={410} s={0.86} look={pilgrim(5)} pose="point" facing="left" blinkDelay={0.6} /></Tap>
+        <Tap say="Have you looked in God's house?"><Figure x={662} y={410} s={0.86} look={pilgrim(5)} pose="point" reach={[null, [56, -114]]} facing="left" blinkDelay={0.6} /></Tap>
       } />
-      <Person x={318} y={300} s={0.56} look={pilgrim(3)} blinkDelay={0.4} />
+      <Person x={230} y={300} s={0.56} look={pilgrim(3)} blinkDelay={0.4} />
       <Person x={470} y={296} s={0.54} look={pilgrim(6)} facing="left" blinkDelay={1.2} />
-      <Person x={430} y={318} s={0.56} look={pilgrim(9)} blinkDelay={0.8} />
+      <Person x={360} y={318} s={0.56} look={pilgrim(9)} blinkDelay={0.8} />
       <Tap say="Jesus! Where are You?"><Figure x={300} y={436} s={1.06} look={PEOPLE.mary} mood="wow" blinkDelay={1.1} /></Tap>
       <Tap say="Have you seen a boy named Jesus?"><Figure x={420} y={438} s={1.06} look={PEOPLE.joseph} pose="point" item={<TallStick x={-30} />} blinkDelay={0.3}><JosephSilver /></Figure></Tap>
     </Scene>

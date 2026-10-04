@@ -59,10 +59,14 @@ const Niche = () => (
   </g>
 )
 
-/** Someone at the feast, standing: [x, feet y, size, which look, facing left, child]. Back to front. */
+/**
+ * Someone at the feast, standing: [x, feet y, size, which look, facing left, child]. Back to front. The rows are staggered,
+ * each person in a gap of the row in front, so nobody's feet are hidden behind a head in front of them (and nobody stands
+ * in front of a Levite's feet, on a tap circle, or with a basket on someone's head).
+ */
 const CROWD: [number, number, number, number, boolean?, boolean?][] = [
-  [292, 292, 0.5, 3], [336, 296, 0.5, 6, false, true], [468, 294, 0.5, 9, true], [512, 290, 0.5, 4, true],
-  [270, 344, 0.6, 1], [330, 352, 0.62, 12], [478, 350, 0.62, 7, true], [536, 342, 0.6, 2, true, true],
+  [340, 296, 0.5, 3], [452, 294, 0.5, 9, true], [588, 300, 0.5, 4, true],
+  [280, 350, 0.6, 1], [392, 352, 0.62, 12], [530, 348, 0.62, 7, true],
   [674, 438, 0.84, 10, true], [742, 440, 0.8, 5, true, true],
   [318, 444, 0.84, 8], [392, 446, 0.66, 11, false, true], [470, 444, 0.84, 13, true],
 ]

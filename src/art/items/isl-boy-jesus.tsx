@@ -11,8 +11,6 @@ import { Baby, Figure, Person, PEOPLE, type Look } from '../people'
 
 /** Jesus as a boy (as on the Boy Jesus at the Temple island): the grown-up Jesus' skin, long hair and robe, and no beard. */
 const BOY: Look = { ...PEOPLE.jesus, beard: undefined, build: 'child' }
-/** Jesus as a little boy, about four: the same, with his hair short. */
-const LITTLE: Look = { ...BOY, hair: 'short' }
 
 /** Baby Jesus asleep on the hay in a low wooden manger. */
 function JesusBaby() {
@@ -36,7 +34,7 @@ function JesusLittle() {
   return (
     <g>
       <ellipse {...groundShadow(50, 94, 18)} />
-      <Person x={50} y={95} s={0.56} look={LITTLE} pose="wave" blinkDelay={0.6} />
+      <Person x={50} y={95} s={0.56} look={BOY} pose="wave" blinkDelay={0.6} />
     </g>
   )
 }
