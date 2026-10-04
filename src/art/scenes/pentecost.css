@@ -1,0 +1,31 @@
+/* Pentecost (art/scenes/pentecost.tsx and art/games/pentecost.tsx): motion its pictures and its mini-game need that
+   styles.css doesn't have. Like the pa-* classes, these only run inside an svg with class "pa-anim" (story pictures and
+   the game board both have it). Never on an element with a transform attribute: wrap it in a <g>. */
+
+/* A little flame of God's light over someone's head: it flickers and sways gently from its foot, like a candle's. */
+.pa-anim .pc-flicker { animation: pcflicker 1.3s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes pcflicker {
+  0% { transform: scale(1, 1) rotate(-3deg); }
+  50% { transform: scale(1.05, .94) rotate(1deg); }
+  100% { transform: scale(.95, 1.07) rotate(3deg); }
+}
+/* Its soft glow, breathing in and out. */
+.pa-anim .pc-glow { animation: pcglow 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pcglow { 50% { transform: scale(.86); opacity: .7; } }
+
+/* The rushing wind: a bright stretch runs along each swirl, over and over (its path has pathLength 100)... */
+.pa-anim .pc-flow { stroke-dasharray: 34 66; animation: pcflow 2.2s linear infinite; }
+@keyframes pcflow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+/* ...and the whole swirl drifts to and fro. */
+.pa-anim .pc-drift { animation: pcdrift 3.4s ease-in-out infinite alternate; }
+@keyframes pcdrift { to { transform: translate(12px, -4px); } }
+
+/* The mini-game ("When the Spirit Came"): when the picture is finished, everyone's joy shows. A part draws both ways
+   (pc-still, then pc-joy): the friends lift up their hands, and the crowd cheers. */
+.pc-joy { display: none; }
+.build-it.finished .pc-joy { display: inline; }
+.build-it.finished .pc-still { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-anim .pc-flicker, .pa-anim .pc-glow, .pa-anim .pc-flow, .pa-anim .pc-drift { animation: none !important; }
+}
