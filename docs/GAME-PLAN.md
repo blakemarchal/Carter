@@ -220,14 +220,14 @@ Above all, it's **personal**. The child and their family appear in the pictures,
 
 **Progress (Oct 4, 2026):**
 - **The quality pass and the campaign framework are done.** Every island has three visits, a mini-game and a song spot. The review page, item library, seas, daily voyage, hotspots and buddy Pal are all in.
-- **Content waves: 24 islands are live.** Each wave is built by parallel agents, read by a fresh reviewer, fixed, voiced, deployed and checked in production before the next one starts.
+- **Content waves: all seven seas are done, 27 islands live.** Each wave is built by parallel agents, read by a fresh reviewer, fixed, voiced, deployed and checked in production before the next one starts.
   - Wave 1: the six islands deepened, plus Abraham, Joseph, the Red Sea and Daniel.
   - Wave 2: Baby Moses, The Burning Bush and Manna, which finish the sea "Out of Egypt".
   - Wave 3: The Walls of Jericho, Ruth and Naomi, and Samuel Listens.
   - Wave 4: Elijah and Queen Esther, which finish "Kings & Prophets", and Boy Jesus at the Temple.
   - Wave 5: Fishers of People and Jesus Calms the Storm, which finish "Jesus Comes", and The Lost Sheep.
   - Wave 6: The Good Samaritan and Zacchaeus, which finish "Jesus' Stories & Miracles".
-  - Next: wave 7, Palm Sunday, Easter Morning and Pentecost (their songs are already made), well before Easter. That finishes all seven seas.
+  - Wave 7: Palm Sunday, Easter Morning and Pentecost, the sea "Easter & Beyond", live in October, well before Easter.
 - **Each island loads when it's needed**, so the game starts with 38% less to download.
 - **The multi-family server came early, at Carter's request.** Families went live Oct 4.
   - Grown-ups join by an invitation link, with their own avatars, and each family's data is its own.
