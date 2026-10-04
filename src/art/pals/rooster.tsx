@@ -1,12 +1,13 @@
 // Strut → Plumecrest → Gentlecomb: a proud little rooster facing you, golden-brown, with a red comb on top of his
 // head, a red wattle under his little yellow beak, a cape of shiny golden feathers round his neck, russet wings
-// folded at his sides, and two yellow legs with three round toes on each foot. His fancy tail sweeps up from
-// behind him at his back (on his left, our right) and arches over, in long curved feathers of teal and green.
-// Plumecrest is softer and kinder-looking, with a bigger, rounder comb and a fuller, prettier tail with golden
-// tips. Gentlecomb's tail is fuller again, in all the soft colours of the sunrise, and he wears a crown, with a
-// warm morning glow all round him.
-// Grumpy (in battle, before he's befriended): dusty and dull, his chest puffed right out and his nose in the air,
-// with a cross little frown.
+// folded at his sides, and two yellow legs with three round toes on each foot. His fancy tail sweeps up from low
+// behind his back (on his left, our right) and arches over: long curved sickle feathers of shiny green-black, and
+// a copper one.
+// Plumecrest is softer and kinder-looking, with his head tipped gently to one side, a bigger, rounder comb and a
+// fuller, prettier tail with golden and copper feathers among the green-black. Gentlecomb's tail is fuller again,
+// in all the soft colours of the sunrise, and he wears a crown, with a warm morning glow all round him.
+// Grumpy (in battle, before he's befriended): dusty and dull, his chest puffed right out and his head tipped back,
+// beak in the air, with a cross little frown.
 import { useId } from 'react'
 import { type BodyProps, Anim, Crown, CuteFace, ink, pt, Shine, twinklePath, useShade } from '../kit'
 
@@ -57,15 +58,17 @@ function plume(p: Plume, t0 = 0, t1 = 1, n = 22) {
   return `M${pt(...L[0])} ${sm(L)} A${r1.toFixed(1)} ${r1.toFixed(1)} 0 0 0 ${pt(...R[0])} ${sm(R)} A${r0.toFixed(1)} ${r0.toFixed(1)} 0 0 0 ${pt(...L[0])}Z`
 }
 
-// His tail at each stage, fanned out from behind his back, the long outside feathers first and the shorter
-// inside ones over them. Fuller as he grows.
+// His tail at each stage, fanned out from low behind his back, the long outside feathers first and the shorter
+// inside ones over them; fuller as he grows. (Its tips stay well inside the picture, so the coloring page and the
+// gallery card show all of it.)
 const TAILS: Plume[][] = [
-  [[[126, 138], [152, 40], [184, 70], 17], [[128, 142], [174, 66], [190, 108], 17], [[128, 147], [172, 108], [182, 146], 16]],
-  [[[124, 136], [150, 40], [178, 48], 15], [[126, 138], [158, 36], [188, 70], 18], [[128, 142], [176, 66], [193, 108], 18],
-    [[128, 147], [174, 108], [185, 148], 17], [[126, 140], [152, 74], [172, 92], 13]],
-  [[[124, 136], [150, 40], [178, 48], 15], [[126, 138], [158, 36], [189, 70], 18], [[128, 142], [177, 66], [194, 108], 18],
-    [[128, 147], [175, 108], [186, 149], 17], [[127, 144], [170, 88], [190, 128], 15], [[126, 140], [150, 70], [170, 84], 13],
-    [[127, 143], [160, 96], [177, 112], 13]],
+  [[[126, 146], [150, 58], [176, 74], 15], [[128, 150], [164, 82], [182, 110], 15], [[128, 155], [162, 116], [174, 142], 14],
+    [[125, 149], [146, 94], [162, 100], 11]],
+  [[[124, 144], [144, 52], [170, 58], 14], [[126, 147], [154, 58], [180, 80], 15], [[128, 151], [166, 86], [183, 114], 15],
+    [[128, 155], [162, 118], [175, 144], 14], [[125, 148], [144, 84], [162, 88], 11], [[126, 151], [154, 104], [170, 116], 11]],
+  [[[123, 143], [140, 48], [164, 50], 13], [[124, 145], [150, 50], [176, 66], 15], [[126, 148], [162, 62], [183, 94], 15],
+    [[128, 152], [168, 96], [183, 126], 15], [[128, 156], [162, 126], [174, 150], 14], [[125, 148], [146, 80], [164, 86], 11],
+    [[126, 151], [156, 104], [172, 116], 11]],
 ]
 
 // ---------- His body ----------
@@ -99,12 +102,13 @@ export default function Rooster({ stage, mood }: BodyProps) {
   const RED = g ? '#c99a9a' : '#ff5462'
   const BEAK = g ? '#d8c08e' : '#ffbe3b'
   const LEGS = g ? '#cdb58a' : '#f5ac3c'
-  const GOLD = '#ffd34d'
-  // The tail's colours: teal and green (Strut and Plumecrest, his with golden tips), or all the soft colours of the
-  // sunrise (Gentlecomb)
-  const TAILC = g ? ['#8fa09b', '#9ba796', '#a2aaa4'] : st >= 2
-    ? ['#ff8fb3', '#ffa66e', '#ffd45e', '#7fd6a0', '#5fc3d8', '#b39cff', '#ff9ec4']
-    : ['#2e9488', '#43ad6a', '#2e9488', '#43ad6a', '#5fc0a0']
+  // The tail's colours, outside feathers first: shiny green-black with a copper one (Strut), and a golden one too
+  // (Plumecrest), or all the soft colours of the sunrise (Gentlecomb); dull and dusty when he's cross
+  const DARK = '#21423d', DARK2 = '#2b5048', COPPER = '#c4672f', TAIL_GOLD = '#efae3c'
+  const TAILC = g
+    ? ['#5d6965', '#66706a', '#5d6965', '#8c7565', '#66706a', '#8f826a', '#5d6965']
+    : [[DARK, DARK2, DARK, COPPER], [DARK, DARK2, DARK, DARK2, COPPER, TAIL_GOLD],
+       ['#ff8fb3', '#ffa66e', '#ffd45e', '#7fd6a0', '#5fc3d8', '#b39cff', '#ff9ec4']][st]
   const body = useShade(GOLDEN, 0.4, 0.16)
   const cape = useShade(CAPE, 0.45, 0.12)
   const breast = useShade(BREAST, 0.45, 0.06)
@@ -112,13 +116,13 @@ export default function Rooster({ stage, mood }: BodyProps) {
   const red = useShade(RED, 0.35, 0.15)
   const beak = useShade(BEAK, 0.45, 0.12)
   const legs = useShade(LEGS, 0.35, 0.12)
-  const tailFills = [useShade(TAILC[0], 0.35, 0.15), useShade(TAILC[1], 0.35, 0.15), useShade(TAILC[2], 0.35, 0.15),
-    useShade(TAILC[3 % TAILC.length], 0.35, 0.15), useShade(TAILC[4 % TAILC.length], 0.35, 0.15),
-    useShade(TAILC[5 % TAILC.length], 0.35, 0.15), useShade(TAILC[6 % TAILC.length], 0.35, 0.15)]
+  const tailFills = [useShade(TAILC[0], 0.4, 0.15), useShade(TAILC[1], 0.4, 0.15), useShade(TAILC[2], 0.4, 0.15),
+    useShade(TAILC[3 % TAILC.length], 0.4, 0.15), useShade(TAILC[4 % TAILC.length], 0.4, 0.15),
+    useShade(TAILC[5 % TAILC.length], 0.4, 0.15), useShade(TAILC[6 % TAILC.length], 0.4, 0.15)]
   const line = ink(GOLDEN)
   const tail = TAILS[st]
-  // His head: nose in the air when he's cross; tipped gently to one side once he's kind
-  const tilt = g ? 'rotate(-13 100 104) translate(0 -4)' : st >= 1 ? 'rotate(6 100 104)' : undefined
+  // His head: lifted, with his beak in the air, when he's cross; tipped gently to one side once he's kind
+  const tilt = g ? 'translate(0 -5) rotate(-4 100 104)' : st >= 1 ? 'rotate(6 100 104)' : undefined
   // The comb: three little points on Strut; bigger and rounder once he's gentle
   const comb = st >= 1
     ? 'M83 63 C78 53 84 45 91 49 C90 39 100 35 104 44 C107 36 118 38 117 49 C123 46 128 55 122 63 Z'
@@ -145,12 +149,12 @@ export default function Rooster({ stage, mood }: BodyProps) {
           <g transform={MIRROR}>
             {tail.map((p, i) => {
               const c = TAILC[i % TAILC.length]
-              const mid = [0.2, 0.4, 0.6, 0.8].map((t) => pt(...along(p, t))).join(' ')
+              // (a soft shine along the dark feathers, so they look glossy rather than flat)
+              const shine = [0.22, 0.38, 0.54].map((t) => pt(...along(p, t))).join(' ')
               return (
                 <g key={i}>
                   <path d={plume(p)} fill={tailFills[i % tailFills.length].fill} stroke={ink(c)} strokeWidth={2.4} strokeLinejoin="round" />
-                  {st === 1 && !g && <path d={plume(p, 0.84, 1)} fill={GOLD} stroke={ink(c)} strokeWidth={1.6} strokeLinejoin="round" />}
-                  <polyline points={mid} fill="none" stroke={ink(c)} strokeWidth={1.4} strokeLinecap="round" opacity={0.4} />
+                  {(c === DARK || c === DARK2) && <polyline points={shine} fill="none" stroke="#6fc2b0" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" opacity={0.45} />}
                 </g>
               )
             })}
@@ -173,7 +177,7 @@ export default function Rooster({ stage, mood }: BodyProps) {
         <path d={smooth(bodyPts(g ? 1.15 : 1))} fill={body.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
         <ellipse cx={100} cy={g ? 134 : 140} rx={g ? 30 : 24} ry={g ? 27 : 22} fill={breast.fill} />
         {[[92, 136], [108, 136], [100, 145], [87, 150], [113, 150], [100, 156]].map(([x, y]) => (
-          <polyline key={`${x}${y}`} points={`${x - 3.5} ${y - 1.5} ${x} ${y + 2} ${x + 3.5} ${y - 1.5}`} fill="none" stroke={g ? '#bba98f' : '#e5a95a'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          <path key={`${x}${y}`} d={`M${x - 3.5} ${y - 1.5} L${x} ${y + 2} L${x + 3.5} ${y - 1.5}`} fill="none" stroke={g ? '#bba98f' : '#e5a95a'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         ))}
       </g>
 
@@ -183,7 +187,7 @@ export default function Rooster({ stage, mood }: BodyProps) {
           <Anim cls="pa-wing" origin="80% 10%" delay={side > 0 ? 0.2 : 0}>
             <g transform={g ? 'translate(-5 0) rotate(8 69 112)' : undefined}>
               <path d={WING} fill={wing.fill} stroke={ink(WINGC)} strokeWidth={3} strokeLinejoin="round" />
-              {WING_LINES.map((p) => <polyline key={p} points={p} fill="none" stroke={ink(WINGC)} strokeWidth={1.8} strokeLinecap="round" opacity={0.6} />)}
+              {WING_LINES.map((p) => <path key={p} d={`M${p}`} fill="none" stroke={ink(WINGC)} strokeWidth={1.8} strokeLinecap="round" opacity={0.6} />)}
             </g>
           </Anim>
         </g>
@@ -198,9 +202,11 @@ export default function Rooster({ stage, mood }: BodyProps) {
         <circle cx={100} cy={80} r={26} fill={body.fill} stroke={line} strokeWidth={3} />
         <Shine x={88} y={66} rx={7} ry={4} />
         <CuteFace x={100} y={FACE_Y} s={FACE_S} gap={14} mood={mood} mouth={false} blinkDelay={0.5} />
-        {/* The red wattle under his beak, and the little beak */}
+        {/* The red wattle under his beak, and the little beak (pointing up in the air when he's cross, his chin and
+            wattle thrust out under it) */}
         <path d="M100 95 C94 96 92 104 95 108 C97 111 100 109 100 106 C100 109 103 111 105 108 C108 104 106 96 100 95 Z" fill={red.fill} stroke={ink(RED)} strokeWidth={2} strokeLinejoin="round" />
-        <path d="M93.5 88.5 Q100 85 106.5 88.5 Q104.5 94 100 98 Q95.5 94 93.5 88.5 Z" fill={beak.fill} stroke={ink(BEAK)} strokeWidth={2} strokeLinejoin="round" />
+        <path d={g ? 'M93 95.5 Q100 99 107 95.5 Q105 89.5 100 84.5 Q95 89.5 93 95.5 Z' : 'M93.5 88.5 Q100 85 106.5 88.5 Q104.5 94 100 98 Q95.5 94 93.5 88.5 Z'}
+          fill={beak.fill} stroke={ink(BEAK)} strokeWidth={2} strokeLinejoin="round" />
         {st >= 2 && <Crown x={100} y={60} />}
       </g>
 

@@ -64,7 +64,7 @@ export const PAL_FACES: Record<Species, PalFace> = {
   bat: face(83, 0.86, [100, 57], { y: 104.5, rx: 5.5, ry: 5 }),
   fennec: face(81, 0.84, [100, 57], { y: 107, rx: 5, ry: 4.5 }),
   cactus: face(116, 0.92, [100, 76]),
-  raven: face(99, 0.88, [100, 72], { y: 112, rx: 5.5, ry: 6 }),
+  raven: face(99, 0.88, [100, 72], { y: 119, rx: 5.5, ry: 6.5 }),
   rooster: face(80, 0.82, [100, 60], { y: 92, rx: 5, ry: 5.5 }),
   butterfly: face(83, 0.82, [100, 57]),
   gecko: face(90, 0.95, [100, 67], { y: 107.5, rx: 8, ry: 7.5 }),
