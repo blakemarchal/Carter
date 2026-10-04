@@ -228,6 +228,12 @@ Above all, it's **personal**. The child and their family appear in the pictures,
   - Wave 5: Fishers of People and Jesus Calms the Storm, which finish "Jesus Comes", and The Lost Sheep.
   - Wave 6: The Good Samaritan and Zacchaeus, which finish "Jesus' Stories & Miracles".
   - Wave 7: Palm Sunday, Easter Morning and Pentecost, the sea "Easter & Beyond", live in October, well before Easter.
+  - Then a whole-game polish round from a fresh audit:
+    - **Grumbleshade's arc (§3.3) is built.** Island by island he says why he's grumpy; on Easter Morning he becomes Gladshade, and the map celebrates the finished voyage.
+    - Shorter verses tied to their stories.
+    - Distinct looks for look-alike people, with Easter's friends at Pentecost.
+    - New map landmarks.
+    - Easter's first visit never ends the day.
 - **Each island loads when it's needed**, so the game starts with 38% less to download.
 - **The multi-family server came early, at Carter's request.** Families went live Oct 4.
   - Grown-ups join by an invitation link, with their own avatars, and each family's data is its own.
