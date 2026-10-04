@@ -33,8 +33,9 @@ A deleted family is removed from the database and its folder at once.
   folder. Tests check that one family can't reach another's data, devices or people.
 - **The server:** a DigitalOcean droplet reached only by the owner over SSH with a key. The game runs as an
   unprivileged user under systemd hardening (read-only system, no new privileges, private temp).
-  Secrets (`/opt/Carter/.env`) are readable by root only. [Turn on automatic security updates; check
-  firewall rules (only 22, 80 and 443 open).]
+  Secrets (`/opt/Carter/.env`) are readable by root only. SSH takes keys only (no passwords), the
+  firewall (ufw) lets in only SSH and the web (80, 443), and security updates install automatically
+  (unattended-upgrades), all checked October 4, 2026.
 - **The app:** a strict Content Security Policy (scripts from our own site only), no frames, no sniffing,
   and no referrer sent. It loads nothing from anyone else's servers.
 - **Service providers** (DigitalOcean, xAI, Resend, ImprovMX, and Stripe at launch) get only what they
