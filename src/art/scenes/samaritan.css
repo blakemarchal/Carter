@@ -1,0 +1,24 @@
+/* The Good Samaritan (art/scenes/samaritan.tsx and art/games/samaritan.tsx): motion its pictures and its
+   mini-game need that styles.css doesn't have. Like the pa-* classes, these only run inside an svg with
+   class "pa-anim" (story pictures and the game board both have it). Never on an element with a transform. */
+
+/* Walking along the road in the game: a step-by-step bob, pivoting at the feet. */
+.pa-anim .sm-walk { animation: smwalk .56s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes smwalk {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  25%, 75% { transform: translateY(-3px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(1.5deg); }
+}
+
+/* A donkey's legs while it walks: each pair swings from the hip, the other pair the other way. */
+.pa-anim .sm-leg { animation: smleg .56s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 0%; }
+.pa-anim .sm-leg.b { animation-delay: -.56s; }
+@keyframes smleg { from { transform: rotate(-11deg); } to { transform: rotate(11deg); } }
+
+/* Steam rising from a warm bowl of soup. */
+.pa-anim .sm-steam { animation: smsteam 2.4s ease-in-out infinite; }
+@keyframes smsteam { 0% { transform: translateY(4px); opacity: 0; } 30% { opacity: .85; } 100% { transform: translateY(-12px); opacity: 0; } }
+
+/* Little dust puffs kicked up far away. */
+.pa-anim .sm-puff { animation: smpuff 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes smpuff { 0% { transform: scale(.5); opacity: .8; } 100% { transform: scale(1.4); opacity: 0; } }
