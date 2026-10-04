@@ -120,6 +120,9 @@ export const ISLANDS: IslandInfo[] = [
   { id: 'elijah', name: 'Elijah', emoji: '🔥', color: '#e8743b' },
   { id: 'esther', name: 'Queen Esther', emoji: '👑', color: '#b48be0' },
   { id: 'boy-jesus', name: 'Boy Jesus at the Temple', emoji: '📜', color: '#e0b85a' },
+  { id: 'fishers', name: 'Fishers of People', emoji: '🐟', color: '#3fa7b8' },
+  { id: 'storm', name: 'Jesus Calms the Storm', emoji: '⛵', color: '#6f8fc0' },
+  { id: 'lost-sheep', name: 'The Lost Sheep', emoji: '🐑', color: '#8fcf6a' },
 ]
 
 type Content = Promise<{ steps: Step[]; art: ComponentType[] }>
@@ -146,6 +149,9 @@ const CONTENT: Record<string, () => Content> = {
   elijah: () => both(import('./elijah').then((m) => m.ELIJAH_STEPS), import('../art/scenes/elijah').then((m) => m.ELIJAH_ART)),
   esther: () => both(import('./esther').then((m) => m.ESTHER_STEPS), import('../art/scenes/esther').then((m) => m.ESTHER_ART)),
   'boy-jesus': () => both(import('./boy-jesus').then((m) => m.BOY_JESUS_STEPS), import('../art/scenes/boy-jesus').then((m) => m.BOY_JESUS_ART)),
+  fishers: () => both(import('./fishers').then((m) => m.FISHERS_STEPS), import('../art/scenes/fishers').then((m) => m.FISHERS_ART)),
+  storm: () => both(import('./storm').then((m) => m.STORM_STEPS), import('../art/scenes/storm').then((m) => m.STORM_ART)),
+  'lost-sheep': () => both(import('./lost-sheep').then((m) => m.LOST_SHEEP_STEPS), import('../art/scenes/lost-sheep').then((m) => m.LOST_SHEEP_ART)),
 }
 
 export const islandById = (id: string) => ISLANDS.find((i) => i.id === id)

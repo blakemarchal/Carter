@@ -69,6 +69,12 @@ export const PAL_FACES: Record<Species, PalFace> = {
   butterfly: face(83, 0.82, [100, 57]),
   gecko: face(90, 0.95, [100, 67], { y: 107.5, rx: 8, ry: 7.5 }),
   sparrow: face(89, 0.84, [100, 60], { y: 101.5, rx: 5.5, ry: 5.5 }),
+  pelican: face(100, 0.9, [100, 58]),
+  fish: face(100, 0.9, [100, 58]),
+  seagull: face(100, 0.9, [100, 58]),
+  kingfisher: face(100, 0.9, [100, 58]),
+  mole: face(100, 0.9, [100, 58]),
+  puppy: face(100, 0.9, [100, 58]),
 }
 
 /** PalArt draws a Pal at stage n scaled about (100, 110) in its box. */

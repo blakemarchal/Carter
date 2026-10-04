@@ -36,6 +36,8 @@ SAY = {
     'bo-az': '/ˈboʊæz/',
     'ha-man': '/ˈheɪmən/',
     'mor-de-cai': '/ˈmɔːrdəkaɪ/',
+    "ev-'ry-bod-y": 'everybody',
+    'lamb-y': '/ˈlæmi/',
 }
 
 JESUS_LOVES_ME = dict(
@@ -616,8 +618,89 @@ BOY_JESUS_SONG = dict(
     chords='Eb:2 Bb7:2 ' + 'Eb:4 Bb7:4 Eb:4 Ab:1 Bb7:1 Eb:2 ' * 4 + 'Eb:2',
 )
 
+
+# "The Bear Went Over the Mountain" (a traditional American children's song), as Erich Rickheit's ABC from
+# the Digital Tradition (abcnotation.com, K:G). 6/8: the dotted quarter is the beat.
+def _bear(a, last=False):
+    return [(a, 'B4:.5 '                                                    # "The"
+                'B4:.5 B4:.5 B4:.25 A4:.25 B4:.5 C5:1 B4:.5 B4:.5 '          # "bear went o-ver the moun-tain, the"
+                'A4:.5 A4:.5 A4:.25 G4:.25 A4:.5 B4:1 G4:.5 A4:.5 '          # "bear went o-ver the moun-tain, the"
+                'B4:.5 B4:.5 B4:.25 A4:.25 B4:.5 C5:1 E5:.5 E5:.5 '          # "bear went o-ver the moun-tain, to"
+                'D5:.25 +E5:.25 D5:.5 C5:.25 +B4:.25 A4:.5 '                 # "see what he could"
+                + ('G4:3' if last else 'G4:1.5'))]                           # "see."
+
+
+FISHERS_SONG = dict(
+    id='song-fishers', title='Fishers of People', style='party', meter=2, tempo=92, swing=2 / 3, transpose=-2,
+    start=3.5,  # (each verse starts with a pickup: the last eighth before its first bar)
+    lines=_bear('The fish-er-men fished all night long, they fished and they fished all night long, '
+                'they fished and they fished all night long, but caught no fish at all!')
+    + _bear('Then Je-sus told Si-mon Pe-ter, "Go out to the deep-er wa-ter, and let down your nets for fish there!" '
+            'So Pe-ter said, "Yes, Lord!"')
+    + _bear('The nets filled up with so ma-ny, the nets filled up with so ma-ny, the nets filled up with so ma-ny, '
+            'the boats be-gan to sink!')
+    + _bear('"Come fol-low me now," said Je-sus, "I\'ll make you fish-ers of peo-ple!" They left their boats and they '
+            'fol-lowed, they fol-lowed Him with joy!')
+    + _bear("So let's all go fol-low Je-sus, so let's all go fol-low Je-sus, so let's all go fol-low Je-sus, "
+            'and tell them God is love!', last=True),
+    chords='G:2 D7:2 ' + 'G:2 C:1 G:1 D7:2 G:2 G:2 C:2 G:1 D7:1 G:2 ' * 5 + 'G:2',
+)
+
+
+# "Lightly Row" (the German folk song "Hänschen klein"), as Musica Viva's ABC (abcnotation.com, K:C), which is
+# the folk tune itself. ("The Everyday Song Book" has a 1915 arrangement that ends its lines differently.)
+_LIGHTLY_A = 'G4:1 E4:1 E4:2 F4:1 D4:1 D4:2 '                                # "Light-ly row, light-ly row,"
+
+
+def _lightly(a, b, c, d, last=False):
+    return [
+        (a, _LIGHTLY_A + 'C4:1 D4:1 E4:1 F4:1 G4:1 G4:1 G4:2'),            # "...on the wat-ers light-ly row."
+        (b, _LIGHTLY_A + 'C4:1 E4:1 G4:1 G4:1 C4:4'),                      # "...o'er the deep blue sea."
+        (c, 'D4:1 D4:1 D4:1 D4:1 D4:1 E4:1 F4:2 E4:1 E4:1 E4:1 E4:1 E4:1 F4:1 G4:2'),  # "Gen-tle breez-es..."
+        (d, _LIGHTLY_A + 'C4:1 E4:1 G4:1 G4:1 C4:4'),
+    ]
+
+
+STORM_SONG = dict(
+    id='song-storm', title='Peace, Be Still', style='hymn', meter=4, tempo=100, transpose=4, start=4,
+    lines=_lightly('Sail-ing out, sail-ing out, on the lake they sail a-bout;', 'Je-sus slept, Je-sus slept, in the boat He slept.',
+                   'Then the wind be-gan to blow, waves came splash-ing high and low;', 'Je-sus, help! Je-sus, help! We are scared, oh help!')
+    + _lightly('Je-sus woke, Je-sus woke, "Peace, be still!" is what He spoke;', 'Wind went still, waves went still, calm and qui-et, still.',
+               "Ev-'ry-bod-y was a-mazed, lift-ing hands, they gave God praise:", '"Who is this? Who is this? Wind and waves o-bey!"')
+    + _lightly("When we're scared, when we're scared, Je-sus loves us, He is there;", "We can pray, we can pray, He hears ev-'ry prayer.",
+               'Je-sus calms the wind and sea, He takes care of you and me;', 'Light-ly row, light-ly row, home a-cross the sea.', last=True),
+    chords='C:2 G:2 ' + 'C:4 G:4 C:4 G:4 C:4 G:4 C:2 G:2 C:4 G:8 C:8 C:4 G:4 C:2 G:2 C:4 ' * 3,
+)
+
+
+# "Pop! Goes the Weasel" (traditional), the American children's tune, as Erich Rickheit's ABC from the Digital
+# Tradition (abcnotation.com, K:C): its first strain. 6/8: the dotted quarter is the beat.
+def _weasel(a, last=False):
+    return [(a, 'G4:.5 '                                                    # "All"
+                'C5:.5 C5:.5 D5:.5 D5:.5 E5:.25 +G5:.25 E5:.5 C5:.5 G4:.5 '  # "a-round the mul-ber-ry bush, the"
+                'C5:.5 C5:.5 D5:.5 F5:.5 E5:1 C5:.5 G4:.5 '                  # "mon-key chased the wea-sel, the"
+                'C5:.5 C5:.5 D5:.5 D5:.5 E5:.25 +G5:.25 E5:.5 C5:1 '         # "mon-key thought 'twas all in fun,"
+                'A5:1 D5:.5 F5:.5 E5:1 ' + ('C5:2' if last else 'C5:.5'))]  # "Pop! goes the wea-sel."
+
+
+LOST_SHEEP_SONG = dict(
+    id='song-lost-sheep', title='Where Is the Little Lamb?', style='party', meter=2, tempo=92, swing=2 / 3,
+    transpose=-5, start=3.5,  # (each verse starts with a pickup: the last eighth before its first bar)
+    lines=_weasel('A shep-herd had a hun-dred sheep, he count-ed them each eve-ning. But on-ly nine-ty-nine were there! '
+                  'Where is the lamb-y?')
+    + _weasel('He left the nine-ty-nine at home, and went to find the lost one. He looked be-hind the rocks and trees, '
+              "Baa! There's the lamb-y!")
+    + _weasel('He put the lamb up-on his shoul-ders, car-ried him home, hap-py! "Come cel-e-brate, I found my lamb!" '
+              'Hap-py, hap-py day!')
+    + _weasel("God loves us like the shep-herd loves each lit-tle lamb, his dear one. He comes to find us when we're lost. "
+              'God loves you so much!')
+    + _weasel('So clap your hands and stamp your feet, and sing a-long so hap-py! God found the lit-tle lamb, and He '
+              'loves you, He loves you!', last=True),
+    chords='C:2 G7:2 ' + 'C:4 G7:2 C:6 F:1 G7:1 C:2 ' * 5 + 'C:2',
+)
+
 ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG,
                 BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG, JERICHO_SONG, RUTH_SONG, SAMUEL_SONG,
-                ELIJAH_SONG, ESTHER_SONG, BOY_JESUS_SONG]
+                ELIJAH_SONG, ESTHER_SONG, BOY_JESUS_SONG, FISHERS_SONG, STORM_SONG, LOST_SHEEP_SONG]
 
 SONGS = [JESUS_LOVES_ME, THIS_LITTLE_LIGHT, AWAY_IN_A_MANGER, TWINKLE, HAPPY_BIRTHDAY, NOAH] + ISLAND_SONGS

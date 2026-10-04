@@ -45,6 +45,7 @@ export interface PalDef {
     | 'crocodile' | 'lily' | 'hedgehog' | 'hyrax' | 'tortoise' | 'quail'
     | 'ram' | 'trumpet' | 'grasshopper' | 'hare' | 'bat' | 'fennec'
     | 'cactus' | 'raven' | 'rooster' | 'butterfly' | 'gecko' | 'sparrow'
+    | 'pelican' | 'fish' | 'seagull' | 'kingfisher' | 'mole' | 'puppy'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -341,6 +342,45 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Chirp', xp: 0 }, { name: 'Songsparrow', xp: 100 }, { name: 'Skysinger', xp: 300 }],
     moves: { basic: { name: 'Happy Chirp', fx: 'spark', icon: '🎵' }, brave: { name: 'Feather Flutter', fx: 'wind', icon: '🪶' }, super: { name: 'Love Song', fx: 'hearts', icon: '💛' } },
     intro: 'is a Love Pal! {name} sings that God takes care of every little sparrow, and He cares for you even more.',
+  },
+  // Fishers of People
+  {
+    id: 'gulp', species: 'pelican', fruit: 'Goodness',
+    stages: [{ name: 'Gulp', xp: 0 }, { name: 'Pouchbill', xp: 100 }, { name: 'Netkeeper', xp: 300 }],
+    moves: { basic: { name: 'Pouch Scoop', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Wing Flap', fx: 'wind', icon: '🪶' }, super: { name: 'Good Gift', fx: 'hearts', icon: '🎁' } },
+    intro: 'is a Goodness Pal! {name} used to gobble up all the fish, but now {name} shares with friends, like Peter shared his big catch.',
+  },
+  {
+    id: 'splash', species: 'fish', fruit: 'Joy',
+    stages: [{ name: 'Splash', xp: 0 }, { name: 'Flipfin', xp: 100 }, { name: 'Gleamfin', xp: 300 }],
+    moves: { basic: { name: 'Bubble Pop', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Fin Flip', fx: 'roll', icon: '🌊' }, super: { name: 'Joy Jump', fx: 'stars', icon: '🌟' } },
+    intro: 'is a Joy Pal! {name} leaps and splashes for joy, because Jesus called His friends to follow Him.',
+  },
+  // Jesus Calms the Storm
+  {
+    id: 'squawk', species: 'seagull', fruit: 'Peace',
+    stages: [{ name: 'Squawk', xp: 0 }, { name: 'Seaglider', xp: 100 }, { name: 'Calmwing', xp: 300 }],
+    moves: { basic: { name: 'Sea Breeze', fx: 'wind', icon: '🌬️' }, brave: { name: 'Wave Ride', fx: 'roll', icon: '🌊' }, super: { name: 'Calm Waters', fx: 'bubbles', icon: '🫧' } },
+    intro: 'is a Peace Pal! {name} used to squawk and flap in every storm, but now {name} stays calm, because Jesus is near.',
+  },
+  {
+    id: 'glint', species: 'kingfisher', fruit: 'Goodness',
+    stages: [{ name: 'Glint', xp: 0 }, { name: 'Divedash', xp: 100 }, { name: 'Sparklewing', xp: 300 }],
+    moves: { basic: { name: 'Dive Dash', fx: 'roll', icon: '💫' }, brave: { name: 'Rainbow Flash', fx: 'stars', icon: '🌈' }, super: { name: 'Sunny Shine', fx: 'spark', icon: '☀️' } },
+    intro: 'is a Goodness Pal! {name} loves the calm, sparkly sea after the storm, and remembers how good Jesus is. Even the wind and the waves obey Him!',
+  },
+  // The Lost Sheep
+  {
+    id: 'digger', species: 'mole', fruit: 'Love',
+    stages: [{ name: 'Digger', xp: 0 }, { name: 'Burrowpaw', xp: 100 }, { name: 'Tunnelheart', xp: 300 }],
+    moves: { basic: { name: 'Dirt Toss', fx: 'rock', icon: '🪨' }, brave: { name: 'Tunnel Roll', fx: 'roll', icon: '🌀' }, super: { name: 'Big Hug', fx: 'hearts', icon: '🤗' } },
+    intro: 'is a Love Pal! {name} used to grumble all alone under the hill, but now {name} knows that God loves everyone, and looks for every lost one.',
+  },
+  {
+    id: 'scout', species: 'puppy', fruit: 'Faithfulness',
+    stages: [{ name: 'Scout', xp: 0 }, { name: 'Trailpaw', xp: 100 }, { name: 'Homefinder', xp: 300 }],
+    moves: { basic: { name: 'Sniff Sniff', fx: 'spark', icon: '👃' }, brave: { name: 'Zoomies', fx: 'roll', icon: '🐾' }, super: { name: 'Found You!', fx: 'hearts', icon: '💛' } },
+    intro: 'is a Faithfulness Pal! {name} helps the shepherd look after the sheep, and never stops looking until every little lamb is safe at home.',
   },
 ]
 
