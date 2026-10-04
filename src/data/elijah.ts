@@ -15,13 +15,13 @@ export const ELIJAH_STORY_1: StoryPage[] = [
   { scene: '☀️🏜️💧', bg: 'linear-gradient(#bfe6ff,#fff0c4)', text: 'And no rain fell, for a long, dry time. The grass turned brown, and the ground cracked. But God took care of Elijah. He said, "Go and stay by the little brook. You can drink its water."' },
   { scene: '🐦🍞🍖', bg: 'linear-gradient(#ffd0d6,#ffeab0)', text: 'Every morning and every evening, God sent ravens to Elijah. Flap, flap! The big black birds brought him bread and meat to eat. And Elijah drank water from the brook.' },
   { scene: '🏜️🧔🏽✨', bg: 'linear-gradient(#bfe6ff,#fff0c4)', text: 'After a while, the little brook dried up. Then God said, "Go to a town far away. A widow there will give you food."' },
-  { scene: '🪵👩🏽🧔🏽', bg: 'linear-gradient(#bfe6ff,#fff0c4)', text: 'At the town gate, Elijah met the widow, picking up sticks. "Please, may I have a little bread?" he asked. She said, "I only have a little flour and a little oil, just enough for one last loaf."' },
+  { scene: '🪵👩🏽🧔🏽', bg: 'linear-gradient(#bfe6ff,#fff0c4)', text: 'At the town gate, Elijah met the widow, picking up sticks. "Please, may I have a little bread?" he asked. She said, "I only have a little flour and a little oil, just enough for one last loaf, for my little boy and me."' },
   { scene: '🍞🫙✨', bg: 'linear-gradient(#fff3c9,#ffe0b5)', text: '"Don\'t be afraid," said Elijah. "God will not let your flour and oil run out." So the widow shared her very last bread with him. And God made her flour and oil last and last. There was always enough for her, her little boy and Elijah.' },
 ]
 
 /** Visit 2: on Mount Carmel, fire from heaven, and then the rain. Its pictures follow part one's in art/scenes/elijah.tsx. */
 export const ELIJAH_STORY_2: StoryPage[] = [
-  { scene: '⛰️🙌🔥', bg: 'linear-gradient(#bfe6ff,#ffd9a0)', text: 'Remember Elijah? After the long, dry time, he called all the people to Mount Carmel. "Let\'s see who the real God is!" he said. Some people prayed to a pretend god. They called and called, all day long. But nothing happened.' },
+  { scene: '⛰️🙌🔥', bg: 'linear-gradient(#bfe6ff,#ffd9a0)', text: 'Remember Elijah? The land was still dry, with no rain at all. Then Elijah called all the people to Mount Carmel. "Let\'s see who the real God is!" he said. Some people prayed to a pretend god. They called and called, all day long. But nothing happened.' },
   { scene: '🪨🪵💧', bg: 'linear-gradient(#bfe6ff,#ffecc0)', text: 'Then Elijah built an altar to God with twelve big stones. He put wood on top and dug a ditch all around it. "Now pour water all over it!" he said. Splash, splash! The water ran down and filled the ditch.' },
   { scene: '🙏🔥✨', bg: 'linear-gradient(#5f6fb0,#ffc98a)', text: 'Elijah prayed, "Lord, show everyone that You are God." Whoosh! God sent fire from heaven! It burned up the wood and the stones, and even all the water!' },
   { scene: '🧎🙌✨', bg: 'linear-gradient(#bfe6ff,#fff0cc)', text: 'When the people saw it, they knelt down and said, "The Lord is God! The Lord is God!" Even the people who had prayed to the pretend god knew it now.' },
@@ -44,8 +44,8 @@ export const ELIJAH_STEPS: Step[] = [
   // which one goes at the bottom, and five, four and three make twelve.)
   {
     kind: 'build', title: 'Build the Altar', kit: ELIJAH_GAME,
-    intro: "One day, Elijah built an altar to God on top of a mountain. Let's help him build it! Drag each part to its place, starting with the stones at the bottom.",
-    done: 'Five stones, four stones and three stones make twelve stones! And look! God sent fire from heaven, and it burned up everything, even the water!',
+    intro: "One day, Elijah built an altar to God on a mountain, to show everyone who the real God is. Let's help him build it! Drag each part to its place, starting with the stones at the bottom.",
+    done: 'Five stones, four stones and three stones make twelve stones! And look! God sent fire from heaven! Even the water is all gone!',
   },
   // (The intro fits every level: letter sounds, reading words, finding words.)
   { kind: 'practice', skill: 'reading', title: 'Raven Words', decor: '🍞', intro: "Flap, flap! The ravens brought Elijah bread every morning and every evening. Now let's play some word games together!" },

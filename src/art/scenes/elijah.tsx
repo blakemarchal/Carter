@@ -16,7 +16,7 @@
 // StoneFlames (God's fire falling from heaven), Steam, Scorch, Carmel (the mountaintop by the sea), and Folk and Crowd
 // (people far off, standing, cheering or kneeling).
 import { useId, type ComponentProps, type ComponentType, type CSSProperties, type ReactNode } from 'react'
-import { darken, ink, useShade } from '../kit'
+import { ink, useShade } from '../kit'
 import { EyesUp, Figure, Kneel, LookingUp, Person, ShutEyes, SilverHair, Sitting, SittingOnRock, SKIN, type Look } from '../people'
 import { Bread, Cloud, Flower, Glow, Palm, Rain, Rays, Rock, Scene, Sparkles, Sun, Tap } from './kit'
 import './elijah.css'
@@ -115,7 +115,27 @@ const Yawn = ({ beard }: { beard?: boolean }) => (
 
 // ---------- Birds and food ----------
 
-const RAVEN = { body: '#3d4262', wing: '#30354f', far: '#262a43', belly: '#525a7e', sheen: '#8fb0ff', beak: '#6f7590', leg: '#4b4f66' }
+/**
+ * The ravens' colors: near-black, with a blue sheen where the light catches them, like Crumbs (art/pals/raven.tsx).
+ * `body` and `wing` are glossy fills: [lit, middle, shadow].
+ */
+const RAVEN = {
+  body: ['#5c6b9e', '#2b2e40', '#17181f'], wing: ['#4f5c8c', '#24273a', '#131419'], far: '#1a1c28', belly: '#3b4262',
+  sheen: '#86a2f0', feather: '#48537e', beak: '#4b4f62', beakTop: '#9399b2', beakLine: '#202230', leg: '#34374a', line: '#0f1018',
+}
+
+/** A glossy fill, lit at the top left and deep at the edges (three colors). Render `def` once in the same svg. */
+function useGloss([light, mid, dark]: string[]) {
+  const id = `gl${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  return {
+    fill: `url(#${id})`,
+    def: (
+      <radialGradient key={id} id={id} cx="35%" cy="30%" r="78%">
+        <stop offset="0" stopColor={light} /><stop offset="0.55" stopColor={mid} /><stop offset="1" stopColor={dark} />
+      </radialGradient>
+    ),
+  }
+}
 
 /** A piece of meat on the bone, like a drumstick: the meat's middle at (0, 0), the bone to the right; about 32 long. */
 export function Meat({ x = 0, y = 0, s = 1, a = 0 }: { x?: number; y?: number; s?: number; a?: number }) {
@@ -135,59 +155,79 @@ export function Meat({ x = 0, y = 0, s = 1, a = 0 }: { x?: number; y?: number; s
 const BeakFood = ({ food }: { food: 'bread' | 'meat' }) =>
   food === 'bread' ? <Bread x={4} y={3} s={0.52} /> : <Meat x={3} y={5} s={0.82} a={14} />
 
+/** A raven's beak (big, a little hooked), with the light catching its top edge: its root at (x, y), pointing right. */
+const RavenBeak = ({ x, y }: { x: number; y: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <path d="M0 -4.5 Q9 -6 18 0.5 Q14 2.4 9.5 2.8 L0 4.5 Z" fill={RAVEN.beak} stroke={RAVEN.beakLine} strokeWidth={1.5} strokeLinejoin="round" />
+    <path d="M2 -3.6 Q9 -4.6 15 -0.6" stroke={RAVEN.beakTop} strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.85} />
+    <path d="M1.5 0.4 L13 1.2" stroke={RAVEN.beakLine} strokeWidth={1.1} strokeLinecap="round" />
+  </g>
+)
+
+/** A bright, friendly eye: its middle at (x, y). */
+const RavenEye = ({ x, y }: { x: number; y: number }) => (
+  <g>
+    <circle cx={x} cy={y} r={3.6} fill="#f6f7ff" />
+    <circle cx={x + 0.8} cy={y} r={2.3} fill="#0f1018" />
+    <circle cx={x + 0.1} cy={y - 0.9} r={0.85} fill="#fff" />
+  </g>
+)
+
 /** A raven's wing raised in flight (facing right), from its shoulder at (9, -6): long rounded flight feathers fanned out at its tip (the "fingers"), the soft covert feathers over their roots. */
 const WRIST: Pt = [-14, -33]
 const PRIMARIES: Pt[] = [[-40, -60], [-48, -54], [-54, -46], [-57, -37]]
-function RavenWing({ fill, line }: { fill: string; line: string }) {
+function RavenWing({ fill, plain }: { fill: string; plain?: boolean }) {
   const d = (p: Pt) => `M${WRIST[0]} ${WRIST[1]} L${p[0]} ${p[1]}`
+  // (each flight feather's quill, from just past the wrist to near its tip, light enough to see on black)
+  const quill = (p: Pt) => `M${f(WRIST[0] + (p[0] - WRIST[0]) * 0.35)} ${f(WRIST[1] + (p[1] - WRIST[1]) * 0.35)} L${f(WRIST[0] + (p[0] - WRIST[0]) * 0.86)} ${f(WRIST[1] + (p[1] - WRIST[1]) * 0.86)}`
   return (
     <g>
-      {PRIMARIES.map((p, i) => <path key={i} d={d(p)} stroke={line} strokeWidth={10} strokeLinecap="round" />)}
-      {PRIMARIES.map((p, i) => <path key={`f${i}`} d={d(p)} stroke={fill} strokeWidth={7} strokeLinecap="round" />)}
+      {PRIMARIES.map((p, i) => <path key={i} d={d(p)} stroke={RAVEN.line} strokeWidth={10} strokeLinecap="round" />)}
+      {PRIMARIES.map((p, i) => <path key={`f${i}`} d={d(p)} stroke={plain ? fill : RAVEN.wing[1]} strokeWidth={7} strokeLinecap="round" />)}
+      {!plain && PRIMARIES.map((p, i) => <path key={`q${i}`} d={quill(p)} stroke={RAVEN.feather} strokeWidth={1.2} strokeLinecap="round" />)}
       <path d="M9 -6 C6 -18 -2 -28 -12 -36 C-20 -42 -30 -38 -34 -30 Q-38 -26 -36 -22 Q-38 -17 -33 -14 Q-32 -10 -26 -9 C-14 -7 -2 -6 9 -6 Z"
-        fill={fill} stroke={line} strokeWidth={2} strokeLinejoin="round" />
-      <path d="M2 -10 Q-8 -20 -18 -28" stroke={RAVEN.sheen} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.5} />
+        fill={fill} stroke={RAVEN.line} strokeWidth={2} strokeLinejoin="round" />
+      {!plain && <path d="M-33 -22 Q-20 -15 -6 -11" stroke={RAVEN.feather} strokeWidth={1.3} fill="none" strokeLinecap="round" />}
+      {!plain && <path d="M2 -10 Q-8 -20 -18 -28" stroke={RAVEN.sheen} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.6} />}
     </g>
   )
 }
 
 /**
- * A raven flying (facing right, or `facing="left"`): a big glossy blue-black bird, the near wing in front of its
- * body and the far wing behind it, both beating from the shoulder; a wedge-shaped tail at the back, and a big beak
- * that can carry `food`. (x, y) = the middle of its body; about 110 from tail to beak at s = 1.
+ * A raven flying (facing right, or `facing="left"`): a big glossy black bird with a blue sheen, the near wing in front
+ * of its body and the far wing behind it, both beating from the shoulder; a wedge-shaped tail at the back, and a big
+ * beak that can carry `food`. (x, y) = the middle of its body; about 110 from tail to beak at s = 1.
  */
 export function Raven({ x, y, s = 1, facing = 'right', food }: { x: number; y: number; s?: number; facing?: 'left' | 'right'; food?: 'bread' | 'meat' }) {
-  const line = darken(RAVEN.body, 0.45)
+  const body = useGloss(RAVEN.body)
+  const wing = useGloss(RAVEN.wing)
   return (
     <g className="sc-float">
       <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -s : s} ${s})`}>
+        <defs>{body.def}{wing.def}</defs>
         {/* far wing, behind the body (tipped forward, so both show) */}
         <g transform="rotate(30 8 -7) scale(0.9)">
           <g className="sc-wing far" style={css({ '--o': '95% 100%' })}>
-            <RavenWing fill={RAVEN.far} line={line} />
+            <RavenWing fill={RAVEN.far} plain />
           </g>
         </g>
         {/* the wedge-shaped tail */}
-        <path d="M-24 -3 L-47 -9 Q-55 -4 -58 2 Q-55 8 -47 12 L-24 8 Z" fill={RAVEN.wing} stroke={line} strokeWidth={2} strokeLinejoin="round" />
-        <path d="M-30 2 L-52 2" stroke={RAVEN.far} strokeWidth={1.4} />
+        <path d="M-24 -3 L-47 -9 Q-55 -4 -58 2 Q-55 8 -47 12 L-24 8 Z" fill={wing.fill} stroke={RAVEN.line} strokeWidth={2} strokeLinejoin="round" />
+        <path d="M-30 2 L-52 2 M-30 -2 L-48 -6 M-30 6 L-48 9" stroke={RAVEN.feather} strokeWidth={1.2} strokeLinecap="round" />
         {/* body and head */}
-        <path d="M-31 3 C-25 -11 1 -17 15 -11 C25 -6 23 9 7 12 C-8 16 -25 14 -31 3 Z" fill={RAVEN.body} stroke={line} strokeWidth={2} />
+        <path d="M-31 3 C-25 -11 1 -17 15 -11 C25 -6 23 9 7 12 C-8 16 -25 14 -31 3 Z" fill={body.fill} stroke={RAVEN.line} strokeWidth={2} />
         <path d="M-20 9 C-8 13 4 11 12 5" stroke={RAVEN.belly} strokeWidth={4.5} fill="none" strokeLinecap="round" />
-        <circle cx={21} cy={-10} r={10.5} fill={RAVEN.body} stroke={line} strokeWidth={2} />
-        <path d="M13 -17 Q20 -21.5 27 -17.5" stroke={RAVEN.sheen} strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.75} />
+        <circle cx={21} cy={-10} r={10.5} fill={body.fill} stroke={RAVEN.line} strokeWidth={2} />
+        <path d="M13 -17 Q20 -21.5 27 -17.5" stroke={RAVEN.sheen} strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.85} />
         {/* the shaggy feathers at its throat */}
-        <path d="M19 -1 l2 5 l2.5 -4 l2.5 3.5 l1 -5" stroke={line} strokeWidth={1.4} fill={RAVEN.body} strokeLinejoin="round" />
+        <path d="M19 -1 l2 5 l2.5 -4 l2.5 3.5 l1 -5" stroke={RAVEN.line} strokeWidth={1.4} fill={RAVEN.body[1]} strokeLinejoin="round" />
         {/* what it carries, held in the tip of its beak */}
         {food && <g transform="translate(43 -8)"><BeakFood food={food} /></g>}
-        <path d="M29 -14.5 Q38 -16 47 -9.5 Q43 -7.6 38.5 -7.2 L29 -5.5 Z" fill={RAVEN.beak} stroke={darken(RAVEN.beak, 0.4)} strokeWidth={1.5} strokeLinejoin="round" />
-        <path d="M30.5 -9.6 L42 -8.8" stroke={darken(RAVEN.beak, 0.4)} strokeWidth={1.1} strokeLinecap="round" />
-        {/* a bright, friendly eye */}
-        <circle cx={23.5} cy={-12.6} r={3.6} fill="#f6f7ff" />
-        <circle cx={24.3} cy={-12.6} r={2.3} fill="#1d1a2e" />
-        <circle cx={23.6} cy={-13.5} r={0.85} fill="#fff" />
+        <RavenBeak x={29} y={-10} />
+        <RavenEye x={23.5} y={-12.6} />
         {/* near wing, in front, with its fingered tips */}
         <g className="sc-wing" style={css({ '--o': '95% 100%' })}>
-          <RavenWing fill={RAVEN.wing} line={line} />
+          <RavenWing fill={wing.fill} />
         </g>
       </g>
     </g>
@@ -199,9 +239,11 @@ export function Raven({ x, y, s = 1, facing = 'right', food }: { x: number; y: n
  * its wing folded at its side and its tail pointing down behind. (x, y) = its feet on the perch; about 70 tall at s = 1.
  */
 export function PerchedRaven({ x, y, s = 1, facing = 'right', food }: { x: number; y: number; s?: number; facing?: 'left' | 'right'; food?: 'bread' | 'meat' }) {
-  const line = darken(RAVEN.body, 0.45)
+  const body = useGloss(RAVEN.body)
+  const wing = useGloss(RAVEN.wing)
   return (
     <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -s : s} ${s})`}>
+      <defs>{body.def}{wing.def}</defs>
       {/* legs and feet (three toes forward, one back) */}
       {[-3, 6].map((lx) => (
         <g key={lx} stroke={RAVEN.leg} strokeLinecap="round" fill="none">
@@ -210,24 +252,23 @@ export function PerchedRaven({ x, y, s = 1, facing = 'right', food }: { x: numbe
         </g>
       ))}
       {/* the tail, pointing down behind */}
-      <path d="M-11 -25 L-29 -6 Q-28 -1 -23 0 L-4 -19 Z" fill={RAVEN.wing} stroke={line} strokeWidth={2} strokeLinejoin="round" />
+      <path d="M-11 -25 L-29 -6 Q-28 -1 -23 0 L-4 -19 Z" fill={wing.fill} stroke={RAVEN.line} strokeWidth={2} strokeLinejoin="round" />
+      <path d="M-10 -21 L-25 -4" stroke={RAVEN.feather} strokeWidth={1.2} strokeLinecap="round" />
       {/* body, leaning forward a little */}
-      <ellipse cx={1} cy={-31} rx={16} ry={21} transform="rotate(-24 1 -31)" fill={RAVEN.body} stroke={line} strokeWidth={2} />
+      <ellipse cx={1} cy={-31} rx={16} ry={21} transform="rotate(-24 1 -31)" fill={body.fill} stroke={RAVEN.line} strokeWidth={2} />
       <path d="M10 -40 C14 -30 12 -20 4 -14" stroke={RAVEN.belly} strokeWidth={5} fill="none" strokeLinecap="round" />
       {/* the wing folded at its side, its feather tips toward the tail */}
       <path d="M10 -43 C2 -46 -10 -40 -16 -28 C-19 -22 -21 -17 -22 -12 C-18 -14 -16 -13 -14 -12 C-12 -15 -9 -15 -7 -14 C-5 -17 -2 -17 0 -16 C6 -22 10 -32 10 -43 Z"
-        fill={RAVEN.wing} stroke={line} strokeWidth={1.8} strokeLinejoin="round" />
-      <path d="M4 -38 Q-4 -32 -10 -22" stroke={RAVEN.sheen} strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.5} />
+        fill={wing.fill} stroke={RAVEN.line} strokeWidth={1.8} strokeLinejoin="round" />
+      <path d="M2 -24 Q-8 -20 -14 -13 M6 -30 Q-4 -26 -12 -18" stroke={RAVEN.feather} strokeWidth={1.2} fill="none" strokeLinecap="round" />
+      <path d="M4 -38 Q-4 -32 -10 -22" stroke={RAVEN.sheen} strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.6} />
       {/* head, throat feathers, beak and eye */}
-      <circle cx={12} cy={-53} r={10.5} fill={RAVEN.body} stroke={line} strokeWidth={2} />
-      <path d="M5 -60 Q11 -64.5 18 -61" stroke={RAVEN.sheen} strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.75} />
-      <path d="M11 -44 l2 5 l2.5 -4 l2 3 l1 -4" stroke={line} strokeWidth={1.3} fill={RAVEN.body} strokeLinejoin="round" />
+      <circle cx={12} cy={-53} r={10.5} fill={body.fill} stroke={RAVEN.line} strokeWidth={2} />
+      <path d="M5 -60 Q11 -64.5 18 -61" stroke={RAVEN.sheen} strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.85} />
+      <path d="M11 -44 l2 5 l2.5 -4 l2 3 l1 -4" stroke={RAVEN.line} strokeWidth={1.3} fill={RAVEN.body[1]} strokeLinejoin="round" />
       {food && <g transform="translate(34 -51)"><BeakFood food={food} /></g>}
-      <path d="M20 -57.5 Q29 -59 37 -52.5 Q33 -50.6 29 -50.2 L20 -48.5 Z" fill={RAVEN.beak} stroke={darken(RAVEN.beak, 0.4)} strokeWidth={1.5} strokeLinejoin="round" />
-      <path d="M21.5 -52.6 L32 -51.8" stroke={darken(RAVEN.beak, 0.4)} strokeWidth={1.1} strokeLinecap="round" />
-      <circle cx={14.6} cy={-55.6} r={3.6} fill="#f6f7ff" />
-      <circle cx={15.4} cy={-55.6} r={2.3} fill="#1d1a2e" />
-      <circle cx={14.7} cy={-56.5} r={0.85} fill="#fff" />
+      <RavenBeak x={20} y={-53} />
+      <RavenEye x={14.6} y={-55.6} />
     </g>
   )
 }
@@ -551,7 +592,8 @@ const ring = (rx: number, ry: number, irx: number, iry: number, cy = DITCH.cy, d
 
 /**
  * What hides the far side of the ditch: the altar standing in front of it (the bottom row of stones, and the stones
- * above). Drawn as a mask, so the ditch can be drawn after the stones and still go behind them.
+ * above). Drawn as a mask, so the ditch can be drawn after the stones and still go behind them. (In the mini-game's
+ * tray, and while it's carried, there's no altar in front, so elijah.css lifts the mask there: "el-behind".)
  */
 function BehindAltar({ id, children, open }: { id: string; children: ReactNode; open?: boolean }) {
   if (open) return <g>{children}</g>
@@ -564,7 +606,7 @@ function BehindAltar({ id, children, open }: { id: string; children: ReactNode; 
           {ALTAR_STONES.slice(0, 5).map(([cx, cy, w, h, seed]) => <path key={seed} d={stonePath(cx, cy, w - 2, h - 2, seed)} fill="#000" />)}
         </mask>
       </defs>
-      <g mask={`url(#${id})`}>{children}</g>
+      <g className="el-behind" mask={`url(#${id})`}>{children}</g>
     </g>
   )
 }
@@ -682,19 +724,22 @@ export function Pour({ from, via, to, w = 7, splash = true }: { from: Pt; via: P
 }
 
 /**
- * The jars of water (the game's), lying tipped over on top of the wood: the last of their water spills out over the
- * edges onto the stones, and runs down (Rivulets) into the ditch.
+ * The jars of water (the game's), lying tipped over on top of the wood, all poured out: a last few drops on the logs
+ * below their mouths. (The water has run down the stones, Rivulets, into the ditch.)
  */
 export const JARS: { x: number; y: number; a: number }[] = [{ x: -27, y: -154, a: -100 }, { x: 27, y: -154, a: 100 }]
 export function JarsOnWood() {
   return (
     <g>
-      {JARS.map(({ x, y, a }) => {
-        const m = mouthOf(x, y, a)
-        const side = Math.sign(x)
-        return <Pour key={x} from={m} via={[side * 66, -146]} to={[side * 63, -90]} w={6} />
-      })}
       {JARS.map((j) => <LyingJar key={j.x} {...j} />)}
+      {JARS.map(({ x, y, a }) => {
+        const [mx, my] = mouthOf(x, y, a)
+        const side = Math.sign(x)
+        return [[side * 3, 9], [side * 7, 19]].map(([dx, dy], i) => (
+          <path key={`${x}${i}`} d={`M${f(mx + dx)} ${f(my + dy - 4)} Q${f(mx + dx - 3)} ${f(my + dy + 1)} ${f(mx + dx)} ${f(my + dy + 3)} Q${f(mx + dx + 3)} ${f(my + dy + 1)} ${f(mx + dx)} ${f(my + dy - 4)} Z`}
+            fill="#8fd0f5" stroke="#3f8fcf" strokeWidth={0.8} />
+        ))
+      })}
     </g>
   )
 }
@@ -935,7 +980,7 @@ export function Carmel({ sky, wet, back, children }: { sky: string[]; wet?: bool
       <SkyFill colors={sky} />
       {back}
       {/* the sea, far below and far off */}
-      <rect x={-10} y={236} width={560} height={70} fill={`url(#${id}w)`} />
+      <rect x={-10} y={236} width={630} height={70} fill={`url(#${id}w)`} />
       {[[60, 252], [170, 262], [300, 250], [420, 266], [110, 280], [250, 286]].map(([x, y]) => <path key={x} d={`M${x} ${y} q8 -4 16 0`} stroke="#e8f6ff" strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.8} />)}
       {/* hills along the coast, on the right */}
       <path d="M380 292 Q470 228 560 246 Q640 214 720 238 Q770 226 810 236 L810 320 L380 320 Z" fill={wet ? '#8fbf86' : '#bdbf86'} />
@@ -1075,6 +1120,7 @@ function Page1() {
         <Elijah x={330} y={432} s={1.06} pose="wave" blinkDelay={1.2} />
       </Tap>
       <Tap say="Tweet! We love the rain." sfx="pop">
+        <ellipse cx={256} cy={160} rx={46} ry={30} fill="transparent" />
         <path d="M228 168 q6 -6 12 0 q6 -6 12 0 M262 150 q5 -5 10 0 q5 -5 10 0" stroke="#5a6478" strokeWidth={2.4} fill="none" strokeLinecap="round" className="sc-float" />
       </Tap>
     </Scene>
@@ -1132,14 +1178,11 @@ function Page2() {
       {/* the dry land */}
       <path d="M-10 300 Q200 284 400 296 Q560 306 810 302 L810 460 L-10 460 Z" fill="#dcbf86" />
       <Glow x={694} y={372} r={140} color="#fff8d6" />
-      <Brook x0={694} y0={304} />
+      <Tap say="Gurgle, gurgle! Fresh water for Elijah." sfx="pop"><Brook x0={694} y0={304} /></Tap>
       <Reeds x={588} y={428} s={1.15} />
       <Reeds x={604} y={372} s={0.85} flip />
       <Reeds x={790} y={430} s={1.1} flip />
       <Flower x={570} y={444} s={0.9} color="#ffd34d" />
-      <Tap say="Gurgle, gurgle! Fresh water for Elijah." sfx="pop">
-        <path d="M660 410 q10 -6 20 0 q10 6 20 0 M684 360 q8 -5 16 0" stroke="#ffffff" strokeWidth={3} fill="none" strokeLinecap="round" />
-      </Tap>
       {/* everywhere else, dry and cracked */}
       <Cracks x0={20} x1={520} y0={350} y1={445} n={22} seed={3} />
       <Heat spots={[[200, 328], [330, 314], [70, 340], [470, 330]]} />
@@ -1295,9 +1338,9 @@ function WidowsHouse({ children }: { children?: ReactNode }) {
       <path d="M0 330 L800 330" stroke="#b9955e" strokeWidth={3} />
       <path d="M140 420 Q300 412 470 420 L500 446 L110 446 Z" fill="#c0504d" opacity={0.85} />
       <path d="M150 432 L480 432" stroke="#f0d38a" strokeWidth={3} strokeDasharray="10 7" />
-      {/* a shelf with bowls */}
+      {/* a shelf with three fresh loaves on it: always enough */}
       <rect x={560} y={150} width={150} height={10} rx={2} fill="#a0703f" stroke="#6b4422" strokeWidth={2} />
-      <path d="M580 150 q14 -18 28 0 Z M630 150 q12 -14 24 0 Z" fill="#d98a5a" stroke="#8a4a2a" strokeWidth={2} />
+      {[594, 636, 678].map((bx) => <Bread key={bx} x={bx} y={139} s={0.78} />)}
       <ClayOven x={690} y={360} s={1.15} />
       {children}
     </Scene>
@@ -1335,29 +1378,30 @@ function Page6() {
   )
 }
 
-// 7. "Remember Elijah? After the long, dry time, he called all the people to Mount Carmel. 'Let's see who the real God
-// is!' he said. Some people prayed to a pretend god. They called and called, all day long. But nothing happened."
-// The mountaintop late in the day, the sun going down: round their pile of stones and wood, the people in plum robes
+// 7. "Remember Elijah? The land was still dry, with no rain at all. Then Elijah called all the people to Mount Carmel.
+// 'Let's see who the real God is!' he said. Some people prayed to a pretend god. They called and called, all day long.
+// But nothing happened."
+// The mountaintop late in the day, the sun going down: beside their pile of stones and wood, the people in plum robes
 // call out with their arms up (one has sat down, yawning, tired out); there's no fire at all. Everyone else watches,
 // and Elijah speaks to them all.
 function Page7() {
   return (
     <Carmel sky={SKY.late} back={<HotSun x={96} y={178} s={0.72} />}>
       <Crowd seed={3} rows={[[318, 0.62, [540, 572, 604, 636, 668, 700, 732, 764, 796]], [338, 0.7, [524, 564, 604, 684, 724, 764]]]} />
-      {/* one of them stands behind their pile of stones, calling out; then the pile, with no fire on it at all */}
-      <Figure x={262} y={316} s={0.7} look={CALLERS[1]} pose="arms-up" mood="wow" blinkDelay={1.2}><Shout beard /></Figure>
-      <Tap say="No fire at all. Nothing is happening." sfx="wobble"><HeapAltar x={256} y={380} s={1.15} /></Tap>
+      {/* their pile of stones and wood, with no fire on it at all */}
+      <Tap say="No fire at all. Nothing is happening." sfx="wobble"><HeapAltar x={236} y={384} s={1.12} /></Tap>
       <Tap say="Send fire! Send fire!" sfx="pop">
-        <Figure x={116} y={406} s={0.86} look={CALLERS[0]} pose="arms-up" mood="wow" blinkDelay={0.3}><Shout beard /></Figure>
-        <Figure x={394} y={408} s={0.86} look={CALLERS[2]} pose="arms-up" mood="wow" facing="left" blinkDelay={0.7}><Shout /></Figure>
+        <Figure x={96} y={406} s={0.86} look={CALLERS[0]} pose="arms-up" mood="wow" blinkDelay={0.3}><Shout beard /></Figure>
+        <Figure x={338} y={392} s={0.8} look={CALLERS[1]} pose="arms-up" mood="wow" facing="left" blinkDelay={1.2}><Shout beard /></Figure>
+        <Figure x={430} y={414} s={0.88} look={CALLERS[2]} pose="arms-up" mood="wow" facing="left" blinkDelay={0.7}><Shout /></Figure>
       </Tap>
       <Tap say="Yawn! I am so tired of calling." sfx="wobble">
-        <g className="dn-shut"><ShutEyes /><Sitting x={490} y={438} s={0.84} look={CALLERS[3]} blinkDelay={2}><Yawn beard /></Sitting></g>
+        <g className="dn-shut"><ShutEyes /><Sitting x={520} y={440} s={0.82} look={CALLERS[3]} blinkDelay={2}><Yawn beard /></Sitting></g>
       </Tap>
-      <Figure x={584} y={404} s={0.84} look={FOLK[1]} facing="left" blinkDelay={0.4} />
-      <Figure x={626} y={414} s={0.86} look={FOLK[5]} facing="left" blinkDelay={1.4} />
+      <Figure x={606} y={406} s={0.82} look={FOLK[1]} facing="left" blinkDelay={0.4} />
+      <Figure x={640} y={416} s={0.84} look={FOLK[5]} facing="left" blinkDelay={1.4} />
       <Tap say="Let's see who the real God is!" sfx="ding">
-        <Elijah x={712} y={436} s={1.04} pose="open" facing="left" blinkDelay={0.8} />
+        <Elijah x={722} y={436} s={1.04} pose="open" facing="left" blinkDelay={0.8} />
       </Tap>
     </Carmel>
   )
@@ -1501,14 +1545,16 @@ function Page11() {
       {/* the wide sea, far below */}
       <rect x={-10} y={214} width={820} height={150} fill={`url(#${id}w)`} />
       {[[60, 240], [200, 232], [340, 250], [500, 236], [640, 252], [120, 286], [420, 296], [700, 290], [260, 320]].map(([x, y]) => <path key={`${x}${y}`} d={`M${x} ${y} q10 -5 20 0`} stroke="#e8f6ff" strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.8} />)}
+      {/* (the sea answers a finger anywhere on it; the little cloud, over it, answers for itself) */}
+      <Tap say="Swish, swoosh, goes the sea." sfx="whoosh">
+        <rect x={-10} y={214} width={820} height={130} fill="transparent" />
+        <path d="M296 266 q10 -5 20 0 M372 304 q10 -5 20 0 M176 314 q10 -5 20 0" stroke="#ffffff" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+      </Tap>
       <Tap say="Here I come! A little cloud!" sfx="sparkle">
         <g className="el-rise">
           <Glow x={150} y={204} r={46} color="#ffffff" />
           <Cloud x={150} y={208} s={0.24} />
         </g>
-      </Tap>
-      <Tap say="Swish, swoosh, goes the sea." sfx="whoosh">
-        <path d="M560 270 q10 -5 20 0 M600 300 q10 -5 20 0" stroke="#ffffff" strokeWidth={2.4} fill="none" strokeLinecap="round" />
       </Tap>
       {/* the mountaintop's edge, rocky, in front */}
       <path d="M-10 350 Q120 330 260 346 Q420 360 560 336 Q680 318 810 330 L810 460 L-10 460 Z" fill="#d6b96f" />

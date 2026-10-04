@@ -52,6 +52,13 @@
 .pa-anim .el-rise { animation: elrise 3.6s ease-in-out infinite alternate; }
 @keyframes elrise { from { transform: translateY(5px); } to { transform: translateY(-5px); } }
 
+/* Someone held still (no breathing): the mini-game draws a joyful Elijah exactly over the praying one at the finish. */
+.pa-anim .el-still .pa-breathe { animation: none; }
+
+/* The far side of the ditch hides behind the altar's stones (a mask). In the Build it tray, and while the part is carried,
+   there's no altar in front of it, so the whole ring shows (activities/games/BuildIt.tsx: .build-slot, .build-float). */
+.build-slot .el-behind, .build-float .el-behind { mask: none; }
+
 /* Rings spreading on the puddles in the rain. */
 .pa-anim .el-ring { animation: elring 1.5s ease-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes elring {
