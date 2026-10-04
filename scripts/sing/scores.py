@@ -767,9 +767,111 @@ ZACCHAEUS_SONG = dict(
     chords='G:2 D7:2 ' + 'G:2 D:2 G:2 D:2 G:2 C:2 D:2 G:2 C:2 G:2 D:2 G:2 C:2 G:2 D7:2 G:2 ' * 4 + 'G:1',
 )
 
+
+# "Ellacombe" (a German hymn tune, first printed at Würtemberg in 1784; it's sung to "Hosanna, Loud Hosanna"), as
+# Douglas D. Anderson's ABC, released to the public domain (abcnotation.com, K:Bb): its top line. Each verse starts
+# with a pickup: the last beat before its first bar.
+_ELLA = 'F4:1 Bb4:1 A4:.5 +G4:.5 F4:1 Bb4:1 D4:1 Eb4:1 F4:1'                    # "Then Je-sus sent two friends a-head"
+
+
+def _ellacombe(a, b, c, d, e, f, g, h, last=False):
+    return [
+        (a, _ELLA),
+        (b, 'F4:1 G4:.5 +A4:.5 Bb4:1 C5:1 C5:1 D5:3'),                           # "to find a don-key there;"
+        (c, _ELLA),
+        (d, 'F4:1 G4:.5 +A4:.5 Bb4:1 Bb4:1 A4:1 Bb4:3'),                         # "with soft and fuz-zy hair!"
+        (e, 'Bb4:.5 +C5:.5 D5:1 C5:1 D5:1 Eb5:1 C5:1 A4:.5 +Bb4:.5 C5:1'),       # "Then Je-sus rode the don-key in"
+        (f, 'Bb4:.5 +C5:.5 D5:1 C5:1 D5:1 Eb5:1 C5:3'),                          # "up through the cit-y gate,"
+        (g, _ELLA),
+        (h, 'F4:1 G4:.5 +A4:.5 Bb4:1 Bb4:1 A4:1 ' + ('Bb4:4' if last else 'Bb4:3')),  # "to shout and cel-e-brate!"
+    ]
+
+
+PALM_SUNDAY_SONG = dict(
+    id='song-palm-sunday', title='Hosanna to the King!', style='gospel', meter=4, tempo=104, transpose=0, start=3,
+    lines=_ellacombe('Then Je-sus sent two friends a-head', 'To find a don-key there;', 'A lit-tle don-key, young and sweet,',
+                     'With soft and fuz-zy hair!', 'Then Je-sus rode the don-key in', 'Up through the cit-y gate,',
+                     "And ev-'ry-one came run-ning out", 'To shout and cel-e-brate!')
+    + _ellacombe('They spread their coats a-long the road,', 'They waved their palm leaves high;', 'The chil-dren clapped and sang for joy,',
+                 'Their voic-es reached the sky!', 'Ho-san-na! Bless the King who comes', "In God our Fa-ther's name!",
+                 'Ho-san-na! Je-sus is the King!', 'And we will sing the same!')
+    + _ellacombe('He did not ride a might-y horse,', 'Or wear a gold-en crown;', 'He came, a gen-tle, hum-ble King,',
+                 "To bring God's love a-round!", 'So we will sing Ho-san-na too,', 'Like chil-dren long a-go;',
+                 'For Je-sus is our King of love,', 'He loves us all, we know!', last=True),
+    chords='Bb:2 F7:2 ' + ('Bb:4 Gm:2 F:1 Bb:1 Eb:2 F:2 Bb:4 Bb:4 Gm:2 F:1 Bb:1 Eb:1 Gm:1 F:2 Bb:4 '
+                           'Bb:3 Eb:1 F:3 Bb:1 Bb:3 Eb:1 F:4 Bb:4 Gm:2 F:1 Bb:1 Eb:1 Gm:1 F:2 Bb:4 ') * 3 + 'Bb:2',
+)
+
+
+# "Easter Hymn" (from "Lyra Davidica", 1708), as Paul Hardy's ABC (abcnotation.com, K:C), checked against the John
+# Buttrey manuscript's "Hymn for Easter Day" (early 1800s, K:D): both have the low "do" in "Jesus Christ is" and in
+# the first "Alleluia". The Alleluias are sung as hymnals set them: Al- over four notes, -lu- over four.
+_AL = ' E4:.5 +F4:.5 +G4:.5 +C4:.5 F4:1 E4:.5 +F4:.5 +E4:1 +D4:1 C4:2'         # "Al-le-lu-ia!"
+
+
+def _easter(a, b, c, d, last=False):
+    return [
+        (a + ' Al-le-lu-ia!', 'C4:1 E4:1 G4:1 C4:1 F4:1 A4:1 A4:1 +G4:1' + _AL),                 # "Ear-ly in the morn-ing light,"
+        (b + ' Al-le-lu-ia!', 'F4:1 G4:1 A4:1 G4:1 F4:1 E4:1 E4:1 +D4:1' + _AL),                 # "Mar-y came, and what a sight!"
+        (c + ' Al-le-lu-ia!', 'B4:1 C5:1 D5:1 G4:1 C5:1 D5:1 E5:2'                               # "Rolled a-way, the stone was gone!"
+                              ' B4:.5 +C5:.5 +D5:.5 +G4:.5 C5:1 B4:.5 +C5:.5 +B4:1 +A4:1 G4:2'),
+        (d + ' Al-le-lu-ia!', 'G4:.5 +A4:.5 B4:.5 +G4:.5 C5:1 E4:1 F4:1 A4:1 A4:1 +G4:1'         # "Je-sus is a-live! Sing on!"
+                              ' C5:.5 +B4:.5 +C5:.5 +G4:.5 A4:.5 +B4:.5 C5:.5 +D5:.5 +C5:1 +B4:1 ' + ('C5:4' if last else 'C5:2')),
+    ]
+
+
+EASTER_SONG = dict(
+    id='song-easter', title='Jesus Is Alive!', style='hymn', meter=4, tempo=104, transpose=1, start=4,
+    lines=_easter('Ear-ly in the morn-ing light,', 'Mar-y came, and what a sight!', 'Rolled a-way, the stone was gone!',
+                  'Je-sus is a-live! Sing on!')
+    + _easter('"Don\'t be scared!" the an-gel said,', '"Je-sus is a-live in-stead!', 'He is ris-en! Go and tell!',
+              "Ev-'ry-bod-y, all is well!\"")
+    + _easter('Run-ning back, they met Him there:', "Je-sus! Hap-py ev-'ry-where!", 'Je-sus lives, and He is near,',
+              'Sing it loud for all to hear!', last=True),
+    chords='C:2 G7:2 ' + ('C:4 F:4 C:2 F:1 C:1 G:2 C:2 F:3 C:1 Dm:1 G:1 C:1 G:1 C:2 F:1 C:1 G:2 C:2 '
+                          'G:4 C:4 G:2 C:2 G:4 G:2 C:2 F:4 C:2 F:2 G:2 C:2 ') * 3 + 'C:2',
+)
+
+
+# "Say, Brothers, Will You Meet Us" (an American camp-meeting tune of the 1850s, the tune of "John Brown's Body" and
+# of the "Glory, glory, hallelujah!" chorus), as "The Everyday Song Book" (1927, John Chambers' transcription on
+# trillian.mit.edu, K:Bb) gives it. Each verse starts with a pickup; the chorus is the same every time.
+_LONG = 'F4:.75 F4:.25 F4:.75 Eb4:.25 D4:.75 F4:.25 Bb4:.75 C5:.25 D5:.75 D5:.25 D5:.75 C5:.25 Bb4:1'
+
+
+def _glory(a, b, c, d, last=False):
+    return [
+        (a, 'F4:.5 F4:.5 ' + _LONG),                                                              # 15 syllables
+        (b, 'Bb4:.75 A4:.25 G4:.75 G4:.25 G4:.75 A4:.25 Bb4:.75 A4:.25 Bb4:.75 G4:.25 F4:.75 G4:.25 F4:.75 D4:.25 F4:1'),
+        (c, 'F4:.75 F4:.25 ' + _LONG),
+        (d, 'Bb4:1 C5:1 C5:1 Bb4:1 A4:1 Bb4:2 r:2'),                                              # 6 syllables
+        ('Glo-ry, glo-ry, hal-le-lu-jah!', 'F4:1.5 Eb4:.5 D4:.75 F4:.25 Bb4:.75 C5:.25 D5:2 Bb4:1 r:1'),
+        ('Glo-ry, glo-ry, hal-le-lu-jah!', 'G4:1.5 A4:.5 Bb4:.75 A4:.25 Bb4:.75 G4:.25 F4:2 D4:2'),
+        ('Glo-ry, glo-ry, hal-le-lu-jah!', 'F4:1.5 Eb4:.5 D4:.75 F4:.25 Bb4:.75 C5:.25 D5:2 Bb4:1'),
+        ('The Spir-it came to stay!', 'Bb4:1 C5:1 C5:1 Bb4:1 A4:1 ' + ('Bb4:4' if last else 'Bb4:3')),
+    ]
+
+
+PENTECOST_SONG = dict(
+    id='song-pentecost', title='The Spirit Came to Stay', style='bouncy', meter=4, tempo=108, transpose=0, start=3,
+    lines=_glory("All of Je-sus' friends were pray-ing when the Ho-ly Spir-it came:",
+                 'Came a sound like might-y wind, and then on each a lit-tle flame!',
+                 "And they spoke in words from ev-'ry land to praise God's ho-ly name!",
+                 "God's Spir-it came that day!")
+    + _glory('Then a crowd came run-ning up to see what all the noise could be,',
+             "All the peo-ple came from far a-way, from ev-'ry land and sea;",
+             'Then brave Pe-ter told them all a-bout how Je-sus sets us free!',
+             'So ma-ny came that day!')
+    + _glory("Now God's Spir-it lives in all of us who love Him and o-bey;",
+             "He's our Help-er and our Friend, He's with us ev-'ry sin-gle day;",
+             "So let's shine like lit-tle lights and tell the world, and sing and pray!",
+             "God's love is here to stay!", last=True),
+    chords='Bb:2 F7:2 ' + 'Bb:8 Eb:4 Bb:12 Cm:2 F7:2 Bb:4 Bb:8 Eb:4 Bb:12 Cm:2 F7:2 Bb:4 ' * 3 + 'Bb:2',
+)
+
 ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG,
                 BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG, JERICHO_SONG, RUTH_SONG, SAMUEL_SONG,
                 ELIJAH_SONG, ESTHER_SONG, BOY_JESUS_SONG, FISHERS_SONG, STORM_SONG, LOST_SHEEP_SONG,
-                SAMARITAN_SONG, ZACCHAEUS_SONG]
+                SAMARITAN_SONG, ZACCHAEUS_SONG, PALM_SUNDAY_SONG, EASTER_SONG, PENTECOST_SONG]
 
 SONGS = [JESUS_LOVES_ME, THIS_LITTLE_LIGHT, AWAY_IN_A_MANGER, TWINKLE, HAPPY_BIRTHDAY, NOAH] + ISLAND_SONGS
