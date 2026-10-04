@@ -19,9 +19,9 @@
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { Figure, Kneel, Person, PEOPLE, Sitting, SittingOnRock, SKIN, type Look } from '../people'
-import { Birds, Cloud, Dream, Glow, Moon, Palm, Rays, Rock, Scene, Sparkles, Sun, Tap } from './kit'
+import { Birds, Cloud, Dream, Glow, Heart, Moon, Palm, Rays, Rock, Scene, Sparkles, Sun, Tap } from './kit'
 import {
-  Bandages, Heart, HelperWalking, Hurry, Hurts, LEFT_ARM, PriestWalking, Sack, SadFace, SamaritanCloth, PRIEST, SAMARITAN, TEMPLE_HELPER, TRAVELER,
+  Bandages, HelperWalking, Hurry, Hurts, LEFT_ARM, PriestWalking, SadFace, SamaritanCloth, SAMARITAN, TRAVELER,
 } from '../items/isl-samaritan'
 import './samaritan.css'
 
@@ -129,6 +129,22 @@ function SoupBowl({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   )
 }
 
+/** A small roll of white bandage cloth lying on its side, its loose end trailing along the ground, frayed. (x, y): its foot. */
+function BandageRoll({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  const cloth = '#fffdf6', line = '#b9b1a2'
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`} strokeLinejoin="round" strokeLinecap="round">
+      <ellipse cx={-10} cy={1} rx={26} ry={2.6} fill="#000" opacity={0.1} />
+      <path d="M-8 -2 Q-21 -4 -33 0 L-34 4.5 Q-21 1.6 -8 3 Z" fill={cloth} stroke={line} strokeWidth={1.4} />
+      <path d="M-34 1 l-3 -1 M-34 3.6 l-3 1" stroke={line} strokeWidth={1.1} />
+      <path d="M-12 -16 L5 -16 A6.5 8 0 0 1 5 0 L-12 0 A6.5 8 0 0 1 -12 -16 Z" fill={cloth} stroke={line} strokeWidth={1.6} />
+      <path d="M-6 -15.5 A5 7.6 0 0 1 -6 -0.5 M0 -15.5 A5 7.6 0 0 1 0 -0.5" stroke="#e6e0d2" strokeWidth={1.1} fill="none" />
+      <ellipse cx={5} cy={-8} rx={6.5} ry={8} fill="#f6f1e6" stroke={line} strokeWidth={1.6} />
+      <ellipse cx={5} cy={-8} rx={3.6} ry={4.6} fill="none" stroke="#d9d1c2" strokeWidth={1.1} />
+    </g>
+  )
+}
+
 /** A clay cup. (x, y): its foot. */
 const Cup = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <g transform={`translate(${x} ${y}) scale(${s})`} strokeLinejoin="round">
@@ -166,11 +182,12 @@ const TuckedScroll = () => (
   </g>
 )
 
-/** A round loaf of bread (in someone's hand). (x, y): its middle. */
+/** A round, domed loaf of bread with scored marks on top (held up on a hand). (x, y): its middle. */
 const Loaf = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
-  <g transform={`translate(${x} ${y}) scale(${s})`}>
-    <ellipse rx={15} ry={10} fill="#e0a75e" stroke="#a8702c" strokeWidth={2.4} />
-    <path d="M-7 -4 q3 -4 6 0 M2 -4 q3 -4 6 0" stroke="#a8702c" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+  <g transform={`translate(${x} ${y}) scale(${s})`} strokeLinejoin="round" strokeLinecap="round">
+    <path d="M-17 6 Q-19 -12 0 -13 Q19 -12 17 6 Q0 10 -17 6 Z" fill="#e0a75e" stroke="#a8702c" strokeWidth={2.4} />
+    <path d="M-9 -4 q4 -5 8 0 M2 -5 q4 -5 8 0" stroke="#a8702c" strokeWidth={1.8} fill="none" />
+    <ellipse cx={-7} cy={-7} rx={4} ry={2} fill="#fff" opacity={0.35} transform="rotate(-20 -7 -7)" />
   </g>
 )
 
@@ -445,9 +462,9 @@ export function Donkey({ x, y, s = 1, flip, rider, riderKids, bags, lead, walk, 
       <ellipse cx={74} cy={-104} rx={4} ry={2.5} fill="#ff7fb0" opacity={0.5} />
       {lead && (
         <g fill="none" stroke="#8a5a2e" strokeLinecap="round" strokeLinejoin="round">
-          {/* the rope halter: round the nose, and up behind the ear */}
-          <path d="M75 -106 Q88 -114 100 -101" strokeWidth={3} />
-          <path d="M76 -105 L62 -127" strokeWidth={2.6} />
+          {/* the rope halter: round the nose, and up behind the eye to the ear */}
+          <path d="M73 -101 Q88 -113 100 -101" strokeWidth={3} />
+          <path d="M74 -100 L56 -121" strokeWidth={2.6} />
           <path d={`M80 -88 Q${f1((80 + lead[0]) / 2)} ${f1(Math.max(-88, lead[1]) + 26)} ${f1(lead[0])} ${f1(lead[1])}`} strokeWidth={2.4} />
           <circle cx={80} cy={-89} r={2.6} strokeWidth={2} />
         </g>
@@ -513,11 +530,12 @@ export const INN = {
 
 /**
  * The inn: a big two-floor house of mud brick where travelers stay, with a flat roof, an arched door standing open, and
- * windows that glow when the lamps are lit (`lit`, 0 to 1); a lamp hangs by the door. A courtyard wall runs off to the
- * right, a palm behind it. (x, y): the middle of its front on the ground; at s = 1 it's about 380 wide and 210 tall.
+ * windows that glow when the lamps are lit (`lit`, 0 to 1); a lamp stands on a little shelf beside the door (`lamp`:
+ * false leaves it out, when someone will stand there). A courtyard wall runs off to the right, a palm behind it.
+ * (x, y): the middle of its front on the ground; at s = 1 it's about 380 wide and 210 tall.
  * `atWindow` is drawn in the middle window upstairs (in the inn's units, clipped to the window).
  */
-export function Inn({ x, y, s = 1, lit = 0, atWindow }: { x: number; y: number; s?: number; lit?: number; atWindow?: ReactNode }) {
+export function Inn({ x, y, s = 1, lit = 0, lamp = true, atWindow }: { x: number; y: number; s?: number; lit?: number; lamp?: boolean; atWindow?: ReactNode }) {
   const uid = gid(useId())
   const wall = useShade('#e4c592', 0.2, 0.16)
   const line = '#b08a55'
@@ -560,8 +578,12 @@ export function Inn({ x, y, s = 1, lit = 0, atWindow }: { x: number; y: number; 
       <path d="M-33 -84 L-33 -6" stroke="#6b4422" strokeWidth={1.4} />
       <rect x={-30} y={-2} width={60} height={6} rx={2} fill="#c9a46a" stroke={line} strokeWidth={1.6} />
       {/* the lamp by the door, on a little shelf */}
-      <rect x={-66} y={-98} width={20} height={5} rx={1.5} fill="#8a6040" />
-      <ClayLamp x={-58} y={-98} s={0.7} lit={glow > 0} />
+      {lamp && (
+        <g>
+          <rect x={-66} y={-98} width={20} height={5} rx={1.5} fill="#8a6040" />
+          <ClayLamp x={-58} y={-98} s={0.7} lit={glow > 0} />
+        </g>
+      )}
     </g>
   )
 }
@@ -814,7 +836,7 @@ function Page5() {
           <SadFace look={SAMARITAN} frown={false} />
         </Kneel>
       </Tap>
-      <Heart x={272} y={236} s={0.5} />
+      <Heart x={272} y={236} s={0.5} color="#ff6f91" />
       <Scrub x={720} y={250} s={0.8} />
       <Scrub x={600} y={432} s={1.2} />
       <Birds spots={[[480, 120, 1], [512, 104, 0.8]]} />
@@ -833,6 +855,7 @@ function Page6() {
       <RoadPlace />
       <RoadRock x={HURT.rock} y={HURT.y} s={1.08} />
       <Tap say="Clean water and oil, to make the sore spots better." sfx="pop">
+        <BandageRoll x={204} y={434} s={1.15} />
         <WashBowl x={262} y={426} s={1.2} />
         <OilJar x={318} y={428} s={1.15} />
       </Tap>
@@ -905,11 +928,11 @@ function InnRoom({ children }: { children?: ReactNode }) {
   )
 }
 
-// 8. "All night long, the Samaritan took care of him. He gave him water to drink and warm soup to eat. Then he tucked
-// him into a cozy bed."
+// 8. "That night, the Samaritan took care of him. He gave him water to drink and warm soup to eat, and he tucked him
+// into a cozy bed."
 // Night in a room at the inn, the lamp glowing and the moon at the window. The man sits up in a cozy bed under a warm
-// blanket, bandaged and smiling. The Samaritan kneels by the bed holding out a bowl of warm soup; a cup of water and a
-// jug stand on the floor beside him.
+// blanket, bandaged and smiling. The Samaritan kneels by the bed and holds a bowl of warm soup out to him on his hand;
+// a cup of water and a jug stand on the floor nearby.
 function Page8() {
   return (
     <Scene sky="night" ground="none" clouds={false} stars={false}>
@@ -930,10 +953,10 @@ function Page8() {
         </g>
       </Tap>
       <Tap say="Here is some warm soup. Rest now, my friend." sfx="sparkle">
-        <Kneel x={436} y={440} s={1.04} look={SAMARITAN} pose="hold" facing="left" blinkDelay={1.4}>
+        {/* (kneeling by the bed, he holds the bowl out to the man on his hand, which shows under it: his own two hands only) */}
+        <Kneel x={404} y={412} s={1.04} look={SAMARITAN} pose="point" facing="left" blinkDelay={1.4}>
           <SamaritanCloth />
-          <SoupBowl x={0} y={-50} s={1.1} />
-          {[-15, 15].map((hx) => <circle key={hx} cx={hx} cy={-50} r={6.4} fill={SAMARITAN.skin} stroke={ink(SAMARITAN.skin)} strokeWidth={2} />)}
+          <SoupBowl x={54} y={-101} s={1.2} />
         </Kneel>
       </Tap>
       <Tap say="A cup of cool water." sfx="pop">
@@ -963,7 +986,7 @@ function Page9() {
       <Inn x={560} y={392} s={1.08} lit={0}
         atWindow={
           <Tap say="Good morning! I feel much better." sfx="pop">
-            <Figure x={win.x} y={win.y + 66} s={0.62} look={TRAVELER} pose="wave" reach={[null, [30, -124]]} blinkDelay={0.9}><Bandages arm={LEFT_ARM.wave} /></Figure>
+            <Figure x={win.x} y={win.y + 66} s={0.62} look={TRAVELER} pose="wave" reach={[null, [30, -124]]} blinkDelay={0.9}><Bandages /></Figure>
           </Tap>
         } />
       <Tap say="Cock-a-doodle-doo! Good morning!" sfx="wobble">
@@ -980,7 +1003,7 @@ function Page9() {
       <Tap say="Thank you! I will take good care of him." sfx="good">
         <Figure x={612} y={414} s={0.92} look={INNKEEPER} pose="point" facing="left" blinkDelay={0.4}><Apron /></Figure>
       </Tap>
-      <Sparkles spots={[[520, 290, 7], [540, 266, 5], [494, 270, 4]]} color="#ffffff" />
+      <Sparkles spots={[[532, 300, 6], [486, 296, 4], [526, 326, 4]]} color="#ffffff" />
     </Scene>
   )
 }
@@ -1009,8 +1032,8 @@ function Rooster({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 // 10. "Then Jesus asked, "Which one was a good neighbor to the hurt man?" The man said, "The one who was kind to him."
 // "Yes," said Jesus. "Now you go and do the same.""
 // Back on the hillside with Jesus. Over them, a dream bubble shows the three from the story: the priest and the temple
-// helper walking away, and the Samaritan kneeling to help the hurt man, a heart over them. The man who asked smiles: he
-// knows the answer.
+// helper hurrying away from the hurt man (looking back at him, worried, as on pages 3 and 4), and the Samaritan kneeling
+// to help him, a heart over them. The man who asked raises his hand: he knows the answer.
 function Page10() {
   return (
     <Scene sky="day" ground="none">
@@ -1018,13 +1041,14 @@ function Page10() {
       <Tap say="Which one was a good neighbor? The one who was kind!" sfx="sparkle">
         <Dream x={150} y={30} w={430} h={150} from={[404, 268]} to={[396, 186]} sky="#fff1d6">
           <path d="M140 150 Q300 128 460 144 Q540 136 600 142 L600 200 L140 200 Z" fill="#e2c38e" />
-          <Person x={214} y={164} s={0.42} look={PRIEST} holding="stick" facing="right" />
-          <Hurry x={214} y={136} s={0.5} color="#c9a46a" />
-          <Figure x={300} y={164} s={0.42} look={TEMPLE_HELPER} pose="carry" item={<Sack />} facing="right" />
-          <Hurry x={300} y={136} s={0.5} color="#c9a46a" />
+          {/* (the two who went by, hurrying away from the hurt man, looking back at him as on pages 3 and 4) */}
+          <PriestWalking x={214} y={164} s={0.42} facing="left" />
+          <Hurry x={214} y={136} s={0.5} color="#c9a46a" flip />
+          <HelperWalking x={300} y={164} s={0.42} facing="left" />
+          <Hurry x={300} y={136} s={0.5} color="#c9a46a" flip />
           <Sitting x={430} y={166} s={0.42} look={TRAVELER}><Bandages arm={LEFT_ARM.hold} /></Sitting>
           <Kneel x={482} y={166} s={0.42} look={SAMARITAN} pose="point" facing="left"><SamaritanCloth /></Kneel>
-          <Heart x={456} y={70} s={0.62} />
+          <Heart x={456} y={70} s={0.62} color="#ff6f91" />
           <Sparkles spots={[[410, 66, 6], [506, 80, 5]]} color="#ffd34d" />
         </Dream>
       </Tap>
@@ -1047,11 +1071,11 @@ function Page10() {
   )
 }
 
-// 11. "A neighbor is anyone who needs our help. God loves everyone, and He wants us to be kind to everyone, just like
-// the good Samaritan!"
+// 11. "A neighbor is anyone who needs our help. God loves everyone. He wants us to be kind to everyone, even people who
+// are different from us, just like the good Samaritan!"
 // God's warm light shines down on the hillside, and hearts float up. Jesus stands with His arms open. All around Him,
-// people are being kind: the man who asked carries a water jar for a grandma, a boy shares his bread with a little one,
-// and a girl gives a tired traveler a cup of water.
+// all kinds of people are being kind: the man who asked carries a water jar for a grandma, a boy shares his bread with
+// a little one, and a girl gives a tired traveler a cup of water.
 function Page11() {
   return (
     <Scene sky="day" ground="none" clouds={false}>
@@ -1066,7 +1090,8 @@ function Page11() {
         <Figure x={182} y={418} s={0.94} look={LAWYER} holding="jar" facing="left" blinkDelay={1.6} />
       </Tap>
       <Tap say="You can have some of my bread." sfx="pop">
-        <Figure x={268} y={440} s={0.95} look={FOLK.boy} pose="point" blinkDelay={1.1} item={<Loaf x={58} y={-92} s={1.1} />} />
+        {/* (the loaf held up on his hand, over it, so his hand shows under it) */}
+        <Figure x={268} y={440} s={0.95} look={FOLK.boy} pose="point" blinkDelay={1.1}><Loaf x={56} y={-105} s={1.25} /></Figure>
         <SitKid x={362} y={444} s={0.95} look={FOLK.little} blinkDelay={0.3} />
       </Tap>
       <Tap say="Here is some water for you." sfx="pop">
@@ -1074,9 +1099,9 @@ function Page11() {
         <SittingOnRock x={668} y={428} s={0.9} look={FOLK.traveler} blinkDelay={0.8} />
         <Figure x={588} y={432} s={0.95} look={FOLK.girl} pose="point" blinkDelay={2.2} item={<Cup x={58} y={-86} s={1.4} />} />
       </Tap>
-      <Heart x={310} y={196} s={0.55} />
+      <Heart x={310} y={196} s={0.55} color="#ff6f91" />
       <Heart x={610} y={176} s={0.5} color="#ffcf3f" />
-      <Heart x={740} y={262} s={0.45} />
+      <Heart x={740} y={262} s={0.45} color="#ff6f91" />
       <Heart x={130} y={250} s={0.45} color="#ff9ec0" />
       <Sparkles spots={[[400, 80, 9], [530, 54, 7], [610, 110, 8], [290, 120, 6], [690, 150, 6]]} />
     </Scene>

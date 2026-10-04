@@ -5,8 +5,9 @@
 // to cheer the hurt man up. At the end of the road the innkeeper waves them in at the inn's door.
 //
 // Seen from the side, like story pages 6 and 7: the wild, rocky hills behind, the road winding across the front, and
-// the inn at its end on the right. The way runs along the road's far half and the walkers' feet are on its near half,
-// so they're centred on the way as the kit asks. The afternoon turns to evening as they go: the sun sinks, the sky goes
+// the inn at its end on the right. The way runs along the road's far half and the walkers' feet are on its near half.
+// The Samaritan is centred on the way, with his donkey behind him, so he's the one who reaches each flower as it's
+// picked. The afternoon turns to evening as they go: the sun sinks, the sky goes
 // gold and then rosy, the first stars come out and the inn's windows light up, ready for them (story page 7 is the
 // evening they arrive).
 import { useId } from 'react'
@@ -17,8 +18,11 @@ import { Apron, INNKEEPER, Inn, Lizard, OnTheWay, RockyRoad, Scrub, Wilderness }
 
 // ---------- The way ----------
 
-/** From the roadside where the man was hurt, on the left, winding along the road to the inn's door on the right. */
-const PATH: At[] = [[92, 300], [172, 330], [262, 312], [344, 290], [424, 316], [504, 300], [574, 318]]
+/**
+ * From the roadside where the man was hurt, on the left, winding along the road to the inn's door on the right. (The
+ * way is the Samaritan's: his donkey walks behind him, so it starts far enough in for the donkey to fit behind.)
+ */
+const PATH: At[] = [[172, 300], [250, 330], [330, 312], [410, 290], [488, 316], [564, 300], [638, 318]]
 const END = PATH[PATH.length - 1]
 
 /** How far below the way the walkers' feet are (the road is drawn under both). */
@@ -40,7 +44,7 @@ function along(path: At[], f: number): At {
 
 /** The road: on from the left, along under the way, and up to the inn's door ([x, y, half its width] each). */
 const ROAD: [number, number, number][] = [
-  [-40, 306, 36], ...PATH.map(([x, y]): [number, number, number] => [x, y + 14, 36]), [652, 340, 28], [688, 352, 20],
+  [-40, 306, 36], ...PATH.map(([x, y]): [number, number, number] => [x, y + 14, 36]), [668, 344, 26], [690, 352, 20],
 ]
 
 /** Where the inn stands (the middle of its front on the ground), and how big it is. */
@@ -93,25 +97,30 @@ function Backdrop({ progress }: { progress: number }) {
       {/* the rock by the road where the man was hurt, at the start */}
       <ellipse cx={40} cy={348} rx={44} ry={6} fill="#000" opacity={0.12} />
       <path d="M-4 348 Q-8 322 8 306 Q24 292 40 302 Q48 310 50 322 Q72 320 80 334 Q84 344 78 348 Z" fill="#c2b8a6" stroke="#887e70" strokeWidth={3} strokeLinejoin="round" />
-      <Scrub x={230} y={250} s={0.7} />
-      <Scrub x={470} y={244} s={0.6} />
+      {/* (high on the far hills, well above where the walkers' heads go by) */}
+      <Scrub x={226} y={216} s={0.6} />
+      <Scrub x={548} y={212} s={0.55} />
       {/* the inn at the end of the road: its windows light up for the evening */}
       <Glow x={INN_AT.x} y={INN_AT.y - 70} r={100 + 60 * lit} color="#ffe6a0" />
-      <Inn x={INN_AT.x} y={INN_AT.y} s={INN_AT.s} lit={lit} />
+      {/* (no lamp on the shelf by the door: the Samaritan stops there, and it would sit on his head) */}
+      <Inn x={INN_AT.x} y={INN_AT.y} s={INN_AT.s} lit={lit} lamp={false} />
     </Scene>
   )
 }
 
 // ---------- The walkers: the Samaritan leading his donkey, the hurt man riding it ----------
 
-/** OnTheWay at this size (about 145 wide), centred on the way: the group's middle over it, their feet FEET below it. */
+/**
+ * OnTheWay at this size (about 145 wide), with the Samaritan on the way and his donkey walking behind him, their feet
+ * FEET below it: so he's the one who reaches each flower as it's picked (and he's who the child leads).
+ */
 const S = 0.56
-const MID = 33 // (the group's middle, in the scaled group's units, from the donkey's hooves)
+const LEAD = 152 * S // (how far ahead of the donkey's hooves the Samaritan walks, in the group's units)
 
 function Hero({ moving, facing }: { moving: boolean; facing: 1 | -1 }) {
   return (
     <g transform={facing === -1 ? 'scale(-1 1)' : undefined}>
-      <OnTheWay x={-MID} y={FEET} s={S} walk={moving} blinkDelay={0.4} />
+      <OnTheWay x={-LEAD} y={FEET} s={S} walk={moving} blinkDelay={0.4} />
     </g>
   )
 }
@@ -141,8 +150,8 @@ const wildflowers = (color: string) => function Wildflowers({ taken }: { taken: 
 // ---------- The goal: the innkeeper at the inn's door ----------
 
 /**
- * The innkeeper standing by the inn's open door, waving them in (centred on the way's end, where the Samaritan's donkey
- * stops; the door is a little ahead, so the innkeeper stands there, his feet on the road). Light enough to hop for joy.
+ * The innkeeper standing at the inn's open door, waving them in (centred on the way's end, where the Samaritan stops;
+ * the door is a little ahead, so the innkeeper stands there, his feet on the road). Light enough to hop for joy.
  */
 function Goal() {
   const dx = INN_AT.x - END[0] + 4, dy = INN_AT.y - END[1] + 2

@@ -23,10 +23,10 @@ export const SAMARITAN_STORY_1: StoryPage[] = [
 /** Visit 2: the inn, the long night of care, the two coins, Jesus' question, and what it means. Its pictures follow part one's. */
 export const SAMARITAN_STORY_2: StoryPage[] = [
   { scene: '🏠🌙', bg: 'linear-gradient(#6b5bb5,#ffa8b8)', text: 'Remember the hurt man on the road? The kind Samaritan took him to an inn, a house where travelers can stay. The innkeeper opened the door. "Come in, come in!" he said.' },
-  { scene: '🛏️🌙', bg: 'linear-gradient(#18163f,#3b3486)', text: 'All night long, the Samaritan took care of him. He gave him water to drink and warm soup to eat. Then he tucked him into a cozy bed.' },
+  { scene: '🛏️🌙', bg: 'linear-gradient(#18163f,#3b3486)', text: 'That night, the Samaritan took care of him. He gave him water to drink and warm soup to eat, and he tucked him into a cozy bed.' },
   { scene: '🌅🙏', bg: 'linear-gradient(#ffb3c7,#ffe8b0)', text: 'In the morning, the Samaritan gave the innkeeper two coins. "Please take care of him," he said. "I will come back."' },
   { scene: '❓❤️', bg: 'linear-gradient(#bfe6ff,#e6ffd9)', text: 'Then Jesus asked, "Which one was a good neighbor to the hurt man?" The man said, "The one who was kind to him." "Yes," said Jesus. "Now you go and do the same."' },
-  { scene: '❤️✨', bg: 'linear-gradient(#fff1c2,#bfe6ff)', text: 'A neighbor is anyone who needs our help. God loves everyone, and He wants us to be kind to everyone, just like the good Samaritan!' },
+  { scene: '❤️✨', bg: 'linear-gradient(#fff1c2,#bfe6ff)', text: 'A neighbor is anyone who needs our help. God loves everyone. He wants us to be kind to everyone, even people who are different from us, just like the good Samaritan!' },
 ]
 
 // (Story cards, `story:samaritan:<n>`, count the pages from 1 through both parts: part 2 starts at page 7.)
@@ -112,5 +112,6 @@ export const SAMARITAN_STEPS: Step[] = [
   },
   { kind: 'battle', foe: 'dash', intro: 'Oh no! A grumpy ostrich named Dash is zooming down the road, too busy to stop for anyone! Dash just needs a friend.' },
   { kind: 'song', song: 'song-samaritan', intro: "The kind Samaritan stopped to help, and Jesus says we can be kind like him! Let's sing about it. You can sing it on your Ark any time, too." },
-  { kind: 'reward', pal: 'dottie', sticker: '❤️', stickerName: 'kind heart' },
+  // (The shared heart drawing is a gold heart, the one 💛 names.)
+  { kind: 'reward', pal: 'dottie', sticker: '💛', stickerName: 'kind heart' },
 ]

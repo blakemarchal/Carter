@@ -55,17 +55,19 @@ export function Hurts({ arm }: { arm: [Pt, Pt] }) {
   )
 }
 
-/** White bandages: wrapped round his head, and round his arm where the scrape was. */
-export function Bandages({ arm }: { arm: [Pt, Pt] }) {
+/** White bandages: wrapped round his head, and round his arm where the scrape was (his left arm; leave `arm` out when it's out of sight). */
+export function Bandages({ arm }: { arm?: [Pt, Pt] }) {
   return (
     <g>
       <path d="M-23.5 -117 Q0 -133 23.5 -117" stroke="#bdb5a6" strokeWidth={9.2} fill="none" strokeLinecap="round" />
       <path d="M-23.5 -117 Q0 -133 23.5 -117" stroke="#fffdf6" strokeWidth={6.8} fill="none" strokeLinecap="round" />
       <path d="M-13 -127.6 l3 4.6 M-1 -129.6 l3 4.8 M11 -127.8 l3 4.4" stroke="#ddd6c8" strokeWidth={1.2} strokeLinecap="round" />
       <path d="M22.5 -118 l8 -6 l1.6 5.6 Z M22.5 -118 l8.6 1.6 l-3.4 4.4 Z" fill="#fffdf6" stroke="#bdb5a6" strokeWidth={1.2} strokeLinejoin="round" />
-      <OnArm arm={arm}>
-        {[-3.2, 3.2].map((dx) => <rect key={dx} x={dx - 3.2} y={-9.6} width={6.4} height={19.2} rx={2.4} fill="#fffdf6" stroke="#bdb5a6" strokeWidth={1.3} />)}
-      </OnArm>
+      {arm && (
+        <OnArm arm={arm}>
+          {[-3.2, 3.2].map((dx) => <rect key={dx} x={dx - 3.2} y={-9.6} width={6.4} height={19.2} rx={2.4} fill="#fffdf6" stroke="#bdb5a6" strokeWidth={1.3} />)}
+        </OnArm>
+      )}
     </g>
   )
 }
@@ -127,13 +129,20 @@ export function SamaritanCloth() {
   )
 }
 
-/** A cloth sack over the shoulder, tied at its neck (in a Person's units: for pose "carry", behind the hand at the shoulder). */
+/**
+ * A soft cloth sack over the shoulder (in a Person's units: for pose "carry", behind the hand at the shoulder): a lumpy,
+ * slumped bag of rough cloth with folds, its top gathered and tied with a rope, the rope's ends hanging loose.
+ */
 export const Sack = () => (
-  <g transform="translate(38 -100) rotate(14) scale(1.3)" strokeLinejoin="round">
-    <path d="M-13 9 Q-19 -3 -10 -11 Q0 -15 10 -11 Q19 -3 13 9 Q0 15 -13 9 Z" fill="#d8b47a" stroke="#9a7442" strokeWidth={2.2} />
-    <path d="M-5 -11 L-7 -19 Q0 -22 7 -19 L5 -11 Z" fill="#d8b47a" stroke="#9a7442" strokeWidth={2} />
-    <path d="M-6.5 -13.5 L6.5 -13.5" stroke="#7a5a2e" strokeWidth={2.6} strokeLinecap="round" />
-    <path d="M-6 0 q3 5 0 9 M5 -3 q-3 5 1 9" stroke="#b9925a" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+  <g transform="translate(38 -100) rotate(14) scale(1.3)" strokeLinejoin="round" strokeLinecap="round">
+    <path d="M-15 9 Q-21 1 -16 -6 Q-13 -11 -7 -11 Q-3 -14 1 -12 Q5 -14 9 -11 Q15 -10 17 -4 Q21 3 15 9 Q11 14 4 12 Q0 15 -5 12 Q-11 14 -15 9 Z"
+      fill="#cfae7c" stroke="#8a6a3e" strokeWidth={2} />
+    <path d="M-9 -5 Q-12 2 -9 9 M2 -7 Q5 1 2 10 M10 -5 Q13 0 11 6" stroke="#a8875a" strokeWidth={1.4} fill="none" />
+    {/* the gathered top, puckered above the rope */}
+    <path d="M-5 -12 Q-9 -16 -7 -21 Q-4 -18 -2 -21 Q0 -17 2 -21 Q4 -18 7 -21 Q8 -16 5 -12 Z" fill="#cfae7c" stroke="#8a6a3e" strokeWidth={1.8} />
+    {/* the rope tie, and its loose ends */}
+    <path d="M-6 -12.5 Q0 -10 6 -12.5" stroke="#6b4a26" strokeWidth={2.4} fill="none" />
+    <path d="M5 -12 q5 2 5 8 M5 -12 q7 -1 10 4" stroke="#6b4a26" strokeWidth={1.8} fill="none" />
   </g>
 )
 
@@ -144,11 +153,14 @@ export const Hurry = ({ x, y, s = 1, flip, color = '#ffffff' }: { x: number; y: 
   </g>
 )
 
-/** The priest walking by with his stick, his eyes turned toward the hurt man (`look`: -1 back to the left), not smiling. */
-export function PriestWalking({ x, y, s = 1, look = -1 }: { x: number; y: number; s?: number; look?: number }) {
+/**
+ * The priest walking by with his stick, his eyes turned back toward the hurt man (`look` -1: back behind him, whichever
+ * way he's facing), not smiling.
+ */
+export function PriestWalking({ x, y, s = 1, look = -1, facing = 'right' }: { x: number; y: number; s?: number; look?: number; facing?: 'left' | 'right' }) {
   return (
     <LookingAside>
-      <Person x={x} y={y} s={s} look={PRIEST} holding="stick" blinkDelay={0.4}>
+      <Person x={x} y={y} s={s} look={PRIEST} holding="stick" facing={facing} blinkDelay={0.4}>
         <AsideEyes dx={2.4 * look} />
         <Brows mood="sad" />
         <FlatMouth look={PRIEST} />
@@ -157,11 +169,11 @@ export function PriestWalking({ x, y, s = 1, look = -1 }: { x: number; y: number
   )
 }
 
-/** The temple helper hurrying by with a sack on his shoulder, his eyes turned toward the hurt man, not smiling. */
-export function HelperWalking({ x, y, s = 1, look = -1 }: { x: number; y: number; s?: number; look?: number }) {
+/** The temple helper hurrying by with a sack on his shoulder, his eyes turned back toward the hurt man (as PriestWalking), not smiling. */
+export function HelperWalking({ x, y, s = 1, look = -1, facing = 'right' }: { x: number; y: number; s?: number; look?: number; facing?: 'left' | 'right' }) {
   return (
     <LookingAside>
-      <Figure x={x} y={y} s={s} look={TEMPLE_HELPER} pose="carry" item={<Sack />} blinkDelay={1.1}>
+      <Figure x={x} y={y} s={s} look={TEMPLE_HELPER} pose="carry" item={<Sack />} facing={facing} blinkDelay={1.1}>
         <AsideEyes dx={2.4 * look} />
         <Brows mood="sad" />
         <FlatMouth look={TEMPLE_HELPER} />
@@ -170,17 +182,13 @@ export function HelperWalking({ x, y, s = 1, look = -1 }: { x: number; y: number
   )
 }
 
-/** A drawn heart that bobs gently. */
-export function Heart({ x, y, s = 1, color = '#ff6f91' }: { x: number; y: number; s?: number; color?: string }) {
-  return (
-    <g className="sc-float">
-      <g transform={`translate(${x} ${y}) scale(${s})`}>
-        <path d="M0 16 C-24 2 -26 -14 -14 -19 C-7 -22 -2 -17 0 -11 C2 -17 7 -22 14 -19 C26 -14 24 2 0 16 Z" fill={color} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
-        <ellipse cx={-10} cy={-10} rx={4} ry={2.4} fill="#fff" opacity={0.65} transform="rotate(-35 -10 -10)" />
-      </g>
-    </g>
-  )
-}
+/** A little pink heart, still (in an activity picture; the story pictures use the kit's floating Heart). (x, y): its middle. */
+const LittleHeart = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <path d="M0 16 C-24 2 -26 -14 -14 -19 C-7 -22 -2 -17 0 -11 C2 -17 7 -22 14 -19 C26 -14 24 2 0 16 Z" fill="#ff6f91" stroke={ink('#ff6f91')} strokeWidth={3} strokeLinejoin="round" />
+    <ellipse cx={-10} cy={-10} rx={4} ry={2.4} fill="#fff" opacity={0.65} transform="rotate(-35 -10 -10)" />
+  </g>
+)
 
 // ---------- Pictures of the story's people, for activities ----------
 
@@ -219,17 +227,29 @@ function SamaritanHelping() {
         <SamaritanCloth />
         <SadFace look={SAMARITAN} frown={false} />
       </Kneel>
-      <Heart x={52} y={16} s={0.36} />
+      <LittleHeart x={52} y={16} s={0.36} />
     </g>
   )
 }
 
-/** The hurt man in his white bandages (round his head and his arm), sitting up and smiling. */
+/**
+ * White bandages, close up: the hurt man's head and shoulders in a round frame, smiling now, a white bandage wrapped
+ * round his head and another round his left arm (as in the story), which he holds up to wave, so the bandages fill
+ * the picture.
+ */
 function BandagedTraveler() {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
+  // (his left arm raised out to the side, clear of his face)
+  const left: [Pt, Pt] = [[-20, -86], [-46, -112]]
   return (
     <g>
-      <ellipse {...groundShadow(50, 93, 36)} />
-      <Sitting x={50} y={93} s={0.72} look={TRAVELER} blinkDelay={0.6}><Bandages arm={LEFT_ARM.hold} /></Sitting>
+      <defs><clipPath id={`bt${uid}`}><circle cx={50} cy={50} r={44} /></clipPath></defs>
+      <circle cx={50} cy={50} r={44} fill="#f8ecd6" />
+      <g clipPath={`url(#bt${uid})`}>
+        <path d="M6 70 Q50 58 94 70 L94 100 L6 100 Z" fill="#ead6b0" />
+        <Figure x={56} y={154} s={0.9} look={TRAVELER} reach={[left[1], null]} blinkDelay={0.6}><Bandages arm={left} /></Figure>
+      </g>
+      <circle cx={50} cy={50} r={44} fill="none" stroke="#d9bf92" strokeWidth={3.2} />
     </g>
   )
 }
