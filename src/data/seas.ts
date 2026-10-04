@@ -76,7 +76,7 @@ export const SEAS: Sea[] = [
   {
     id: 'easter', name: 'Easter & Beyond', color: '#9f9cf0',
     islands: [
-      { id: 'palm-sunday', name: 'Palm Sunday', emoji: '🌿' },
+      { id: 'palm-sunday', name: 'Palm Sunday', emoji: '🌴', landmark: 'palm-branch' },
       { id: 'easter', name: 'Easter Morning', emoji: '🌅' },
       { id: 'pentecost', name: 'Pentecost', emoji: '🕊️' },
     ],

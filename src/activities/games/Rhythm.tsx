@@ -295,8 +295,13 @@ function tambourine(c: AudioContext, out: AudioNode, t: number, midi: number, ve
     g.connect(v.g)
     osc(c, 'sine', fr * tone, t, t + 0.4, g, v.sources)
   }
+  // The jingles barely change pitch, so a little bell rings the tune's own note: the melody comes through.
+  musicBox(v.g, t, above(midi, 12), 0.55 * vel, bright ? 0.9 : 0.6)
   return v.played
 }
+
+/** `midi` raised by `up` semitones, or by one octave less when that would go past the highest bell (C7). */
+const above = (midi: number, up: number) => (midi + up <= 96 ? midi + up : midi + up - 12)
 
 function drum(c: AudioContext, out: AudioNode, t: number, midi: number, vel: number, bright: boolean): Played {
   const v = voice(c, out, t)
@@ -776,7 +781,7 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
       r.hits++
       if (c && r.out) {
         note(c, r.out, bank.current, instrument, c.currentTime + 0.005, m, 1, true, song.lens[best] * song.beat * 0.85)
-        musicBox(r.out, c.currentTime + 0.01, Math.min(96, m + 24), 0.16, 0.6)
+        musicBox(r.out, c.currentTime + 0.01, above(m, 24), 0.16, 0.6)
       }
       setHits(r.hits)
       setHitList([...r.hit])

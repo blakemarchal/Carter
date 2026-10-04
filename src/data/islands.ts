@@ -125,7 +125,7 @@ export const ISLANDS: IslandInfo[] = [
   { id: 'lost-sheep', name: 'The Lost Sheep', emoji: '🐑', color: '#8fcf6a' },
   { id: 'samaritan', name: 'The Good Samaritan', emoji: '❤️', color: '#e8667a' },
   { id: 'zacchaeus', name: 'Zacchaeus', emoji: '🌳', color: '#3f9a5a' },
-  { id: 'palm-sunday', name: 'Palm Sunday', emoji: '🌿', color: '#9ccf4a' },
+  { id: 'palm-sunday', name: 'Palm Sunday', emoji: '🌴', color: '#9ccf4a' },
   { id: 'easter', name: 'Easter Morning', emoji: '🌅', color: '#ffb07a' },
   { id: 'pentecost', name: 'Pentecost', emoji: '🕊️', color: '#ff8a4a' },
 ]

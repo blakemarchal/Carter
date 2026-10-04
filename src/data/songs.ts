@@ -64,7 +64,7 @@ const BUILT_IN: { id: string; title: string; emoji: string; color: string; islan
   { id: 'song-lost-sheep', title: 'Where Is the Little Lamb?', emoji: '🐑', color: '#8fcf6a', island: 'lost-sheep' },
   { id: 'song-samaritan', title: 'Love Your Neighbor', emoji: '❤️', color: '#e8667a', island: 'samaritan' },
   { id: 'song-zacchaeus', title: 'Hurry Down, Zacchaeus!', emoji: '🌳', color: '#3f9a5a', island: 'zacchaeus' },
-  { id: 'song-palm-sunday', title: 'Hosanna to the King!', emoji: '🌿', color: '#9ccf4a', island: 'palm-sunday' },
+  { id: 'song-palm-sunday', title: 'Hosanna to the King!', emoji: '🌴', color: '#9ccf4a', island: 'palm-sunday' },
   { id: 'song-easter', title: 'Jesus Is Alive!', emoji: '🌅', color: '#ffb07a', island: 'easter' },
   { id: 'song-pentecost', title: 'The Spirit Came to Stay', emoji: '🕊️', color: '#ff8a4a', island: 'pentecost' },
 ]
