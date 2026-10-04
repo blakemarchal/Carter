@@ -721,7 +721,7 @@ SAMARITAN_SONG = dict(
                  'Left him hurt and sad that day.', 'Who will stop and help the poor man on the road?')
     + _tramp('Then a priest came walk-ing by him,', 'But he did not stop to help;', 'Then a tem-ple help-er passed,',
              'He went by him, oh so fast!', 'Who will stop and help the poor man on the road?')
-    + _tramp('Then a kind man came a-rid-ing', 'From Sa-mar-i-a he came;', 'He was sad to see him there,',
+    + _tramp('Then a kind man, walk-ing by there,', 'From Sa-mar-i-a he came;', 'He was sad to see him there,',
              'So he stopped to help and care.', 'Yes, he stopped to help the poor man on the road!')
     + _tramp('Ban-daged up his cuts and bruis-es,', 'Let him ride his don-key, too,', 'To an inn to rest and stay,',
              'And he paid for it, hoo-ray!', 'He was kind and loved the poor man on the road!')
