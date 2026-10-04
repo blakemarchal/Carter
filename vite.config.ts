@@ -33,8 +33,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,mp3,m4a,webp,woff2}'],
         // Sing-along songs are big: each is kept the first time it's played (below), not up front.
         globIgnores: ['**/music/**'],
-        // /login must reach the server (it shows the sign-in form when the login has expired).
-        navigateFallbackDenylist: [/^\/login/],
+        // These pages come from the server, not the installed app: /login (the sign-in form, when a device is
+        // signed out), and the pages a family's link opens (/join/…, /start/…).
+        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//],
         // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
         runtimeCaching: [{
           urlPattern: ({ url }) => url.pathname === '/tts',

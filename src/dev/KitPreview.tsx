@@ -3,7 +3,7 @@
 // finds a hidden thing; a dashed line shows the way to steer.
 import type { ReactNode } from 'react'
 import { Board, BoardLayer } from '../activities/games/Board'
-import { islandById } from '../data/islands'
+import { useIsland } from '../lib/useIsland'
 import Pic from '../components/Pic'
 
 function Tile({ name, children }: { name: string; children: ReactNode }) {
@@ -15,7 +15,8 @@ function Tile({ name, children }: { name: string; children: ReactNode }) {
 }
 
 export default function KitPreview({ island }: { island: string }) {
-  const steps = islandById(island)?.steps ?? []
+  const isl = useIsland(island)
+  const steps = isl?.steps ?? []
   const tiles: ReactNode[] = []
   steps.forEach((s, n) => {
     const at = `${island} step ${n + 1} (${s.kind})`
@@ -120,7 +121,7 @@ export default function KitPreview({ island }: { island: string }) {
   })
   return (
     <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto', alignContent: 'flex-start' }}>
-      {tiles.length ? tiles : <p>No mini-game on {island} yet.</p>}
+      {tiles.length ? tiles : isl ? <p>No mini-game on {island} yet.</p> : null}
     </div>
   )
 }

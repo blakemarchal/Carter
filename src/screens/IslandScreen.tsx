@@ -25,7 +25,6 @@ import Rhythm from '../activities/games/Rhythm'
 import ShareIt from '../activities/games/ShareIt'
 import CatchIt from '../activities/games/CatchIt'
 import type { Island, Step } from '../data/islands'
-import { STORY_ART } from '../art/scenes'
 import { completeIsland, getProgress, savedStep, today, update } from '../lib/progress'
 import { countVisit } from '../lib/voyage'
 import { ScoreContext, starsFor } from '../lib/score'
@@ -53,7 +52,7 @@ function visitOf(steps: Step[], step: number) {
 }
 
 export default function IslandScreen({ island, onExit }: { island: Island; onExit: () => void }) {
-  const steps = island.steps!
+  const steps = island.steps
   const reward = steps.length - 1 // the last step is always the reward
   // Pick up where this player left off (the start of the activity they were on).
   const [step, setStep] = useState(() => Math.min(savedStep(getProgress(), island.id, island.version), reward))
@@ -129,7 +128,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   switch (current.kind) {
     case 'story': {
       const first = current.first ?? 0
-      body = <StoryBook title={current.title} pages={current.pages} art={STORY_ART[island.id]?.slice(first, first + current.pages.length)} onDone={next} />
+      body = <StoryBook title={current.title} pages={current.pages} art={island.art.slice(first, first + current.pages.length)} onDone={next} />
       break
     }
     case 'pairs':

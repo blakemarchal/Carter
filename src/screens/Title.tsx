@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import Avatar from '../components/Avatar'
+import { useFamilyAccount } from '../lib/family'
+import { avatarLook, readAvatar } from '../lib/avatars'
 import PalArt from '../components/PalArt'
 import { BirthdayPicker } from '../components/FamilyEditor'
 import { palById } from '../data/pals'
@@ -33,6 +36,22 @@ function Welcome({ onDone }: { onDone: (id: string) => void }) {
 }
 
 /** Title screen. Tapping a player starts the game as them; each player has their own progress. */
+/** The family's grown-ups (Nana, Paw Paw…), so the child sees who else is on their Ark. */
+function OurFamily() {
+  const { view } = useFamilyAccount()
+  if (!view || view.members.length < 2) return null
+  return (
+    <div className="title-family" aria-label={`${view.family.name}: ${view.members.map((m) => m.name).join(', ')}`}>
+      {view.members.map((m) => (
+        <span key={m.id} className="tf-member">
+          <Avatar look={avatarLook(readAvatar(m.look, m.name))} size={54} />
+          <span>{m.name}</span>
+        </span>
+      ))}
+    </div>
+  )
+}
+
 export default function Title({ onStart }: { onStart: (profileId: string) => void }) {
   const { active, list } = useProfiles()
   const update = useUpdateAvailable()
@@ -61,6 +80,7 @@ export default function Title({ onStart }: { onStart: (profileId: string) => voi
               )
             })}
           </div>
+          <OurFamily />
         </>
       ) : <Welcome onDone={onStart} />}
     </div>

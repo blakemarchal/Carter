@@ -8,6 +8,8 @@
 //   #gallery/game/<kind>[/<island>]   a mini-game mechanic, playable, with its demo kit or an island's
 //   #gallery/kit/<island>      every piece of an island's mini-game kit, drawn in place
 import { STORY_ART } from '../art/scenes'
+import { ISLANDS } from '../data/islands'
+import { useAllIslands } from '../lib/useIsland'
 import { BuddyContext } from '../art/scenes/buddy'
 import { PlayerContext, type PlayerArt } from '../art/scenes/player'
 import { grownupLook, kidLook, siblingLook } from '../art/people'
@@ -81,10 +83,19 @@ export default function Gallery({ route }: { route: string }) {
       </div>
     )
   }
-  const islands = which === 'all' || !which ? Object.keys(STORY_ART) : [which]
+  return <Scenes which={which} variant={variant} />
+}
+
+/** Story pictures: one island's (or the birthday party's or bedtime's), or every one of them. */
+function Scenes({ which, variant }: { which?: string; variant?: string }) {
+  const all = which === 'all' || !which
+  const ids = all ? ISLANDS.map((i) => i.id) : STORY_ART[which] ? [] : [which]
+  const loaded = useAllIslands(ids)
+  if (!loaded) return null
+  const sets = [...loaded.map((i) => [i.id, i.art] as const), ...Object.entries(STORY_ART).filter(([id]) => all || id === which)]
   return (
     <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto' }}>
-      {islands.flatMap((id) => STORY_ART[id].map((Art, i) => (
+      {sets.flatMap(([id, art]) => art.map((Art, i) => (
         <div key={`${id}-${i}`} data-name={`${id} page ${i + 1}`} style={{ width: 560, height: 315, position: 'relative', overflow: 'hidden', borderRadius: 12, outline: '1px solid #ddd' }}>
           <BuddyContext.Provider value={{ id: 'pip', stage: 1 }}>
             {variant === 'family' ? <PlayerContext.Provider value={SAMPLE}><Art /></PlayerContext.Provider> : <Art />}
