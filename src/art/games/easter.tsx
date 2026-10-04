@@ -44,7 +44,9 @@ const petals = (cx: number, cy: number, r: number) => {
 
 const SKY = 'M0 0 L800 0 L800 124 Q700 142 600 128 Q500 114 400 132 Q300 150 200 130 Q100 112 0 128 Z'
 const GLOW = 'M0 128 Q100 112 200 130 Q300 150 400 132 Q500 114 600 128 Q700 142 800 124 L800 280 L0 280 Z'
-const SUN = circle(556, 240, 54)
+/** The sun, coming up over the far hills (about sixty units of it show above them). */
+const SUN_AT: At = [556, 214]
+const SUN = circle(SUN_AT[0], SUN_AT[1], 54)
 const HILLS = 'M0 236 Q80 206 170 222 Q260 238 340 214 Q430 190 520 214 Q600 236 680 218 Q750 204 800 214 L800 320 L0 320 Z'
 const MEADOW = 'M0 296 Q140 278 300 288 Q470 298 620 282 Q720 272 800 280 L800 350 L0 350 Z'
 const GRASS = 'M0 340 Q160 330 320 338 Q500 346 650 334 Q740 328 800 332 L800 450 L0 450 Z'
@@ -57,7 +59,7 @@ const WINGS = 'M-4 -2 C-16 -26 -42 -44 -60 -36 C-74 -28 -70 -6 -54 4 C-40 12 -18
   'M4 -2 C16 -26 42 -44 60 -36 C74 -28 70 -6 54 4 C40 12 18 8 4 2 Z M4 2 C18 6 38 14 42 30 C44 44 28 48 18 38 C10 28 6 16 4 6 Z'
 const FLOWERS: { id: string; n: number; at: At; r: number }[] = [
   { id: 'flower-left', n: 1, at: [74, 398], r: 40 },
-  { id: 'flower-middle', n: 3, at: [176, 420], r: 36 },
+  { id: 'flower-middle', n: 3, at: [176, 408], r: 34 },
   { id: 'flower-right', n: 1, at: [652, 404], r: 38 },
   { id: 'flower-corner', n: 3, at: [748, 392], r: 34 },
 ]
@@ -65,8 +67,8 @@ const FLOWERS: { id: string; n: number; at: At; r: number }[] = [
 /** Each region: its number, where its number goes, its shape, and the units it's drawn in (`tf`: its place on the board, and its scale `k`). */
 const REGIONS: { id: string; n: number; at: At; d: string; tf?: string; k?: number }[] = [
   { id: 'sky', n: 5, at: [116, 56], d: SKY },
-  { id: 'glow', n: 2, at: [652, 170], d: GLOW },
-  { id: 'sun', n: 1, at: [556, 216], d: SUN },
+  { id: 'glow', n: 2, at: [480, 165], d: GLOW },
+  { id: 'sun', n: 1, at: [SUN_AT[0], 192], d: SUN },
   { id: 'hills', n: 3, at: [470, 258], d: HILLS },
   { id: 'meadow', n: 4, at: [560, 310], d: MEADOW },
   { id: 'grass', n: 4, at: [520, 404], d: GRASS },
@@ -98,8 +100,8 @@ function GardenPicture({ fills }: { fills: Record<string, string> }) {
       {region('sun')}
       {done && (
         <g pointerEvents="none">
-          <Rays x={556} y={240} r={300} n={16} color="#fff4b0" opacity={0.55} />
-          <Glow x={556} y={240} r={130} color="#fff1b0" />
+          <Rays x={SUN_AT[0]} y={SUN_AT[1]} r={300} n={16} color="#fff4b0" opacity={0.55} />
+          <Glow x={SUN_AT[0]} y={SUN_AT[1]} r={130} color="#fff1b0" />
         </g>
       )}
       {region('hills')}
@@ -126,9 +128,9 @@ function GardenPicture({ fills }: { fills: Record<string, string> }) {
         <path d="M-170 -60 q24 -8 44 2 M120 -96 q22 -6 40 4" stroke={INK} strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.4} />
         {done && <Glow x={0} y={-50} r={120} color="#fff4c8" />}
       </g>
-      {/* the stone's rim, behind it (taps on it go through to the stone) */}
+      {/* the stone's rim, behind it, in shadow (taps on it go through to the stone) */}
       <g pointerEvents="none">
-        <circle cx={STONE_AT[0] + 8} cy={STONE_AT[1] + 1} r={STONE_R * TS} fill="#ffffff" stroke={INK} strokeWidth={4} />
+        <circle cx={STONE_AT[0] + 8} cy={STONE_AT[1] + 1} r={STONE_R * TS} fill="#9d9486" stroke={INK} strokeWidth={4} />
       </g>
       {region('stone')}
       <g pointerEvents="none">

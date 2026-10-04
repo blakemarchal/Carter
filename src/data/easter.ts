@@ -17,7 +17,7 @@ import { EASTER_PAINT } from '../art/games/easter'
 export const EASTER_STORY_1: StoryPage[] = [
   { scene: '🍞🍷🙏', bg: 'linear-gradient(#6b5bb5,#ffc890)', text: 'One evening, Jesus and His friends ate a special supper together. Jesus took the bread and thanked God for it. Then He broke it and shared it with them all.' },
   { scene: '🍷💗', bg: 'linear-gradient(#6b5bb5,#ffc890)', text: 'Then Jesus passed them a cup to share. He said, "When you share the bread and the cup, remember Me." Jesus loved His friends so much.' },
-  { scene: '🌅😢', bg: 'linear-gradient(#5f5aa8,#ffc28a)', text: 'But some people did not believe in Jesus. They put Him on a cross, and He died. His friends were very, very sad.' },
+  { scene: '🌅😢', bg: 'linear-gradient(#5f5aa8,#ffc28a)', text: 'But some leaders did not like Jesus. They put Him on a cross, and He died. His friends were very, very sad.' },
   { scene: '🪨🌿', bg: 'linear-gradient(#7d74c4,#ffd8a0)', text: 'Kind friends gently laid Jesus in a tomb. It was like a little cave in a garden. Then they rolled a big round stone across the door.' },
   { scene: '🌙🪔', bg: 'linear-gradient(#1c1d52,#3d3a8a)', text: "Then everything was quiet. Jesus' friends stayed at home, and they missed Him so much. But that was not the end of the story!" },
 ]
@@ -68,18 +68,19 @@ export const EASTER_STEPS: Step[] = [
       },
       {
         say: 'When they got there, what was rolled away?',
-        // (the empty tomb, with the big round stone rolled away beside its door)
-        choices: [{ emoji: '🪨', say: 'The big round stone', art: 'empty-tomb' }, { emoji: '⚽', say: 'A ball' }, { emoji: '🍎', say: 'An apple' }],
+        // (the empty tomb, with the big round stone rolled away beside its door; nothing else here could roll)
+        choices: [{ emoji: '🪨', say: 'The big round stone', art: 'empty-tomb' }, { emoji: '🌳', say: 'A tree' }, { emoji: '🏠', say: 'A house' }],
         answer: 0,
       },
       {
-        say: 'Who told the women, "Don\'t be afraid! He has risen!"',
-        choices: [{ emoji: '🐮', say: 'A cow' }, { emoji: '🦆', say: 'A duck' }, { emoji: '✨', say: 'A shining angel', art: 'story:easter:8' }],
+        say: 'Who told the women not to be afraid, because Jesus had risen?',
+        choices: [{ emoji: '🐮', say: 'A cow' }, { emoji: '🦆', say: 'A duck' }, { emoji: '✨', say: 'A shining angel', art: 'story:easter:7' }],
         answer: 2,
       },
       {
         say: 'Who said Mary\'s name in the garden?',
-        choices: [{ emoji: '✨', say: 'Jesus! He was alive!', art: 'story:easter:10' }, { emoji: '🐑', say: 'A sheep' }, { emoji: '🐸', say: 'A frog' }],
+        // (the quiz says the chosen answer back with a "!" of its own)
+        choices: [{ emoji: '✨', say: 'Jesus! He was alive', art: 'story:easter:10' }, { emoji: '🐑', say: 'A sheep' }, { emoji: '🐸', say: 'A frog' }],
         answer: 0,
       },
     ],
@@ -97,9 +98,10 @@ export const EASTER_STEPS: Step[] = [
       { emoji: '🍞', say: 'Jesus sharing the bread at supper', art: 'story:easter:1' },
       { emoji: '🪨', say: 'the big stone rolled across the door', art: 'story:easter:4' },
       { emoji: '🌅', say: 'the women walking to the garden', art: 'story:easter:6' },
-      { emoji: '✨', say: 'the angel on the stone, rolled away', art: 'story:easter:7' },
+      { emoji: '✨', say: 'the angel sitting on the big stone', art: 'story:easter:7' },
       { emoji: '🏃‍♀️', say: 'the women running to tell the happy news', art: 'story:easter:9' },
-      { emoji: '🌸', say: 'Jesus saying, Mary!', art: 'story:easter:10' },
+      // (the last card is said back with a "!" of its own)
+      { emoji: '🌸', say: "Jesus saying Mary's name", art: 'story:easter:10' },
     ],
   },
   { kind: 'battle', foe: 'twirl', intro: "Oh! A little snail named Twirl is hiding in its shell, all grumpy and sad. Twirl hasn't heard the happy news yet! Twirl just needs a friend." },

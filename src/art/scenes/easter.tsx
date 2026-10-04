@@ -81,6 +81,17 @@ function SitOnFloor({ x, y, s = 1, ...fig }: { x: number; y: number; s?: number 
   )
 }
 
+/** A hand resting on someone's shoulder, in front of them (for an arm drawn round behind them): a Figure's hand, its middle at (x, y), for a Figure `s` big. */
+function HandOn({ x, y, s = 1, skin }: { x: number; y: number; s?: number; skin: string }) {
+  const shade = useShade(skin, 0.25, 0.12)
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>{shade.def}</defs>
+      <circle r={7} fill={shade.fill} stroke={ink(skin)} strokeWidth={2} />
+    </g>
+  )
+}
+
 /** In a Figure's own units (give as its children): a little tear on the cheek, under a sad face. */
 const Tear = () => (
   <g>
@@ -630,7 +641,7 @@ function Page2() {
   )
 }
 
-// 3. "But some people did not believe in Jesus. They put Him on a cross, and He died. His friends were very, very sad."
+// 3. "But some leaders did not like Jesus. They put Him on a cross, and He died. His friends were very, very sad."
 // Told gently: the sun going down, and far away, small on a hill, an empty cross. Close by, His friends stand together,
 // sad: John with his arm round Jesus' mother Mary, Mary Magdalene with a tear, and her friend the other Mary.
 function Page3() {
@@ -651,10 +662,12 @@ function Page3() {
       <OliveTree x={720} y={330} s={0.8} />
       <OliveTree x={64} y={318} s={0.66} flip />
       <Birds spots={[[330, 120, 0.9], [366, 104, 0.7]]} />
+      {/* John's arm goes round behind Mary, and his hand rests on her far shoulder */}
       <Tap say="Let's stay close together." sfx="ding">
         <g>
+          <Figure x={360} y={416} s={1.18} look={PEOPLE.john} mood="sad" pose="hug-right" reach={[null, [84, -83]]} blinkDelay={2.2} />
           <Figure x={436} y={414} s={1.14} look={PEOPLE.mary} mood="sad" pose="pray" blinkDelay={0.9} />
-          <Figure x={360} y={416} s={1.18} look={PEOPLE.john} mood="sad" pose="hug-right" reach={[null, [44, -80]]} blinkDelay={2.2} />
+          <HandOn x={459} y={318} s={1.18} skin={PEOPLE.john.skin} />
         </g>
       </Tap>
       <Tap say="We love Jesus so much." sfx="ding">
@@ -716,7 +729,7 @@ function Page5() {
         <g><Sparkles spots={[[104, 112, 11]]} color="#fff4b0" /></g>
       </Tap>
       <SitOnFloor x={180} y={398} s={1.1} look={PEOPLE.james} mood="sad" blinkDelay={1.2} />
-      <Tap say="Jesus said He would come back to life. Remember?" sfx="ding">
+      <Tap say="We will always love Jesus." sfx="ding">
         <SitOnFloor x={300} y={404} s={1.12} look={PEOPLE.peter} mood="sad" pose="pray" blinkDelay={0.4} />
       </Tap>
       <SitOnFloor x={412} y={408} s={1.1} look={PEOPLE.john} mood="sad" blinkDelay={2.1} />
@@ -724,7 +737,7 @@ function Page5() {
         <SitOnFloor x={520} y={406} s={1.08} look={MARY_MAGDALENE} mood="sad" pose="pray" blinkDelay={1.6}><Tear /></SitOnFloor>
       </Tap>
       <SitOnFloor x={630} y={400} s={1.1} look={PEOPLE.andrew} mood="sad" blinkDelay={0.9} />
-      <Tap say="The little lamp is still shining." sfx="ding"><OilLamp x={736} y={430} s={1.3} glow={110} /></Tap>
+      <Tap say="The little lamp is still shining. Something wonderful is coming!" sfx="ding"><OilLamp x={736} y={430} s={1.3} glow={110} /></Tap>
     </Scene>
   )
 }
@@ -785,7 +798,7 @@ function Page7() {
       </Tap>
       <Tap say="Wow! An angel!" sfx="pop">
         <g>
-          <Figure x={96} y={420} s={1.04} look={SPICE_FRIENDS[0]} mood="wow" pose="arms-up" blinkDelay={0.4} />
+          <Figure x={96} y={420} s={1.04} look={SPICE_FRIENDS[0]} mood="wow" pose="hold" item={<SpiceJar color="#8fb8e0" />} blinkDelay={0.4} />
           <Figure x={262} y={432} s={1.02} look={SPICE_FRIENDS[1]} mood="wow" pose="hold" item={<SpiceJar color="#d9905e" />} blinkDelay={2.0} />
         </g>
       </Tap>
@@ -797,7 +810,8 @@ function Page7() {
 // 8. "The angel said, "Don't be afraid! He is not here, for He has risen, just like He said! Come and see." The tomb
 // was empty!"
 // Close by the doorway, full of light: inside, nobody is there, just the stone shelf and the linen cloths lying folded.
-// The angel stands beside the door, shining, showing the women in; they peek in, amazed, and start to smile.
+// The angel stands beside the door, shining, showing the women in; the three of them, still holding their jars of
+// spices, peek in, amazed, and Mary Magdalene starts to smile.
 function Page8() {
   return (
     <Scene sky="day" ground="none" clouds={false}>
@@ -812,8 +826,9 @@ function Page8() {
       </Tap>
       <Tap say="He is risen! Let's go and tell everyone!" sfx="good">
         <g>
-          <Figure x={92} y={446} s={1.2} look={SPICE_FRIENDS[1]} mood="wow" blinkDelay={1.4} />
-          <Figure x={172} y={448} s={1.24} look={MARY_MAGDALENE} mood="joy" pose="pray" blinkDelay={0.3} />
+          <Figure x={62} y={444} s={1.14} look={SPICE_FRIENDS[1]} mood="wow" pose="hold" item={<SpiceJar color="#d9905e" />} blinkDelay={1.4} />
+          <Figure x={142} y={446} s={1.16} look={SPICE_FRIENDS[0]} mood="wow" pose="hold" item={<SpiceJar color="#8fb8e0" />} blinkDelay={0.6} />
+          <Figure x={226} y={448} s={1.2} look={MARY_MAGDALENE} mood="joy" pose="hold" item={<SpiceJar />} blinkDelay={0.3} />
         </g>
       </Tap>
       <Sparkles spots={[[300, 130, 9], [470, 160, 7], [380, 96, 6], [700, 120, 8]]} color="#fff6b0" />
