@@ -220,12 +220,19 @@ Above all, it's **personal**. The child and their family appear in the pictures,
 
 **Progress (Oct 4, 2026):**
 - **The quality pass and the campaign framework are done.** Every island has three visits, a mini-game and a song spot. The review page, item library, seas, daily voyage, hotspots and buddy Pal are all in.
-- **Content waves:**
-  - Wave 1 is live: the six islands deepened, plus Abraham, Joseph, the Red Sea and Daniel.
-  - Wave 2 is built and in review: Baby Moses, The Burning Bush and Manna, which finish the sea "Out of Egypt" (13 islands).
+- **Content waves: 22 islands are live.** Each wave is built by parallel agents, read by a fresh reviewer, fixed, voiced, deployed and checked in production before the next one starts.
+  - Wave 1: the six islands deepened, plus Abraham, Joseph, the Red Sea and Daniel.
+  - Wave 2: Baby Moses, The Burning Bush and Manna, which finish the sea "Out of Egypt".
+  - Wave 3: The Walls of Jericho, Ruth and Naomi, and Samuel Listens.
+  - Wave 4: Elijah and Queen Esther, which finish "Kings & Prophets", and Boy Jesus at the Temple.
+  - Wave 5: Fishers of People and Jesus Calms the Storm, which finish "Jesus Comes", and The Lost Sheep.
+  - Next: wave 6, The Good Samaritan and Zacchaeus (their songs are already made), then wave 7, Palm Sunday, Easter Morning and Pentecost, well before Easter.
 - **Each island loads when it's needed**, so the game starts with 38% less to download.
-- **The multi-family server came early, at Carter's request.** Families went live Oct 4. Grown-ups join by an invitation link, with their own avatars, and each family's data is its own.
-- **Voice:** Mom's recording script is ready. Grok narration is made ahead of time for every fixed line, so the device voice is only a fallback.
+- **The multi-family server came early, at Carter's request.** Families went live Oct 4.
+  - Grown-ups join by an invitation link, with their own avatars, and each family's data is its own.
+  - Sign-in links and invitations can also come by email, once the domain's email is set up (deploy/DEPLOY.md).
+  - Each family can see what's kept, download all of it, or delete its account.
+- **Voice:** Mom's recording script is ready. Grok narration is made ahead of time for every fixed line, including the lines the game builds from names (the map, battles, memory verses, a Pal growing up), so the device voice is only a fallback.
 
 **Why this order:** if 20 islands were built on today's thin template, they'd inherit its problems (emoji, short islands, art drawn once and never checked). Fixing the template first makes every later island longer, more interactive and better checked, at no extra cost per island.
 
