@@ -25,8 +25,6 @@ import './BuildIt.css'
 const IDLE_MS = 8000
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-/** "the walls", "the walls and the floor", "the walls, the floor and the door". */
-const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`)
 
 /** Close enough to snap in: the part's middle within about half its size of its place (never under 60). */
 function fits(p: BuildPart, [x, y]: At) {
@@ -120,6 +118,7 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
   const hold = useRef<Hold | null>(null)
   const overRef = useRef(false)
   const tapHinted = useRef(false)
+  const hints = useRef(0) // hints in a row, without a part going in
   const misses = useRef({ id: '', n: 0 })
   const tokens = useRef({ glow: 0, nudge: 0 })
   const timers = useRef<number[]>([])
@@ -195,7 +194,8 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
       if (!parts.length) return void finish(null) // (a kit with nothing to build: straight to the end)
       busy.current = false
       setReady(true)
-      preload([...parts.map((p) => `${cap(p.say)}!`), ...parts.map((p) => `Drag ${p.say} here!`), done])
+      const firsts = parts.filter((p) => parts.some((q) => deps.get(q.id)!.includes(p.id))) // (what "First the boat!" can name)
+      preload([...parts.map((p) => `${cap(p.say)}!`), ...parts.map((p) => `Drag ${p.say} here!`), ...firsts.map((p) => `First ${p.say}!`), done])
     })()
   }, [])
   useEffect(() => () => {
@@ -222,7 +222,10 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
     const p = nextPart()
     if (!p) return
     flash(p.id, 3000)
-    speak(`Drag ${p.say} here!`)
+    // (The first three hints in a row are said; after that only now and then, and then the hand alone,
+    // in case she has gone off to do something else.)
+    const k = hints.current++
+    if (k <= 2 || (k < 7 && k % 2 === 0)) speak(`Drag ${p.say} here!`)
     const from = slots.current.get(p.id)
     const to = places.current.get(p.id)
     if (from && to) showDrag(from, to)
@@ -272,7 +275,8 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
     h.y = h.cy + dy
     if (floatEl.current) floatEl.current.style.transform = `translate(${h.x}px, ${h.y}px)`
     const b = layer.current ? toBoard(layer.current, h.x, h.y) : null
-    const on = !!b && fits(h.p, b)
+    // (A part that has to wait for another doesn't light up its place: it won't go in yet.)
+    const on = !!b && fits(h.p, b) && !missing(h.p).length
     if (on !== overRef.current) {
       overRef.current = on
       setOver(on)
@@ -376,13 +380,15 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
 
   /** In it goes, with a thunk and its name. */
   const put = (p: BuildPart, b: At) => {
+    setCarry(null)
+    if (isIn(p.id) || busy.current) return // (never twice, and never after the end: nothing counts again)
     placedRef.current = [...placedRef.current, p.id]
     setPlaced(placedRef.current)
     setLanded((l) => ({ ...l, [p.id]: [b[0] - p.at[0], b[1] - p.at[1]] }))
-    setCarry(null)
     tokens.current.glow++
     setGlow(null)
     misses.current = { id: '', n: 0 }
+    hints.current = 0
     sfx.plop()
     sfx.count(placedRef.current.length)
     bump()
@@ -390,10 +396,14 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
     speak(`${cap(p.say)}!`)
   }
 
-  /** Dropped on its place before what it goes on: name what goes first, and light that part up. */
+  /**
+   * Dropped on its place before what it goes on: name the part that can go in now, and light that same
+   * part up. (With a chain, the roof on the house on the boat, that's the boat; then the house, one at a time.)
+   */
   const tooSoon = (p: BuildPart) => {
-    speak(`First ${andList(missing(p).map((id) => byId(id).say))}!`)
-    point(firstOf(p).id)
+    const first = firstOf(p)
+    speak(`First ${first.say}!`)
+    point(first.id)
   }
 
   /** Dropped somewhere else: its place lights up; dropped wrong twice running, the narrator helps too. */

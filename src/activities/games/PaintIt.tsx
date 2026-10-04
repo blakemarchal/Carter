@@ -543,8 +543,9 @@ function PotArt({ pot, picked }: { pot: Pot; picked: boolean }) {
       <ellipse cx={50} cy={40} rx={39} ry={10} fill={light} stroke={line} strokeWidth={3.5} />
       <ellipse cx={50} cy={41} rx={31} ry={6} fill={pot.color} />
       <path d="M22 50 Q20 74 25 98" stroke="#fff" strokeOpacity={0.45} strokeWidth={5} strokeLinecap="round" fill="none" />
-      <circle cx={52} cy={77} r={23} fill="#fff" stroke={line} strokeWidth={2.5} />
-      <text x={52} y={77 + 12.5} textAnchor="middle" className="paint-pot-n">{pot.n}</text>
+      {/* (the number as big as the pot allows: it's what she matches with the picture's numbers) */}
+      <circle cx={52} cy={77} r={27} fill="#fff" stroke={line} strokeWidth={2.5} />
+      <text x={52} y={77 + 15.5} textAnchor="middle" className="paint-pot-n">{pot.n}</text>
     </svg>
   )
 }

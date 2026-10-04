@@ -81,23 +81,26 @@ const p1 = (await state()).p
 check(p1 > 0.28 && p1 < 0.4, `led a third of the way (progress ${p1})`)
 await snap('a-third')
 
-// 4. A finger that races far ahead in one jump: the hero walks, it doesn't jump.
+// 4. A finger that races far ahead in one jump: the hero walks, it doesn't jump. (The finger lands well
+// short of the goal, so on a short way the hero can't arrive and end the game before the rest is tried.)
 d0 = await heroD()
-const far = along(Math.min(total, d0 + total * 0.6))
+const farD = Math.min(total * 0.8, d0 + total * 0.6)
+const far = along(farD)
 const start = along(d0)
 await page.s('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: start[0], y: start[1] }] })
 await sleep(40)
 await page.s('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: far[0], y: far[1] }] })
 await sleep(120)
 const pJump = (await state()).p
-await snap('finger-raced-ahead')
+// (Let go before the picture: a slow screenshot mustn't keep the finger down.)
 await page.s('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+await snap('finger-raced-ahead')
 await sleep(1500)
 const pAfterJump = (await state()).p
-const pFinger = Math.min(1, (d0 + total * 0.6) / total)
-// (At most a top-speed walk for the 0.12 s, plus the time the screenshot took: never most of the way at once.)
+const pFinger = farD / total
+// (At most a top-speed walk for the 0.12 s: never most of the way at once.)
 check(pJump - p1 < 0.15, `no jump: 0.12 s after the finger leapt ahead, progress went ${p1} -> ${pJump}`)
-check(pAfterJump < pFinger - 0.02, `and it walked on (to ${pAfterJump}) without reaching the finger (at ${pFinger.toFixed(3)})`)
+check(pAfterJump > pJump + 0.01 && pAfterJump <= pFinger + 0.005, `and it walked on (to ${pAfterJump}), never past the finger (at ${pFinger.toFixed(3)})`)
 
 // 5. Sliding backwards undoes nothing (and, held there, gets a "This way!").
 d0 = await heroD()

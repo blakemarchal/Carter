@@ -69,6 +69,12 @@
   .build-tray { flex-wrap: wrap; max-width: 760px; }
   .build-slot { flex: 0 0 calc((100% - (var(--cols) - 1) * 10px) / var(--cols)); height: 150px; }
 }
+/* The board: as big as fits, always 16:9, so the picture fills it with no white bands (on a big screen too). */
+@supports (width: 1cqw) {
+  .build-it .game-wrap { container-type: size; }
+  .build-it .game-board { width: min(100cqw, calc(100cqh * 16 / 9)); height: auto; max-width: none; max-height: none; }
+  @media (max-aspect-ratio: 1/1) { .build-it .game-wrap { container-type: inline-size; } }
+}
 
 /* The part in the air: its middle is placed with a translate; it's drawn at the board's own scale. */
 .build-float { position: fixed; left: 0; top: 0; width: 0; height: 0; z-index: 1000; pointer-events: none; will-change: transform; }

@@ -10,8 +10,8 @@ const Block = ({ w, h, color }: { w: number; h: number; color: string }) =>
   <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={8} fill={color} stroke="#5a3a24" strokeWidth={3} />
 
 // Build: a little house and a tree. The walls and the tree can go first; the roof, door and window
-// wait for the walls, and the chimney for the roof (two steps of `after`, so "First the roof!" while
-// the walls are still out lights up the walls). The chimney is tiny, for the smallest snap. Finished:
+// wait for the walls, and the chimney for the roof (two steps of `after`, so the chimney tried while
+// the walls are still out says "First the walls!" and lights them up). The chimney is tiny, for the smallest snap. Finished:
 // smoke from the chimney and two hearts.
 const build: BuildKit = {
   Backdrop: () => <Scene sky="day" ground="meadow" />,
