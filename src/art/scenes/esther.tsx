@@ -15,7 +15,7 @@
 //     rings and marble pillars), QueensRoom and Street.
 import { useId, type ComponentType, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { EyesUp, Figure, Kneel, LookingUp, ShutEyes, Sitting, SittingOnRock, SKIN, type JLook, type JPose, type Mood } from '../people'
+import { EyesUp, Figure, Kneel, LookingUp, ShutEyes, Sitting, SittingOnRock, SKIN, type JLook, type JPose, type Mood, type Pose } from '../people'
 import { Emoji, Glow, Moon, MudHouse, MusicNote, Palm, Rays, Scene, Sparkles, Tap, ThoughtBubble, sparkle } from './kit'
 import { CROWN_GOLD, CROWN_INK, ESTHER_PINK, EstherCrown, Scepter } from '../items/isl-esther'
 
@@ -223,15 +223,18 @@ type Who = {
   reach?: [Pt | null, Pt | null]; item?: ReactNode; children?: ReactNode
 }
 
-/** Queen Esther standing, in her crown, royal robe and cape; `girl`: little Esther, before she was queen. */
-export function Esther({ x, y, s = 1, girl, facing = 'right', children, ...rest }: Who & { girl?: boolean }) {
+/**
+ * Queen Esther standing, in her crown, royal robe and cape; `girl`: little Esther, before she was queen.
+ * `crowned` false: without her crown (as it's put on her head).
+ */
+export function Esther({ x, y, s = 1, girl, crowned = true, facing = 'right', children, ...rest }: Who & { girl?: boolean; crowned?: boolean }) {
   return (
     <g>
       {!girl && <Cape x={x} y={y} s={s} facing={facing} color={PINK} />}
       <Figure x={x} y={y} s={s} look={girl ? ESTHER_GIRL : ESTHER} facing={facing} {...rest}>
         {!girl && <RobeFront />}
         <EstherFace />
-        {!girl && <EstherCrown />}
+        {!girl && crowned && <EstherCrown />}
         {children}
       </Figure>
     </g>
@@ -261,6 +264,33 @@ export function KingXerxes({ x, y, s = 1, facing = 'right', children, ...rest }:
         <KingCrown />
         {children}
       </Figure>
+    </g>
+  )
+}
+
+/**
+ * King Xerxes sitting, with his crimson cape behind him: on his throne (`throne`: as SittingOnRock, his seat about
+ * 30 up; draw the Throne first), or cross-legged on a cushion on the floor (as Sitting). `children` go on his face,
+ * between his beard's curls and his crown (a WowFace).
+ */
+export function SeatedKing({ x, y, s, throne, pose = 'hold', blinkDelay = 0, children }: {
+  x: number; y: number; s: number; throne?: boolean; pose?: Pose; blinkDelay?: number; children?: ReactNode
+}) {
+  const cape = useShade(CRIMSON, 0.25, 0.2)
+  // (the cape hangs from his shoulders down onto the seat, or spreads out on the floor round him)
+  const d = throne ? 'M-18 -74 C-34 -58 -46 -38 -50 -16 Q0 -10 50 -16 C46 -38 34 -58 18 -74 Z' : 'M-18 -66 C-34 -48 -48 -26 -56 -4 Q0 2 56 -4 C48 -26 34 -48 18 -66 Z'
+  const hem = throne ? 'M-48.4 -19.2 Q0 -13.4 48.4 -19.2' : 'M-54.2 -7.4 Q0 -1.4 54.2 -7.4'
+  const face = <><BeardCurls />{children}<KingCrown /></>
+  return (
+    <g>
+      <g transform={`translate(${x} ${y}) scale(${s})`}>
+        <defs>{cape.def}</defs>
+        <path d={d} fill={cape.fill} stroke={ink(CRIMSON)} strokeWidth={3} strokeLinejoin="round" />
+        <path d={hem} stroke={GOLD} strokeWidth={3.4} fill="none" strokeLinecap="round" />
+      </g>
+      {throne
+        ? <SittingOnRock x={x} y={y} s={s} look={XERXES} pose={pose} blinkDelay={blinkDelay}>{face}</SittingOnRock>
+        : <Sitting x={x} y={y} s={s} look={XERXES} pose={pose} blinkDelay={blinkDelay}>{face}</Sitting>}
     </g>
   )
 }
@@ -828,7 +858,7 @@ function KingOnThrone({ x, y, s }: { x: number; y: number; s: number }) {
   return (
     <g>
       <Throne x={x} y={y} s={s} />
-      <SittingOnRock x={x} y={y} s={s} look={XERXES} pose="hold"><BeardCurls /><KingCrown /></SittingOnRock>
+      <SeatedKing x={x} y={y} s={s} throne />
     </g>
   )
 }
@@ -888,27 +918,35 @@ const Page1 = () => {
 }
 
 // 2. "Esther grew up to be kind and lovely. King Xerxes chose Esther to be his queen! He put a royal crown on her head."
-// In the throne room: Esther, grown up, in her new crown and royal robe, the king welcoming her, and her two
-// friends cheering.
-const Page2 = () => (
-  <Scene sky="day" ground="none" clouds={false}>
-    <ThroneRoom throne={400} />
-    <Tap say="Hooray for Queen Esther!" sfx="fanfare">
-      <Figure x={124} y={428} s={0.98} look={HELPERS[0]} pose="arms-up" mood="joy" />
-      <Figure x={678} y={428} s={0.98} look={HELPERS[1]} pose="arms-up" mood="joy" blinkDelay={1.1} />
-    </Tap>
-    <Tap say="Thank you, King Xerxes!" sfx="good">
-      <Esther x={336} y={440} s={1.16} pose="hold" mood="joy" />
-    </Tap>
-    <Tap say="You will be my queen, Esther!" sfx="pop">
-      <KingXerxes x={476} y={440} s={1.16} facing="left" pose="open" blinkDelay={0.8} />
-    </Tap>
-    <Tap say="A royal crown for Queen Esther!" sfx="sparkle">
-      <circle cx={336} cy={268} r={30} fill="transparent" />
-      <Sparkles spots={[[296, 252, 8], [376, 246, 9], [338, 212, 6], [282, 290, 5]]} />
-    </Tap>
-  </Scene>
-)
+// In the throne room: the king has come down from his throne to the top step, and puts the royal crown on grown-up
+// Esther's head, as she stands at the foot of the steps in her royal robe; her two friends cheer.
+const Page2 = () => {
+  const ex = 334, ey = 442, es = 1.16 // Esther, at the foot of the steps
+  const kx = 420, ky = DAIS + 2, ks = 1.16 // the king, on the top step (he faces her)
+  const lift = 18 // (her crown, just above her head, coming down onto it)
+  const hand: Pt = [ex + 24, ey - lift - 137 * es] // his hand, holding the crown by its side
+  return (
+    <Scene sky="day" ground="none" clouds={false}>
+      {/* (the throne just behind the king, so its armrests aren't behind the crown) */}
+      <ThroneRoom throne={444} />
+      <Tap say="Hooray for Queen Esther!" sfx="fanfare">
+        <Figure x={124} y={428} s={0.98} look={HELPERS[0]} pose="arms-up" mood="joy" />
+        <Figure x={678} y={428} s={0.98} look={HELPERS[1]} pose="arms-up" mood="joy" blinkDelay={1.1} />
+      </Tap>
+      <Tap say="You will be my queen, Esther!" sfx="pop">
+        <KingXerxes x={kx} y={ky} s={ks} facing="left" blinkDelay={0.8} reach={[null, [-(hand[0] - kx) / ks, (hand[1] - ky) / ks]]} />
+      </Tap>
+      <Tap say="Thank you, King Xerxes!" sfx="good">
+        <Esther x={ex} y={ey} s={es} pose="hold" crowned={false} />
+      </Tap>
+      <Tap say="A royal crown for Queen Esther!" sfx="sparkle">
+        <g transform={`translate(${ex} ${ey - lift}) scale(${es})`}><EstherCrown /></g>
+        <HandOn x={hand[0]} y={hand[1]} s={ks} look={XERXES} />
+        <Sparkles spots={[[ex - 40, 248, 8], [ex + 4, 214, 7], [ex - 52, 286, 5], [ex + 50, 230, 5]]} />
+      </Tap>
+    </Scene>
+  )
+}
 
 // 3. "Mordecai worked at the king's gate. One day, he heard two men whispering a plan to hurt the king. He told Queen
 // Esther, and she told the king. Good Mordecai saved the king!" At the king's gate: two cross men whisper; Mordecai
@@ -924,7 +962,7 @@ const Page3 = () => {
           <Esther x={cx + 186} y={268} s={0.58} pose="point" />
         </Tap>
       } />
-      <Tap say="Psst, psst! Grumble, grumble." sfx="wobble">
+      <Tap say="Whisper, whisper. Grumble, grumble." sfx="wobble">
         <Figure x={96} y={438} s={1.02} look={g0.look} mood="grumpy"><GuardHat color={g0.hat} /></Figure>
         <Figure x={170} y={438} s={1.02} look={g1.look} facing="left" pose="carry" mood="grumpy" blinkDelay={1.3}><GuardHat color={g1.hat} /></Figure>
         <Whisper x0={110} x1={156} y={326} />
@@ -938,8 +976,8 @@ const Page3 = () => {
 }
 
 // 4. "There was a proud man named Haman. He wanted everyone to bow down to him. Everybody did, but not Mordecai!
-// Mordecai bowed down only to God." At the king's gate: proud Haman, arms crossed; the king's servants bowing low;
-// Mordecai standing tall with his hands together, looking up, in God's light.
+// Mordecai bowed down only to God." At the king's gate: proud Haman, arms crossed and nose in the air; the king's
+// servants bowing low; Mordecai standing tall with his hands together, looking up, in God's light.
 const Page4 = () => (
   <Scene sky="day" ground="none">
     <KingsGate cx={400} />
@@ -951,7 +989,7 @@ const Page4 = () => (
       <Figure x={452} y={442} s={0.98} look={SERVANTS[2]} kneel blinkDelay={1.2} />
     </Tap>
     <Tap say="Bow down to me! I am very, very important!" sfx="wobble">
-      <Haman x={296} y={440} s={1.14} pose="cross" mood="grumpy" />
+      <Haman x={296} y={440} s={1.14} pose="cross" />
     </Tap>
     <Tap say="I bow down only to God." sfx="good">
       <LookingUp><Mordecai x={636} y={438} s={1.12} facing="left" pose="pray"><EyesUp /></Mordecai></LookingUp>
@@ -1044,9 +1082,9 @@ const Page7 = () => (
   </Scene>
 )
 
-// 8. "On the third day, Esther put on her royal robe and went to see the king. Would he be cross? No! He held out his
-// golden scepter. That meant, 'Come in!'" The throne room: the king on his throne holds out his golden scepter, and
-// Esther, in her royal robe, reaches up and touches its top.
+// 8. "On the third day, brave Queen Esther went to see the king. Would he be cross? No! He held out his golden scepter.
+// That meant, 'Come in!'" The throne room: the king on his throne holds out his golden scepter, and Esther, in her
+// royal robe, reaches up and touches its top.
 const Page8 = () => {
   const kx = 552, ks = 1.12
   const hand: Pt = [kx - 54 * ks, DAIS + (14 - 90) * ks] // the king's hand (he faces left)
@@ -1058,7 +1096,7 @@ const Page8 = () => {
       <ThroneRoom throne={kx} s={ks} />
       <Tap say="Come in, Queen Esther!" sfx="good">
         <g transform={`translate(${2 * kx} 0) scale(-1 1)`}>
-          <SittingOnRock x={kx} y={DAIS} s={ks} look={XERXES} pose="point" blinkDelay={0.5}><BeardCurls /><KingCrown /></SittingOnRock>
+          <SeatedKing x={kx} y={DAIS} s={ks} throne pose="point" blinkDelay={0.5} />
         </g>
       </Tap>
       <Tap say="The king's golden scepter!" sfx="sparkle">
@@ -1091,7 +1129,7 @@ const Page9 = () => (
     <QueensRoom time="dusk" win={590} lamp={null} />
     <DinnerLanterns />
     <Tap say="Yum! What a wonderful dinner!" sfx="pop">
-      <Sitting x={226} y={SEAT} s={1.16} look={XERXES} pose="hold"><BeardCurls /><KingCrown /></Sitting>
+      <SeatedKing x={226} y={SEAT} s={1.16} />
     </Tap>
     <Tap say="Welcome! Please come back tomorrow, too." sfx="good">
       <Sitting x={400} y={SEAT} s={1.12} look={ESTHER} pose="wave" blinkDelay={0.7}><EstherFace /><EstherCrown /></Sitting>
@@ -1122,7 +1160,7 @@ const Page10 = () => (
     <QueensRoom time="night" win={590} lamp={null} />
     <DinnerLanterns />
     <Tap say="A mean plan? I did not know!" sfx="wobble">
-      <Sitting x={214} y={SEAT} s={1.16} look={XERXES} pose="hold"><BeardCurls /><WowFace look={XERXES} /><KingCrown /></Sitting>
+      <SeatedKing x={214} y={SEAT} s={1.16}><WowFace look={XERXES} /></SeatedKing>
     </Tap>
     <Tap say="Uh oh!" sfx="wobble">
       <Sitting x={590} y={SEAT} s={1.14} look={HAMAN} pose="hold" blinkDelay={0.6}><WowFace look={HAMAN} brows={-121.5} /><HamanFace /><HamanHat /><SweatDrop /></Sitting>
@@ -1168,16 +1206,20 @@ const Page11 = () => (
   </Scene>
 )
 
-/** Strings of little lanterns across the street, for the party. */
+/** The poles the party's lantern strings are tied to: one on each side house's roof, and a tall one on the middle house's. [x, foot (on the roof), top] */
+const POLES: [number, number, number][] = [[64, 201, 124], [400, 203, 62], [736, 195, 124]]
+
+/** Strings of little lanterns across the street, for the party, tied from pole to pole (POLES). */
 const LanternStrings = () => (
   <g>
-    {[[-20, 70, 420, 60], [380, 60, 820, 76]].map(([x0, y0, x1, y1], k) => {
-      const mid = [(x0 + x1) / 2, (y0 + y1) / 2 + 46]
+    {POLES.map(([px, foot, top]) => <rect key={px} x={px - 3.5} y={top} width={7} height={foot - top + 1} rx={2} fill="#8a5a30" stroke="#5a3a1c" strokeWidth={1.6} />)}
+    {[[POLES[0], POLES[1]], [POLES[1], POLES[2]]].map(([[x0, , y0], [x1, , y1]], k) => {
+      const mid = [(x0 + x1) / 2, (y0 + y1) / 2 + 50]
       const at = (t: number): Pt => [(1 - t) ** 2 * x0 + 2 * t * (1 - t) * mid[0] + t * t * x1, (1 - t) ** 2 * y0 + 2 * t * (1 - t) * mid[1] + t * t * y1]
       return (
         <g key={k}>
           <path d={`M${x0} ${y0} Q${mid[0]} ${mid[1]} ${x1} ${y1}`} stroke="#6a4a3a" strokeWidth={2} fill="none" />
-          {[0.12, 0.27, 0.42, 0.57, 0.72, 0.87].map((t, i) => {
+          {[0.14, 0.29, 0.43, 0.57, 0.71, 0.86].map((t, i) => {
             const [lx, ly] = at(t)
             const c = ['#ff8cc0', '#ffd34d', '#7fd0ff', '#b48be0', '#8fe08a', '#ffa64d'][(i + k) % 6]
             return (
@@ -1192,12 +1234,14 @@ const LanternStrings = () => (
         </g>
       )
     })}
+    {POLES.map(([px, , top]) => <circle key={px} cx={px} cy={top} r={5} fill="#c98a4a" stroke="#5a3a1c" strokeWidth={1.6} />)}
   </g>
 )
 
 // 12. "God's people had a great big happy party, called Purim! They shared yummy food and gave presents. God took care
-// of His people all along, and He takes care of you, too!" Evening in the city, with lanterns: Esther and Mordecai
-// dance, children shake tambourines, a mom gives grandma a basket of food, and a table is full of treats.
+// of His people all along, and He takes care of you, too!" Evening in the city, with lanterns strung from pole to pole
+// over the rooftops: Esther and Mordecai dance, a boy shakes a tambourine, a mom gives grandma a basket of food, and a
+// table is full of treats.
 const Page12 = () => (
   <Scene sky="dusk" ground="none" clouds={false}>
     {[[90, 70, 4], [700, 50, 5], [520, 40, 3.5], [250, 30, 3.5]].map(([sx, sy, r], i) => (
@@ -1227,13 +1271,14 @@ const Page12 = () => (
       <Mordecai royal x={430} y={442} s={1.06} pose="arms-up" mood="joy" blinkDelay={1.1} />
     </Tap>
     <Tap say="Shake, shake! Let's dance!" sfx="pop">
-      <Figure x={536} y={446} s={1.04} look={GODS_PEOPLE[2]} pose="arms-up" mood="joy" blinkDelay={0.4} />
-      <Emoji e="" art="tambourine" x={536 + 42 * 1.04 * 0.74} y={446 - 130 * 1.04 * 0.74} size={46} />
+      {/* (the boy holds his tambourine up high by its bottom edge: his hand goes over it) */}
+      <Figure x={536} y={446} s={1.04} look={GODS_PEOPLE[2]} pose="arms-up" mood="joy" blinkDelay={0.4}
+        item={<g transform="translate(38 -160) scale(0.6)"><Emoji e="" art="tambourine" x={0} y={0} size={100} /></g>} />
       <Figure x={596} y={448} s={1.04} look={GODS_PEOPLE[4]} pose="wave" mood="joy" blinkDelay={1.6} />
     </Tap>
     <MusicNote x={250} y={200} s={1.1} color="#ffe680" />
-    <MusicNote x={540} y={190} s={1.0} color="#ffd0e8" double />
-    <MusicNote x={386} y={150} s={0.9} color="#c8f0ff" />
+    <MusicNote x={548} y={204} s={1.0} color="#ffd0e8" double />
+    <MusicNote x={470} y={170} s={0.9} color="#c8f0ff" />
   </Scene>
 )
 

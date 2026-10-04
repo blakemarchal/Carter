@@ -22,7 +22,7 @@ export const ESTHER_STORY_1: StoryPage[] = [
 /** Visit 2: Esther prays, goes to the king, tells the truth at her dinner, and God's people are saved. Its pictures follow part one's. */
 export const ESTHER_STORY_2: StoryPage[] = [
   { scene: '🙏👸🏽🌙', bg: 'linear-gradient(#18163f,#3b3486)', text: "Esther was afraid to go and see the king. So she asked God's people to pray for her. For three days, Esther and her friends prayed to God, too." },
-  { scene: '👑✨👸🏽', bg: 'linear-gradient(#fff3c9,#ffe0b5)', text: "On the third day, Esther put on her royal robe and went to see the king. Would he be cross? No! He held out his golden scepter. That meant, \"Come in!\"" },
+  { scene: '👑✨👸🏽', bg: 'linear-gradient(#fff3c9,#ffe0b5)', text: "On the third day, brave Queen Esther went to see the king. Would he be cross? No! He held out his golden scepter. That meant, \"Come in!\"" },
   { scene: '🍇🍞🏮', bg: 'linear-gradient(#ffb3a8,#ffe0c0)', text: "The king asked, \"What would you like, Queen Esther?\" Esther said, \"Please come to my dinner, and bring Haman, too.\" What a yummy dinner! Then she asked them to come back for another one." },
   { scene: '👸🏽👉😮', bg: 'linear-gradient(#3b3486,#8f6fa8)', text: "At the next dinner, Esther told the king the truth. \"Haman made a mean plan against my people, God's people. Please save us!\"" },
   { scene: '📜🙌🎉', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: "The king listened to Queen Esther. He made a new rule to keep God's people safe, and he made good Mordecai his top helper. God's people were saved! Hooray!" },

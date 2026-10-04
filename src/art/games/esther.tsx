@@ -38,8 +38,11 @@ const SKIRT = 'M362 270 L388 270 L346 446 Q300 444.4 254 440 Z'
 const FRONT = 'M388 270 L412 270 L454 446 Q400 448 346 446 Z'
 /** Her cape, behind her: what shows of it below the sleeve and beside the skirt (the rest is hidden behind them). */
 const CAPE = 'M272 268 C258 320 220 394 186 446 Q226 451 266 444 L340 400 L350 300 Z'
-/** Her sash: the band round her waist, its knot, and the two ends hanging down. */
-const SASH = 'M361 240 Q400 251 439 240 L444 277 Q400 288 356 277 Z M386 246 L414 246 L416 280 L384 280 Z M386 278 L398 280 L392 338 L384 329 L376 340 Z M414 278 L402 280 L408 338 L416 329 L424 340 Z'
+/**
+ * Her sash: a wide band round her waist (48 tall), a big square knot in front (52 by 54) and its two ends hanging
+ * down. It sits between her robe's top, sleeves and skirt, so it's made big enough to tap without touching them.
+ */
+const SASH = 'M359 234 Q400 246 441 234 L446 282 Q400 294 354 282 Z M378 238 L422 238 Q426 238 426 242 L426 288 Q426 292 422 292 L378 292 Q374 292 374 288 L374 242 Q374 238 378 238 Z M382 288 L398 292 L393 354 L385 344 L376 356 Z M418 288 L402 292 L407 354 L415 344 L424 356 Z'
 
 /** The curtains, swept back and tied with purple cords, from a silver rod along the top. */
 const CURTAINS: Curtain[] = [
@@ -49,9 +52,10 @@ const CURTAINS: Curtain[] = [
 
 // Each region: its number, where its number goes, and its shape (the crown's is drawn on her head, in its units).
 const REGIONS: { id: string; n: number; at: At; d?: string }[] = [
-  { id: 'crown', n: 1, at: [400, 58] },
-  { id: 'sash', n: 1, at: [400, 263], d: SASH },
-  { id: 'bodice', n: 2, at: [400, 220], d: BODICE },
+  // (the crown's number above its pink jewel, in its tallest point)
+  { id: 'crown', n: 1, at: [400, 44] },
+  { id: 'sash', n: 1, at: [400, 265], d: SASH },
+  { id: 'bodice', n: 2, at: [400, 212], d: BODICE },
   { id: 'sleeve-left', n: 2, at: [318, 270], d: SLEEVE },
   { id: 'sleeve-right', n: 2, at: [482, 270], d: mirror(SLEEVE) },
   { id: 'skirt-left', n: 2, at: [320, 398], d: SKIRT },
@@ -128,10 +132,10 @@ function RobePicture({ fills }: { fills: Record<string, string> }) {
       {/* soft shading over her robe, and its gold edges (taps go through them) */}
       <g pointerEvents="none">
         <rect x={150} y={150} width={500} height={300} fill={`url(#sh${uid})`} clipPath={`url(#her${uid})`} />
-        <path d={`M389 282 L348 442 M411 282 L452 442`} stroke={ESTHER_COLORS.gold} strokeWidth={4} strokeLinecap="round" />
+        <path d="M381.8 296 L348 442 M418.2 296 L452 442" stroke={ESTHER_COLORS.gold} strokeWidth={4} strokeLinecap="round" />
         <path d="M192 441 Q228 446 262 440 M538 440 Q572 446 608 441" stroke={ESTHER_COLORS.gold} strokeWidth={4} fill="none" strokeLinecap="round" />
         <path d="M330 300 Q322 372 300 436 M470 300 Q478 372 500 436" stroke={INK} strokeWidth={1.5} fill="none" opacity={0.25} />
-        <path d="M390 286 L396 334 M410 286 L404 334" stroke={INK} strokeWidth={1.5} fill="none" opacity={0.3} />
+        <path d="M390 294 L388.5 344 M410 294 L411.5 344 M386 248 L389 282 M414 248 L411 282" stroke={INK} strokeWidth={1.5} fill="none" opacity={0.3} />
       </g>
       {/* Queen Esther's face and hair, and her crown to paint, with its pearls and jewels */}
       <g transform={HEAD}>
@@ -146,7 +150,7 @@ function RobePicture({ fills }: { fills: Record<string, string> }) {
       </g>
       {done && (
         <g pointerEvents="none">
-          <Sparkles spots={[[300, 40, 10], [500, 44, 10], [220, 200, 8], [580, 196, 8], [150, 360, 7], [650, 356, 7], [400, 152, 6]]} color="#ffe680" />
+          <Sparkles spots={[[300, 40, 10], [500, 44, 10], [220, 200, 8], [580, 196, 8], [150, 360, 7], [650, 356, 7], [318, 112, 6]]} color="#ffe680" />
         </g>
       )}
     </Scene>
