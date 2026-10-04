@@ -129,7 +129,7 @@ function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
         </select>
         <button type="submit">Make their link</button>
       </form>
-      {made && <LinkCard link={made.link} who={made.who} note="It works once, for 7 days. They open it on their phone or tablet and tap Join, and they're in. (On an iPhone or iPad, they can then put Ark Pals on their Home Screen: Safari's Share button, then Add to Home Screen.)" />}
+      {made && <LinkCard link={made.link} who={made.who} note="It works once, for 7 days. They open it on their phone or tablet and tap Join, and they're in. (Want it on an iPhone or iPad Home Screen? The link's page says how.)" />}
       {view.invites.length > 0 && (
         <div className="family-invites">
           {view.invites.map((i) => (
