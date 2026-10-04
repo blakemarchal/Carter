@@ -125,6 +125,9 @@ export const ISLANDS: IslandInfo[] = [
   { id: 'lost-sheep', name: 'The Lost Sheep', emoji: '🐑', color: '#8fcf6a' },
   { id: 'samaritan', name: 'The Good Samaritan', emoji: '❤️', color: '#e8667a' },
   { id: 'zacchaeus', name: 'Zacchaeus', emoji: '🌳', color: '#3f9a5a' },
+  { id: 'palm-sunday', name: 'Palm Sunday', emoji: '🌿', color: '#9ccf4a' },
+  { id: 'easter', name: 'Easter Morning', emoji: '🌅', color: '#ffb07a' },
+  { id: 'pentecost', name: 'Pentecost', emoji: '🕊️', color: '#ff8a4a' },
 ]
 
 type Content = Promise<{ steps: Step[]; art: ComponentType[] }>
@@ -156,6 +159,9 @@ const CONTENT: Record<string, () => Content> = {
   'lost-sheep': () => both(import('./lost-sheep').then((m) => m.LOST_SHEEP_STEPS), import('../art/scenes/lost-sheep').then((m) => m.LOST_SHEEP_ART)),
   samaritan: () => both(import('./samaritan').then((m) => m.SAMARITAN_STEPS), import('../art/scenes/samaritan').then((m) => m.SAMARITAN_ART)),
   zacchaeus: () => both(import('./zacchaeus').then((m) => m.ZACCHAEUS_STEPS), import('../art/scenes/zacchaeus').then((m) => m.ZACCHAEUS_ART)),
+  'palm-sunday': () => both(import('./palm-sunday').then((m) => m.PALM_SUNDAY_STEPS), import('../art/scenes/palm-sunday').then((m) => m.PALM_SUNDAY_ART)),
+  easter: () => both(import('./easter').then((m) => m.EASTER_STEPS), import('../art/scenes/easter').then((m) => m.EASTER_ART)),
+  pentecost: () => both(import('./pentecost').then((m) => m.PENTECOST_STEPS), import('../art/scenes/pentecost').then((m) => m.PENTECOST_ART)),
 }
 
 export const islandById = (id: string) => ISLANDS.find((i) => i.id === id)

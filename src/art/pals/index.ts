@@ -56,6 +56,12 @@ import Ostrich from './ostrich'
 import Ladybug from './ladybug'
 import Squirrel from './squirrel'
 import Frog from './frog'
+import Stone from './stone'
+import Palm from './palm'
+import Snail from './snail'
+import Chick from './chick'
+import Parrot from './parrot'
+import Firefly from './firefly'
 
 export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   mouse: Mouse,
@@ -112,4 +118,10 @@ export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   ladybug: Ladybug,
   squirrel: Squirrel,
   frog: Frog,
+  stone: Stone,
+  palm: Palm,
+  snail: Snail,
+  chick: Chick,
+  parrot: Parrot,
+  firefly: Firefly,
 }

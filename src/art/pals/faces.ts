@@ -79,6 +79,12 @@ export const PAL_FACES: Record<Species, PalFace> = {
   ladybug: face(146, 0.78, [100, 123]),
   squirrel: face(86, 0.85, [100, 55], { y: 109, rx: 5, ry: 4.5 }),
   frog: face(74, 1.15, [100, 57, -6], { y: 107, rx: 9, ry: 7 }),
+  stone: face(100, 0.9, [100, 58]),
+  palm: face(100, 0.9, [100, 58]),
+  snail: face(100, 0.9, [100, 58]),
+  chick: face(100, 0.9, [100, 58]),
+  parrot: face(100, 0.9, [100, 58]),
+  firefly: face(100, 0.9, [100, 58]),
 }
 
 /** PalArt draws a Pal at stage n scaled about (100, 110) in its box. */

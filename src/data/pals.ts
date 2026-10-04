@@ -47,6 +47,7 @@ export interface PalDef {
     | 'cactus' | 'raven' | 'rooster' | 'butterfly' | 'gecko' | 'sparrow'
     | 'pelican' | 'fish' | 'seagull' | 'kingfisher' | 'mole' | 'puppy'
     | 'ostrich' | 'ladybug' | 'squirrel' | 'frog'
+    | 'stone' | 'palm' | 'snail' | 'chick' | 'parrot' | 'firefly'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -408,6 +409,45 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Ribbit', xp: 0 }, { name: 'Leafleap', xp: 100 }, { name: 'Treetop', xp: 300 }],
     moves: { basic: { name: 'Leaf Hop', fx: 'leaf', icon: '🍃' }, brave: { name: 'Big Leap', fx: 'roll', icon: '🐸' }, super: { name: 'Rain Song', fx: 'bubbles', icon: '🌧️' } },
     intro: 'is a Gentleness Pal! {name} climbs high in the sycamore tree, and is gentle and kind to everyone, just like Jesus was to Zacchaeus.',
+  },
+  // Palm Sunday
+  {
+    id: 'rocky', species: 'stone', fruit: 'Joy',
+    stages: [{ name: 'Rocky', xp: 0 }, { name: 'Cobblesong', xp: 100 }, { name: 'Singstone', xp: 300 }],
+    moves: { basic: { name: 'Pebble Toss', fx: 'rock', icon: '🪨' }, brave: { name: 'Tumble Roll', fx: 'roll', icon: '💫' }, super: { name: 'Hosanna Shout', fx: 'stars', icon: '🎉' } },
+    intro: 'is a Joy Pal! {name} used to sit grumpy and silent by the road, but now {name} cries out for joy, because Jesus said even the stones would shout His praise!',
+  },
+  {
+    id: 'swish', species: 'palm', fruit: 'Peace',
+    stages: [{ name: 'Swish', xp: 0 }, { name: 'Frondwave', xp: 100 }, { name: 'Royalpalm', xp: 300 }],
+    moves: { basic: { name: 'Palm Wave', fx: 'wind', icon: '🌿' }, brave: { name: 'Leaf Shower', fx: 'leaf', icon: '🍃' }, super: { name: 'Peace Parade', fx: 'stars', icon: '🎉' } },
+    intro: 'is a Peace Pal! {name} waves its palm leaves for Jesus, the gentle King who came riding on a little donkey, bringing peace.',
+  },
+  // Easter Morning
+  {
+    id: 'swirly', species: 'snail', fruit: 'Faithfulness',
+    stages: [{ name: 'Swirly', xp: 0 }, { name: 'Shellbright', xp: 100 }, { name: 'Morningshell', xp: 300 }],
+    moves: { basic: { name: 'Shell Spin', fx: 'roll', icon: '🐚' }, brave: { name: 'Dewdrop Splash', fx: 'bubbles', icon: '💧' }, super: { name: 'Sunrise Shine', fx: 'stars', icon: '🌅' } },
+    intro: 'is a Faithfulness Pal! {name} used to hide away in its shell, sad and alone, but now {name} comes out to share the good news: Jesus is alive!',
+  },
+  {
+    id: 'peep', species: 'chick', fruit: 'Love',
+    stages: [{ name: 'Peep', xp: 0 }, { name: 'Fluffy', xp: 100 }, { name: 'Sunbeam', xp: 300 }],
+    moves: { basic: { name: 'Cheep Cheep', fx: 'spark', icon: '🎵' }, brave: { name: 'Fluff Puff', fx: 'wind', icon: '🪶' }, super: { name: 'Easter Joy', fx: 'hearts', icon: '💛' } },
+    intro: 'is a Love Pal! {name} hatched one bright spring morning, and loves to cheep the happy news: Jesus is alive, and He loves you!',
+  },
+  // Pentecost
+  {
+    id: 'chatter', species: 'parrot', fruit: 'Self-Control',
+    stages: [{ name: 'Chatter', xp: 0 }, { name: 'Featherchat', xp: 100 }, { name: 'Rainbowbeak', xp: 300 }],
+    moves: { basic: { name: 'Feather Flap', fx: 'wind', icon: '🪶' }, brave: { name: 'Rainbow Dive', fx: 'roll', icon: '🌈' }, super: { name: 'Kind Words', fx: 'hearts', icon: '💬' } },
+    intro: 'is a Self-Control Pal! {name} used to squawk and chatter over everyone, but now {name} listens first, and speaks kind words in every language.',
+  },
+  {
+    id: 'flicker', species: 'firefly', fruit: 'Kindness',
+    stages: [{ name: 'Flicker', xp: 0 }, { name: 'Glowbug', xp: 100 }, { name: 'Lanternwing', xp: 300 }],
+    moves: { basic: { name: 'Little Glow', fx: 'spark', icon: '✨' }, brave: { name: 'Light Dance', fx: 'stars', icon: '🌟' }, super: { name: 'Shine Bright', fx: 'flame', icon: '🔥' } },
+    intro: 'is a Kindness Pal! {name} shines a little light, like the little flames at Pentecost, and helps friends find their way in the dark.',
   },
 ]
 
