@@ -46,6 +46,7 @@ export interface PalDef {
     | 'ram' | 'trumpet' | 'grasshopper' | 'hare' | 'bat' | 'fennec'
     | 'cactus' | 'raven' | 'rooster' | 'butterfly' | 'gecko' | 'sparrow'
     | 'pelican' | 'fish' | 'seagull' | 'kingfisher' | 'mole' | 'puppy'
+    | 'ostrich' | 'ladybug' | 'squirrel' | 'frog'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -381,6 +382,32 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Scout', xp: 0 }, { name: 'Trailpaw', xp: 100 }, { name: 'Homefinder', xp: 300 }],
     moves: { basic: { name: 'Sniff Sniff', fx: 'spark', icon: '👃' }, brave: { name: 'Zoomies', fx: 'roll', icon: '🐾' }, super: { name: 'Found You!', fx: 'hearts', icon: '💛' } },
     intro: 'is a Faithfulness Pal! {name} helps the shepherd look after the sheep, and never stops looking until every little lamb is safe at home.',
+  },
+  // The Good Samaritan
+  {
+    id: 'dash', species: 'ostrich', fruit: 'Patience',
+    stages: [{ name: 'Dash', xp: 0 }, { name: 'Longstride', xp: 100 }, { name: 'Kindstride', xp: 300 }],
+    moves: { basic: { name: 'Feather Fluff', fx: 'wind', icon: '🪶' }, brave: { name: 'Big Stride', fx: 'roll', icon: '💨' }, super: { name: 'Slow and Steady', fx: 'stars', icon: '🌟' } },
+    intro: 'is a Patience Pal! {name} used to rush right past everyone, too busy to stop, but now {name} slows down to help, like the kind man on the road.',
+  },
+  {
+    id: 'dottie', species: 'ladybug', fruit: 'Kindness',
+    stages: [{ name: 'Dottie', xp: 0 }, { name: 'Spotwing', xp: 100 }, { name: 'Lovebug', xp: 300 }],
+    moves: { basic: { name: 'Flutter By', fx: 'wind', icon: '🌬️' }, brave: { name: 'Flower Hug', fx: 'leaf', icon: '🌸' }, super: { name: 'Kind Heart', fx: 'hearts', icon: '💖' } },
+    intro: 'is a Kindness Pal! {name} is little, but {name} loves to help, just like the kind man who stopped to help on the road.',
+  },
+  // Zacchaeus
+  {
+    id: 'scamper', species: 'squirrel', fruit: 'Self-Control',
+    stages: [{ name: 'Scamper', xp: 0 }, { name: 'Bushytail', xp: 100 }, { name: 'Treekeeper', xp: 300 }],
+    moves: { basic: { name: 'Nut Toss', fx: 'rock', icon: '🌰' }, brave: { name: 'Tail Twirl', fx: 'roll', icon: '🌀' }, super: { name: 'Sharing Feast', fx: 'hearts', icon: '🎁' } },
+    intro: 'is a Self-Control Pal! {name} used to grab every nut in the tree and keep them all, but now {name} shares, just like Zacchaeus.',
+  },
+  {
+    id: 'ribbit', species: 'frog', fruit: 'Gentleness',
+    stages: [{ name: 'Ribbit', xp: 0 }, { name: 'Leafleap', xp: 100 }, { name: 'Treetop', xp: 300 }],
+    moves: { basic: { name: 'Leaf Hop', fx: 'leaf', icon: '🍃' }, brave: { name: 'Big Leap', fx: 'roll', icon: '💫' }, super: { name: 'Rain Song', fx: 'bubbles', icon: '🌧️' } },
+    intro: 'is a Gentleness Pal! {name} climbs high in the sycamore tree, and is gentle and kind to everyone, just like Jesus was to Zacchaeus.',
   },
 ]
 

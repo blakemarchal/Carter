@@ -75,6 +75,10 @@ export const PAL_FACES: Record<Species, PalFace> = {
   kingfisher: face(86.9, 0.92, [97.8, 67.4], { y: 104.7, rx: 6, ry: 6.5 }), // (drawn 1.08 times bigger about the bottom of its stone)
   mole: face(89, 0.8, [100, 57], { y: 114.5, rx: 5, ry: 4.5 }),
   puppy: face(80, 0.86, [100, 52], { y: 105, rx: 5.5, ry: 5 }),
+  ostrich: face(100, 0.9, [100, 58]),
+  ladybug: face(100, 0.9, [100, 58]),
+  squirrel: face(100, 0.9, [100, 58]),
+  frog: face(100, 0.9, [100, 58]),
 }
 
 /** PalArt draws a Pal at stage n scaled about (100, 110) in its box. */

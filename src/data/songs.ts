@@ -62,6 +62,8 @@ const BUILT_IN: { id: string; title: string; emoji: string; color: string; islan
   { id: 'song-fishers', title: 'Fishers of People', emoji: '🐟', color: '#3fa7b8', island: 'fishers' },
   { id: 'song-storm', title: 'Peace, Be Still', emoji: '⛵', color: '#6f8fc0', island: 'storm' },
   { id: 'song-lost-sheep', title: 'Where Is the Little Lamb?', emoji: '🐑', color: '#8fcf6a', island: 'lost-sheep' },
+  { id: 'song-samaritan', title: 'Love Your Neighbor', emoji: '❤️', color: '#e8667a', island: 'samaritan' },
+  { id: 'song-zacchaeus', title: 'Hurry Down, Zacchaeus!', emoji: '🌳', color: '#3f9a5a', island: 'zacchaeus' },
 ]
 
 /** Every built-in song's id, made yet or not (an island's song step names one). */
