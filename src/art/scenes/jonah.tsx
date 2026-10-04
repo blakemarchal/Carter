@@ -452,9 +452,10 @@ const Page4 = () => (
     </Tap>
     <Ship x={330} y={350} s={0.75} tilt={-9}>
       <Tap say="Thank You, God!"><Person x={-100} y={10} s={1} look={PEOPLE.sailor} pose="pray" blinkDelay={0.6} /></Tap>
-      <Person x={70} y={10} s={1} look={{ ...PEOPLE.sailor, wrap: '#5fb7ff', robe: '#a07a5a' }} pose="point" blinkDelay={2} />
+      <Person x={70} y={10} s={1} look={SAILOR2} pose="point" blinkDelay={2} />
     </Ship>
-    <Tap say="Splash! Glub, glub!" sfx="plop"><InSea x={590} y={362} s={0.9} /></Tap>
+    {/* (Jonah's own words to the sailors, Jonah 1:12: gentle, and nothing that sounds like sinking) */}
+    <Tap say="Splash! Now the sea will be calm." sfx="plop"><InSea x={590} y={362} s={0.9} /></Tap>
     <Sparkles spots={[[548, 220, 7], [636, 250, 6], [600, 175, 5]]} />
   </Scene>
 )
