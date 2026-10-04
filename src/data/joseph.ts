@@ -36,12 +36,16 @@ export const JOSEPH_STEPS: Step[] = [
   { kind: 'story', title: "Joseph's Beautiful Coat", pages: JOSEPH_STORY_1 },
   {
     kind: 'paint', title: "Paint Joseph's Coat",
-    intro: "Joseph's coat had many colors! Let's paint it. Find the number, pick its color, and tap the stripe.",
+    // (The two taps in the order they're made: a paint pot, then the stripes with its number.)
+    intro: "Joseph's coat had many colors! Let's paint it. Tap a paint pot, then tap the stripes with the same number.",
     done: 'What a beautiful coat! Red, orange, yellow, green, blue, and purple. Jacob loved Joseph so much!',
     kit: JOSEPH_PAINT,
   },
-  { kind: 'practice', skill: 'numbers', title: 'Bundles of Grain', decor: '🌾', theme: '🌾', intro: "Let's count bundles of grain, like in Joseph's dream!" },
-  { kind: 'pause', line: "Joseph is far away in Egypt, all alone. Will God take care of him? Let's find out next time!" },
+  // (The intro fits every level: counting, what comes next, adding. Only counting and adding show the
+  // bundles, so it doesn't promise any.)
+  { kind: 'practice', skill: 'numbers', title: 'Bundles of Grain', decor: '🌾', theme: '🌾', intro: "Joseph dreamed about bundles of grain! Now let's play some number games." },
+  // (Hopeful, not worried: the visit ends with Joseph far from home, but never without God.)
+  { kind: 'pause', line: "Joseph is far away in Egypt. But God has a plan for him! What could it be? Let's find out next time!" },
   // Visit 2: the adventure
   { kind: 'story', title: 'God Was With Joseph', pages: JOSEPH_STORY_2, first: JOSEPH_STORY_1.length },
   {
