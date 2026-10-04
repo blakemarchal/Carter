@@ -5,7 +5,8 @@ real rhythm. All of these are public domain (or, for "Noah Built a Big Boat" and
 new words to public-domain tunes).
 
 Format
-  lines:  (lyric, notes). Syllables are split by spaces and hyphens. Notes are "<pitch>:<beats>",
+  lines:  (lyric, notes). Syllables are split by spaces and hyphens (a ~ splits them too, but is shown
+          as a real hyphen: "nine-ty~nine" is sung in three syllables and shown "ninety-nine"). Notes are "<pitch>:<beats>",
           "r:<beats>" for a rest, and "+<pitch>:<beats>" to carry the previous syllable onto
           another note (a slur). Lines follow each other with no gap, starting at `start` (beats).
   chords: "<chord>:<beats>" from beat 0, written in the song's own key (before `transpose`).
@@ -687,15 +688,15 @@ def _weasel(a, last=False):
 LOST_SHEEP_SONG = dict(
     id='song-lost-sheep', title='Where Is the Little Lamb?', style='party', meter=2, tempo=92, swing=2 / 3,
     transpose=-5, start=3.5,  # (each verse starts with a pickup: the last eighth before its first bar)
-    lines=_weasel('A shep-herd had a hun-dred sheep, he count-ed them each eve-ning. But on-ly nine-ty-nine were there! '
+    lines=_weasel('A shep-herd had a hun-dred sheep, he count-ed them each eve-ning. But on-ly nine-ty~nine were there! '
                   'Where is the lamb-y?')
-    + _weasel('He left the nine-ty-nine at home, and went to find the lost one. He looked be-hind the rocks and trees, '
+    + _weasel('He left the nine-ty~nine at home, and went to find the lost one. He looked be-hind the rocks and trees, '
               "Baa! There's the lamb-y!")
-    + _weasel('He put the lamb up-on his shoul-ders, car-ried him home, hap-py! "Come cel-e-brate, I found my lamb!" '
+    + _weasel('He put the lamb up-on his shoul-ders, car-ried it home, hap-py! "Come cel-e-brate, I found my lamb!" '
               'Hap-py, hap-py day!')
     + _weasel("God loves us like the shep-herd loves each lit-tle lamb, his dear one. He comes to find us when we're lost. "
               'God loves you so much!')
-    + _weasel('So clap your hands and stamp your feet, and sing a-long so hap-py! God found the lit-tle lamb, and He '
+    + _weasel('So clap your hands and stamp your feet, and sing a-long so hap-py! The shep-herd found his lamb, and God '
               'loves you, He loves you!', last=True),
     chords='C:2 G7:2 ' + 'C:4 G7:2 C:6 F:1 G7:1 C:2 ' * 5 + 'C:2',
 )

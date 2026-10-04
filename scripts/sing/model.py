@@ -66,17 +66,22 @@ class Clock:
 
 def _split_word(raw):
     core = raw.strip(_PUNCT)
-    return core, core.split('-')
+    return core, re.split('[-~]', core)
+
+
+def _shown(text):
+    """How sung words are written on screen: syllable breaks go, and a ~ is a real hyphen."""
+    return text.replace('-', '').replace('~', '-')
 
 
 def tts_items(core):
     """What to ask the voice for, for one written word: [(text, syllable count)]."""
     key = core.lower()
     say = SAY.get(key)
-    sylls = core.split('-')
+    sylls = re.split('[-~]', core)
     if isinstance(say, list):
         return [(s, 1) for s in say]
-    text = say or core.replace('-', '')
+    text = say or _shown(core)
     if not text.startswith('/') and text.split("'")[0] not in _KEEP_CASE:
         text = text.lower()
     return [(text, len(sylls))]
@@ -103,7 +108,7 @@ def build(song):
             if slot:
                 parts = [NAME] * song.get('name_notes', 2)
             items = [(NAME, len(parts))] if slot else tts_items(core)
-            word = dict(text=raw.replace('-', ''), syllables=[])
+            word = dict(text=_shown(raw), syllables=[])
             k = 0
             for text, n in items:
                 for j in range(n):
@@ -129,7 +134,7 @@ def build(song):
         if si != len(line_sylls) - 1:
             raise ValueError(f'{song["id"]} line {li + 1}: {len(line_sylls)} syllables but {si + 1} notes')
         sylls.extend(line_sylls)
-        lines.append(dict(text=lyric.replace('-', ''), words=words))
+        lines.append(dict(text=_shown(lyric), words=words))
     chords, b = [], 0.0
     for tok in song['chords'].split():
         sym, beats = tok.split(':')
