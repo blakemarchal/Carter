@@ -387,7 +387,7 @@ export const PALS: PalDef[] = [
   {
     id: 'dash', species: 'ostrich', fruit: 'Patience',
     stages: [{ name: 'Dash', xp: 0 }, { name: 'Longstride', xp: 100 }, { name: 'Kindstride', xp: 300 }],
-    moves: { basic: { name: 'Feather Fluff', fx: 'wind', icon: '🪶' }, brave: { name: 'Big Stride', fx: 'roll', icon: '💨' }, super: { name: 'Slow and Steady', fx: 'stars', icon: '🌟' } },
+    moves: { basic: { name: 'Feather Fluff', fx: 'wind', icon: '🪶' }, brave: { name: 'Big Stride', fx: 'roll', icon: '👣' }, super: { name: 'Slow and Steady', fx: 'stars', icon: '🐢' } },
     intro: 'is a Patience Pal! {name} used to rush right past everyone, too busy to stop, but now {name} slows down to help, like the kind man on the road.',
   },
   {
@@ -406,7 +406,7 @@ export const PALS: PalDef[] = [
   {
     id: 'ribbit', species: 'frog', fruit: 'Gentleness',
     stages: [{ name: 'Ribbit', xp: 0 }, { name: 'Leafleap', xp: 100 }, { name: 'Treetop', xp: 300 }],
-    moves: { basic: { name: 'Leaf Hop', fx: 'leaf', icon: '🍃' }, brave: { name: 'Big Leap', fx: 'roll', icon: '💫' }, super: { name: 'Rain Song', fx: 'bubbles', icon: '🌧️' } },
+    moves: { basic: { name: 'Leaf Hop', fx: 'leaf', icon: '🍃' }, brave: { name: 'Big Leap', fx: 'roll', icon: '🐸' }, super: { name: 'Rain Song', fx: 'bubbles', icon: '🌧️' } },
     intro: 'is a Gentleness Pal! {name} climbs high in the sycamore tree, and is gentle and kind to everyone, just like Jesus was to Zacchaeus.',
   },
 ]
