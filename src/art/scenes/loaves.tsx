@@ -283,7 +283,7 @@ const Dust = ({ x, y }: { x: number; y: number }) => (
 // (Exported so other parts of the island can draw the same people; they can move to people.tsx later.)
 
 /** Andrew, the disciple who found the boy (John 6:8–9): a blue robe and a gold sash. */
-export const ANDREW: Look = { ...PEOPLE.disciple, robe: '#6f9fc0', sash: '#e0b45a', hairColor: '#7a4a24', beardColor: '#7a4a24' }
+export const ANDREW: Look = PEOPLE.andrew
 /** A girl in the crowd: pink, with pigtails. She eats with her mother on page 8, and shares the bread in the game. */
 export const GIRL: Look = { ...PEOPLE.boy, hair: 'pigtails', hairColor: '#4a3020', robe: '#ff9fb8', sash: '#ffffff', skin: '#d9a47a' }
 /** A mother in the crowd (page 8): a teal robe and a plum head covering. */

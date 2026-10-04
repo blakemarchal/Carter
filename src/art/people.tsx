@@ -214,6 +214,15 @@ export const PEOPLE = {
   jesus: { skin: SKIN.medium, hair: 'long', hairColor: '#5a3a24', beard: 'short', robe: '#f5f0e6', sash: '#c0504d' },
   boy: { skin: SKIN.tan, hair: 'short', hairColor: '#3b2a20', robe: '#e6b85a', sash: '#a0612f', build: 'child' },
   disciple: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#a07a5a', sash: '#6b8f5a' },
+  // The fishermen Jesus called to follow Him (Fishers of People), who sail with Him across the lake
+  /** Simon Peter, a fisherman: curly dark hair and beard, a rust-red robe and a sea-blue sash. */
+  peter: { skin: SKIN.tan, hair: 'curly', hairColor: '#3b2a20', beard: 'short', beardColor: '#3b2a20', robe: '#c8643c', sash: '#5f8fc0' },
+  /** Andrew, Peter's brother (he found the boy with the loaves and fishes): a blue robe and a gold sash. */
+  andrew: { skin: SKIN.medium, hair: 'short', hairColor: '#7a4a24', beard: 'short', beardColor: '#7a4a24', robe: '#6f9fc0', sash: '#e0b45a' },
+  /** James, a fisherman, John's big brother: a dark beard and a green robe. */
+  james: { skin: SKIN.medium, hair: 'short', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#6b8f5a', sash: '#e8dcc0' },
+  /** John, the youngest fisherman: no beard yet, a golden robe and a purple sash. */
+  john: { skin: SKIN.medium, hair: 'short', hairColor: '#5a3a24', robe: '#d9a85a', sash: '#8a5bb0' },
   mary: { skin: SKIN.medium, hair: 'covered', hairColor: '#4a3020', wrap: '#5f8fd0', robe: '#bcd4f0', sash: '#f5f0e6' },
   joseph: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#a0703f', sash: '#6b8f5a' },
   shepherd: { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8dcc0', robe: '#8f7a5a', beard: 'short', beardColor: '#3b2a20', sash: '#c0504d' },
