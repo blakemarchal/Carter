@@ -6,11 +6,13 @@
 // voyage: a few new island visits a day (Parent Corner), then the crew rests (finished islands, the
 // Ark, songs and bedtime stay open). In the week before their birthday, balloons are tied to the
 // boat and their Pal counts the sleeps; on a brother's or sister's birthday, a banner says so.
+// Once every island is done, the voyage-complete celebration shows here, once (components/VoyageComplete).
 // Styles: styles.css, "Map".
 import { useEffect, useMemo, useRef, useState } from 'react'
 import PalArt from '../components/PalArt'
 import { HoldButton } from '../components/ui'
-import { islandById, loadIsland, loadedIsland } from '../data/islands'
+import VoyageComplete from '../components/VoyageComplete'
+import { ISLANDS, islandById, loadIsland, loadedIsland } from '../data/islands'
 import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
 import { currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
 import { count } from '../lib/stats'
@@ -213,8 +215,16 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const prevOpen = sea > 0
   const nextOpen = sea + 1 < SEAS.length && seaOpen(sea + 1, p.islandsDone, built, p.openAll, started)
   const seaDone = islands.every((i) => !i.built || p.islandsDone.includes(i.id))
+  // Every island done: the voyage-complete celebration (once; "Keep sailing!" puts it away for good).
+  const [celebrate, setCelebrate] = useState(() => !p.voyageCelebrated && ISLANDS.every((i) => p.islandsDone.includes(i.id)))
+  const sailOn = () => {
+    update((x) => ({ ...x, voyageCelebrated: today() }))
+    setCelebrate(false)
+    speak('Where should we go? Tap an island!')
+  }
 
   useEffect(() => {
+    if (celebrate) return // (it says its own words; the birthday lines wait for next time)
     // Said once a day: whose birthday it is today, or how many sleeps until theirs.
     const d = today()
     if (others.length && p.siblingSaid !== d) {
@@ -394,6 +404,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
           )}
         </svg>
       </div>
+      {celebrate && <VoyageComplete p={p} onDone={sailOn} />}
     </div>
   )
 }

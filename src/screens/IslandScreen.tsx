@@ -183,7 +183,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       body = <VerseBuilder chunks={current.chunks} reference={current.ref} onDone={next} />
       break
     case 'battle':
-      body = <FriendlyBattle foeId={current.foe} foeIntro={current.intro} onDone={next} />
+      body = <FriendlyBattle foeId={current.foe} foeIntro={current.intro} island={island.id} onDone={next} />
       break
     case 'pause':
       body = <VisitPause line={current.line} onDone={exit} onContinue={next} replay={wasDone} />

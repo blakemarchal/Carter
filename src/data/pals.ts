@@ -60,7 +60,7 @@ export const PALS: PalDef[] = [
   {
     id: 'zippy', species: 'mouse', fruit: 'Joy', starter: true,
     stages: [{ name: 'Zippy', xp: 0 }, { name: 'Sparkle', xp: 100 }, { name: 'Thunderjoy', xp: 300 }],
-    moves: { basic: { name: 'Joy Spark', fx: 'spark', icon: '⚡' }, brave: { name: 'Twinkle Dash', fx: 'stars', icon: '🌟' }, super: { name: 'Thunder Joy', fx: 'spark', icon: '🌩️' } },
+    moves: { basic: { name: 'Joy Spark', fx: 'spark', icon: '⚡' }, brave: { name: 'Twinkle Dash', fx: 'stars', icon: '🌟' }, super: { name: 'Giggle Storm', fx: 'spark', icon: '🌩️' } },
     intro: 'is a Joy Pal! {name} is full of happy sparkles, because the joy of the Lord is our strength!',
   },
   {
@@ -207,7 +207,7 @@ export const PALS: PalDef[] = [
   {
     id: 'gusty', species: 'wind', fruit: 'Self-Control',
     stages: [{ name: 'Gusty', xp: 0 }, { name: 'Breezy', xp: 100 }, { name: 'Windsong', xp: 300 }],
-    moves: { basic: { name: 'Gentle Breeze', fx: 'wind', icon: '🌬️' }, brave: { name: 'Whirl Twirl', fx: 'roll', icon: '🌀' }, super: { name: 'Wind Song', fx: 'leaf', icon: '🍃' } },
+    moves: { basic: { name: 'Gentle Breeze', fx: 'wind', icon: '🌬️' }, brave: { name: 'Whirl Twirl', fx: 'roll', icon: '🌀' }, super: { name: 'Leaf Dance', fx: 'leaf', icon: '🍃' } },
     intro: 'is a Self-Control Pal! {name} used to huff and puff at everyone, but now {name} only blows when it helps, like the wind God sent to make a path through the sea.',
   },
   {
@@ -233,7 +233,7 @@ export const PALS: PalDef[] = [
   {
     id: 'snappy', species: 'crocodile', fruit: 'Self-Control',
     stages: [{ name: 'Snappy', xp: 0 }, { name: 'Grinny', xp: 100 }, { name: 'Riverking', xp: 300 }],
-    moves: { basic: { name: 'Bubble Blow', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Tail Splash', fx: 'bubbles', icon: '🌊' }, super: { name: 'River Hug', fx: 'hearts', icon: '💙' } },
+    moves: { basic: { name: 'River Bubbles', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Tail Splash', fx: 'bubbles', icon: '🌊' }, super: { name: 'River Hug', fx: 'hearts', icon: '💙' } },
     intro: 'is a Self-Control Pal! {name} used to go snap, snap, snap, but now {name} keeps a gentle smile, like the river that carried baby Moses safely.',
   },
   {
@@ -266,7 +266,7 @@ export const PALS: PalDef[] = [
     id: 'quilly', species: 'quail', fruit: 'Love',
     stages: [{ name: 'Quilly', xp: 0 }, { name: 'Quailbell', xp: 100 }, { name: 'Morningwing', xp: 300 }],
     moves: { basic: { name: 'Morning Peep', fx: 'spark', icon: '🐦' }, brave: { name: 'Feather Flurry', fx: 'wind', icon: '🪶' }, super: { name: 'Daily Bread', fx: 'hearts', icon: '🍞' } },
-    intro: 'is a Love Pal! {name} remembers the desert mornings, when God sent bread from heaven for His people.',
+    intro: 'is a Love Pal! {name} remembers how God fed His people in the desert: quail in the evening, and bread from heaven every morning.',
   },
   // The Walls of Jericho
   {
@@ -311,7 +311,7 @@ export const PALS: PalDef[] = [
   {
     id: 'spike', species: 'cactus', fruit: 'Patience',
     stages: [{ name: 'Spike', xp: 0 }, { name: 'Bloomspike', xp: 100 }, { name: 'Desertbloom', xp: 300 }],
-    moves: { basic: { name: 'Soft Spines', fx: 'spark', icon: '🌵' }, brave: { name: 'Desert Bloom', fx: 'leaf', icon: '🌸' }, super: { name: 'Rain Dance', fx: 'bubbles', icon: '🌧️' } },
+    moves: { basic: { name: 'Soft Spines', fx: 'spark', icon: '🌵' }, brave: { name: 'Cactus Flower', fx: 'leaf', icon: '🌸' }, super: { name: 'Rain Dance', fx: 'bubbles', icon: '🌧️' } },
     intro: "is a Patience Pal! {name} used to be prickly and cross in the long, dry days, but now {name} waits for God's rain, like Elijah.",
   },
   {
@@ -363,13 +363,13 @@ export const PALS: PalDef[] = [
   {
     id: 'squawk', species: 'seagull', fruit: 'Peace',
     stages: [{ name: 'Squawk', xp: 0 }, { name: 'Seaglider', xp: 100 }, { name: 'Calmwing', xp: 300 }],
-    moves: { basic: { name: 'Sea Breeze', fx: 'wind', icon: '🌬️' }, brave: { name: 'Wave Ride', fx: 'roll', icon: '🌊' }, super: { name: 'Calm Waters', fx: 'bubbles', icon: '🫧' } },
+    moves: { basic: { name: 'Ocean Glide', fx: 'wind', icon: '🌬️' }, brave: { name: 'Wave Ride', fx: 'roll', icon: '🌊' }, super: { name: 'Calm Waters', fx: 'bubbles', icon: '🫧' } },
     intro: 'is a Peace Pal! {name} used to squawk and flap in every storm, but now {name} stays calm, because Jesus is near.',
   },
   {
     id: 'glint', species: 'kingfisher', fruit: 'Goodness',
     stages: [{ name: 'Glint', xp: 0 }, { name: 'Divedash', xp: 100 }, { name: 'Sparklewing', xp: 300 }],
-    moves: { basic: { name: 'Dive Dash', fx: 'roll', icon: '💫' }, brave: { name: 'Rainbow Flash', fx: 'stars', icon: '🌈' }, super: { name: 'Sunny Shine', fx: 'spark', icon: '☀️' } },
+    moves: { basic: { name: 'Lake Dive', fx: 'roll', icon: '🌊' }, brave: { name: 'Rainbow Flash', fx: 'stars', icon: '🌈' }, super: { name: 'Sunny Shine', fx: 'spark', icon: '☀️' } },
     intro: 'is a Goodness Pal! {name} loves the calm, sparkly lake after the storm, and remembers how good Jesus is. Even the wind and the waves obey Him!',
   },
   // The Lost Sheep
@@ -389,7 +389,7 @@ export const PALS: PalDef[] = [
   {
     id: 'dash', species: 'ostrich', fruit: 'Patience',
     stages: [{ name: 'Dash', xp: 0 }, { name: 'Longstride', xp: 100 }, { name: 'Kindstride', xp: 300 }],
-    moves: { basic: { name: 'Feather Fluff', fx: 'wind', icon: '🪶' }, brave: { name: 'Big Stride', fx: 'roll', icon: '👣' }, super: { name: 'Slow and Steady', fx: 'stars', icon: '🐢' } },
+    moves: { basic: { name: 'Feather Fluff', fx: 'wind', icon: '🪶' }, brave: { name: 'Big Stride', fx: 'roll', icon: '👣' }, super: { name: 'Stop and Help', fx: 'stars', icon: '🤝' } },
     intro: 'is a Patience Pal! {name} used to rush right past everyone, too busy to stop, but now {name} slows down to help, like the kind man on the road.',
   },
   {
@@ -421,7 +421,7 @@ export const PALS: PalDef[] = [
   {
     id: 'swish', species: 'palm', fruit: 'Peace',
     stages: [{ name: 'Swish', xp: 0 }, { name: 'Frondwave', xp: 100 }, { name: 'Royalpalm', xp: 300 }],
-    moves: { basic: { name: 'Palm Wave', fx: 'wind', icon: '🌿' }, brave: { name: 'Leaf Shower', fx: 'leaf', icon: '🍃' }, super: { name: 'Peace Parade', fx: 'stars', icon: '🎉' } },
+    moves: { basic: { name: 'Palm Wave', fx: 'wind', icon: '🌿' }, brave: { name: 'Leaf Shower', fx: 'leaf', icon: '🍃' }, super: { name: 'Palm Parade', fx: 'stars', icon: '🌴' } },
     intro: 'is a Peace Pal! {name} waves its palm leaves for Jesus, the gentle King who came riding on a little donkey, bringing peace.',
   },
   // Easter Morning

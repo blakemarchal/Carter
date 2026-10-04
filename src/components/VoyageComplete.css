@@ -1,0 +1,26 @@
+/* The voyage-complete celebration on the map (components/VoyageComplete.tsx). */
+.voyage-done {
+  position: fixed; inset: 0; z-index: 50; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 20px; text-align: center; animation: fadein .4s;
+  background: radial-gradient(circle at 50% 58%, #fff8d8 0%, #ffe3f0 46%, #cfe6ff 100%);
+}
+/* sunbeams behind the crew */
+.vd-rays {
+  position: absolute; left: 50%; top: 58%; width: 1500px; height: 1500px; margin: -750px 0 0 -750px; border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(rgba(255, 220, 120, .32) 0 8deg, rgba(255, 220, 120, 0) 8deg 24deg);
+  -webkit-mask: radial-gradient(circle, #000 12%, transparent 60%); mask: radial-gradient(circle, #000 12%, transparent 60%);
+  animation: vdspin 40s linear infinite;
+}
+@keyframes vdspin { to { rotate: 360deg; } }
+.voyage-done > :not(.vd-rays):not(.confetti) { position: relative; }
+.vd-title { margin: 0; font-size: 84px; line-height: 1; color: var(--pink-deep); text-shadow: 0 5px 0 #fff, 0 9px 0 rgba(0,0,0,.08); animation: pop .7s both; }
+.vd-sub { margin: 0; font-size: 36px; font-weight: 800; color: #6d3fd1; animation: pop .7s .2s both; }
+.vd-seas { display: flex; gap: 10px; font-size: 38px; }
+.vd-seas span { animation: pop .5s both; }
+.vd-crew { display: flex; align-items: flex-end; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.vd-pal { animation: pop .6s both; }
+.vd-glad { display: flex; flex-direction: column; align-items: center; margin: 0 10px; animation: pop .8s .3s both; filter: drop-shadow(0 0 18px #fff6b0); }
+.vd-glad b { margin-top: -6px; padding: 0 18px; border-radius: 999px; background: #fff; color: #8d5cf6; font-size: 26px; box-shadow: 0 4px 0 rgba(0,0,0,.08); }
+.vd-go { min-height: 100px; display: flex; align-items: center; }
+.vd-btn { font-size: 44px; padding: 16px 48px; animation: pop .6s both, pulse 1.6s .6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .vd-rays, .vd-btn { animation: none; } }

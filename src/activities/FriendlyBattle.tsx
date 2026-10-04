@@ -5,39 +5,96 @@
 //      answer a question, and the move shrinks the creature's Shadow bar.
 //   3. The shadow's turn: it puffs a grumpy move back. A first-try answer means her Pal dodges;
 //      otherwise it loses a heart. A tired Pal eats a berry and bounces back: nobody ever loses.
-//   4. Shadow gone: Grumbleshade floats away grumbling, the creature smiles, and she asks it to
-//      join the Ark. "Yes, please!" She throws a Friend Ball: wobble, wobble, wobble… click!
+//   4. Shadow gone: the creature smiles, and Grumbleshade floats away, saying the island's line about
+//      why he's grumpy (data/shade.ts). Then she asks the creature to join the Ark. "Yes, please!"
+//      She throws a Friend Ball: wobble, wobble, wobble… click!
+// Grumbleshade's arc: on Easter Morning he doesn't float away. He hears that God loves everyone, even
+// him, and his shadow turns to light: he's Gladshade, and joins her Ark. From then on the shadow in a
+// battle is a little grumpy cloud, which pops into happy sparkles. Styles: FriendlyBattle.css.
 // At a birthday party (`present`), the creature turns out to have been bringing a present.
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import PalArt from '../components/PalArt'
 import MoveFx, { type Pt } from '../components/MoveFx'
 import QuestionCard from '../components/QuestionCard'
 import { BigButton, Confetti } from '../components/ui'
-import { FriendBall, Grumbleshade } from '../art/battle'
+import { FriendBall, Grumbleshade, GrumpyCloud, type ShadeFace } from '../art/battle'
 import { FRUIT_COLOR, PALS, palById, stageFor, type Move, type MoveKind } from '../data/pals'
+import { GLADSHADE, SHADE_SAY, shadeFor } from '../data/shade'
 import { makeQuestion, type Question } from '../lib/questions'
 import { addPalXp, getProgress, MAX_LEVEL, update, useProgress, type Skill } from '../lib/progress'
 import { battlesWon, CHARGE, movesFor, POWER, type MoveSlot } from '../lib/moves'
-import { speak } from '../lib/speech'
+import { preload, speak } from '../lib/speech'
+import { setMood } from '../lib/music'
 import { sfx } from '../lib/sfx'
 import { useDrag, useDropTarget } from '../lib/drag'
 import { pick, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import './FriendlyBattle.css'
 
 const SHADOW = 6 // the creature's Shadow bar
 const ENERGY = 5 // her Pal's hearts
 const SHADOW_MOVES = ['Grumpy Puff', 'Shadow Sneeze', 'Pouty Mist', 'Frown Fog', 'Grumble Gust']
 
-type Phase = 'intro' | 'team' | 'pick' | 'question' | 'attack' | 'shadow' | 'freed' | 'ask' | 'throw' | 'caught' | 'learned'
+type Phase = 'intro' | 'team' | 'pick' | 'question' | 'attack' | 'shadow' | 'freed' | 'finale' | 'ask' | 'throw' | 'caught' | 'learned'
 
-export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
-  foeId: string; foeIntro: string; /** a birthday: what to say when the present comes out */ present?: string; onDone: () => void
+/**
+ * Easter Morning, after the shadow comes out of the creature: he listens, smiles, turns to light, and is
+ * Gladshade; then he floats over to her side (`joined`), out of the way of the creature joining too.
+ */
+type FinaleShade = 'listen' | 'smile' | 'glow' | 'burst' | 'glad' | 'joined'
+/**
+ * Where the shadow is: swooping in, hiding inside the creature, chased out, drifting away with his line
+ * (`leave`: floating off quickly, where there's no line), or the little grumpy cloud popping into sparkles.
+ */
+type Shade = 'arrive' | 'inside' | 'out' | 'drift' | 'leave' | 'pop' | 'gone' | FinaleShade
+
+/** Sparkles streaming in to the middle (`in`, looping), or bursting out of it once (after `delay` seconds). */
+function Sparkles({ out, n = 14, delay = 0 }: { out?: boolean; n?: number; delay?: number }) {
+  const [parts] = useState(() => Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + Math.random() * 0.4
+    const d = (out ? 80 : 120) + Math.random() * 60
+    // (bursting out, they're happy sparkles: stars and hearts too)
+    const c = out ? ['✨', '⭐', '✦', '💖'][i % 4] : i % 3 ? '✦' : '✨'
+    return { x: Math.cos(a) * d, y: Math.sin(a) * d, delay: delay + Math.random() * (out ? 0.2 : 1), c }
+  }))
+  return (
+    <span className={`gs-sparkles ${out ? 'out' : 'in'}`} aria-hidden>
+      {parts.map((s, i) => <i key={i} style={{ '--x': `${s.x}px`, '--y': `${s.y}px`, animationDelay: `${s.delay}s` } as CSSProperties}>{s.c}</i>)}
+    </span>
+  )
+}
+
+/** Grumbleshade on Easter Morning, where he was in the battle (styles: FriendlyBattle.css). */
+function ShadeFinale({ shade }: { shade: 'out' | FinaleShade }) {
+  const face: ShadeFace = shade === 'out' ? 'pout' : shade === 'listen' ? 'listen' : shade === 'smile' ? 'smile' : 'light'
+  return (
+    <div className={`gs-finale gs-${shade}`} aria-hidden>
+      <div className="gs-rays" />
+      <div className="gs-halo" />
+      {(shade === 'listen' || shade === 'smile') && <span className="gs-hearts"><i>💛</i><i>💖</i><i>💛</i></span>}
+      {shade === 'glad' || shade === 'joined'
+        ? <div className="gs-pal"><PalArt pal={palById(GLADSHADE)} size={150} className="bob" /></div>
+        : <div className="gs-body"><Grumbleshade size={150} face={face} /></div>}
+      {shade === 'glow' && <Sparkles />}
+      {shade === 'glad' && <Sparkles out n={16} />}
+      <div className="gs-flash" />
+    </div>
+  )
+}
+
+export default function FriendlyBattle({ foeId, foeIntro, island, present, onDone }: {
+  foeId: string; foeIntro: string
+  /** The island the battle is on, for Grumbleshade's line there (data/shade.ts); none at a birthday party. */
+  island?: string
+  /** a birthday: what to say when the present comes out */ present?: string; onDone: () => void
 }) {
   const p = useProgress()
   const alive = useAlive()
   const foe = palById(foeId)
   const foeName = foe.stages[0].name
   const [alreadyFriend] = useState(() => foeId in getProgress().pals)
+  // Grumbleshade's arc: his line here, Easter Morning's finale, or (once he's Gladshade) a little grumpy cloud.
+  const [arc] = useState(() => shadeFor(island, GLADSHADE in getProgress().pals))
   // Her Pals who can help (not the creature itself, if she's befriended it before).
   const team = PALS.filter((x) => x.id in p.pals && x.id !== foeId)
   const [palId, setPalId] = useState<string | null>(null)
@@ -47,7 +104,7 @@ export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
   const slots = pal ? movesFor(pal, p) : []
 
   const [phase, setPhase] = useState<Phase>('intro')
-  const [shade, setShade] = useState<'arrive' | 'inside' | 'leave' | 'gone'>('arrive')
+  const [shade, setShade] = useState<Shade>('arrive')
   const [shadow, setShadow] = useState(SHADOW)
   const [energy, setEnergy] = useState(ENERGY)
   const [charge, setCharge] = useState(0)
@@ -95,17 +152,23 @@ export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
     const pl = palById(id)
     const nm = pl.stages[stageFor(pl, getProgress().pals[id] ?? 0)].name
     setPhase('intro')
-    await speak(`Go, ${nm}! Let's chase the shadow away with kindness!`)
+    await speak(`Go, ${nm}! Let's chase the ${arc.kind === 'cloud' ? 'grumpy cloud' : 'shadow'} away with kindness!`)
     if (alive.current) startTurn(pl, true)
   }
 
-  // The story: the island's intro, then Grumbleshade swoops in and hides inside the creature.
+  // The story: the island's intro, then Grumbleshade (or the little grumpy cloud) swoops in and hides inside the creature.
   useEffect(() => {
+    const swoop = arc.kind === 'cloud' ? SHADE_SAY.cloudIntro(foeName) : SHADE_SAY.intro(foeName)
+    // (the lines for when the shadow is chased away download while she plays, so they start right away)
+    const after = arc.kind === 'cloud' ? [SHADE_SAY.cloudChased(foeName)]
+      : arc.kind === 'finale' ? [SHADE_SAY.chased(foeName), ...Object.values(SHADE_SAY.finale)]
+      : arc.line ? [SHADE_SAY.chased(foeName), arc.line] : [SHADE_SAY.chasedPlain(foeName)]
+    preload([swoop, ...after])
     ;(async () => {
       await speak(foeIntro)
       if (!alive.current) return
       sfx.shadowMove()
-      await speak(`It's Grumbleshade, the grumpy shadow! Grumbleshade is making ${foeName} grumpy.`)
+      await speak(swoop)
       if (!alive.current) return
       setShade('inside')
       if (team.length > 1) {
@@ -200,14 +263,73 @@ export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
     freed()
   }
 
-  /** The shadow is gone: Grumbleshade floats away, and the creature is itself again. */
+  /**
+   * Easter Morning: Grumbleshade doesn't float away. He hears the happy news, smiles for the very first
+   * time, and his shadow turns to light: he's Gladshade, and joins her Ark (about 20 seconds).
+   */
+  const finale = async () => {
+    setPhase('finale')
+    setMood('story')
+    setShade('listen')
+    await speak(SHADE_SAY.finale.listen)
+    if (!alive.current) return
+    await speak(SHADE_SAY.finale.whisper)
+    if (!alive.current) return
+    setShade('smile')
+    sfx.sparkle()
+    await speak(SHADE_SAY.finale.smile)
+    if (!alive.current) return
+    // His shadow turns to light…
+    setShade('glow')
+    sfx.sparkle()
+    for (let i = 0; i < 8; i++) {
+      await wait(190)
+      if (!alive.current) return
+      sfx.evolveTick(i)
+    }
+    setShade('burst')
+    sfx.evolveBurst()
+    await wait(450)
+    if (!alive.current) return
+    // …and he's Gladshade, a Pal on her Ark (the way a befriended creature joins).
+    setShade('glad')
+    setMood('home')
+    sfx.fanfare()
+    addPalXp(GLADSHADE, 0)
+    await speak(SHADE_SAY.finale.glad)
+    // (over to her side, with her Pal, so the creature can be asked to join too)
+    if (alive.current) setShade('joined')
+  }
+
+  /** The shadow is gone: the creature is itself again, and Grumbleshade floats away with his line (data/shade.ts). */
   const freed = async () => {
     setPhase('freed')
-    setShade('leave')
     sfx.fanfare()
-    await speak(`Kindness chased the shadow away! Grumbleshade floated off, grumbling. ${foeName} is happy again!`)
+    if (arc.kind === 'cloud') {
+      // The little grumpy cloud comes out, puffs up… and pops into happy sparkles.
+      setShade('pop')
+      setTimeout(() => { if (alive.current) sfx.sparkle() }, 1650)
+      await speak(SHADE_SAY.cloudChased(foeName))
+      if (alive.current) setShade('gone')
+    } else if (arc.kind === 'finale') {
+      setShade('out')
+      await speak(SHADE_SAY.chased(foeName))
+      if (!alive.current) return
+      await finale()
+    } else if (arc.line) {
+      // He comes out, sulks for a moment, then drifts away while he says why he's grumpy.
+      // (He finishes floating off by himself, even if the line is over first.)
+      setShade('out')
+      await speak(SHADE_SAY.chased(foeName))
+      if (!alive.current) return
+      setShade('drift')
+      await speak(arc.line)
+    } else {
+      setShade('leave')
+      await speak(SHADE_SAY.chasedPlain(foeName))
+      if (alive.current) setShade('gone')
+    }
     if (!alive.current) return
-    setShade('gone')
     if (present) {
       setGift(true)
       sfx.sparkle()
@@ -274,11 +396,19 @@ export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
   const foeTarget = useDropTarget('foe', (d) => d === 'ball', 60)
   const ballDrag = useDrag({ data: 'ball', disabled: phase !== 'ask', onStart: sfx.lift, onDrop: (t) => { if (t !== 'foe') return false; throwBall(true); return true }, onTap: () => throwBall() })
   const superKnown = slots.find((s) => s.kind === 'super')?.known
-  const happy = shade === 'leave' || shade === 'gone'
+  // (the creature is happy as soon as the shadow is out of it)
+  const happy = shade !== 'arrive' && shade !== 'inside'
   const caughtIn = ball === 'land' || ball === 'wobble' || ball === 'done'
+  let shadeArt: ReactNode = null
+  if (shade !== 'gone') {
+    if (arc.kind === 'cloud') shadeArt = <GrumpyCloud size={120} className={`gshade cloud ${shade}`} />
+    else if (arc.kind === 'finale' && shade !== 'arrive' && shade !== 'inside') shadeArt = <ShadeFinale shade={shade as 'out' | FinaleShade} />
+    else shadeArt = <Grumbleshade size={150} className={`gshade ${shade}`} />
+  }
   return (
     <div className={`activity battle phase-${phase}`}>
       {(phase === 'caught' || phase === 'learned' || (phase === 'freed' && alreadyFriend)) && <Confetti />}
+      {(shade === 'glad' || shade === 'joined') && <Confetti count={50} />}
       <div ref={arena} className={`arena ${phase === 'attack' ? `arena-${pal?.moves[kind].fx} ${kind === 'super' ? 'super' : ''}` : ''}`}>
         <div className="fighter foe">
           <div className="info-box">
@@ -315,7 +445,8 @@ export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
             </>
           ) : <div className="buddy-empty">?</div>}
         </div>
-        {shade !== 'gone' && <Grumbleshade size={150} className={`gshade ${shade}`} />}
+        {shadeArt}
+        {shade === 'pop' && <div className="cloud-pop"><Sparkles out n={16} delay={1.6} /></div>}
         {phase === 'attack' && pal && (
           <MoveFx key={moveNo} fx={pal.moves[kind].fx} move={pal.moves[kind].name} color={FRUIT_COLOR[pal.fruit]}
             superMove={kind === 'super'} hearts={POWER[kind]} icon={pal.moves[kind].icon} from={ends.from} to={ends.to} />
@@ -364,7 +495,11 @@ export default function FriendlyBattle({ foeId, foeIntro, present, onDone }: {
           </div>
         )}
         {phase === 'question' && q && <QuestionCard key={turn} q={q} onSolved={solved} quiet recordMisses={kind !== 'brave'} />}
-        {phase === 'freed' && <div className="friends-banner">☀️ The shadow is gone! ☀️</div>}
+        {/* (the creature: the shadow may still be on screen, floating off) */}
+        {phase === 'freed' && <div className="friends-banner">☀️ {foeName} is happy again! ☀️</div>}
+        {phase === 'finale' && (shade === 'glad' || shade === 'joined'
+          ? <div key="glad" className="friends-banner finale">✨ Gladshade joined your Ark! ✨</div>
+          : <div key="news" className="friends-banner finale">💛 God loves everyone! 💛</div>)}
         {phase === 'ask' && (
           <div className="throw-pick">
             <div className="ask-line">Would you like to join our Ark, {foeName}?</div>

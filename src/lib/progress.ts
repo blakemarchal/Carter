@@ -54,6 +54,8 @@ export interface Progress {
   islandScore?: Record<string, [number, number]>
   /** Which version of each island (data/islands.ts `version`) this player finished; a newer one shows "New!". */
   islandVersion?: Record<string, number>
+  /** The day she saw the voyage-complete celebration on the map (every island done) and sailed on, so it shows once. */
+  voyageCelebrated?: string
 }
 
 export { DEFAULT_LOOK, type KidLook } from './look'

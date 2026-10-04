@@ -1,0 +1,105 @@
+/* Grumbleshade's arc in a battle (activities/FriendlyBattle.tsx, data/shade.ts). Where the shadow sits,
+   and its arrive / inside / leave, are in styles.css ("Battle: info boxes, the shadow, catching"). */
+
+/* Chased out of the creature, he floats up beside it, into the open sky (clear of its name) */
+.gshade.out { animation: gsout 1s ease-out both; }
+@keyframes gsout { from { transform: translate(-10px, 120px) scale(.2); opacity: 0; } to { transform: translate(-210px, 40px); opacity: 1; } }
+
+/* He sulks for a moment, then drifts slowly away into the sky while his line is said */
+.gshade.drift { animation: gsdrift 7s ease-in-out both; }
+@keyframes gsdrift {
+  0% { transform: translate(-210px, 40px); opacity: 1; }
+  18% { transform: translate(-216px, 54px) rotate(-6deg); opacity: 1; }
+  85% { opacity: .8; }
+  100% { transform: translate(-560px, -30px) scale(.35) rotate(-10deg); opacity: 0; }
+}
+
+/* After Easter Morning: the little grumpy cloud comes out, puffs up… and pops into happy sparkles */
+.gshade.pop { animation: gspop 2.4s ease-in-out both; }
+@keyframes gspop {
+  0% { transform: translate(-10px, 110px) scale(.2); opacity: 0; }
+  20% { transform: translate(-200px, 40px); opacity: 1; }
+  45% { transform: translate(-200px, 34px) scale(1.04); }
+  62% { transform: translate(-200px, 40px) scale(1.16); opacity: 1; }
+  70%, 100% { transform: translate(-200px, 40px) scale(1.4); opacity: 0; }
+}
+.cloud-pop { position: absolute; right: calc(4% + 200px); top: calc(-6% + 40px); width: 120px; height: 96px; pointer-events: none; z-index: 5; }
+
+/* ---------- Easter Morning: he listens, smiles, turns to light, and is Gladshade ---------- */
+/* (in the open sky beside the creature, where .gshade.out leaves him) */
+.gs-finale { position: absolute; right: calc(4% + 210px); top: calc(-6% + 40px); width: 150px; height: 120px; pointer-events: none; z-index: 4; transition: right 1.4s ease-in-out, top 1.4s ease-in-out; }
+.gs-finale > * { position: absolute; }
+/* (Its states are gs-listen, gs-glow…: a bare .glow would pick up the hint glow in styles.css, a yellow box.
+   No CSS filters: his light is drawn, Grumbleshade face="light", and the halo behind him glows.) */
+.gs-finale .gs-body { left: 0; top: 0; line-height: 0; }
+.gs-finale.gs-out .gs-body { animation: gsfinout 1s ease-out both; }
+@keyframes gsfinout { from { transform: translate(200px, 80px) scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
+/* listening: he leans in */
+.gs-finale.gs-listen .gs-body { animation: gslean 2.8s ease-in-out infinite; }
+.gs-finale.gs-smile .gs-body { animation: gslean 2.2s ease-in-out infinite; }
+@keyframes gslean { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; translate: 0 -6px; } }
+/* his shadow turns to light */
+.gs-finale.gs-glow .gs-body { animation: gsglow .3s ease-in-out infinite alternate; }
+@keyframes gsglow { to { scale: 1.1; } }
+.gs-finale.gs-burst .gs-body { animation: gsfade .45s ease-in forwards; }
+@keyframes gsfade { to { scale: 1.5; opacity: 0; } }
+/* and there's Gladshade */
+.gs-pal { left: 0; top: -18px; animation: gsreveal .8s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes gsreveal { 0% { scale: .3; opacity: 0; } 60% { scale: 1.25; opacity: 1; } 100% { scale: 1; } }
+
+/* a warm halo behind him: soft while he listens, blazing as he turns to light */
+.gs-halo {
+  left: 50%; top: 50%; width: 250px; height: 210px; margin: -105px 0 0 -125px; border-radius: 50%; opacity: 0; transition: opacity .6s, scale .6s;
+  background: radial-gradient(closest-side, rgba(255, 250, 215, .95), rgba(255, 230, 140, .65) 55%, rgba(255, 230, 140, 0));
+}
+.gs-finale.gs-listen .gs-halo { opacity: .5; }
+.gs-finale.gs-smile .gs-halo { opacity: .8; }
+.gs-finale.gs-glow .gs-halo, .gs-finale.gs-burst .gs-halo { opacity: 1; animation: gshalo .3s ease-in-out infinite alternate; }
+@keyframes gshalo { to { scale: 1.15; } }
+.gs-finale.gs-glad .gs-halo { opacity: .75; }
+.gs-finale.gs-joined .gs-halo { opacity: .5; scale: .8; }
+
+/* rays of light behind him: faint while he listens, bright when he turns to light */
+.gs-rays {
+  left: 50%; top: 50%; width: 380px; height: 380px; margin: -190px 0 0 -190px; border-radius: 50%; z-index: -1;
+  background: repeating-conic-gradient(rgba(255, 232, 140, .75) 0 9deg, rgba(255, 232, 140, 0) 9deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 66%); mask: radial-gradient(circle, #000 18%, transparent 66%);
+  opacity: 0; scale: .5; transition: opacity 1s, scale 1s; animation: gsspin 20s linear infinite;
+}
+.gs-finale.gs-listen .gs-rays { opacity: .45; scale: .8; }
+.gs-finale.gs-smile .gs-rays { opacity: .7; scale: .9; }
+.gs-finale.gs-glow .gs-rays, .gs-finale.gs-burst .gs-rays, .gs-finale.gs-glad .gs-rays { opacity: 1; scale: 1.05; }
+/* then he floats over to her side, beside her Pal (clear of the creature saying "Yes, please!") */
+.gs-finale.gs-joined { right: 58%; top: 26%; }
+.gs-finale.gs-joined .gs-rays { opacity: 0; scale: .6; }
+@keyframes gsspin { to { rotate: 360deg; } }
+
+/* little hearts float up around him while he hears the happy news */
+.gs-hearts { inset: 0; }
+.gs-hearts i { position: absolute; font-style: normal; font-size: 28px; opacity: 0; animation: gsheart 2.6s ease-out infinite; }
+.gs-hearts i:nth-child(1) { left: -34px; top: 34px; }
+.gs-hearts i:nth-child(2) { left: 62px; top: -34px; animation-delay: .9s; }
+.gs-hearts i:nth-child(3) { right: -34px; top: 40px; animation-delay: 1.7s; }
+@keyframes gsheart { 0% { opacity: 0; translate: 0 18px; scale: .6; } 30% { opacity: 1; } 100% { opacity: 0; translate: 0 -46px; scale: 1.1; } }
+
+/* the flash when the shadow becomes light */
+.gs-flash { left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0 35%, rgba(255, 240, 170, .9) 50%, rgba(255, 240, 170, 0) 70%); }
+.gs-finale.gs-burst .gs-flash { animation: gsflash .9s ease-out forwards; }
+@keyframes gsflash { 0% { opacity: 0; scale: .5; } 25% { opacity: 1; scale: 6; } 100% { opacity: 0; scale: 9; } }
+
+/* sparkles: streaming in to him as he turns to light, and bursting out (his reveal, the cloud's pop) */
+.gs-sparkles { left: 50%; top: 50%; width: 0; height: 0; }
+.cloud-pop .gs-sparkles { position: absolute; }
+.gs-sparkles i { position: absolute; left: 0; top: 0; font-style: normal; font-size: 26px; line-height: 1; color: #ffe680; text-shadow: 0 0 8px #fff; translate: -50% -50%; }
+.gs-sparkles.in i { animation: gsin 1s ease-in infinite both; }
+@keyframes gsin { 0% { transform: translate(var(--x), var(--y)) scale(1.2); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(0, 0) scale(.3); opacity: 0; } }
+.gs-sparkles.out i { animation: gsburst 1.3s ease-out both; }
+@keyframes gsburst { 0% { transform: translate(0, 0) scale(.3); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(1.1); opacity: 0; } }
+
+.friends-banner.finale { font-size: 46px; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-rays, .gs-hearts i, .gs-sparkles i, .gs-finale .gs-body { animation: none !important; }
+  .gs-hearts, .gs-sparkles { display: none; }
+}
