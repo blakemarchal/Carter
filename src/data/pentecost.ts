@@ -15,7 +15,7 @@ export const PENTECOST_STORY_1: StoryPage[] = [
   { scene: '⛰️🏙️👉', bg: 'linear-gradient(#bfe6ff,#e6ffe9)', text: 'One day, up on a hill near Jerusalem, Jesus said to His friends, "Stay in Jerusalem, and wait. My Father will send you the Helper I promised, the Holy Spirit. He will make you brave, to tell the whole world about Me!"' },
   { scene: '🙌☁️✨', bg: 'linear-gradient(#fff6d8,#bfe6ff)', text: 'Then Jesus lifted up His hands and blessed them. And as they watched, Jesus went up, up, up into heaven, and a cloud hid Him.' },
   { scene: '👼👼👀', bg: 'linear-gradient(#bfe6ff,#e6ffe9)', text: 'His friends kept looking up at the sky. Then two angels in white stood beside them. "Jesus went up to heaven," they said. "And one day, He will come back!"' },
-  { scene: '🏠🙏🙏', bg: 'linear-gradient(#fff3c9,#ffe0b5)', text: 'So the friends went back to Jerusalem, full of joy. In a room upstairs, they prayed together every day: Peter, Andrew, James, John, Mary, Jesus\' mother, and many more. They were waiting for the Helper, just like Jesus said.' },
+  { scene: '🏠🙏🙏', bg: 'linear-gradient(#fff3c9,#ffe0b5)', text: 'So the friends went back to Jerusalem, full of joy. In a room upstairs, they prayed together every day: Peter, Andrew, James, John and many more, with Jesus\' mother, Mary. They were waiting for the Helper, just like Jesus said.' },
 ]
 
 /** Visit 2: the wind and the little flames, the crowd from many lands, Peter, and the church. Its pictures follow part one's in art/scenes/pentecost.tsx. */

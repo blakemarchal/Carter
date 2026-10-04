@@ -26,10 +26,12 @@ export const ABRAHAM_STORY_2: StoryPage[] = [
   { scene: '⭐👨‍👩‍👧‍👦✨', bg: 'linear-gradient(#18163f,#3b5e86)', text: "Abraham's family grew and grew, until it was like the stars in the sky! God always keeps His promises. And God's family has room for you, too!" },
 ]
 
-// World English Bible (public domain), word for word: God's words to Abraham, the night He showed him the stars.
+// World English Bible (public domain), word for word: the first part of God's words to Abraham, the night He showed him
+// the stars (page six), in Genesis 15:5 ("Look now toward the sky, and count the stars, if you are able to count them.").
+// The WEB goes on after a comma, so it ends with a full stop here, as Noah's verse does.
 export const ABRAHAM_VERSE = {
   ref: 'Genesis 15:5',
-  chunks: ['Look now toward the sky,', 'and count the stars,', 'if you are able to count them.'],
+  chunks: ['Look now', 'toward the sky,', 'and count the stars.'],
 }
 
 export const ABRAHAM_STEPS: Step[] = [

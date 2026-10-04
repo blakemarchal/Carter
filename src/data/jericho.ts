@@ -31,10 +31,11 @@ export const JERICHO_STORY_2: StoryPage[] = [
 /** Every page, in order: story cards (`story:jericho:<n>`) count from 1 through both parts. */
 export const JERICHO_STORY: StoryPage[] = [...JERICHO_STORY_1, ...JERICHO_STORY_2]
 
-// World English Bible (public domain), word for word: the walls fell down when God's people trusted Him.
+// World English Bible (public domain), word for word: the first part of Hebrews 11:30 ("By faith the walls of Jericho
+// fell down after they had been encircled for seven days."). The walls fell down when God's people trusted Him.
 export const JERICHO_VERSE = {
   ref: 'Hebrews 11:30',
-  chunks: ['By faith', 'the walls of Jericho fell down', 'after they had been encircled', 'for seven days.'],
+  chunks: ['By faith', 'the walls of Jericho', 'fell down.'],
 }
 
 export const JERICHO_STEPS: Step[] = [
@@ -43,7 +44,9 @@ export const JERICHO_STEPS: Step[] = [
   {
     kind: 'rhythm', title: 'March Around Jericho',
     intro: "Let's march around Jericho, just like God said! You can blow the trumpet. Tap the trumpet when a note gets to it.",
-    done: "Day after day, God's people marched around Jericho. Then, on the seventh day, crash! The big walls came tumbling down! Nothing is too hard for God.",
+    // (A look ahead: the walls fall in the game's last picture, but part two tells it, so the done line says what
+    // will happen.)
+    done: "Day after day, God's people will march around Jericho, just like you did. And on the seventh day, the big walls will come tumbling down! Nothing is too hard for God.",
     kit: JERICHO_GAME,
   },
   // (The intro fits every level: letter sounds, reading words, finding words. 🎵 is drawn as music notes.)

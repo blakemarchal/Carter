@@ -9,7 +9,8 @@ import { RED_SEA_GAME } from '../art/games/red-sea'
 
 /** Visit 1: from Egypt to the path through the sea. */
 export const RED_SEA_STORY_1: StoryPage[] = [
-  { scene: '🏜️🧱', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Long ago, God\'s people lived in Egypt. The king of Egypt was called Pharaoh. He made God\'s people work very hard, making bricks all day long. But God loved His people, and He had a plan.' },
+  // (It picks up where The Burning Bush ends, with Moses and Aaron on the way to Egypt.)
+  { scene: '🏜️🧱', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Remember Moses? He and his brother Aaron were on their way to Egypt. There, God\'s people were still making bricks for Pharaoh, the king, all day long. But God loved His people, and He had a plan.' },
   { scene: '🧔🏽👑', bg: 'linear-gradient(#bfe6ff,#f3e4c4)', text: 'God sent Moses and his brother Aaron to see the king. Moses said, "God says, let my people go!"' },
   { scene: '☁️🔥', bg: 'linear-gradient(90deg,#bfe6ff,#3b3486)', text: 'Pharaoh said no, and no, and no again. But at last he said, "Go!" So off they went! God led the way, with a tall cloud in the day and a pillar of fire at night.' },
   { scene: '🌊🧔🏽', bg: 'linear-gradient(#c9b8ff,#ffd0dc)', text: 'They came to the edge of the Red Sea. But then Pharaoh changed his mind! Far away, his chariots were coming. Moses said, "Do not be afraid. God will help us!"' },
@@ -26,12 +27,12 @@ export const RED_SEA_STORY_2: StoryPage[] = [
   { scene: '🌅💛', bg: 'linear-gradient(#c9b8ff,#ffe9c9)', text: 'God made a way for His people, right through the sea! And God is with you, too. He loves you, and He will always help you.' },
 ]
 
-// World English Bible (public domain), word for word: Psalm 136:13, with the WEB's semicolon after
-// "apart". (The WEB's verse ends with another semicolon, as the psalm goes on into verse 14, so it ends
-// with a full stop here, as Noah's verse does.)
+// World English Bible (public domain), word for word: the first part of Psalm 77:19, said to God ("Your way was through
+// the sea, your paths through the great waters. Your footsteps were not known."). God made a way through the sea (page
+// eleven). The WEB goes on after a comma, so it ends with a full stop here, as Noah's verse does.
 export const RED_SEA_VERSE = {
-  ref: 'Psalm 136:13',
-  chunks: ['To him who divided', 'the Red Sea apart;', 'for his loving kindness', 'endures forever.'],
+  ref: 'Psalm 77:19',
+  chunks: ['Your way', 'was through', 'the sea.'],
 }
 
 export const RED_SEA_STEPS: Step[] = [

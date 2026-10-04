@@ -29,10 +29,12 @@ export const ESTHER_STORY_2: StoryPage[] = [
   { scene: '🎉🍪🏮', bg: 'linear-gradient(#ffb3a8,#ffe0c0)', text: "God's people had a great big happy party, called Purim! They shared yummy food and gave presents. God took care of His people all along, and He takes care of you, too!" },
 ]
 
-// World English Bible (public domain), word for word: Psalm 56:3.
+// World English Bible (public domain), word for word: the middle of Joshua 1:9, God's words to Joshua ("Haven't I
+// commanded you? Be strong and courageous. Don't be afraid. Don't be dismayed, for Yahweh your God is with you wherever
+// you go."). Esther was afraid, and she was brave (pages six to eight). (Psalm 56:3 is David's verse.)
 export const ESTHER_VERSE = {
-  ref: 'Psalm 56:3',
-  chunks: ['When I am afraid,', 'I will put', 'my trust in you.'],
+  ref: 'Joshua 1:9',
+  chunks: ['Be strong', 'and courageous.', "Don't be afraid."],
 }
 
 export const ESTHER_STEPS: Step[] = [

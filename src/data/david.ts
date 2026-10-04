@@ -13,7 +13,8 @@ export const DAVID_STORY_1: StoryPage[] = [
   { scene: '👦🏽🐑🐑', bg: 'linear-gradient(#bfe6ff,#c9f2d0)', text: 'David was a shepherd boy who took care of his sheep. God loved David, and David loved God.' },
   { scene: '👦🏽🐑💧', bg: 'linear-gradient(#bfe6ff,#c9f2d0)', text: "Every day, David led his father's sheep to green grass and cool water. When a little lamb got tired, David carried it in his arms." },
   { scene: '🎶🐑🌄', bg: 'linear-gradient(#ffe0b5,#c9f2d0)', text: 'Out in the fields, David sang songs to God. God helped David keep his sheep safe, even from a lion and a bear!' },
-  { scene: '👴🏽👦🏽💛', bg: 'linear-gradient(#fff3c9,#c9f2d0)', text: "God sent a man named Samuel to David's family. David's big brothers were tall and strong. But God looks at the heart. God picked David to be king one day!" },
+  // (Samuel grew up on the island before this one. Now he's old, as he's drawn.)
+  { scene: '👴🏽👦🏽💛', bg: 'linear-gradient(#fff3c9,#c9f2d0)', text: "Remember Samuel, who listened to God? Now Samuel was old, and God sent him to David's family. David's big brothers were tall and strong. But God looks at the heart. God picked David to be king one day!" },
   { scene: '🌙🎶🐑', bg: 'linear-gradient(#3b3486,#35577a)', text: 'At night, under the twinkly stars, David played his harp. He made up songs for God. One song says, God is my shepherd. He takes care of me!' },
 ]
 

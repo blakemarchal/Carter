@@ -62,7 +62,7 @@ export const EASTER_STEPS: Step[] = [
     kind: 'quiz', title: 'Easter Questions',
     questions: [
       {
-        say: 'Early on Sunday morning, what did Mary and her friends carry to the garden?',
+        say: 'Early on Sunday morning, what did Mary Magdalene and her friends carry to the garden?',
         choices: [{ emoji: '🪁', say: 'A kite' }, { emoji: '🫙', say: 'Sweet spices', art: 'sweet-spices' }, { emoji: '🎂', say: 'A birthday cake' }],
         answer: 1,
       },
@@ -78,7 +78,7 @@ export const EASTER_STEPS: Step[] = [
         answer: 2,
       },
       {
-        say: 'Who said Mary\'s name in the garden?',
+        say: "Who said Mary Magdalene's name in the garden?",
         // (the quiz says the chosen answer back with a "!" of its own)
         choices: [{ emoji: '✨', say: 'Jesus! He was alive', art: 'story:easter:10' }, { emoji: '🐑', say: 'A sheep' }, { emoji: '🐸', say: 'A frog' }],
         answer: 0,
@@ -101,7 +101,7 @@ export const EASTER_STEPS: Step[] = [
       { emoji: '✨', say: 'the angel sitting on the big stone', art: 'story:easter:7' },
       { emoji: '🏃‍♀️', say: 'the women running to tell the happy news', art: 'story:easter:9' },
       // (the last card is said back with a "!" of its own)
-      { emoji: '🌸', say: "Jesus saying Mary's name", art: 'story:easter:10' },
+      { emoji: '🌸', say: "Jesus saying Mary Magdalene's name", art: 'story:easter:10' },
     ],
   },
   { kind: 'battle', foe: 'twirl', intro: "Oh! A little snail named Twirl is hiding in its shell, all grumpy and sad. Twirl hasn't heard the happy news yet! Twirl just needs a friend." },

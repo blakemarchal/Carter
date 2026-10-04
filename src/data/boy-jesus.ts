@@ -28,10 +28,13 @@ export const BOY_JESUS_STORY_2: StoryPage[] = [
   { scene: '🏠🪵💛', bg: 'linear-gradient(#bfe6ff,#e6ffd9)', text: 'Then Jesus went home to Nazareth with Mary and Joseph, and He obeyed them. Jesus grew bigger and wiser, and God and people loved Him. And God loves you, too!' },
 ]
 
-// World English Bible (public domain), word for word: Luke 2:52.
+// World English Bible (public domain), word for word: part of what Jesus said to Mary and Joseph in God's house (page
+// eleven), in Luke 2:49 ("He said to them, 'Why were you looking for me? Didn't you know that I must be in my Father's
+// house?'"), ending with a full stop here. It's the heart of the story, and of its song ("In God's house, in His
+// Father's house!").
 export const BOY_JESUS_VERSE = {
-  ref: 'Luke 2:52',
-  chunks: ['And Jesus increased', 'in wisdom and stature,', 'and in favor', 'with God and men.'],
+  ref: 'Luke 2:49',
+  chunks: ['I must be', "in my Father's house."],
 }
 
 /** A story card for the put-it-in-order game: page n of the whole story (1 to 12). */
