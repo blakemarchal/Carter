@@ -38,12 +38,12 @@ export const PENTECOST_VERSE = {
 export const PENTECOST_STEPS: Step[] = [
   // Visit 1: the story
   { kind: 'story', title: 'Jesus Makes a Promise', pages: PENTECOST_STORY_1 },
-  // (A look ahead: part two tells it all. The friends kneel in the room upstairs in two groups, so their flames come four
-  // and then three more: seven.)
+  // (A look ahead: part two tells it all, so the done line looks ahead too, and the pause can still ask when the Helper
+  // will come. The friends kneel in the room upstairs in two groups, so their flames come four and then three more: seven.)
   {
     kind: 'build', title: 'When the Spirit Came', kit: PENTECOST_GAME,
     intro: "Jesus promised to send the Helper, the Holy Spirit. Soon He will come, like a rushing wind, with little flames of light! Let's build a picture of that wonderful day. Drag each part to its place, starting with Jesus' friends.",
-    done: 'Four little flames and three more flames make seven little flames, one for each friend! God sent His Spirit, just like Jesus promised.',
+    done: "Four little flames and three more flames make seven little flames, one for each friend here! That's how it will be when the Helper comes, just like Jesus promised.",
   },
   // (The intro fits every level: letter sounds, reading words, finding words.)
   { kind: 'practice', skill: 'reading', title: 'Waiting Words', decor: '🙏', intro: "Jesus' friends waited and prayed together, just like Jesus said. While we wait, let's play some word games!" },

@@ -857,6 +857,9 @@ function Page5() {
   )
 }
 
+/** The rushing wind indoors: swirls with a strong blue edge, so they show on the cream walls (as in the mini-game). */
+const WIND = { edge: '#5f9fd8', eo: 0.9, o: 1 }
+
 // 6. "Remember? Jesus' friends were waiting for the Helper. On the day of a big feast called Pentecost, they were all
 //    together in the room upstairs. Suddenly, there was a sound from heaven, like a mighty rushing wind! Whoosh! It
 //    filled the whole house."
@@ -864,21 +867,21 @@ function Page5() {
 // and round, amazed (never scared).
 function Page6() {
   return (
-    <UpperRoom bright inWindow={<g><Gust x={300} y={120} len={150} d={0.4} /><Gust x={330} y={170} len={120} d={1.2} /></g>}>
+    <UpperRoom bright inWindow={<g><Gust {...WIND} x={300} y={120} len={150} d={0.4} w={6} /><Gust {...WIND} x={330} y={170} len={120} d={1.2} w={6} /></g>}>
       <RoomFolk time="wind" says={{
         peter: ["What a sound! It's from heaven!", 'pop'],
         mary: ['Listen! The wind is filling the whole house!', 'pop'],
       }} />
       <Tap say="Whoosh! Whoosh!" sfx="whoosh">
         <g>
-          <Gust x={292} y={110} len={250} flip rot={-6} d={0} w={6} />
-          <Gust x={510} y={100} len={240} rot={6} d={0.8} w={6} />
-          <Gust x={40} y={30} len={330} rot={2} d={1.6} w={4.5} />
-          <Gust x={430} y={36} len={320} rot={-2} d={2.2} w={4.5} />
-          <Gust x={792} y={168} len={140} flip rot={-4} d={0.5} w={4.5} />
-          <Gust x={8} y={176} len={150} rot={4} d={1.1} w={4.5} />
-          <Gust x={300} y={246} len={64} d={1.9} w={3.5} />
-          <Gust x={524} y={232} len={64} flip d={2.6} w={3.5} />
+          <Gust {...WIND} x={292} y={110} len={250} flip rot={-6} d={0} w={7} />
+          <Gust {...WIND} x={510} y={100} len={240} rot={6} d={0.8} w={7} />
+          <Gust {...WIND} x={40} y={30} len={330} rot={2} d={1.6} w={6} />
+          <Gust {...WIND} x={430} y={36} len={320} rot={-2} d={2.2} w={6} />
+          <Gust {...WIND} x={792} y={168} len={140} flip rot={-4} d={0.5} w={6} />
+          <Gust {...WIND} x={8} y={176} len={150} rot={4} d={1.1} w={6} />
+          <Gust {...WIND} x={300} y={246} len={64} d={1.9} w={4.5} />
+          <Gust {...WIND} x={524} y={232} len={64} flip d={2.6} w={4.5} />
         </g>
       </Tap>
     </UpperRoom>
@@ -947,7 +950,8 @@ function Page8() {
           ))}
         </g>
       </Tap>
-      {[[504, 2, 'wow', 'stand'], [584, 8, 'joy', 'wave'], [664, 1, 'wow', 'open'], [744, 6, 'happy', 'wave']].map(([x, v, mood, pose], i) => (
+      {/* (the back row's faces in the gaps between the front row's heads, where no hand or hat comes in front of them) */}
+      {[[466, 2, 'wow', 'stand'], [568, 8, 'joy', 'wave'], [655, 1, 'wow', 'stand'], [756, 6, 'happy', 'stand']].map(([x, v, mood, pose], i) => (
         <VisitorFigure key={i} x={x as number} y={398} s={0.72} v={VISITORS[v as number]} mood={mood as Mood} pose={pose as JPose} facing="left" blinkDelay={i * 0.5} />
       ))}
       <VisitorFigure x={48} y={446} s={0.88} v={VISITORS[11]} mood="wow" pose="wave" blinkDelay={0.7} />
@@ -958,11 +962,11 @@ function Page8() {
       <VisitorFigure x={330} y={448} s={0.9} v={VISITORS[4]} mood="happy" pose="wave" blinkDelay={1.6} />
       <VisitorFigure x={428} y={448} s={0.9} v={VISITORS[9]} mood="wow" pose="wave" facing="left" blinkDelay={0.6} />
       <Tap say="Wow! I can understand every word!" sfx="good">
-        <VisitorFigure x={522} y={448} s={0.92} v={VISITORS[3]} mood="joy" pose="arms-up" facing="left" blinkDelay={1.2} />
+        <VisitorFigure x={522} y={448} s={0.92} v={VISITORS[3]} mood="joy" pose="hold" facing="left" blinkDelay={1.2} />
       </Tap>
-      <VisitorFigure x={614} y={448} s={0.9} v={VISITORS[7]} mood="wow" pose="open" facing="left" blinkDelay={0.2} />
-      <VisitorFigure x={706} y={446} s={0.92} v={VISITORS[5]} mood="happy" pose="wave" facing="left" blinkDelay={0.9} />
-      <VisitorFigure x={776} y={448} s={0.86} v={VISITORS[10]} mood="joy" pose="arms-up" facing="left" blinkDelay={1.8} />
+      <VisitorFigure x={614} y={448} s={0.9} v={VISITORS[7]} mood="wow" pose="stand" facing="left" blinkDelay={0.2} />
+      <VisitorFigure x={706} y={446} s={0.92} v={VISITORS[5]} mood="happy" pose="stand" facing="left" blinkDelay={0.9} />
+      <VisitorFigure x={770} y={448} s={0.86} v={VISITORS[10]} mood="joy" pose="arms-up" facing="left" blinkDelay={1.8} />
     </Scene>
   )
 }
@@ -1035,8 +1039,8 @@ function ClayLamp({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 // 10. "That was how the church began! God's family prayed together and shared what they had. They ate together in their
 //     homes, with happy hearts. And God's Spirit is with us, too. He is our Helper, every day!"
 // On a rooftop at sunset: God's family, old friends and new ones from many lands, sitting round a cloth with bread, fruit
-// and fish to share. Peter passes bread along, a visitor gives thanks, and Mary hands some bread to you (the child
-// playing), right there with them. A soft breeze swirls by, and hearts rise up.
+// and fish to share. Peter passes bread along, a visitor gives thanks, and Mary holds out some bread to you (the child
+// playing, reaching for it), right there with them. A soft breeze swirls by, and hearts rise up.
 function Page10() {
   const me = usePlayer()
   const id = uid(useId())
@@ -1064,7 +1068,7 @@ function Page10() {
       <path d="M0 344 H800 M0 390 H800" stroke="#d9bc86" strokeWidth={1.6} opacity={0.7} />
       {/* everyone round the cloth (two friends standing behind) */}
       <Person x={262} y={340} s={0.84} look={PEOPLE.andrew} pose="pray" blinkDelay={0.8} />
-      <VisitorFigure x={660} y={340} s={0.84} v={VISITORS[3]} pose="wave" mood="joy" blinkDelay={1.5} />
+      <VisitorFigure x={673} y={340} s={0.84} v={VISITORS[3]} pose="wave" mood="joy" blinkDelay={1.5} />
       <Sitting x={92} y={388} s={0.92} look={VISITORS[1]} pose="hold" holding="bread" blinkDelay={0.4}><Dress v={VISITORS[1]} /></Sitting>
       <Sitting x={204} y={388} s={0.94} look={PEOPLE.peter} pose="point" holding="bread" blinkDelay={0.9} />
       <Tap say="Thank You, God, for my new family!" sfx="ding">
@@ -1074,10 +1078,10 @@ function Page10() {
         <Sitting x={428} y={386} s={0.92} look={PEOPLE.mary} pose="point" holding="bread" blinkDelay={0.2} />
       </Tap>
       <Tap say="I'm in God's family, too!" sfx="fanfare">
-        <Person x={514} y={392} s={1.12} look={me.look} pose="hold" blinkDelay={0.5} />
+        <Person x={540} y={392} s={1.12} look={me.look} pose="point" facing="left" blinkDelay={0.5} />
       </Tap>
-      <Sitting x={608} y={388} s={0.94} look={PEOPLE.john} pose="hold" blinkDelay={1.1} />
-      <Sitting x={716} y={390} s={0.92} look={VISITORS[6]} pose="hold" holding="bread" blinkDelay={0.6}><Dress v={VISITORS[6]} /></Sitting>
+      <Sitting x={620} y={388} s={0.94} look={PEOPLE.john} pose="hold" blinkDelay={1.1} />
+      <Sitting x={726} y={390} s={0.92} look={VISITORS[6]} pose="hold" holding="bread" blinkDelay={0.6}><Dress v={VISITORS[6]} /></Sitting>
       {/* the cloth, with the food on it */}
       <path d="M118 398 L682 398 L718 438 L82 438 Z" fill="#f6efe0" stroke="#c9b48a" strokeWidth={2.5} strokeLinejoin="round" />
       <path d="M126 406 L674 406" stroke="#7cb0e0" strokeWidth={3} />
