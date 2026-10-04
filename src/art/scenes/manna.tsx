@@ -13,7 +13,7 @@
 // mark), and faces for a Person: Pout (a pouty mouth) and Yuck (eyes squeezed shut at a bad smell).
 import { useId, type ComponentProps, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Person, type Look, type Pose } from '../people'
+import { Person, SKIN, type Look, type Pose } from '../people'
 import { Flake, MannaHeap, MannaJar, MANNA, MANNA_LINE, Quail, RockSpring, seeded } from '../items/isl-manna'
 import { Cloud, Glow, Rays, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
 import { usePlayer } from './player'
@@ -21,7 +21,9 @@ import { AARON, Folk, Goat, Grip, HEBREWS, Heart, MOSES, PillarOfCloud, SilverHa
 import { BeardFrown, Brows, Kneel, ShutEyes, Zs } from './daniel'
 import { EyesUp, LaughFace, Laughing, LookingUp, Sitting } from './abraham'
 
-const { dad: DAD, mom: MOM, boy: BOY, girl: GIRL, grandma: GRANDMA, grandpa: GRANDPA, man: NEIGHBOR } = HEBREWS
+const { dad: DAD, mom: MOM, boy: BOY, girl: GIRL, grandma: GRANDMA, grandpa: GRANDPA, man: NEIGHBOR, lass: LASS } = HEBREWS
+/** The neighbor who saved extra manna overnight (page 7): a mustard head cloth and a terracotta robe. */
+export const SAVER: Look = { skin: SKIN.medium, hair: 'covered', hairColor: '#5a3a24', wrap: '#f2d675', beard: 'short', beardColor: '#6b4a2e', robe: '#c77d4f', sash: '#4f9a9a' }
 
 // ---------- The camp in the desert ----------
 
@@ -365,6 +367,45 @@ function GatheringFolk(p: ComponentProps<typeof Folk>) {
   )
 }
 
+/**
+ * A goat drinking: standing side-on with its neck stretched forward and its head down at the water, eyes
+ * closed happily, horns swept back, a little beard. Built like moses.tsx's Goat (four legs, a tail flicked
+ * up at the back). Facing left (or right); (x, y) = its hooves on the ground. Its muzzle comes down to about
+ * (49, -5) (facing right, before scaling), where the water's edge should be.
+ */
+export function DrinkingGoat({ x, y, s = 1, facing = 'left', coat = '#f6f1e8', patch = '#4a3a33' }: {
+  x: number; y: number; s?: number; facing?: 'left' | 'right'; coat?: string; patch?: string
+}) {
+  const line = darken(coat, 0.38)
+  const horn = '#d8c49a'
+  return (
+    <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -s : s} ${s})`}>
+      {/* far legs (in shadow), each with a dark hoof */}
+      {[-17, 15].map((lx) => <g key={lx}><rect x={lx} y={-31} width={6} height={30} rx={3} fill={darken(coat, 0.14)} stroke={line} strokeWidth={1.6} /><rect x={lx - 0.3} y={-6} width={6.6} height={6} rx={2} fill="#4a3a33" /></g>)}
+      {/* tail, flicked up at the back */}
+      <path d="M-31 -46 Q-41 -58 -36 -64 Q-30 -56 -27 -48 Z" fill={coat} stroke={line} strokeWidth={1.8} strokeLinejoin="round" />
+      {/* the neck, stretched forward and down to the water (it goes behind the body, so the body's edge makes the shoulder) */}
+      <path d="M12 -52 Q30 -50 43 -31 L33 -21 Q24 -34 12 -36 Z" fill={coat} stroke={line} strokeWidth={2} strokeLinejoin="round" />
+      <ellipse cx={-3} cy={-41} rx={31} ry={15} fill={coat} stroke={line} strokeWidth={2.2} />
+      <path d="M-20 -54 Q-8 -46 -18 -30 Q-30 -34 -31 -44 Q-28 -52 -20 -54 Z" fill={patch} opacity={0.85} />
+      <ellipse cx={-6} cy={-31} rx={17} ry={4.5} fill="#ffffff" opacity={0.7} />
+      {/* the neck again over the body's edge at the top, so it joins smoothly */}
+      <path d="M14 -50 Q28 -48 39 -33 L32 -27 Q24 -38 14 -40 Z" fill={coat} />
+      {/* near legs */}
+      {[-24, 7].map((lx) => <g key={lx}><rect x={lx} y={-31} width={6.5} height={31} rx={3} fill={coat} stroke={line} strokeWidth={1.6} /><rect x={lx - 0.3} y={-6} width={7.1} height={6} rx={2} fill="#4a3a33" /></g>)}
+      {/* the head, down at the water: horns swept back, an ear, a little beard, and its eye shut happily */}
+      <path d="M36 -30 Q28 -42 17 -42 Q26 -37 31 -27 Z" fill={horn} stroke={darken(horn, 0.35)} strokeWidth={1.6} strokeLinejoin="round" />
+      <path d="M40 -32 Q35 -45 24 -46 Q32 -40 35 -29 Z" fill={lighten(horn, 0.15)} stroke={darken(horn, 0.35)} strokeWidth={1.6} strokeLinejoin="round" />
+      <ellipse cx={31} cy={-26} rx={9.5} ry={3.8} fill={coat} stroke={line} strokeWidth={1.6} transform="rotate(-28 31 -26)" />
+      <ellipse cx={42} cy={-20} rx={12} ry={9.2} fill={coat} stroke={line} strokeWidth={2} transform="rotate(65 42 -20)" />
+      <ellipse cx={46} cy={-11} rx={7} ry={5.6} fill={lighten(coat, 0.3)} stroke={line} strokeWidth={1.6} transform="rotate(65 46 -11)" />
+      <path d="M37 -13 Q35 -5 30 -2 Q32 -8 33 -14 Z" fill={darken(coat, 0.3)} />
+      <path d="M38.6 -23.6 q2.4 2.1 4.8 0" stroke="#2b2140" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+      <circle cx={48.6} cy={-8} r={1.1} fill={line} />
+    </g>
+  )
+}
+
 /** Hands pressed together over something held in front (figure units, pose "hold"): the two hands. */
 const Hands = ({ skin }: { skin: string }) => (
   <g>
@@ -565,10 +606,10 @@ function EveningSky() {
   )
 }
 
-// 3. "Moses prayed to God. God heard all that grumbling, but He still loved His people. God said, 'I will
-// rain bread from the sky for you!'"
-// A warm evening: Moses kneels to pray, Aaron prays beside him. God's glory shines in the cloud (Exodus
-// 16:10), and the family looks up at it in wonder.
+// 3. "God heard all that grumbling. But He still loved His people! God said to Moses, 'I will rain bread from
+// the sky for you!'"
+// A warm evening: God's glory shines in the cloud (Exodus 16:10). Moses kneels before it and listens, Aaron
+// beside him; the family looks up at it in wonder.
 const Page3 = () => (
   <Scene sky="glory" ground="none" clouds={false}>
     <EveningSky />
@@ -582,17 +623,16 @@ const Page3 = () => (
       <Sparkles spots={[[460, 120, 9], [626, 96, 11], [606, 236, 7], [466, 254, 8], [548, 56, 7]]} />
     </Tap>
     <Tap say="Thank You, God!" sfx="good">
-      <g className="dn-shut">
-        <Person x={160} y={424} s={0.94} look={AARON} pose="pray" blinkDelay={1.9} />
-      </g>
+      <LookingUp>
+        <Person x={160} y={424} s={0.94} look={AARON} pose="pray" blinkDelay={1.9}><EyesUp /></Person>
+      </LookingUp>
     </Tap>
     <Staff x1={200} y1={446} x2={306} y2={440} />
-    <Tap say="Dear God, Your people are hungry. Please help us." sfx="ding">
-      <g className="dn-shut">
-        <Kneel x={304} y={434} s={1.1} look={MOSES} pose="pray" />
-      </g>
+    <Tap say="Moses listened to God." sfx="ding">
+      <LookingUp>
+        <Kneel x={304} y={434} s={1.1} look={MOSES} pose="pray"><EyesUp /></Kneel>
+      </LookingUp>
     </Tap>
-    <ShutEyes />
     <Tap say="Bread from the sky? Wow!" sfx="sparkle">
       <LookingUp>
         <Person x={624} y={440} s={0.9} look={GIRL} pose="wave" blinkDelay={0.9}><EyesUp /></Person>
@@ -606,12 +646,12 @@ const Page3 = () => (
 )
 
 /** The quail flying in over the camp: [x, y, size]. */
-const FLOCK: [number, number, number][] = [[110, 104, 1.0], [226, 66, 1.1], [330, 136, 0.95], [426, 80, 1.2], [528, 150, 1.0], [616, 70, 1.2], [706, 124, 1.1], [764, 210, 0.9], [470, 216, 0.85], [268, 214, 0.85], [600, 236, 0.8]]
+const FLOCK: [number, number, number][] = [[110, 104, 0.85], [226, 66, 0.9], [330, 136, 0.8], [426, 80, 0.95], [528, 150, 0.85], [616, 70, 0.95], [706, 124, 0.9], [764, 210, 0.75], [470, 216, 0.72], [268, 214, 0.72], [600, 236, 0.68]]
 /** The quail on the ground all over the camp: [x, y, size, facing, pecking]. */
 const LANDED: [number, number, number, 'left' | 'right', boolean][] = [
-  [356, 334, 0.75, 'right', true], [456, 330, 0.75, 'left', false], [540, 340, 0.85, 'right', true], [610, 334, 0.8, 'left', false],
-  [690, 344, 0.9, 'left', true], [762, 336, 0.85, 'left', false], [560, 392, 1.1, 'right', false], [648, 404, 1.2, 'left', true],
-  [742, 396, 1.15, 'left', false], [600, 440, 1.3, 'right', false], [712, 446, 1.3, 'left', true],
+  [356, 334, 0.62, 'right', true], [456, 330, 0.62, 'left', false], [540, 340, 0.68, 'right', true], [610, 334, 0.65, 'left', false],
+  [690, 344, 0.7, 'left', true], [762, 336, 0.68, 'left', false], [560, 392, 0.8, 'right', false], [680, 404, 0.82, 'left', true],
+  [748, 396, 0.82, 'left', false], [600, 440, 0.88, 'right', false], [716, 446, 0.88, 'left', true],
 ]
 
 // 4. "That evening, God sent quail, lots and lots of little birds! They covered the whole camp. Now there
@@ -625,8 +665,8 @@ const Page4 = () => (
     <Sands far="#e7b88f" near="#d9a274" farY={298} nearY={368} />
     <FarCamp y={310} s={0.26} xs={[300, 400, 500, 600, 700, 790]} shift={1} />
     <CampTent x={140} y={378} s={0.66} />
-    <Quail x={110} y={290} s={0.95} facing="right" />
-    <Quail x={168} y={284} s={0.9} facing="left" blinkDelay={1} />
+    <Quail x={112} y={290} s={0.76} facing="right" />
+    <Quail x={166} y={284} s={0.72} facing="left" blinkDelay={1} />
     <Tap say="Flap, flap, flap! Here come the quail!" sfx="whoosh">
       {FLOCK.map(([fx, fy, fs], i) => (
         <g key={i} className="rs-bob" style={{ animationDelay: `${(i * 0.37) % 2.4}s` }}>
@@ -635,12 +675,12 @@ const Page4 = () => (
       ))}
     </Tap>
     {LANDED.slice(0, 6).map(([qx, qy, qs, f, peck], i) => <Quail key={i} x={qx} y={qy} s={qs} facing={f} peck={peck} blinkDelay={i * 0.4} />)}
-    <Tap say="Peep, peep! Hello!" sfx="pop">
+    <Tap say="Birds here, birds there, birds everywhere!" sfx="pop">
       {LANDED.slice(6).map(([qx, qy, qs, f, peck], i) => <Quail key={i} x={qx} y={qy} s={qs} facing={f} peck={peck} blinkDelay={i * 0.6} />)}
     </Tap>
     <Person x={56} y={434} s={0.84} look={MOM} pose="hold" holding="baby" blinkDelay={1.3} />
     <Person x={190} y={430} s={0.88} look={DAD} blinkDelay={2.6} />
-    <Tap say="Mmm! Dinner smells so good." sfx="pop">
+    <Tap say="God gave everyone plenty to eat!" sfx="good">
       <CookFire x={276} y={410} s={1.05} />
     </Tap>
     <Tap say="So many birds! Thank You, God!" sfx="good">
@@ -663,6 +703,10 @@ const Page5 = () => (
     <Mountains y={276} color="#e3b4c2" k={0.85} />
     <Sands far="#f3d8ac" near="#ecca94" farY={284} nearY={350} />
     <FarCamp y={300} s={0.26} xs={[300, 400, 500, 610, 712, 790]} shift={3} />
+    {/* God's people out in front of their tents, looking at the flakes */}
+    {[[372, 2], [404, 7, 1, 1], [446, 5, 0, 1], [476, 9, 1], [676, 3, 0, 1], [706, 6], [752, 1, 1, 1]].map(([fx, i, child, up]) => (
+      <Folk key={fx} x={fx} y={314} s={0.46} i={i} child={!!child} up={!!up} />
+    ))}
     <Tap say="Little white flakes, like frost!" sfx="sparkle">
       <MannaGround y0={300} y1={448} n={330} seed={11} clear={[[150, 360, 110, 16], [150, 404, 70, 12]]} glints={8} />
     </Tap>
@@ -688,13 +732,35 @@ const Page5 = () => (
   </Scene>
 )
 
-/** A thin round wafer of manna with a bite out of it (figure units, held in front: its middle at (x, y)). */
-const Wafer = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
-  <g transform={`translate(${x} ${y}) scale(${s})`}>
-    <path d="M-13 -2 A13 6.5 0 1 0 9 -6.5 Q6.5 -3.5 9.5 -1 Q5.5 -0.5 7 3 Q3 1.5 -13 -2 Z" fill={MANNA} stroke="#b8a888" strokeWidth={1.3} />
-    {[[-6, 0.5], [-1, 2.6], [-2, -2.2]].map(([dx, dy], i) => <circle key={i} cx={dx} cy={dy} r={0.9} fill="#d9ccb2" />)}
-  </g>
-)
+/**
+ * A round manna cracker seen face-on, with a bite out of its edge (top right), a honey-gold rim and a drip of
+ * honey, and little holes like a cracker's (figure units: its middle at (x, y), `r` its radius).
+ */
+function Cracker({ x, y, r = 17 }: { x: number; y: number; r?: number }) {
+  const id = `cr${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  const bites: [number, number, number][] = [[r * 0.5, -r * 0.92, r * 0.44], [r * 0.9, -r * 0.52, r * 0.4]]
+  const holes = [[-0.45, -0.1], [0, 0.05], [0.45, 0.1], [-0.25, 0.42], [0.22, 0.48], [-0.2, -0.4]]
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <defs>
+        <mask id={id} maskUnits="userSpaceOnUse" x={-r - 6} y={-r - 6} width={2 * r + 12} height={2 * r + 12}>
+          <rect x={-r - 6} y={-r - 6} width={2 * r + 12} height={2 * r + 12} fill="#fff" />
+          {bites.map(([bx, by, br], i) => <circle key={i} cx={bx} cy={by} r={br} fill="#000" />)}
+        </mask>
+      </defs>
+      <g mask={`url(#${id})`}>
+        <circle r={r} fill="#f2c25a" stroke="#c4882a" strokeWidth={1.6} />
+        <circle r={r - 3} fill={MANNA} />
+        <circle cx={-r * 0.3} cy={-r * 0.32} r={r * 0.36} fill="#ffffff" opacity={0.7} />
+        {holes.map(([hx, hy], i) => <circle key={i} cx={hx * r} cy={hy * r} r={1.4} fill="#e2cfa6" />)}
+      </g>
+      {/* honey dripping off its rim */}
+      <path d={`M${-r * 0.97} ${-r * 0.1} Q${-r * 1.06} ${r * 0.28} ${-r * 0.98} ${r * 0.42} Q${-r * 0.9} ${r * 0.52} ${-r * 0.84} ${r * 0.4} Q${-r * 0.84} ${r * 0.18} ${-r * 0.8} ${-r * 0.2} Z`} fill="#f2b33d" stroke="#c4882a" strokeWidth={1} />
+      {/* a few crumbs from the bite */}
+      {[[r * 1.08, -r * 1.02, 1.7], [r * 1.3, -r * 0.7, 1.4], [r * 1.24, -r * 1.24, 1.1]].map(([cx, cy, cr], i) => <circle key={i} cx={cx} cy={cy} r={cr} fill="#f7efd8" stroke="#d6c39a" strokeWidth={0.8} />)}
+    </g>
+  )
+}
 
 // 6. "Moses said, 'It is the bread God has given you. Gather just enough for today.' They called it manna. It
 // tasted like crackers made with honey. Yum!"
@@ -707,8 +773,9 @@ const Page6 = () => (
     <Mountains y={276} color="#d7b6c8" k={0.8} />
     <Sands far="#f2d6a4" near="#e9c58c" farY={284} nearY={350} />
     <FarCamp y={298} s={0.26} xs={[40, 140, 240, 340, 450, 560]} shift={4} />
-    <MannaGround y0={300} y1={448} n={240} seed={23} clear={[[140, 440, 120, 30], [380, 444, 120, 20], [490, 396, 40, 10]]} />
+    <MannaGround y0={300} y1={448} n={240} seed={23} clear={[[140, 440, 120, 30], [380, 444, 120, 20], [490, 396, 40, 10], [168, 398, 34, 8]]} />
     <Person x={496} y={396} s={0.78} look={GRANDPA} holding="stick" blinkDelay={2.2} />
+    <Grandma x={166} y={398} s={0.76} pose="hold" holding="baby" blinkDelay={0.4} />
     <Person x={236} y={420} s={0.92} look={DAD} pose="hold" blinkDelay={2.6}>
       <WovenBasket x={0} y={-63} w={54} k={1} seed={6} />
       <Hands skin={DAD.skin} />
@@ -718,7 +785,7 @@ const Page6 = () => (
       <WovenBasket x={136} y={410} w={44} k={0.6} seed={5} />
       <Flake x={126} y={404} r={3.4} />
     </Tap>
-    <Tap say="Manna means, what is it?" sfx="ding">
+    <Tap say="Manna means, what is it? What a funny name!" sfx="ding">
       <Person x={318} y={442} s={0.92} look={GIRL} pose="hold" blinkDelay={0.9}>
         <Bowl x={0} y={-68} w={34} k={1} />
         <Hands skin={GIRL.skin} />
@@ -726,7 +793,7 @@ const Page6 = () => (
     </Tap>
     <Tap say="Yum! It tastes like crackers made with honey!" sfx="chomp">
       <Laughing>
-        <Person x={414} y={448} s={1.0} look={BOY} pose="hold"><LaughFace /><Wafer x={2} y={-75} s={1.9} /><Hands skin={BOY.skin} /></Person>
+        <Person x={414} y={448} s={1.0} look={BOY} pose="hold"><LaughFace /><Cracker x={0} y={-79} r={18} /><Hands skin={BOY.skin} /></Person>
       </Laughing>
       <Heart x={414} y={314} s={0.45} color="#ffcf3f" />
       <Sparkles spots={[[360, 330, 6], [462, 372, 5]]} color="#ffe27a" />
@@ -753,14 +820,14 @@ const Page7 = () => (
     <CampTent x={634} y={372} s={0.74} cloth="#5f7f9a" stripe="#e6ecef" />
     <Tap say="Oops! I should have listened to God." sfx="wobble">
       <Laughing>
-        <Person x={572} y={430} s={1.0} look={NEIGHBOR} pose="point" facing="left" blinkDelay={0.3}>
-          <Yuck beard={NEIGHBOR.beardColor} />
+        <Person x={572} y={430} s={1.0} look={SAVER} pose="point" facing="left" blinkDelay={0.3}>
+          <Yuck beard={SAVER.beardColor} />
         </Person>
       </Laughing>
     </Tap>
     <Tap say="Pee-yew! Smelly, spoiled manna!" sfx="wobble">
       <ClayJar x={506} y={343} s={0.92} fill="spoiled" />
-      <Grip x={518} y={340} skin={NEIGHBOR.skin} />
+      <Grip x={518} y={340} skin={SAVER.skin} />
       <Stink x={504} y={330} s={1.3} />
     </Tap>
     <Tap say="Bzzz, bzzz!" sfx="whoosh">
@@ -792,11 +859,16 @@ const Page8 = () => (
     <Sands far="#f4dbaa" near="#eccb92" farY={288} nearY={352} />
     <FarCamp y={302} s={0.25} xs={[30, 120, 210, 590, 680, 770]} shift={2} />
     <Tap say="Fresh manna, every morning!" sfx="sparkle">
-      <MannaGround y0={304} y1={448} n={300} seed={41} clear={[[660, 372, 150, 18], [460, 400, 40, 10]]} glints={8} />
+      <MannaGround y0={304} y1={448} n={300} seed={41} clear={[[660, 372, 150, 18], [460, 400, 40, 10], [160, 400, 34, 8]]} glints={8} />
       <Sparkles spots={[[560, 330, 7], [610, 420, 6], [120, 330, 6]]} />
     </Tap>
     <CampTent x={666} y={374} s={0.72} />
     <Person x={466} y={402} s={0.8} look={GRANDPA} holding="stick" blinkDelay={2.2} />
+    <Grandma x={160} y={400} s={0.76} pose="hold" holding="baby" blinkDelay={0.4} />
+    <Person x={726} y={436} s={0.92} look={NEIGHBOR} pose="hold" blinkDelay={0.7}>
+      <WovenBasket x={0} y={-64} w={46} k={0.9} seed={17} />
+      <Hands skin={NEIGHBOR.skin} />
+    </Person>
     <Kneel x={96} y={436} s={0.86} look={MOM} pose="hold">
       <Bowl x={0} y={-71} w={36} k={0.8} />
       <Hands skin={MOM.skin} />
@@ -858,7 +930,7 @@ const Page9 = () => (
 // 10. "One day, there was no water, and everyone was thirsty. God told Moses to hit a big rock with his
 // staff. Moses did, and splash! Fresh water came pouring out!"
 // A rocky place: Moses touches the big rock with his staff, and water pours out of it into a pool. The
-// children splash, dad dips a jar, and a goat comes for a drink.
+// children cheer, dad has filled a jar, and a white goat drinks at the edge of the pool.
 const Page10 = () => (
   <Scene sky="day" ground="none">
     <Mountains y={262} color="#cfa3a8" k={1.1} />
@@ -867,7 +939,10 @@ const Page10 = () => (
       <RockSpring x={566} y={382} s={1.06} />
     </Tap>
     <Tap say="Maa! Slurp, slurp!" sfx="pop">
-      <Goat x={566} y={414} s={0.55} facing="left" />
+      {/* little ripples where it drinks */}
+      <ellipse cx={482} cy={396} rx={7} ry={1.8} fill="none" stroke="#ffffff" strokeWidth={1.6} opacity={0.85} />
+      <ellipse cx={482} cy={396} rx={12} ry={3} fill="none" stroke="#ffffff" strokeWidth={1.2} opacity={0.6} />
+      <DrinkingGoat x={514} y={400} s={0.62} />
     </Tap>
     <Kneel x={236} y={414} s={0.8} look={DAD} pose="hold">
       <ClayJar x={0} y={-62} s={0.9} fill="water" />
@@ -883,14 +958,14 @@ const Page10 = () => (
     <Tap say="Hooray! Water to drink!" sfx="good">
       <Person x={136} y={442} s={0.92} look={GIRL} pose="arms-up" blinkDelay={0.9} />
       <Laughing>
-        <Person x={476} y={446} s={0.94} look={BOY} pose="arms-up"><LaughFace /></Person>
+        <Person x={612} y={446} s={0.94} look={BOY} pose="arms-up"><LaughFace /></Person>
       </Laughing>
     </Tap>
   </Scene>
 )
 
-// 11. "For forty years, God fed His people with manna, every single morning. Aaron even kept some manna in a
-// jar, so they would always remember how God took care of them."
+// 11. "For forty years, God fed His people with manna, every single day. Aaron even kept some manna in a jar,
+// so they would always remember how God took care of them."
 // Sunrise over the whole camp, manna everywhere, people gathering it. Aaron holds the golden jar of manna.
 const Page11 = () => (
   <Scene sky="dawn" ground="none" clouds={false}>
@@ -900,7 +975,7 @@ const Page11 = () => (
     <Sands far="#f4dbaa" near="#ecca94" farY={280} nearY={340} />
     <FarCamp y={292} s={0.2} xs={[20, 80, 140, 200, 260, 540, 600, 660, 720, 780]} />
     <FarCamp y={318} s={0.28} xs={[60, 170, 280, 520, 630, 740]} shift={3} />
-    <Tap say="Fresh manna, every single morning!" sfx="sparkle">
+    <Tap say="Fresh manna, morning after morning!" sfx="sparkle">
       <MannaGround y0={322} y1={448} n={300} seed={53} glints={8} />
       {[[110, 352, 3], [178, 356, 7, 1], [610, 350, 5], [676, 356, 2, 1], [736, 348, 9]].map(([fx, fy, i, child]) => (
         <GatheringFolk key={fx} x={fx} y={fy} s={0.62} i={i} child={!!child} />
@@ -914,10 +989,10 @@ const Page11 = () => (
     <Tap say="A jar of manna, so we always remember!" sfx="sparkle">
       <Glow x={400} y={356} r={64} color="#fff3b0" />
       <Person x={400} y={436} s={1.04} look={AARON} pose="hold">
-        <MannaJar x={0} y={-20} s={0.7} />
+        <MannaJar x={0} y={-40} s={0.62} />
         <Hands skin={AARON.skin} />
       </Person>
-      <Sparkles spots={[[350, 330, 7], [452, 334, 8], [400, 296, 6]]} color="#ffe27a" />
+      <Sparkles spots={[[364, 352, 7], [436, 348, 7], [458, 312, 6]]} color="#ffe27a" />
     </Tap>
   </Scene>
 )
@@ -978,6 +1053,7 @@ const Page12 = () => (
     </Tap>
     <Sit look={GIRL} x={312} y={448} s={0.96} pose="pray" blinkDelay={0.9} />
     <Sit look={BOY} x={490} y={448} s={0.96} pose="pray" blinkDelay={1.6} />
+    <Sit look={LASS} x={646} y={448} s={0.94} pose="pray" blinkDelay={0.6} />
     <Tap say="Thank You, God, for taking care of me!" sfx="sparkle">
       <Kid x={400} y={452} s={1.08} />
     </Tap>

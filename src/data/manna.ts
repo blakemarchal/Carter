@@ -5,14 +5,15 @@ import { MANNA_GAME } from '../art/games/manna'
 // sentences for 4-year-olds, grace first, numbers in words, no emoji or symbols in anything spoken, and every
 // page's picture shows what its words say. Three visits of about 8 to 10 minutes (docs/GAME-PLAN.md §3.1):
 // the story, the adventure, the rescue. The same family from the Red Sea walks this story too.
-// Grace first: God hears all the grumbling and still feeds His people, every single day. Kept gentle and
-// funny: the spoiled manna is just smelly (no worms), with a buzzing fly.
+// Grace first: God hears all the grumbling, and without being asked He promises bread and feeds His people,
+// every single day (on the day of rest, with what they gathered the day before). Kept gentle and funny: the
+// spoiled manna is just smelly (no worms), with a buzzing fly.
 
 /** Visit 1: into the desert, hungry, God's promise, the quail, and the first morning of manna. */
 export const MANNA_STORY_1: StoryPage[] = [
   { scene: '🏜️☁️', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: "After God brought His people safely through the Red Sea, they walked on into the desert. Moses led the way, and God's tall cloud showed them where to go." },
   { scene: '☀️😠', bg: 'linear-gradient(#bfe6ff,#f3dcb0)', text: 'The desert was hot and dry, and soon all the food was gone. Tummies rumbled, and the people grumbled. "We are hungry! In Egypt, we had bread to eat!"' },
-  { scene: '🙏✨', bg: 'linear-gradient(#f9b4a8,#ffe6b0)', text: 'Moses prayed to God. God heard all that grumbling, but He still loved His people. God said, "I will rain bread from the sky for you!"' },
+  { scene: '☁️✨', bg: 'linear-gradient(#f9b4a8,#ffe6b0)', text: 'God heard all that grumbling. But He still loved His people! God said to Moses, "I will rain bread from the sky for you!"' },
   { scene: '🐦🌙', bg: 'linear-gradient(#6b5bb5,#ffa8b8)', text: 'That evening, God sent quail, lots and lots of little birds! They covered the whole camp. Now there was plenty of food for everyone.' },
   { scene: '🌅❄️', bg: 'linear-gradient(#ffb3c7,#ffe8b0)', text: 'The next morning, the ground was covered with little white flakes, like frost. Everyone came out of their tents to look. "What is it?" they said.' },
   { scene: '🧺😋', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Moses said, "It is the bread God has given you. Gather just enough for today." They called it manna. It tasted like crackers made with honey. Yum!' },
@@ -24,7 +25,7 @@ export const MANNA_STORY_2: StoryPage[] = [
   { scene: '🌅🧺', bg: 'linear-gradient(#ffb3c7,#ffe8b0)', text: 'But every morning, there was fresh manna on the ground again. Some people gathered a lot, and some gathered a little. And everyone had just enough!' },
   { scene: '😴⛺', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'On the sixth day, they gathered twice as much. Then on the seventh day, everyone rested, and the saved manna stayed fresh and yummy!' },
   { scene: '🪨💦', bg: 'linear-gradient(#bfe6ff,#f3dcb0)', text: 'One day, there was no water, and everyone was thirsty. God told Moses to hit a big rock with his staff. Moses did, and splash! Fresh water came pouring out!' },
-  { scene: '🌅🍯', bg: 'linear-gradient(#ffb3c7,#ffe8b0)', text: 'For forty years, God fed His people with manna, every single morning. Aaron even kept some manna in a jar, so they would always remember how God took care of them.' },
+  { scene: '🌅🍯', bg: 'linear-gradient(#ffb3c7,#ffe8b0)', text: 'For forty years, God fed His people with manna, every single day. Aaron even kept some manna in a jar, so they would always remember how God took care of them.' },
   { scene: '🙏💛', bg: 'linear-gradient(#ffc9a8,#fff0c4)', text: 'God gave His people just what they needed, every single day. And God takes care of you, too! He loves you, and He gives you what you need, every day.' },
 ]
 

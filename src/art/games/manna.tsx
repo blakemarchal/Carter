@@ -24,7 +24,8 @@ const Hands = ({ skin }: { skin: string }) => <g><Grip x={-8} y={-60} skin={skin
 /** The family gathering manna behind the basket: each one stops to smile and wave as it fills (`caught`). */
 function Family({ caught }: { caught: number }) {
   const done = caught >= GOAL
-  const y = 352
+  // (Far enough back that the full basket's pile, which comes up to about y 339, never hides anyone.)
+  const y = 337
   return (
     <g>
       {/* grandma: gathering into her bowl, then waving */}
@@ -46,9 +47,9 @@ function Family({ caught }: { caught: number }) {
       <Person x={668} y={y} s={0.58} look={GRANDPA} pose={caught >= 9 || done ? 'wave' : 'stand'} holding={caught >= 9 || done ? undefined : 'stick'} blinkDelay={2.2} />
       {done && (
         <g>
-          <Heart x={334} y={250} s={0.6} />
-          <Heart x={530} y={244} s={0.55} color="#ffcf3f" />
-          <Sparkles spots={[[240, 240, 8], [430, 226, 9], [630, 236, 8]]} color="#ffe27a" />
+          <Heart x={334} y={235} s={0.6} />
+          <Heart x={530} y={229} s={0.55} color="#ffcf3f" />
+          <Sparkles spots={[[240, 225, 8], [430, 211, 9], [630, 221, 8]]} color="#ffe27a" />
         </g>
       )}
     </g>
@@ -95,7 +96,7 @@ function Catcher({ fill }: { fill: number }) {
       {[-1, 1].map((d) => <path key={d} d={`M${d * 56} -3 Q${d * 74} -6 ${d * 70} 12`} stroke={line} strokeWidth={6} fill="none" strokeLinecap="round" />)}
       {[-1, 1].map((d) => <path key={`i${d}`} d={`M${d * 56} -3 Q${d * 74} -6 ${d * 70} 12`} stroke={c} strokeWidth={3} fill="none" strokeLinecap="round" />)}
       <ellipse cx={0} cy={0} rx={w / 2} ry={ry} fill={darken(c, 0.42)} stroke={line} strokeWidth={2.4} />
-      {fill > 0 && <MannaHeap x={0} y={5} w={112} h={44} k={fill} seed={2} r={6} />}
+      {fill > 0 && <MannaHeap x={0} y={5} w={112} h={33} k={fill} seed={2} r={6} />}
       <path d={front} fill={wick.fill} stroke={line} strokeWidth={2.8} strokeLinejoin="round" />
       {[0.38, 0.72].map((f) => <path key={f} d={`M${-side(f)} ${h * f + 5} Q0 ${h * f + 25} ${side(f)} ${h * f + 5}`} stroke={darken(c, 0.22)} strokeWidth={2.4} fill="none" />)}
       {[-0.64, -0.32, 0, 0.32, 0.64].map((f) => <path key={f} d={`M${f * w * 0.5} ${ry * Math.sqrt(1 - f * f)} L${f * bw} ${h + 9 - Math.abs(f) * 6}`} stroke={darken(c, 0.15)} strokeWidth={2} />)}

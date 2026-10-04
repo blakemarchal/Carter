@@ -260,7 +260,7 @@ export const PALS: PalDef[] = [
     id: 'quilly', species: 'quail', fruit: 'Love',
     stages: [{ name: 'Quilly', xp: 0 }, { name: 'Quailbell', xp: 100 }, { name: 'Morningwing', xp: 300 }],
     moves: { basic: { name: 'Morning Peep', fx: 'spark', icon: '🐦' }, brave: { name: 'Feather Flurry', fx: 'wind', icon: '🪶' }, super: { name: 'Daily Bread', fx: 'hearts', icon: '🍞' } },
-    intro: 'is a Love Pal! {name} remembers how God fed His people in the desert, with quail in the evening and bread from heaven every morning.',
+    intro: 'is a Love Pal! {name} remembers the desert mornings, when God sent bread from heaven for His people.',
   },
 ]
 
