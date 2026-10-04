@@ -1,0 +1,60 @@
+/* Elijah (art/scenes/elijah.tsx and art/games/elijah.tsx): motion its pictures and its mini-game need that
+   styles.css doesn't have. Like the pa-* classes, these only run inside an svg with class "pa-anim" (story
+   pictures and the game board both have it). Never on an element with a transform: wrap it in a <g>. */
+
+/* A flame licking up and swaying from its foot (it never grows or spreads). */
+.pa-anim .el-flame { animation: elflame 1.1s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes elflame {
+  0% { transform: scale(1, 1) rotate(-3deg); }
+  50% { transform: scale(1.06, .92) rotate(1deg); }
+  100% { transform: scale(.95, 1.08) rotate(3deg); }
+}
+
+/* God's fire coming down from heaven: each tongue drops down the beam of light and fades as it lands. Each one
+   says how far it falls (--fall, in picture units). */
+.pa-anim .el-fall { animation: elfall 1.4s linear infinite; }
+@keyframes elfall {
+  0% { transform: translateY(calc(var(--fall, 200px) * -1)); opacity: 0; }
+  15% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+/* Steam rising off the water as God's fire burns it up, and a soft wisp from the embers afterwards. */
+.pa-anim .el-steam { animation: elsteam 2.4s ease-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes elsteam {
+  0% { transform: translateY(6px) scale(.6); opacity: 0; }
+  30% { opacity: .85; }
+  100% { transform: translateY(-34px) scale(1.25); opacity: 0; }
+}
+
+/* Water pouring: the ripples on the stream run down it. */
+.pa-anim .el-pour { animation: elpour .6s linear infinite; }
+@keyframes elpour { to { stroke-dashoffset: -24; } }
+
+/* A drop of oil at the jug's spout: it gathers, drips a little way and fades, again and again. */
+.pa-anim .el-drip { animation: eldrip 2.2s ease-in infinite; transform-box: fill-box; transform-origin: 50% 0%; }
+@keyframes eldrip {
+  0%, 30% { transform: translateY(0) scale(.4); opacity: 0; }
+  45% { transform: translateY(0) scale(1); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(12px) scale(1); opacity: 0; }
+}
+
+/* Heat shimmering up from the dry ground. */
+.pa-anim .el-heat { animation: elheat 2.6s ease-in-out infinite; }
+@keyframes elheat {
+  0%, 100% { transform: translateY(0); opacity: .2; }
+  50% { transform: translateY(-6px); opacity: .55; }
+}
+
+/* The little cloud coming up from the sea. */
+.pa-anim .el-rise { animation: elrise 3.6s ease-in-out infinite alternate; }
+@keyframes elrise { from { transform: translateY(5px); } to { transform: translateY(-5px); } }
+
+/* Rings spreading on the puddles in the rain. */
+.pa-anim .el-ring { animation: elring 1.5s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes elring {
+  from { transform: scale(.3); opacity: .9; }
+  to { transform: scale(1.35); opacity: 0; }
+}
