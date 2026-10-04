@@ -1,0 +1,47 @@
+/* Fishers of People (art/scenes/fishers.tsx, art/games/fishers.tsx, art/items/isl-fishers.tsx): motion its
+   pictures and its game need that styles.css doesn't have. Like the pa-* classes, these only run inside an
+   svg with class "pa-anim" (story pictures and the game board both have it). Never on an element with a
+   transform. */
+
+/* A fish's tail swishing as it swims. */
+.pa-anim .fs-wag { animation: fswag .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes fswag { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+
+/* A splash where a fish jumped out of the water or dived back in: it springs up, falls back and is gone a
+   while. (Set its animation-delay to time it with its fish.) */
+.pa-anim .fs-splash { animation: fssplash 3.6s ease-out infinite both; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes fssplash {
+  0% { transform: scale(.25, .1); opacity: 0; }
+  6% { opacity: 1; }
+  18% { transform: scale(1, 1); opacity: 1; }
+  34% { transform: scale(1.12, .45); opacity: 0; }
+  100% { transform: scale(1.12, .45); opacity: 0; }
+}
+
+/* A little fish far off, leaping up out of the water in an arc and diving back in (3.6 s, like its splashes:
+   it leaves the water at 0% and goes back in at 40%). */
+.pa-anim .fs-leap { animation: fsleap 3.6s linear infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes fsleap {
+  0% { transform: translate(-16px, 8px) rotate(-55deg); opacity: 0; }
+  3% { opacity: 1; }
+  12% { transform: translate(-9px, -16px) rotate(-35deg); }
+  20% { transform: translate(0, -24px) rotate(0deg); }
+  28% { transform: translate(9px, -16px) rotate(35deg); }
+  37% { transform: translate(16px, 6px) rotate(58deg); opacity: 1; }
+  40% { transform: translate(17px, 12px) rotate(62deg); opacity: 0; }
+  100% { transform: translate(17px, 12px) rotate(62deg); opacity: 0; }
+}
+
+/* Bubbles rising through the water and popping at the top. */
+.pa-anim .fs-rise { animation: fsrise 4.2s linear infinite both; }
+@keyframes fsrise { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: .95; } 80% { opacity: .8; } 100% { transform: translateY(-150px); opacity: 0; } }
+
+/* Fish far off, swimming to and fro. */
+.pa-anim .fs-swim { animation: fsswim 5s ease-in-out infinite alternate; }
+@keyframes fsswim { from { transform: translate(-10px, 2px); } to { transform: translate(12px, -3px); } }
+
+/* Sunlight shimmering down through the water. */
+.pa-anim .fs-shimmer { animation: fsshimmer 4.5s ease-in-out infinite alternate; }
+@keyframes fsshimmer { from { opacity: .55; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) { .pa-anim [class*="fs-"] { animation: none !important; } }
