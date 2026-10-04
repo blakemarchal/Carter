@@ -414,7 +414,7 @@ export const PALS: PalDef[] = [
   {
     id: 'rocky', species: 'stone', fruit: 'Joy',
     stages: [{ name: 'Rocky', xp: 0 }, { name: 'Cobblesong', xp: 100 }, { name: 'Singstone', xp: 300 }],
-    moves: { basic: { name: 'Pebble Toss', fx: 'rock', icon: '🪨' }, brave: { name: 'Tumble Roll', fx: 'roll', icon: '💫' }, super: { name: 'Hosanna Shout', fx: 'stars', icon: '🎉' } },
+    moves: { basic: { name: 'Pebble Toss', fx: 'rock', icon: '🪨' }, brave: { name: 'Tumble Roll', fx: 'roll', icon: '💫' }, super: { name: 'Hosanna Shout', fx: 'stars', icon: '📣' } },
     intro: 'is a Joy Pal! {name} used to sit grumpy and silent by the road, but now {name} cries out for joy, because Jesus said even the stones would shout His praise!',
   },
   {
