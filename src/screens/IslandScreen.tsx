@@ -106,10 +106,10 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       completeIsland(island.id)
       backupNow()
     }
-    // A pause ends a visit: it counts toward today's voyage, and next time starts after it.
+    // A pause ends a visit: it counts toward today's voyage (unless it's a free one), and next time starts after it.
     if (current.kind === 'pause') {
       count(`visit:${island.id}`)
-      if (!wasDone) update((p) => ({ ...p, voyage: countVisit(p.voyage, today()) }))
+      if (!wasDone && !current.free) update((p) => ({ ...p, voyage: countVisit(p.voyage, today()) }))
     }
     const saved = step === reward ? 0 : current.kind === 'pause' ? step + 1 : step
     update((p) => ({
@@ -186,7 +186,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       body = <FriendlyBattle foeId={current.foe} foeIntro={current.intro} island={island.id} onDone={next} />
       break
     case 'pause':
-      body = <VisitPause line={current.line} onDone={exit} onContinue={next} replay={wasDone} />
+      body = <VisitPause line={current.line} onDone={exit} onContinue={next} replay={wasDone} free={current.free} />
       break
     case 'reward':
       body = <Reward palId={current.pal} sticker={current.sticker} stickerName={current.stickerName} stars={stars} onDone={exit} />

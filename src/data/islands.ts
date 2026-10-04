@@ -76,7 +76,11 @@ export type Step =
   /** Friendly battle against a grumpy creature (a Pal id), who joins the Ark at the end. */
   | { kind: 'battle'; foe: string; intro: string }
   /** The end of a visit (an island has up to three): a little cliffhanger, then back to the map. */
-  | { kind: 'pause'; line: string }
+  /**
+   * The end of a visit. `free`: it never ends the day's voyage. It isn't counted, and "Keep going!" is always
+   * offered (Easter Morning's first visit ends at the cross, so the happy ending is never a day away).
+   */
+  | { kind: 'pause'; line: string; free?: boolean }
   /**
    * The island's reward: a new Pal and a sticker. Always the last step. The sticker is an emoji, or the id
    * of a drawing (art/items) for a thing no emoji names, like baby Moses' basket.

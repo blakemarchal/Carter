@@ -230,3 +230,9 @@ it('every built island has its place on the voyage', () => {
   const placed = new Set(SEAS.flatMap((s) => s.islands.map((i) => i.id)))
   for (const isl of ISLANDS) expect(placed.has(isl.id), isl.id).toBe(true)
 })
+
+it("Easter Morning's first visit never ends the day: it ends at the cross", () => {
+  const steps = LOADED.find((i) => i.id === 'easter')!.steps
+  const first = steps.find((s) => s.kind === 'pause')
+  expect(first?.kind === 'pause' && first.free).toBe(true)
+})

@@ -17,13 +17,16 @@ export function BuddyWave() {
 }
 
 /**
- * `onContinue`: go straight on to the next visit, offered on a replay (`replay`) or when today's
- * voyage has a visit left after this one. (This screen opens just before the visit is counted.)
+ * `onContinue`: go straight on to the next visit, offered on a replay (`replay`), after a pause that
+ * isn't counted (`free`), or when today's voyage has a visit left after this one. (This screen opens
+ * just before the visit is counted.)
  */
-export function VisitPause({ line, onDone, onContinue, replay }: { line: string; onDone: () => void; onContinue: () => void; replay: boolean }) {
+export function VisitPause({ line, onDone, onContinue, replay, free }: {
+  line: string; onDone: () => void; onContinue: () => void; replay: boolean; free?: boolean
+}) {
   const [more] = useState(() => {
     const p = getProgress()
-    return replay || visitsLeft(p.voyage, today(), p.dailyVisits) > 1
+    return replay || !!free || visitsLeft(p.voyage, today(), p.dailyVisits) > 1
   })
   useEffect(() => {
     sfx.sparkle()

@@ -49,7 +49,8 @@ export const EASTER_STEPS: Step[] = [
   },
   // (The intro fits every level: letter sounds, reading words, finding words.)
   { kind: 'practice', skill: 'reading', title: 'Love Words', decor: '💛', intro: "Jesus loves His friends so much, and He loves you, too! Let's play some word games together." },
-  { kind: 'pause', line: "Jesus' friends were so sad. But that was not the end of the story! Something wonderful is coming on Sunday morning. Let's find out next time!" },
+  // (Free: part one ends at the cross, so it never uses up the day's last visit. "Keep going!" is always there.)
+  { kind: 'pause', free: true, line: "Jesus' friends were so sad. But that was not the end of the story! Something wonderful is coming on Sunday morning. Let's find out next time!" },
   // Visit 2: the adventure
   { kind: 'story', title: 'Easter Morning', pages: EASTER_STORY_2, first: EASTER_STORY_1.length },
   {
