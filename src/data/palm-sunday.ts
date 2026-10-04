@@ -24,7 +24,7 @@ export const PALM_SUNDAY_STORY_2: StoryPage[] = [
   { scene: '🧥🌴', bg: 'linear-gradient(#bfe6ff,#e6ffd9)', text: 'Remember Jesus, riding the little donkey? Lots and lots of people came! Some spread their coats on the road for Him. Others cut branches from the palm trees and laid them down, too.' },
   { scene: '🌴🙌', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Everyone waved palm branches and shouted, "Hosanna! Blessed is he who comes in the name of the Lord!" Hosanna is a happy shout that praises God.' },
   { scene: '😠🪨', bg: 'linear-gradient(#bfe6ff,#f6e2b8)', text: 'But some grumpy leaders did not like it. "Teacher, tell them to be quiet!" they said. Jesus said, "If they were quiet, even the stones would shout!"' },
-  { scene: '🏛️🎶', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Then Jesus went into God\'s house, the temple. Children were singing there, "Hosanna! Hosanna!" Jesus was so glad. God loves to hear children praise Him!' },
+  { scene: '🏛️🎶', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Then Jesus went into God\'s house, the temple. Children were singing there, "Hosanna! Hosanna!" Jesus was so glad. He said God loves to hear children praise Him!' },
   { scene: '🐴🕊️', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Kings usually rode big, strong horses. But Jesus rode a little donkey! He is a gentle King, and He came to bring peace.' },
   { scene: '👑💛', bg: 'linear-gradient(#ffe0f0,#fff3c9)', text: 'Jesus is our King, too! He loves us so much. We can sing "Hosanna!" to Him, just like the children did.' },
 ]
@@ -56,9 +56,9 @@ export const PALM_SUNDAY_STEPS: Step[] = [
   // ----- Visit 2: the adventure -----
   { kind: 'story', title: 'Hosanna to the King', pages: PALM_SUNDAY_STORY_2, first: PALM_SUNDAY_STORY_1.length },
   {
-    // (The palm branches the people laid on the road, as on page six.)
+    // (Palm branches like the ones the people waved and laid on the road, on pages six and seven.)
     kind: 'count', title: 'Palm Branches for Jesus',
-    intro: "The people laid palm branches on the road for Jesus. Let's count palm branches into the basket!",
+    intro: "Let's gather palm branches in the basket, so everyone can wave one for Jesus!",
     item: { emoji: '🌿', say: 'palm branch', art: 'palm-branch' }, plural: 'palm branches', basket: '🧺', basketArt: 'basket', into: 'the basket', rounds: [3, 6],
     done: 'So many palm branches! Now everyone can wave them for Jesus. Hosanna!',
   },

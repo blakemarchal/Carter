@@ -150,11 +150,12 @@ export function Donkey({ x, y, s = 1, flip, coats, rider, seat, hands = 2, rest 
       </g>
       <ellipse cx={74} cy={-104} rx={4} ry={2.5} fill="#ff7fb0" opacity={0.5} />
       {lead && (
+        // (a little donkey far away gets a thicker rope, so it still shows)
         <g fill="none" stroke="#8a5a2e" strokeLinecap="round" strokeLinejoin="round">
           {/* the rope halter: round the nose, and up behind the eye to the ear */}
-          <path d="M73 -101 Q88 -113 100 -101" strokeWidth={3} />
-          <path d="M74 -100 L56 -121" strokeWidth={2.6} />
-          <path d={`M80 -88 Q${f1((80 + lead[0]) / 2)} ${f1(Math.max(-88, lead[1]) + 26)} ${f1(lead[0])} ${f1(lead[1])}`} strokeWidth={2.4} />
+          <path d="M73 -101 Q88 -113 100 -101" strokeWidth={3 * Math.max(1, 0.5 / s)} />
+          <path d="M74 -100 L56 -121" strokeWidth={2.6 * Math.max(1, 0.5 / s)} />
+          <path d={`M80 -88 Q${f1((80 + lead[0]) / 2)} ${f1(Math.max(-88, lead[1]) + 26)} ${f1(lead[0])} ${f1(lead[1])}`} strokeWidth={2.4 * Math.max(1, 0.5 / s)} />
           <circle cx={80} cy={-89} r={2.6} strokeWidth={2} />
         </g>
       )}
@@ -336,7 +337,10 @@ export function BranchOnRoad({ x, y, len = 70, angle = 0 }: { x: number; y: numb
   )
 }
 
-/** A little heap of smooth stones by the road ("even the stones would shout!"): (x, y) = the middle of its foot. */
+/**
+ * A little heap of smooth stones by the road ("even the stones would shout!"): (x, y) = the middle of its foot. The one on
+ * top at the back has a little tuft of green moss, like Rocky's.
+ */
 export function StonePile({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   // [x, y, rx, ry, color], back ones first
   const stones: [number, number, number, number, string][] = [
@@ -352,6 +356,8 @@ export function StonePile({ x, y, s = 1 }: { x: number; y: number; s?: number })
           <circle cx={sx + rx * 0.3} cy={sy + ry * 0.2} r={1.4} fill={darken(c, 0.25)} />
         </g>
       ))}
+      <path d="M-29 -38 Q-30 -44 -24 -45 Q-21 -50 -15 -47 Q-10 -50 -6 -45 Q-1 -43 -3 -38 Q-16 -46 -29 -38 Z" fill="#7cb35a" stroke="#4f8a3a" strokeWidth={1.8} strokeLinejoin="round" />
+      <path d="M-22 -45 q2 -2 4 0 M-12 -46 q2 -2 4 0" stroke="#a8d67e" strokeWidth={1.4} fill="none" strokeLinecap="round" />
     </g>
   )
 }
@@ -732,7 +738,8 @@ function Page1() {
       <path d="M0 316 Q200 290 400 314 Q600 336 800 324 L800 450 L0 450 Z" fill="#a8cf8e" />
       {/* the road, from the city gate down round the hill and along the front */}
       <path d="M482 294 Q508 302 540 322 Q580 350 560 372 Q530 396 420 408 Q260 422 110 430 Q30 436 -30 440 L-30 452 L250 452 Q420 440 520 424 Q630 404 634 368 Q636 336 580 310 Q530 290 494 290 Z" fill="#ecd4a4" stroke="#d8b97e" strokeWidth={2} strokeLinejoin="round" />
-      <Palm x={34} y={340} s={0.78} />
+      {/* (the palm on the left stands on the grass at the edge, behind James) */}
+      <Palm x={14} y={432} s={1} />
       <Palm x={734} y={436} s={0.86} />
       <Tap say="Happy Passover! We're going to the feast, too!" sfx="ding">
         <Person x={498} y={298} s={0.21} look={CHILDREN[1]} blinkDelay={0.2} />
@@ -743,7 +750,7 @@ function Page1() {
         <Person x={578} y={384} s={0.44} look={CHILDREN[4]} pose="wave" blinkDelay={0.9} />
         <Person x={608} y={388} s={0.46} look={TOWNSFOLK[3]} holding="stick" blinkDelay={0.5} />
       </Tap>
-      <Friend who="james" x={62} y={436} s={0.88} blinkDelay={1.4} />
+      <Friend who="james" x={70} y={436} s={0.88} blinkDelay={1.4} />
       <Friend who="john" x={154} y={440} s={0.88} blinkDelay={0.6} />
       <Tap say="Come on, friends! We're going to Jerusalem."><Jesus x={250} y={440} s={0.92} pose="wave" blinkDelay={0.2} /></Tap>
       <Tap say="Look! I can see the city!"><Friend who="peter" x={348} y={440} s={0.88} pose="point" reach={[null, [52, -122]]} blinkDelay={1.1} /></Tap>
@@ -769,7 +776,7 @@ function Page2() {
       <MudHouse x={744} y={246} w={60} h={42} door={-0.1} win={null} />
       <Tap say="Hee-haw! Here I am!" sfx="wobble">
         <Post x={612} y={262} s={0.3} />
-        <Donkey x={640} y={262} s={0.24} flip blinkDelay={1.2} />
+        <Donkey x={640} y={262} s={0.24} flip lead={[117, -84]} blinkDelay={1.2} />
       </Tap>
       <path d="M0 330 Q200 300 420 322 Q620 344 800 334 L800 450 L0 450 Z" fill="#a8cf8e" />
       <OliveTree x={612} y={352} s={0.62} />
@@ -803,7 +810,7 @@ function Page3() {
       </Tap>
       <Friend who="peter" x={120} y={436} s={0.98} reach={[null, [60, -70]]} blinkDelay={0.3} />
       <Tap say="The Lord needs it."><Friend who="john" x={470} y={438} s={0.98} pose="open" blinkDelay={1.1} /></Tap>
-      <Tap say="Why are you untying our donkey?"><Figure x={584} y={438} s={1} look={OWNER} facing="left" pose="open" mood="wow" blinkDelay={0.6} /></Tap>
+      <Tap say="Why are you untying our donkey?"><Figure x={598} y={438} s={1} look={OWNER} facing="left" pose="open" mood="wow" blinkDelay={0.6} /></Tap>
       <Tap say="The Lord needs it? Then you may take it!"><Figure x={724} y={436} s={0.98} look={OWNER_WIFE} facing="left" holding="jar" blinkDelay={1.5} /></Tap>
       <Emoji e="🐔" x={530} y={424} size={40} />
     </Scene>
@@ -825,7 +832,9 @@ function Page4() {
       <OliveTree x={560} y={320} s={0.6} />
       <Road pts={[[-30, 410, 60], [200, 404, 66], [420, 410, 70], [620, 418, 66], [830, 412, 60]]} />
       <Friend who="andrew" x={70} y={434} s={0.94} mood="joy" blinkDelay={0.4} />
-      <Tap say="Here, take my coat, too!"><Friend who="james" x={160} y={438} s={0.94} pose="open" blinkDelay={1.2} /></Tap>
+      <Tap say="Here, take my coat, too!">
+        <Friend who="james" x={160} y={438} s={0.94} pose="present" item={<HeldCoat cloth="#efe2c0" stripe="#5f8a4f" />} blinkDelay={1.2} />
+      </Tap>
       <Tap say="Hee-haw! I get to carry Jesus, on a soft seat of coats!" sfx="wobble">
         <JesusOnDonkey x={372} y={430} s={1.18} lead={[162, -52]} blinkDelay={0.3} />
       </Tap>
@@ -873,10 +882,14 @@ function Page6() {
       <path d="M0 262 Q200 236 420 258 T800 250 L800 450 L0 450 Z" fill="#b8d6b0" />
       <CityWall x0={430} x1={820} y={316} h={92} gx={668} through={<rect x={620} y={160} width={100} height={160} fill="#efdcb2" />} />
       <path d="M0 314 Q220 296 440 316 L820 316 L820 450 L0 450 Z" fill="#a8cf8e" />
-      <Palm x={64} y={330} s={1.02} />
+      {/* (the palm on the left stands on the grass by the road, its shadow at its foot) */}
+      <ellipse cx={42} cy={393} rx={26} ry={5} fill="#000" opacity={0.1} />
+      <Palm x={40} y={390} s={1.02} />
       <Palm x={330} y={318} s={0.8} />
       <Road pts={[[-30, 424, 64], [200, 412, 62], [420, 384, 52], [560, 352, 40], [668, 318, 30]]} />
-      <Crowd rows={[[330, 404, 626, 6, 0.58], [344, 452, 640, 4, 0.64]]} seed={11} skip={[[640, 700]]} />
+      {/* lots and lots of people, coming along the road and lining its far side */}
+      <Crowd rows={[[318, 390, 640, 7, 0.54], [330, 404, 626, 6, 0.58], [344, 452, 640, 4, 0.64]]} seed={11} skip={[[640, 700]]} />
+      <Crowd rows={[[340, 232, 392, 4, 0.62], [356, 252, 424, 5, 0.68]]} seed={40} />
       <Tap say="A soft, colorful road for Jesus!" sfx="pop">
         <CoatOnRoad x={292} y={404} s={0.9} cloth="#7cb0e0" stripe="#fff4d6" tilt={-4} />
         <CoatOnRoad x={466} y={372} s={0.72} cloth="#e07a8f" stripe="#ffe9a8" tilt={-10} />
@@ -905,7 +918,8 @@ function Page7() {
       <CityWall x0={480} x1={820} y={312} h={96} gx={670} through={<rect x={620} y={160} width={100} height={160} fill="#efdcb2" />} />
       <path d="M0 300 Q240 284 480 306 L820 312 L820 450 L0 450 Z" fill="#a8cf8e" />
       <Tap say="Hosanna! Hosanna!" sfx="ding">
-        <Crowd rows={[[318, 16, 470, 10, 0.72], [342, 30, 500, 9, 0.8]]} seed={3} />
+        {/* (nobody straight behind Jesus and the donkey's head, where only an arm or a branch would show) */}
+        <Crowd rows={[[318, 16, 470, 10, 0.72], [342, 30, 500, 9, 0.8]]} seed={3} skip={[[330, 486]]} />
         <Crowd rows={[[338, 560, 790, 4, 0.78]]} seed={21} skip={[[628, 712]]} />
       </Tap>
       <Road pts={[[-30, 430, 70], [200, 418, 70], [420, 392, 60], [580, 352, 44], [670, 314, 34]]} />
@@ -937,7 +951,7 @@ function Page8() {
       <path d="M0 250 Q200 230 420 252 T800 244 L800 450 L0 450 Z" fill="#b8d6b0" />
       <CityWall x0={-20} x1={820} y={300} h={84} gx={110} through={<rect x={60} y={160} width={100} height={150} fill="#efdcb2" />} />
       <path d="M0 296 L820 300 L820 450 L0 450 Z" fill="#a8cf8e" />
-      <Tap say="Hosanna! Hosanna!" sfx="ding"><Crowd rows={[[322, 20, 440, 9, 0.72]]} seed={7} /></Tap>
+      <Tap say="Hosanna! Hosanna!" sfx="ding"><Crowd rows={[[322, 20, 440, 9, 0.72]]} seed={7} skip={[[250, 360]]} /></Tap>
       <Road pts={[[-30, 418, 70], [260, 414, 70], [520, 416, 66], [830, 410, 62]]} />
       <BranchOnRoad x={70} y={424} len={80} angle={4} />
       <Tap say="Even the stones would shout!"><JesusOnDonkey x={300} y={426} s={1.06} flip mood="happy" reach={[[-60, -104], null]} blinkDelay={0.4} /></Tap>
@@ -952,7 +966,7 @@ function Page8() {
 }
 
 // 9. "Then Jesus went into God's house, the temple. Children were singing there, "Hosanna! Hosanna!" Jesus was so glad.
-//    God loves to hear children praise Him!"
+//    He said God loves to hear children praise Him!"
 // The courts of God's house (the temple in the middle, porches of columns either side). Children sing with palm
 // branches, music notes floating up; Jesus opens His arms, glad. Doves fly over the temple.
 function Page9() {
@@ -1003,9 +1017,10 @@ function Page10() {
       <Tap say="Coo! Peace to you!" sfx="pop"><Dove x={250} y={106} s={0.9} /></Tap>
       <Tap say="I am a gentle King. I came to bring peace."><JesusOnDonkey x={262} y={430} s={1.16} blinkDelay={0.3} /></Tap>
       <Tap say="Kings ride big, strong horses!" sfx="ding">
-        <Dream x={444} y={34} w={320} h={206} from={[606, 330]} sky="#fff4d8">
-          <path d="M430 200 Q600 186 790 202 L790 260 L430 260 Z" fill="#c9dca0" />
-          <BigHorse x={612} y={222} s={0.58} rider={KING} blinkDelay={0.8} />
+        {/* (the big horse is drawn bigger than the little donkey) */}
+        <Dream x={418} y={22} w={356} h={262} from={[606, 330]} sky="#fff4d8">
+          <path d="M400 244 Q600 230 800 246 L800 310 L400 310 Z" fill="#c9dca0" />
+          <BigHorse x={604} y={270} s={0.8} rider={KING} blinkDelay={0.8} />
         </Dream>
       </Tap>
       <Tap say="A King on a little donkey!"><Figure x={606} y={440} s={1.02} look={CHILDREN[3]} facing="left" mood="wow" blinkDelay={1} /></Tap>

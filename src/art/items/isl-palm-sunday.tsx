@@ -192,8 +192,9 @@ export function BigHorse({ x, y, s = 1, flip, rider, riderKids, blinkDelay = 0 }
       <path d="M-58 -102 Q-6 -88 46 -102" stroke={lighten(HORSE, 0.18)} strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.5} />
       <path d="M-64 -158 Q-44 -136 -52 -100 M44 -150 Q58 -128 54 -100" stroke={darken(HORSE, 0.12)} strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.6} />
       {/* the neck, and the mane along it */}
-      <path d="M20 -150 Q52 -200 78 -234 L124 -210 Q102 -166 72 -98 Z" fill={coat.fill} />
-      <path d="M124 -210 Q102 -166 72 -98" stroke={line} strokeWidth={3} fill="none" strokeLinecap="round" />
+      {/* (its front edge curves down into the chest, ending inside the body) */}
+      <path d="M20 -150 Q52 -200 78 -234 L124 -210 Q100 -164 60 -112 Z" fill={coat.fill} />
+      <path d="M124 -210 Q100 -164 60 -112" stroke={line} strokeWidth={3} fill="none" strokeLinecap="round" />
       <path d="M16 -150 Q30 -166 34 -182 Q42 -188 46 -202 Q54 -206 58 -220 Q66 -224 72 -238 Q80 -242 88 -248 L84 -232 Q66 -206 48 -176 Q36 -160 28 -144 Z"
         fill={mane.fill} stroke={ink(MANE)} strokeWidth={2.2} strokeLinejoin="round" />
       {/* the ears (the far one darker, behind), the head with its white blaze and pale muzzle, and the forelock */}

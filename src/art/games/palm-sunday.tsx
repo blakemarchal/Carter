@@ -29,7 +29,9 @@ const LAST = PALM_SUNDAY_TUNE[PALM_SUNDAY_TUNE.length - 1][0]
 // (400, 150), so the parade is on the left: the city gate at the far left, Jesus on the donkey in the middle of the road,
 // the crowd behind and in front. The right is open sky and the road coming in, with only small children low down (the
 // "again, or go on?" buttons come up at the bottom right).
-const X0 = 450, X1 = 330 // where the donkey walks from and to, along the road
+// The donkey walks from X0 to X1 along the road: it starts with Jesus' raised hand just clear of the circle, and it stops
+// with its head to the right of the boy's palm branch, so the branch never covers its face.
+const X0 = 492, X1 = 398
 const Y = 410
 
 /** Where the sparkles twinkle round the parade, one more for each note played in time. */
@@ -81,7 +83,7 @@ function ParadeBackdrop({ beat, hits }: { beat: number; hits: number }) {
   const swing = moving ? (9 + 1.4 * h) * Math.cos(Math.PI * b) : 0
   const sway = (i: number) => (done ? 0 : i % 2 ? swing : -swing)
   const hop = moving && hits >= 3 ? Math.min(14, 5 + 1.2 * (hits - 3)) * Math.abs(Math.sin(Math.PI * b)) : 0
-  const wave = moving ? 9 * Math.sin(Math.PI * b) : 0 // (Jesus' hand, waving; at rest again when the walk ends)
+  const wave = moving ? 7 * Math.sin(Math.PI * b) : 0 // (Jesus' hand, waving; at rest again when the walk ends)
   const burst = Math.max(0, Math.min(1, (b - LAST - 0.5) / 2)) // the leaves flying up at the end
   const e = 1 - (1 - burst) ** 3
   const notes = 1 + Math.min(h, 7)
@@ -96,10 +98,10 @@ function ParadeBackdrop({ beat, hits }: { beat: number; hits: number }) {
       {/* Jesus on the little donkey, walking up the road to the gate */}
       <g transform={`translate(0 ${(-lift).toFixed(2)})`}>
         <JesusOnDonkey x={x} y={Y} s={1.02} flip step={step} mood={done ? 'joy' : 'happy'}
-          reach={[[-38 - wave, -126 + Math.abs(wave) * 0.3], null]} blinkDelay={0.4} />
+          reach={[[-32 - wave, -128 + Math.abs(wave) * 0.3], null]} blinkDelay={0.4} />
       </g>
       {/* the front of the crowd: a man with a palm branch, a girl with her tambourine, and a boy jumping for joy */}
-      <PalmWaver x={44} y={446} s={0.98} look={TOWNSFOLK[1]} cheer={done} sway={sway(1)} blinkDelay={0.6} />
+      <PalmWaver x={58} y={446} s={0.98} look={TOWNSFOLK[1]} cheer={done} sway={sway(1)} blinkDelay={0.6} />
       <g transform={`translate(0 ${(-hop).toFixed(2)})`}>
         <Figure x={132} y={448} s={1} look={CHILDREN[0]} pose="stand" mood="joy" reach={[[-30, -60], [38, -130]]} blinkDelay={1.2}
           item={<g transform={`translate(38 -130) rotate(${shake.toFixed(1)})`}><Tambourine /></g>} />
