@@ -145,6 +145,28 @@ Run `./deploy/deploy.sh` (or `.\deploy\deploy.ps1`) again. It rebuilds, swaps th
 
 **On the iPad:** the app checks for a new version when it opens, when it comes back to the screen, and every 10 minutes. When there is one, the title screen shows **✨ Update ready: tap to update**. Tapping it loads the new version and keeps everyone's progress and the saved narration. The Parent Corner also has **Check for updates** and **Reload app** (which also fixes a stuck screen).
 
+## Families: grandparents and other grown-ups
+
+Grown-ups sign in with one-time links, not passwords (`server/families.mjs`). The family password still
+works: it signs a device in as the first family's parents. Devices signed in before families carried on as
+those parents.
+
+- **Inviting someone:** in the Parent Corner, under "Grown-ups who can sign in", a parent types the name
+  (Nana), taps **Make their link**, and texts it. The link works once, for 7 days. Opening it and tapping
+  **Join** signs that device in. Grown-ups can add their other devices with **Sign in another device as
+  me** (a link that works once, for a day). Parents can remove people and sign devices out.
+- **iPhone and iPad Home Screen apps** keep their own sign-in, apart from Safari's. Add Ark Pals to the
+  Home Screen first, open it, and paste the link into its sign-in page. Someone who already joined in
+  Safari gets a fresh link there with **Sign in another device as me**.
+- **A new family** (each family sees only its own backups, recordings and songs) starts from a link that
+  works once, for 30 days:
+  ```bash
+  ssh root@68.183.130.3 'cd /opt/Carter && runuser -u www-data -- env STATE_DIRECTORY=/var/lib/carter node server/new-family-link.mjs https://spiritflow.church'
+  ```
+- **Where it's kept:** `/var/lib/carter/arkpals.db` (SQLite). The first family's files stay in
+  `/var/lib/carter`; other families' are in `/var/lib/carter/families/<id>/`. Back the folder up before a
+  risky deploy: `tar czf /root/carter-state-$(date +%F).tgz -C /var/lib carter`.
+
 ## If something goes wrong
 
 ```bash

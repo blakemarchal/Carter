@@ -218,6 +218,15 @@ Above all, it's **personal**. The child and their family appear in the pictures,
 - **Voice (step 2):** build the studio now, but have Mom record **after** an island's script is final, or she'll record lines twice.
 - **The multi-family server (step 3)** isn't needed until the church beta.
 
+**Progress (Oct 4, 2026):**
+- **The quality pass and the campaign framework are done.** Every island has three visits, a mini-game and a song spot. The review page, item library, seas, daily voyage, hotspots and buddy Pal are all in.
+- **Content waves:**
+  - Wave 1 is live: the six islands deepened, plus Abraham, Joseph, the Red Sea and Daniel.
+  - Wave 2 is built and in review: Baby Moses, The Burning Bush and Manna, which finish the sea "Out of Egypt" (13 islands).
+- **Each island loads when it's needed**, so the game starts with 38% less to download.
+- **The multi-family server came early, at Carter's request.** Families went live Oct 4. Grown-ups join by an invitation link, with their own avatars, and each family's data is its own.
+- **Voice:** Mom's recording script is ready. Grok narration is made ahead of time for every fixed line, so the device voice is only a fallback.
+
 **Why this order:** if 20 islands were built on today's thin template, they'd inherit its problems (emoji, short islands, art drawn once and never checked). Fixing the template first makes every later island longer, more interactive and better checked, at no extra cost per island.
 
 ## 10. Decisions (all approved, Oct 3, 2026)

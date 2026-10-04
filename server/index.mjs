@@ -322,7 +322,7 @@ h1{margin:0 0 6px;color:#e2468f;font-size:30px}p{margin:0 0 18px;color:#8a7a99}
 input{width:100%;box-sizing:border-box;font-size:20px;padding:14px;border-radius:14px;border:2px solid #f0c4da;margin-bottom:14px}
 button{width:100%;font-size:22px;font-weight:700;padding:14px;border:0;border-radius:14px;background:#ff6fae;color:#fff}
 .err{color:#b42318;margin-bottom:12px}
-form.alt{padding:22px 28px}.alt p{margin-bottom:12px;color:#6a5a7a}.alt input{font-size:16px}.alt button{font-size:18px;background:#fff;color:#e2468f;border:2px solid #ff6fae}
+form.alt{padding:22px 28px}.alt p{margin-bottom:12px;color:#6a5a7a}.alt input{font-size:16px}.alt button{font-size:18px;background:#fff;color:#e2468f;border:2px solid #ff6fae}.hint{font-size:14px;margin:14px 0 0}
 </style></head><body><form method="post" action="/login">
 <h1>🌈 Ark Pals</h1><p>Grown-ups only: family password</p>
 ${msg ? `<div class="err">${msg}</div>` : ''}
@@ -330,7 +330,8 @@ ${msg ? `<div class="err">${msg}</div>` : ''}
 <button>Open the Ark</button></form>
 <form method="post" action="/login/link" class="alt"><p><b>Got a link from your family?</b> Open it, or paste it here:</p>
 <input name="link" autocomplete="off" aria-label="Your link" placeholder="Paste your link" required>
-<button>Use my link</button></form></body></html>`
+<button>Use my link</button>
+<p class="hint">Joined already, in Safari? Open Ark Pals there, hold the ⚙️ for the Parent Corner, and tap <b>Sign in another device as me</b> for a new link.</p></form></body></html>`
 
 // ---- families: the Parent Corner's family section, and the pages a link opens ----
 
@@ -419,6 +420,15 @@ const sendPage = (res, status, title, body) => {
   res.end(PAGE(title, body))
 }
 const DEAD_LINK = `<div class="card"><h1>🌈 Ark Pals</h1><p>This link has already been used, or it has expired.</p><p>Ask whoever sent it for a new one. Each link works once, on one device.</p></div>`
+/** The dead-link page, with a way into the game for a device that's signed in already. */
+const deadLink = (req) => (currentSession(req)
+  ? DEAD_LINK.replace('</div>', '<p><a href="/">Open Ark Pals</a></p></div>')
+  : DEAD_LINK)
+// (iPhone and iPad keep a Home Screen app's sign-in apart from Safari's, and an iPad's browser calls itself
+// a Mac: so Apple devices get the way to sign the Home Screen app in, which works however iOS behaves.)
+const homeScreenTip = (req) => (/iPhone|iPad|Macintosh/.test(String(req.headers['user-agent'] ?? ''))
+  ? `<p class="small">On an iPhone or iPad, and want Ark Pals on your Home Screen? Do that first: tap Share, then Add to Home Screen. Then open Ark Pals from your Home Screen and paste this link into its sign-in page (copy it from your message).</p>`
+  : '')
 
 /** GET/POST /join/<token>: a grown-up's invitation, or signing in another device. */
 async function handleJoin(req, res, url, ip) {
@@ -427,12 +437,12 @@ async function handleJoin(req, res, url, ip) {
   const link = families.peekLink(token)
   if (!link || link.kind === 'family') {
     fail(ip)
-    return sendPage(res, 404, 'Ark Pals', DEAD_LINK)
+    return sendPage(res, 404, 'Ark Pals', deadLink(req))
   }
   const was = currentSession(req)
   if (req.method === 'POST') {
     const dev = families.useLink(token, { label: was?.device.label ?? deviceLabel(req) })
-    if (!dev) return sendPage(res, 404, 'Ark Pals', DEAD_LINK)
+    if (!dev) return sendPage(res, 404, 'Ark Pals', deadLink(req))
     if (was) families.removeDevice(was.family.id, was.device.id) // (this device was someone else: it's this one now)
     res.writeHead(303, { 'Set-Cookie': [deviceCookie(req, dev), clearOldCookie], Location: '/' })
     return res.end()
@@ -446,7 +456,7 @@ async function handleJoin(req, res, url, ip) {
     : ''
   return sendPage(res, 200, 'Join Ark Pals', `<form method="post"><h1>🌈 Ark Pals</h1>${lead}${switching}
 <button>${link.kind === 'member' ? 'Join on this device' : 'Sign in this device'}</button>
-<p class="small">The link works once. After that, this device stays signed in.</p></form>`)
+<p class="small">The link works once. After that, this device stays signed in.</p>${homeScreenTip(req)}</form>`)
 }
 
 /** GET/POST /start/<token>: a new family, from a link the site owner made. */
@@ -456,7 +466,7 @@ async function handleStart(req, res, url, ip) {
   const link = families.peekLink(token)
   if (!link || link.kind !== 'family') {
     fail(ip)
-    return sendPage(res, 404, 'Ark Pals', DEAD_LINK)
+    return sendPage(res, 404, 'Ark Pals', deadLink(req))
   }
   const form = (msg = '', family = '', you = '') => `<form method="post"><h1>🌈 Ark Pals</h1>
 <p>Welcome! Start your family's Ark. You can invite more grown-ups, like grandparents, once you're in.</p>
@@ -469,7 +479,7 @@ ${msg ? `<div class="err">${esc(msg)}</div>` : ''}
     try {
       const was = currentSession(req)
       const dev = families.useLink(token, { label: was?.device.label ?? deviceLabel(req), familyName: f.get('family'), yourName: f.get('you') })
-      if (!dev) return sendPage(res, 404, 'Ark Pals', DEAD_LINK)
+      if (!dev) return sendPage(res, 404, 'Ark Pals', deadLink(req))
       if (was) families.removeDevice(was.family.id, was.device.id)
       res.writeHead(303, { 'Set-Cookie': [deviceCookie(req, dev), clearOldCookie], Location: '/' })
       return res.end()
