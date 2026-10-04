@@ -1,4 +1,8 @@
 // Families: the first family (from the old shared password), invitations, devices, and who can do what.
+import { mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 import { describe, expect, it } from 'vitest'
 import { cleanLook, cleanName, openFamilies } from './families.mjs'
 
@@ -70,6 +74,26 @@ describe('families', () => {
     later(8 * DAY)
     expect(fams.peekLink(link.token)).toBeNull()
     expect(fams.useLink(link.token, { label: 'x' })).toBeNull()
+  })
+
+  it("doesn't keep used or expired links", () => {
+    const file = join(mkdtempSync(join(tmpdir(), 'families-')), 'families.db')
+    let t = Date.UTC(2026, 9, 4)
+    const fams = openFamilies(file, { clock: () => t })
+    const kept = () => {
+      const db = new DatabaseSync(file)
+      try { return db.prepare('SELECT name FROM links ORDER BY created').all().map((l) => l.name) } finally { db.close() }
+    }
+    const fam = fams.firstFamily()
+    const me = fams.session(fams.passwordDevice('iPad')).member.id
+    fams.useLink(fams.makeLink({ kind: 'member', familyId: fam, name: 'Nana', role: 'grownup' }).token, { label: 'iPhone' })
+    fams.makeLink({ kind: 'device', familyId: fam, memberId: me, minutes: 30 })
+    expect(kept()).toEqual([null]) // (Nana's invitation was used: only the sign-in link is left)
+    t += 3600_000
+    const pawPaw = fams.makeLink({ kind: 'member', familyId: fam, name: 'Paw Paw', role: 'grownup' })
+    expect(kept()).toEqual(['Paw Paw']) // (the sign-in link ran out)
+    expect(fams.peekLink(pawPaw.token)).toMatchObject({ name: 'Paw Paw' })
+    fams.close()
   })
 
   it('signs another device in as the same grown-up', () => {

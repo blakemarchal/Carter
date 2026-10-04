@@ -68,6 +68,9 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
   if (!hasColumn('members', 'email')) db.exec('ALTER TABLE members ADD COLUMN email TEXT')
   if (!hasColumn('links', 'email')) db.exec('ALTER TABLE links ADD COLUMN email TEXT')
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS members_email ON members(email) WHERE email IS NOT NULL')
+  // A used or expired link is no use to anyone, so it isn't kept: they're cleared out as new ones are made.
+  const purgeLinks = () => q('DELETE FROM links WHERE used IS NOT NULL OR expires < ?').run(clock())
+  purgeLinks()
   const meta = (key) => q('SELECT value FROM meta WHERE key = ?').get(key)?.value
   const setMeta = (key, value) => q('INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value)
   const tx = (fn) => {
@@ -166,6 +169,7 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
         name = cleanName(name)
         if (!ROLES.includes(role)) throw Object.assign(new Error('bad role'), { status: 400 })
       }
+      purgeLinks()
       const token = randomBytes(24).toString('base64url')
       const id = newId('lnk')
       const expires = clock() + Math.min(LINK_DAYS[kind] * DAY, minutes ? minutes * 60_000 : Infinity)

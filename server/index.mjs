@@ -59,6 +59,8 @@ const siteUrl = (req) => (process.env.SITE_URL || `${secure(req) ? 'https' : 'ht
 const sentAt = new Map()
 function mayEmail(key, max) {
   const now = Date.now()
+  // (forget whoever hasn't asked within the hour, so the list doesn't grow forever)
+  if (sentAt.size > 1000) for (const [k, ts] of sentAt) if (ts.every((t) => now - t >= 3600_000)) sentAt.delete(k)
   const times = (sentAt.get(key) ?? []).filter((t) => now - t < 3600_000)
   if (times.length >= max) return false
   sentAt.set(key, [...times, now])
