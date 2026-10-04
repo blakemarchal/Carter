@@ -131,6 +131,7 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
   const [poke, setPoke] = useState(0) // bumped by every move: the wait for a hint starts again
   const bump = () => setPoke((n) => n + 1)
   const tapHinted = useRef(false)
+  const hints = useRef(0) // hints in a row, without a move
   const flying = useRef(false)
   const timers = useRef<number[]>([])
   const later = (fn: () => void, ms: number) => { timers.current.push(window.setTimeout(() => alive.current && fn(), ms)) }
@@ -216,7 +217,10 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
       const on = overlay.current?.querySelectorAll(`[data-plate="${fullest(d)}"] .share-thing`)
       from = on?.[on.length - 1]
     }
-    speak(`Give one to ${kit.people[to]?.say ?? 'a friend'}!`)
+    // (The first three hints in a row are said; after that only now and then, and then the hand alone,
+    // in case she has gone off to do something else.)
+    const k = hints.current++
+    if (k <= 2 || (k < 7 && k % 2 === 0)) speak(`Give one to ${kit.people[to]?.say ?? 'a friend'}!`)
     if (from) showDrag(from, spot)
   }
 
@@ -245,6 +249,7 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
     else next.plates[to].push(id)
     commit(next)
     bump()
+    hints.current = 0
     if (to === 'pile') sfx.pop()
     else {
       sfx.plop()
@@ -335,9 +340,11 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
       return void showDrag(el, spot)
     }
     flying.current = true
-    el.style.visibility = 'hidden'
     const k = parseFloat(root.current?.style.getPropertyValue('--k') || '1')
-    await fly(el, spot, { endScale: (ITEM * k) / Math.max(1, el.getBoundingClientRect().width), fade: false })
+    // (Hidden only once the flying copy is made: a copy of a hidden thing would fly unseen.)
+    const flight = fly(el, spot, { endScale: (ITEM * k) / Math.max(1, el.getBoundingClientRect().width), fade: false })
+    el.style.visibility = 'hidden'
+    await flight
     flying.current = false
     if (!alive.current) return
     if (!move(id, to)) el.style.visibility = ''

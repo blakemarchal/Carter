@@ -10,7 +10,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from 'react'
 import type { RhythmKit } from './types'
 import { Board, BoardLayer } from './Board'
-import { BigButton, Confetti, SpeakerButton } from '../../components/ui'
+import { BigButton, Confetti } from '../../components/ui'
 import { ac, buses, kick, midiHz, musicBox, noiseBuffer, pad, unlockAudio } from '../../lib/audio'
 import { sparkle } from '../../art/scenes/kit'
 import { speak, stopSpeaking } from '../../lib/speech'
@@ -699,8 +699,9 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
       r.timer = window.setInterval(() => pump(r), 40)
     }
     run.current = r
-    // (Development only: the film script reads the song's clock, to tap in time like a child would.)
-    if (import.meta.env.DEV) Object.assign(window, { __rhythm: { now: () => clock.now(), start, beat: song.beat, notes: song.notes, sound: !!c } })
+    // (Development only: the film script reads the song's clock, to tap in time like a child would, and
+    // how early or late a tap still plays a note, to check every tap in time counted.)
+    if (import.meta.env.DEV) Object.assign(window, { __rhythm: { now: () => clock.now(), start, beat: song.beat, notes: song.notes, sound: !!c, early: EARLY, late: LATE } })
     setHits(0)
     setHitList(song.notes.map(() => false))
     setCheer(false)
@@ -837,7 +838,10 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
     <div className="activity game rhythm">
       <div className="practice-head">
         <h2>{title}</h2>
-        {(phase === 'intro' || phase === 'start' || phase === 'ask') && <SpeakerButton text={intro} />}
+        {/* (not while the intro is said: the music starts when it ends) */}
+        {(phase === 'intro' || phase === 'start' || phase === 'ask') && (
+          <button type="button" className="icon-btn speaker" aria-label="Hear it again" disabled={phase === 'intro'} onClick={() => speak(intro)}>🔊</button>
+        )}
       </div>
       <Board className="rhythm-board">
         {backdrop}

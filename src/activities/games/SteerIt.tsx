@@ -7,7 +7,7 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
 import type { At, SteerKit } from './types'
 import { Board, BoardLayer, toBoard } from './Board'
-import { Confetti, SpeakerButton } from '../../components/ui'
+import { Confetti } from '../../components/ui'
 import { sparkle } from '../../art/scenes/kit'
 import { speak } from '../../lib/speech'
 import { sfx } from '../../lib/sfx'
@@ -184,9 +184,9 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
   // Everything the game loop changes lives here (a drag costs no re-renders until the hero moves).
   const [g] = useState(() => ({
     s: 0, target: 0, finger: null as Pt | null, drag: null as number | null, downAt: 0, downP: [0, 0] as Pt, downS: 0,
-    lastMove: -1e9, lastProgress: 0, lastHint: -1e9, lastWrong: -1e9, lastBack: -1e9, backSince: 0, hintN: 0,
+    lastMove: -1e9, lastProgress: 0, lastHint: -1e9, lastWrong: -1e9, lastBack: -1e9, backSince: 0, hintN: 0, idleHints: 0,
     lastCount: -1e9, counted: 0, taken: collect.map(() => false), busy: true, done: false, doneAt: 0,
-    facing: startFacing, ff: followers.map(() => startFacing), gaps: followers.map(() => 64), heroBox: null as null | { x: number; y: number; w: number; h: number },
+    facing: startFacing, ff: followers.map(() => startFacing), gaps: followers.map(() => 64), tail: 0, heroBox: null as null | { x: number; y: number; w: number; h: number },
     hint: null as null | { t0: number; from: number; len: number },
   }))
   const [frame, setFrame] = useState<Frame>(() => ({ s: 0, moving: false, facing: startFacing, fs: followers.map((_, i) => -64 * (i + 1)), ff: [...g.ff], walking: false }))
@@ -212,10 +212,13 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
     const off: number[] = []
     g.gaps.forEach((gap, i) => off.push((off[i - 1] ?? 0) + gap))
     const D = off[off.length - 1] || 1
-    let spread = clamp((s + room) / D, 0.6, 1)
-    // At the goal the crowd gathers in close behind.
-    if (g.done) spread *= 1 - 0.42 * (1 - (1 - Math.min(1, (now - g.doneAt) / 1100)) ** 2)
-    return off.map((o) => s - o * spread)
+    // (Room for the whole of the last one, not just its middle, so nobody starts half off the board: a
+    // big crowd squeezes up a little closer, though never so close that their faces hide.)
+    const spread = clamp((s + room - g.tail) / D, 0.55, 1)
+    // At the goal the crowd gathers in a little closer: the first keeps its place just behind the hero
+    // (any closer and it would hide behind the hero), and the rest close up behind it, still to be seen.
+    const gather = g.done ? 1 - 0.25 * (1 - (1 - Math.min(1, (now - g.doneAt) / 1100)) ** 2) : 1
+    return off.map((o) => s - (off[0] + (o - off[0]) * gather) * spread)
   }
 
   /** Faces the way the way runs at `s` (with a little dead zone, so it doesn't flicker on the steep bits). */
@@ -241,6 +244,7 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
     const extents = [hb, ...followers.map((_, i) => box(followerRefs.current[i]))].map((b) =>
       b ? { back: clamp(-b.x, 8, 200), front: clamp(b.x + b.width, 8, 200) } : { back: 30, front: 30 })
     g.gaps = followers.map((_, i) => clamp((extents[i].back + extents[i + 1].front) * 0.85, 30, 170))
+    g.tail = followers.length ? extents[extents.length - 1].back : 0
     setFrame((f) => ({ ...f, fs: followersAt(0, performance.now()) }))
   }, [])
 
@@ -322,12 +326,15 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
         g.s = rem - step < 0.05 ? g.target : g.s + step
         g.lastMove = now
         g.lastProgress = now
+        g.idleHints = 0
       }
       collectAt.forEach((cs, i) => { if (!g.taken[i] && g.s >= cs) take(i) })
       if (!g.done && g.s >= way.total - 0.5) finish(now)
-      // Stuck for a while: the hand shows the way again.
+      // Stuck for a while: the hand shows the way again. (The first three times with a word; after that
+      // only now and then, and then the hand alone, in case she has gone off to do something else.)
       if (!g.busy && !g.done && g.drag === null && !g.hint && now - g.lastProgress > IDLE && now - g.lastHint > IDLE) {
-        showHint(now, HINTS[g.hintN++ % HINTS.length])
+        const k = g.idleHints++
+        showHint(now, k <= 2 || (k < 7 && k % 2 === 0) ? HINTS[g.hintN++ % HINTS.length] : undefined)
       }
       // The hand.
       const hand = handRef.current
@@ -427,7 +434,11 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
 
   return (
     <div className="activity game steer-it">
-      <div className="practice-head"><h2>{title}</h2><SpeakerButton text={intro} /></div>
+      <div className="practice-head">
+        <h2>{title}</h2>
+        {/* (not while the intro is said, or over the done line at the end) */}
+        <button type="button" className="icon-btn speaker" aria-label="Hear it again" disabled={busy || finished} onClick={() => speak(intro)}>🔊</button>
+      </div>
       <Board className="steer-board">
         {backdrop}
         <BoardLayer className={`scene steer-layer ${dragging ? 'dragging' : ''}`} aria-label={title}
