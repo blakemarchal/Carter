@@ -188,19 +188,61 @@ const share: ShareKit = {
   rounds: [{ items: 4, people: 2 }, { items: 6, people: 3 }, { items: 8, people: 4 }],
 }
 
-// Catch: raindrops into a bucket that fills up.
+// Catch: raindrops into a bucket that fills up. Three drops take turns falling (small, round and big, so
+// each comes to rest at its own height when missed); each catch adds a stripe to the rainbow (Backdrop's
+// `caught`), the water in the bucket rises (Catcher's `fill`), and tufts of grass stand in front of
+// everything, the bucket's foot too (Front). The lane stops short of the board's edges, at two posts, so
+// the bucket can be seen to stop there.
+const RAINBOW = ['#ff6b6b', '#ffa94d', '#ffd34d', '#5fd39a', '#5fb7ff', '#9b7bff', '#ff8cc0', '#ffffff']
+const Drop = ({ s, fill, line }: { s: number; fill: string; line: string }) => (
+  <g transform={`scale(${s})`}>
+    <path d="M0 -16 Q12 2 0 14 Q-12 2 0 -16 Z" fill={fill} stroke={line} strokeWidth={2 / s} />
+    <ellipse cx={-3.5} cy={2} rx={2.2} ry={4} fill="#ffffff" opacity={0.7} />
+  </g>
+)
 const catcher: CatchKit = {
-  Backdrop: () => <Scene sky="day" ground="meadow" />,
-  Catcher: ({ fill }) => (
-    <g>
-      <path d="M-55 -10 L55 -10 L42 60 L-42 60 Z" fill="#9fb8d0" stroke="#4a6a8a" strokeWidth={3} />
-      <rect x={-50} y={50 - 58 * fill} width={100} height={58 * fill} fill="#7cc6ff" opacity={0.85} />
+  Backdrop: ({ caught }) => (
+    <Scene sky="day" ground="meadow">
+      {RAINBOW.slice(0, caught).map((c, i) => {
+        const r = 250 - i * 11
+        return <path key={i} d={`M${400 - r} 330 A${r} ${r * 0.8} 0 0 1 ${400 + r} 330`} fill="none" stroke={c} strokeWidth={11} opacity={0.8} />
+      })}
+      {[106, 694].map((x) => (
+        <g key={x}>
+          <rect x={x - 7} y={318} width={14} height={92} rx={4} fill="#a0703f" stroke="#5a3a24" strokeWidth={3} />
+          <circle cx={x} cy={316} r={9} fill="#ff8cc0" stroke="#5a3a24" strokeWidth={3} />
+        </g>
+      ))}
+    </Scene>
+  ),
+  // A pail with its handle up, the opening's middle at (0, 0); the water rises as it fills.
+  Catcher: ({ fill }) => {
+    const top = 58 - 62 * fill
+    const side = (y: number) => 55 - ((y + 8) * 13) / 66
+    return (
+      <g>
+        <path d="M-50 -6 Q0 -78 50 -6" fill="none" stroke="#4a6a8a" strokeWidth={5} strokeLinecap="round" />
+        <path d="M-55 -8 L55 -8 L42 58 L-42 58 Z" fill="#9fb8d0" stroke="#4a6a8a" strokeWidth={3} strokeLinejoin="round" />
+        {fill > 0 && <path d={`M${-side(top) + 3} ${top} L${side(top) - 3} ${top} L40 56 L-40 56 Z`} fill="#7cc6ff" opacity={0.9} />}
+        <ellipse cx={0} cy={-8} rx={55} ry={7} fill="#4a6a8a" opacity={0.35} stroke="#4a6a8a" strokeWidth={3} />
+      </g>
+    )
+  },
+  width: 110,
+  falling: [
+    () => <Drop s={0.9} fill="#5fb7ff" line="#2f7fc0" />,
+    () => <g><circle r={13} fill="#7fe0d0" stroke="#2f9a8a" strokeWidth={2} /><circle cx={-4} cy={-4} r={3} fill="#ffffff" opacity={0.7} /></g>,
+    () => <Drop s={1.4} fill="#4a90e2" line="#1f5fa8" />,
+  ],
+  goal: 8,
+  lane: { y: 352, from: 120, to: 680 },
+  Front: () => (
+    <g fill="#4fae5a">
+      {Array.from({ length: 26 }, (_, i) => 14 + i * 31).map((x, i) => (
+        <path key={x} d={`M${x - 9} 452 Q${x + (i % 2 ? 4 : -4)} ${398 - (i % 3) * 9} ${x + 9} 452 Z`} />
+      ))}
     </g>
   ),
-  width: 110,
-  falling: [() => <path d="M0 -16 Q12 2 0 14 Q-12 2 0 -16 Z" fill="#5fb7ff" stroke="#2f7fc0" strokeWidth={2} />],
-  goal: 8,
-  lane: { y: 370, from: 90, to: 710 },
 }
 
 export const DEMO_GAMES = {

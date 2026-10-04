@@ -1,0 +1,23 @@
+/* Baby Moses (art/scenes/baby-moses.tsx, art/games/baby-moses.tsx, art/items/isl-baby-moses.tsx): motion
+   its pictures and its mini-game need that styles.css doesn't have. Like the pa-* classes, these only run
+   inside an svg with class "pa-anim" (story pictures and the game board both have it). Never on an
+   element with a transform. */
+
+/* The basket floating: a gentle bob and rock on the water (quicker while it's being led along the river). */
+.pa-anim .bm-bob { animation: bmbob 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 70%; }
+.pa-anim .bm-bob.go { animation-duration: 1.1s; }
+@keyframes bmbob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-3px) rotate(1.5deg); } }
+
+/* Ripples spreading out behind the basket as it floats along. */
+.pa-anim .bm-ripple { animation: bmripple 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes bmripple { 0% { transform: scale(.7); opacity: .9; } 100% { transform: scale(1.4); opacity: 0; } }
+
+/* A crying baby: a little wriggle. */
+.pa-anim .bm-cry { animation: bmcry .45s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 80%; }
+@keyframes bmcry { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+
+/* Zzz floating up from someone fast asleep. */
+.pa-anim .bm-z { animation: bmz 3s ease-in-out infinite; }
+@keyframes bmz { 0% { transform: translate(0, 3px); opacity: .2; } 40%, 70% { opacity: 1; } 100% { transform: translate(5px, -10px); opacity: .2; } }
+
+@media (prefers-reduced-motion: reduce) { .pa-anim [class*="bm-"] { animation: none !important; } }

@@ -31,6 +31,7 @@ SAY = {
     "ev-'ry-one": 'everyone',
     "fam-'ly": '/ˈfæmli/',  # two syllables, as it's sung ("family" alone is often said with three)
     "li-ons'": 'lions',
+    'des-ert': '/ˈdɛzərt/',  # the dry land, not "to desert"
 }
 
 JESUS_LOVES_ME = dict(
@@ -355,6 +356,87 @@ LOAVES_SONG = dict(
     chords='G:4 D7:4 ' + 'G:4 D:2 D7:2 G:4 D7:2 G:2 ' * 4 + 'G:2',
 )
 
-ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG]
+
+# "Hush, Little Baby" (a traditional American lullaby), checked against singing-bell.com's sheet music
+# and MIDI (the sung tune, with the words under the notes) and flutetunes.com's score. Every couplet is
+# sung the way the first one is ("Hush, little baby, don't say a word, / Mama's gonna buy you a mockingbird").
+def _hush(a, b, last=False):
+    return [
+        (a, 'G3:1 E4:.5 E4:.5 E4:1 E4:.5 F4:.5 E4:1 D4:1 D4:2'),  # "Hush, lit-tle ba-by, don't say a word,"
+        # "Ma-ma's gon-na buy you a mock-ing-bird."
+        (b, 'G3:.5 D4:.5 D4:.5 D4:.5 D4:1 D4:.5 E4:.5 D4:1 C4:1 ' + ('C4:4' if last else 'C4:2')),
+    ]
+
+
+BABY_MOSES_SONG = dict(
+    id='song-baby-moses', title='Baby in a Basket', style='lullaby', meter=4,
+    tempo=[(0, 100), (96, 92), (98, 84)],  # a little slower for the last "cozy bed"
+    transpose=5, start=4,
+    lines=_hush('Hush, lit-tle ba-by, lay down your head,', "Ma-ma's gon-na make you a bas-ket bed.")
+    + _hush('Down by the riv-er, the reeds grow tall,', 'Ba-by in a bas-ket, so snug and small.')
+    + _hush('Big sis-ter Mir-i-am watch-es you,', 'Watch-ing o-ver ba-by, like sis-ters do.')
+    + _hush('Look in the bas-ket! A ba-by boy!', 'Prin-cess loves the ba-by. Oh, what a joy!')
+    + _hush('Who kept him safe? Can you tell me who?', 'God kept ba-by Mo-ses, and God loves you!')
+    + _hush('Hush, lit-tle one, now lay down your head;', 'God takes care of you in your co-zy bed.', last=True),
+    chords='C:2 G7:2 ' + 'C:4 G7:8 C:4 ' * 6 + 'C:2',
+)
+
+
+# "She'll Be Coming 'Round the Mountain" (traditional American), as R. L. Walker's ABC on abcnotation.com
+# (K:D, with the words under the notes). The printed versions differ in a few notes; at each of those,
+# Walker's agrees with flutetunes.com's score or makingmusicfun.net's sheet music, or both. Written in
+# eighths, as singing-bell.com's sheet music writes it.
+def _mountain(a, b, c, d, e, last=False):
+    return [
+        (a, 'D4:.5 E4:.5 G4:.5 G4:.5 G4:.5 G4:.5 E4:.5 D4:.5 B3:.5 D4:.5 G4:3'),  # "She'll be com-ing 'round the moun-tain when she comes,"
+        (b, 'G4:.5 A4:.5 B4:.5 B4:.5 B4:.5 B4:.5 D5:.5 B4:.5 A4:.5 G4:.5 A4:3'),
+        (c, 'D5:.5 C5:.5 B4:.5 B4:.5 B4:.5 B4:.5 A4:.5 G4:.5'),  # "She'll be com-ing 'round the moun-tain,"
+        (d, 'G4:.5 G4:.5 E4:.5 E4:.5 E4:.5 E4:.5 A4:.5 G4:.5'),
+        (e, 'F#4:.5 E4:.5 D4:.5 D4:.5 D4:.5 D4:.5 B4:.5 A4:.5 E4:.5 F#4:.5 ' + ('G4:4' if last else 'G4:3')),
+    ]
+
+
+_FIRE = "There's a bush up on the moun-tain, all on fire!"
+_CALL = 'God is call-ing, "Mo-ses! Mo-ses!" from the bush!'
+_GO = 'God says, "Go now, Mo-ses! I will be with you!"'
+BURNING_BUSH_SONG = dict(
+    id='song-burning-bush', title='Moses and the Bush', style='bouncy', meter=4, tempo=100, transpose=0, start=7,
+    lines=_mountain(_FIRE, _FIRE, 'And the shep-herd Mo-ses sees it,', 'But it nev-er, nev-er burns up!', _FIRE)
+    + _mountain(_CALL, _CALL, '"Take your san-dals off," God tells him.', '"This is ho-ly ground," God tells him.', _CALL)
+    + _mountain(_GO, _GO, "So he goes to help God's peo-ple,", "Yes, he goes to help God's peo-ple,",
+                'And our God will al-ways be with you and me!', last=True),
+    chords='G:4 D7:4 ' + 'G:12 D7:4 G:2 G7:2 C:2 Am:1 D7:1 G:2 D7:2 G:4 ' * 3,
+)
+
+
+# "The Muffin Man" (traditional English), checked against flutetunes.com's score and abcnotation.com
+# (Lester Bailey's "Muffin Man" and Paul Hardy's "The Muffin Man", both K:G). The "the" before the second
+# "muffin man" is on F#, as in Bailey's, Hardy's and singing-bell.com's sheet music (FluteTunes has G).
+def _muffin(a, b, c, d, last=False):
+    return [
+        (a, 'D4:.5 G4:.5 G4:.75 A4:.25 B4:.5 G4:.5 G4:.75'),  # "Do you know the muf-fin man,"
+        (b, 'F#4:.25 E4:.5 A4:.5 A4:.75 G4:.25 F#4:.5 D4:.5 D4:1'),  # "the muf-fin man, the muf-fin man?"
+        (c, 'D4:.5 G4:.5 G4:.75 A4:.25 B4:.5 G4:.5 G4:.5'),  # "Do you know the muf-fin man"
+        (d, 'G4:.5 E4:.5 A4:.5 G4:.5 F#4:.5 ' + ('G4:4' if last else 'G4:1.5 r:.5')),  # "who lives on Dru-ry Lane?"
+    ]
+
+
+MANNA_SONG = dict(
+    id='song-manna', title='Bread from Heaven', style='gospel', meter=2, tempo=96, transpose=0, start=4,
+    lines=_muffin('In the des-ert, hot and dry,', 'The tum-mies growled, the tum-mies growled!',
+                  'In the des-ert, hot and dry,', "God's peo-ple need-ed food.")
+    + _muffin('God sent bread from heav-en high,', 'From heav-en high, from heav-en high,',
+              'God sent bread from heav-en high,', 'Each morn-ing, fresh and new!')
+    + _muffin('White and sweet like hon-ey, yum!', 'Like hon-ey, yum! Like hon-ey, yum!',
+              'White and sweet like hon-ey, yum!', 'They called it man-na bread.')
+    + _muffin("Just e-nough for ev-'ry day,", "For ev-'ry day, for ev-'ry day,",
+              "Just e-nough for ev-'ry day:", 'God gives us what we need!')
+    + _muffin('Thank you, God, for food to eat,', 'For food to eat, for food to eat!',
+              'Thank you, God, for food to eat!', 'You give us what we need!', last=True),
+    chords='G:2 D7:2 ' + 'G:4 Am:2 D7:2 G:4 Am:1 D7:1 G:2 ' * 5 + 'G:2',
+)
+
+ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG,
+                BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG]
 
 SONGS = [JESUS_LOVES_ME, THIS_LITTLE_LIGHT, AWAY_IN_A_MANGER, TWINKLE, HAPPY_BIRTHDAY, NOAH] + ISLAND_SONGS

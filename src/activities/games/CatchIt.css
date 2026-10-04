@@ -1,0 +1,71 @@
+/* Catch it (CatchIt.tsx): move the catcher along its lane and catch what falls. */
+
+/* The title, the count and the "hear it again" button share a row (they wrap when narrow). */
+.catch-head { flex-wrap: wrap; justify-content: center; row-gap: 6px; column-gap: 16px; max-width: 100%; }
+.catch-head h2 { white-space: nowrap; }
+.catch-it .practice-head .catch-again { width: 56px; height: 56px; font-size: 28px; flex: none; }
+.catch-it .practice-head .catch-again:disabled { opacity: .45; }
+
+/* How many so far: a little picture of what's caught, and "4 of 10" in big, clear numbers. */
+.catch-count {
+  flex: none; display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  background: #fff; border-radius: 999px; padding: 4px 20px 4px 8px; box-shadow: 0 4px 0 rgba(0, 0, 0, .08);
+  font-size: 28px; font-weight: 800; line-height: 1; color: var(--ink);
+}
+.catch-count-pic { width: 46px; height: 46px; overflow: visible; display: block; }
+.catch-count b { font-size: 44px; color: var(--pink-deep); min-width: 1.1ch; text-align: center; padding-top: 3px; animation: catchcount .45s cubic-bezier(.3, 1.6, .5, 1); }
+.catch-count span { padding-top: 4px; }
+@keyframes catchcount { 0% { scale: .6; } 60% { scale: 1.3; } 100% { scale: 1; } }
+
+/* The board: as big as fits, always 16:9 (whichever way the screen is turned). Standing up, the title,
+   the count and the board sit together in the middle of the screen. */
+@media (max-aspect-ratio: 1/1) {
+  .catch-it { justify-content: center; }
+  .catch-it .game-wrap { flex: 0 1 auto; }
+}
+@supports (width: 1cqw) {
+  .catch-it .game-wrap { container-type: size; }
+  .catch-it .game-board { width: min(100cqw, calc(100cqh * 16 / 9)); height: auto; max-width: none; max-height: none; }
+  @media (max-aspect-ratio: 1/1) { .catch-it .game-wrap { container-type: inline-size; } }
+}
+/* (Anywhere on the board moves the catcher: no scrolling, zooming or text picking while she does.) */
+.catch-layer { touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.catch-layer.dragging { cursor: grabbing; }
+.catch-measure { visibility: hidden; }
+.catch-thing, .catch-ghost, .catch-glow, .catch-pop, .catch-num { pointer-events: none; }
+
+/* The catcher: a soft glow until she first touches the board, and four happy hops at the end. */
+.catch-halo { pointer-events: none; transform-box: fill-box; transform-origin: center; animation: catchhalo 1.8s ease-in-out infinite; }
+@keyframes catchhalo { 50% { opacity: .5; transform: scale(1.12); } }
+.catch-hop { animation: catchhop .62s ease-in-out 4 both; }
+@keyframes catchhop {
+  0%, 100% { transform: translateY(0); }
+  35% { transform: translateY(-34px) rotate(-3deg) scale(1.04); }
+  65% { transform: translateY(0) scale(1.08, .9); }
+  80% { transform: translateY(-4px) rotate(2deg); }
+}
+.game-board.catch-cheer { box-shadow: 0 0 0 6px #fff6b0, 0 0 46px 14px rgba(255, 211, 77, .55); transition: box-shadow .6s; }
+
+/* Caught: a ring and a burst of sparkles where it went in, and its number floating up. */
+.catch-pop { animation: catchpop .8s ease-out forwards; }
+@keyframes catchpop { 0% { transform: scale(.35); opacity: 1; } 60% { opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.catch-pop-ring { fill: none; stroke: #ffffff; stroke-width: 5; }
+.catch-num text {
+  font-family: 'Baloo 2', 'Chalkboard SE', system-ui, sans-serif; font-weight: 800; text-anchor: middle;
+  fill: var(--pink-deep); stroke: #fff; stroke-width: .2em; stroke-linejoin: round; paint-order: stroke;
+}
+.catch-num { animation: catchnum 1.25s ease-out forwards; }
+@keyframes catchnum {
+  0% { transform: translateY(10px) scale(.4); opacity: 0; }
+  20% { transform: translateY(-4px) scale(1.15); opacity: 1; }
+  70% { transform: translateY(-16px) scale(1); opacity: 1; }
+  100% { transform: translateY(-30px) scale(1); opacity: 0; }
+}
+
+/* The hint: the falling thing glows, and a hand slides a shadow of the catcher under it. */
+.catch-glow-pulse { animation: catchpulse 1.1s ease-in-out infinite; }
+@keyframes catchpulse { 0%, 100% { transform: scale(.85); opacity: .7; } 50% { transform: scale(1.08); opacity: 1; } }
+.catch-hand { pointer-events: none; filter: drop-shadow(0 3px 2px rgba(60, 30, 90, .3)); }
+.catch-hand-press { fill: none; stroke: #ffffff; stroke-width: 5; opacity: 0; }
+.catch-hand.pressing .catch-hand-press { animation: catchpress .45s ease-out; }
+@keyframes catchpress { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.6); } }
