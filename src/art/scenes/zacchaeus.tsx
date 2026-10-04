@@ -7,15 +7,16 @@
 //
 // Zacchaeus, his sycamore tree and his coins are drawn in art/items/isl-zacchaeus.tsx (the items draw them too);
 // his look is exported here as well. The townsfolk of Jericho are here (exported for the island's game, and for
-// PEOPLE in people.tsx later): FARMER, NEIGHBOR, GRANDMA (a poor widow), GIRL and BOY, her grandchildren.
+// PEOPLE in people.tsx later): FARMER and NEIGHBOR; and the poor he shares with, GRANDMA (a poor widow), GIRL and BOY,
+// her grandchildren, and GRANDPA (a poor old man).
 // Zacchaeus is short, and the pictures are cheerful about it: never a joke. Jesus is PEOPLE.jesus, with Peter,
 // Andrew, James and John. God is never drawn as a person: His presence is light (page 10).
-// Folk and Crowd are copied from scenes/loaves.tsx (an island never imports another island's scene file).
-import type { ComponentType, CSSProperties, ReactNode } from 'react'
+// Crowd and Dust are copied from scenes/loaves.tsx (an island never imports another island's scene file); Folk and Heart are the kit's.
+import type { ComponentType, ReactNode } from 'react'
 import { darken, ink } from '../kit'
 import { EyesUp, Figure, LookingUp, PEOPLE, Sitting, SilverHair, type JLook, type JPose, type Mood } from '../people'
 import { Coin, CoinChest, CoinStack, PERCH_LEFT, SEAT, Sycamore, Zacchaeus, ZacchaeusPerched, ZACCHAEUS } from '../items/isl-zacchaeus'
-import { Bread, Glow, Palm, Rays, Scene, Sparkles, Tap } from './kit'
+import { Bread, Folk, Glow, Heart, Palm, Rays, Scene, Sparkles, Tap } from './kit'
 
 export { ZACCHAEUS } from '../items/isl-zacchaeus'
 
@@ -23,9 +24,9 @@ type Pt = [number, number]
 
 // ---------- The people of Jericho ----------
 
-/** The farmer: a cream head cloth, a short dark beard and an olive robe. He pays Zacchaeus (page 2), grumbles (page 8) and gets paid back (page 11). */
+/** The farmer: a cream head cloth, a short dark beard and an olive robe. He pays Zacchaeus (page 2), grumbles (page 8) and gets paid back four times as much (page 11). */
 export const FARMER: JLook = { skin: '#c68b5e', hair: 'covered', hairColor: '#3b2a20', wrap: '#ece0bc', beard: 'short', beardColor: '#3b2a20', robe: '#7f9a4a', sash: '#b5553f' }
-/** A neighbor in the street: black curls, a short beard and a teal robe. He grumbles too, and is paid back. */
+/** A neighbor in the street: black curls, a short beard and a teal robe. He grumbles too (pages 2 and 8). */
 export const NEIGHBOR: JLook = { skin: '#e3b48c', hair: 'curly', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#3a9a8f', sash: '#f0a050' }
 /** The grandma, a poor widow: silver hair under a lavender head scarf, and an old brown robe with a patch on it. */
 export const GRANDMA: JLook = { skin: '#c68b5e', hair: 'covered', hairColor: '#e9e5de', wrap: '#9a90b8', robe: '#a08a70', sash: '#6f6658' }
@@ -33,18 +34,19 @@ export const GRANDMA: JLook = { skin: '#c68b5e', hair: 'covered', hairColor: '#e
 export const GIRL: JLook = { skin: '#c68b5e', hair: 'pigtails', hairColor: '#2b1f18', robe: '#ff8f6a', sash: '#ffffff', build: 'child' }
 /** Her grandson: black curls and a sky-blue robe. */
 export const BOY: JLook = { skin: '#c68b5e', hair: 'curly', hairColor: '#2b1f18', robe: '#5fb7e8', sash: '#f2c24a', build: 'child' }
+/** The grandpa, a poor old man: a long white beard, a cream head cloth, and an old mauve robe with a patch on it. */
+export const GRANDPA: JLook = { skin: '#c68b5e', hair: 'covered', hairColor: '#e8e4dc', wrap: '#e8dcc0', beard: 'long', beardColor: '#f2efe8', robe: '#b07a9a', sash: '#e8dcc0' }
 
-/** More people of Jericho, for the crowd up close (page 4): a woman in a rose head scarf, a man in orange, a woman in a mint head scarf, and an old man with a long white beard. */
+/** More people of Jericho, for the crowd up close (page 4): a woman in a rose head scarf, a man in orange, and a woman in a mint head scarf. */
 const JERICHO: JLook[] = [
   { skin: '#e3b48c', hair: 'covered', hairColor: '#4a3020', wrap: '#e8668a', robe: '#6f9fc0', sash: '#f5f0e6' },
   { skin: '#8d5a3b', hair: 'short', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#d98b4a', sash: '#5f8fc0' },
   { skin: '#d9a47a', hair: 'covered', hairColor: '#3b2a20', wrap: '#9fd6b0', robe: '#9a8fd0', sash: '#f5f0e6' },
-  { skin: '#c68b5e', hair: 'covered', hairColor: '#e8e4dc', wrap: '#e8dcc0', beard: 'long', beardColor: '#f2efe8', robe: '#b07a9a', sash: '#e8dcc0' },
 ]
 
-/** The patch on the grandma's old robe, with its stitches (figure units). */
-const Patch = () => (
-  <g>
+/** A patch on an old robe, with its stitches (figure units), moved over by (dx, dy). */
+const Patch = ({ dx = 0, dy = 0 }: { dx?: number; dy?: number }) => (
+  <g transform={dx || dy ? `translate(${dx} ${dy})` : undefined}>
     <path d="M-19 -33 L-6 -34 L-5 -21 L-18 -20 Z" fill="#c9a46a" stroke="#7a5a3a" strokeWidth={1.4} strokeLinejoin="round" />
     <path d="M-17 -31 l2 0 M-12 -31.5 l2 0 M-8 -29 l0 2 M-7.5 -24 l0 2 M-12 -22 l2 0 M-17 -22 l0 -2" stroke="#7a5a3a" strokeWidth={1.2} strokeLinecap="round" />
   </g>
@@ -63,63 +65,23 @@ export function Grandma({ pose = 'stand', children, ...p }: Who) {
   )
 }
 
+/** The grandpa: the patch on his robe and, standing still, his walking stick. */
+export function Grandpa({ pose = 'stand', children, ...p }: Who) {
+  return (
+    <Figure {...p} look={GRANDPA} pose={pose} holding={pose === 'stand' ? 'stick' : undefined}>
+      <Patch dx={24} dy={8} />
+      {children}
+    </Figure>
+  )
+}
+
 /** Anyone else, by their look. */
 export const Townsperson = ({ look, ...p }: Who & { look: JLook }) => <Figure {...p} look={look} />
 
 /** Jesus (PEOPLE.jesus), drawn as Figure, for its moods and poses. */
 const Jesus = (p: Who) => <Figure {...p} look={PEOPLE.jesus} />
 
-// ---------- The crowd (copied from scenes/loaves.tsx, in Jericho's colors) ----------
-
-const SKINS = ['#d9a47a', '#c68b5e', '#f6d2b8', '#8d5a3b', '#e3b48c']
-const ROBES = ['#e6b85a', '#7cb06a', '#5f8fc0', '#c98aa8', '#b5794a', '#e07a5f', '#9a8fd0', '#6fb7b0', '#d9b56a', '#f29a9a']
-const WRAPS = ['#f5f0e6', '#c0504d', '#7cb0e0', '#e8dcc0', '#d9b56a', '#a98cff']
-const HAIRS = ['#3b2a20', '#4a3020', '#2b1f18', '#5a3a24', '#e8e4dc']
-
-/** One small person in the crowd, standing, front view: both arms down (or the right one waving). `i` picks the colors. */
-function Folk({ x, y, s = 1, i = 0, wave }: { x: number; y: number; s?: number; i?: number; wave?: boolean }) {
-  const robe = ROBES[i % ROBES.length]
-  const skin = SKINS[(i * 7 + 2) % SKINS.length]
-  const kind = (i * 5) % 4 // 0, 3: head covering · 1: short hair · 2: long hair
-  const hair = HAIRS[(i * 3) % HAIRS.length]
-  const wrap = WRAPS[(i * 11) % WRAPS.length]
-  const covered = kind === 0 || kind === 3
-  const hy = -54
-  const cap = `M-12 ${hy} Q-13 ${hy - 15} 0 ${hy - 15} Q13 ${hy - 15} 12 ${hy} Q6 ${hy - 8} 0 ${hy - 7} Q-6 ${hy - 8} -12 ${hy} Z`
-  const back = `M-13 ${hy - 3} Q-16 ${hy + 15} -11 ${hy + 13} L11 ${hy + 13} Q16 ${hy + 15} 13 ${hy - 3} Z`
-  const arm = (ax: number, ay: number, bx: number, by: number) => (
-    <>
-      <path d={`M${ax} ${ay} L${bx} ${by}`} stroke={ink(robe)} strokeWidth={6.5} strokeLinecap="round" />
-      <path d={`M${ax} ${ay} L${bx} ${by}`} stroke={robe} strokeWidth={4.5} strokeLinecap="round" />
-    </>
-  )
-  const hand = (cx: number, cy: number, r = 3.4) => <circle cx={cx} cy={cy} r={r} fill={skin} stroke={ink(skin)} strokeWidth={1.5} />
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      {(covered || kind === 2) && <path d={back} fill={covered ? wrap : hair} stroke={ink(covered ? wrap : hair)} strokeWidth={2} />}
-      <ellipse cx={-7} cy={-2} rx={6} ry={3} fill="#7a5233" />
-      <ellipse cx={7} cy={-2} rx={6} ry={3} fill="#7a5233" />
-      <path d="M-12 -42 Q0 -46 12 -42 L17 -4 Q0 0 -17 -4 Z" fill={robe} stroke={ink(robe)} strokeWidth={2.5} strokeLinejoin="round" />
-      {arm(-10.5, -39, -17.5, -19)}
-      {!wave && arm(10.5, -39, 17.5, -19)}
-      {wave && (
-        <g className="pa-wing" style={{ '--o': '0% 100%' } as CSSProperties}>
-          {arm(9, hy + 18, 20, hy - 2)}
-          {hand(20, hy - 3, 3.6)}
-        </g>
-      )}
-      {hand(-17.5, -19)}
-      {!wave && hand(17.5, -19)}
-      <circle cx={0} cy={hy} r={11} fill={skin} stroke={ink(skin)} strokeWidth={2} />
-      <circle cx={-4} cy={hy} r={1.9} fill="#2b2140" />
-      <circle cx={4} cy={hy} r={1.9} fill="#2b2140" />
-      <ellipse cx={-7} cy={hy + 4} rx={2.6} ry={1.6} fill="#ff7fb0" opacity={0.55} />
-      <ellipse cx={7} cy={hy + 4} rx={2.6} ry={1.6} fill="#ff7fb0" opacity={0.55} />
-      <path d={`M-3 ${hy + 5} Q0 ${hy + 8.5} 3 ${hy + 5}`} stroke="#6b2a3a" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-      <path d={cap} fill={covered ? wrap : hair} stroke={ink(covered ? wrap : hair)} strokeWidth={2} />
-    </g>
-  )
-}
+// ---------- The crowd (Crowd is copied from scenes/loaves.tsx; Folk is the kit's) ----------
 
 type Row = [y: number, x0: number, x1: number, n: number, s: number]
 
@@ -308,9 +270,10 @@ export const MoneyBag = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) 
 )
 
 /**
- * Zacchaeus' money table by the road: a striped cloth in his purple and gold; on it, the king's money box (a crown
- * on its front, a slot in its lid), a heap of coins, his scroll for writing down who paid, and his own tall stacks of
- * coins: the extra he kept. (x, y): the middle of its front, on the ground; about 210 wide.
+ * Zacchaeus' money table by the road: a striped cloth in his purple and gold. On it, at his end (the left), his own
+ * tall stacks of coins on a cloth in his purple draped over the table: the extra he kept; then a heap of coins and his scroll for
+ * writing down who paid; and at the far end, the king's money box (a crown on its front, a slot in its lid).
+ * (x, y): the middle of its front, on the ground; about 210 wide.
  */
 function MoneyTable({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   const purple = ZACCHAEUS.robe
@@ -323,23 +286,26 @@ function MoneyTable({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
       <path d="M-100 -57 L100 -57 L96 -20 Q0 -14 -96 -20 Z" fill="#f6e6c0" stroke="#b89a68" strokeWidth={2.5} />
       {[-62, -2, 58].map((sx) => <path key={sx} d={`M${sx - 12} -57 L${sx + 12} -57 L${sx + 12} -18 Q${sx} -17 ${sx - 12} -18 Z`} fill={purple} opacity={0.9} />)}
       <path d="M-98 -32 Q0 -27 98 -32" stroke="#f2c24a" strokeWidth={4} fill="none" />
-      {/* the king's money box */}
-      <rect x={-92} y={-100} width={50} height={36} rx={4} fill="#8a3a3a" stroke="#4a1a1a" strokeWidth={2.5} />
-      <rect x={-95} y={-106} width={56} height={10} rx={3} fill="#a04a46" stroke="#4a1a1a" strokeWidth={2.5} />
-      <path d="M-74 -101 L-60 -101" stroke="#2a0a0a" strokeWidth={3} strokeLinecap="round" />
-      <path d="M-79 -72 L-79 -86 L-73 -80 L-67 -90 L-61 -80 L-55 -86 L-55 -72 Z" fill="#ffd34d" stroke="#b5862a" strokeWidth={1.6} />
-      {/* a heap of coins, the scroll, and his own tall stacks */}
-      {[[-24, -70], [-10, -72], [4, -69], [-16, -76], [-2, -77], [-9, -82]].map(([cx, cy], i) => (
+      {/* his own tall stacks, on a cloth in his purple draped over his end of the table, with a gold fringe */}
+      <path d="M-105 -72 L-30 -72 L-30 -44 Q-67 -39 -105 -44 Z" fill={purple} stroke={ink(purple)} strokeWidth={2} strokeLinejoin="round" />
+      <path d="M-102 -42.5 Q-67 -38 -33 -42.5" stroke="#f2c24a" strokeWidth={3.2} strokeDasharray="2.5 3" fill="none" />
+      <CoinStack x={-86} y={-70} n={8} />
+      <CoinStack x={-58} y={-70} n={7} />
+      <CoinStack x={-72} y={-66} n={5} />
+      {/* a heap of coins, and the scroll */}
+      {[[-14, -70], [0, -72], [14, -69], [-6, -76], [8, -77], [1, -82]].map(([cx, cy], i) => (
         <ellipse key={i} cx={cx} cy={cy} rx={9} ry={4} fill={i % 2 ? '#ffe27a' : '#ffcc33'} stroke="#8a6a1a" strokeWidth={1.4} />
       ))}
-      <g transform="translate(26 -72) rotate(-8)">
-        <rect x={-14} y={-6} width={28} height={12} rx={3} fill="#fff3d6" stroke="#c9a46a" strokeWidth={1.8} />
-        <circle cx={-14} cy={0} r={5} fill="#c9a46a" stroke="#8a6a3a" strokeWidth={1.2} />
-        <circle cx={14} cy={0} r={5} fill="#c9a46a" stroke="#8a6a3a" strokeWidth={1.2} />
+      <g transform="translate(34 -72) rotate(-8)">
+        <rect x={-12} y={-6} width={24} height={12} rx={3} fill="#fff3d6" stroke="#c9a46a" strokeWidth={1.8} />
+        <circle cx={-12} cy={0} r={5} fill="#c9a46a" stroke="#8a6a3a" strokeWidth={1.2} />
+        <circle cx={12} cy={0} r={5} fill="#c9a46a" stroke="#8a6a3a" strokeWidth={1.2} />
       </g>
-      <CoinStack x={56} y={-64} n={8} />
-      <CoinStack x={82} y={-64} n={6} />
-      <CoinStack x={69} y={-60} n={4} />
+      {/* the king's money box, at the far end */}
+      <rect x={50} y={-100} width={50} height={36} rx={4} fill="#8a3a3a" stroke="#4a1a1a" strokeWidth={2.5} />
+      <rect x={47} y={-106} width={56} height={10} rx={3} fill="#a04a46" stroke="#4a1a1a" strokeWidth={2.5} />
+      <path d="M68 -101 L82 -101" stroke="#2a0a0a" strokeWidth={3} strokeLinecap="round" />
+      <path d="M63 -72 L63 -86 L69 -80 L75 -90 L81 -80 L87 -86 L87 -72 Z" fill="#ffd34d" stroke="#b5862a" strokeWidth={1.6} />
     </g>
   )
 }
@@ -359,17 +325,8 @@ function Awning({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 
 // ---------- Little things ----------
 
-/** A drawn heart that bobs gently: love, a changed heart. */
-function Heart({ x, y, s = 1, color = '#ff6f91' }: { x: number; y: number; s?: number; color?: string }) {
-  return (
-    <g className="sc-float">
-      <g transform={`translate(${x} ${y}) scale(${s})`}>
-        <path d="M0 16 C-24 2 -26 -14 -14 -19 C-7 -22 -2 -17 0 -11 C2 -17 7 -22 14 -19 C26 -14 24 2 0 16 Z" fill={color} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
-        <ellipse cx={-10} cy={-10} rx={4} ry={2.4} fill="#fff" opacity={0.65} transform="rotate(-35 -10 -10)" />
-      </g>
-    </g>
-  )
-}
+/** The pink of the hearts. */
+const PINK = '#ff6f91'
 
 /** "Grumble, grumble": a little wavy scribble over someone's head (mild, never angry). */
 export const Grumble = ({ x, y }: { x: number; y: number }) => (
@@ -523,7 +480,7 @@ function Page3() {
       <Tap say="Jesus is coming! Jesus is coming!" sfx="whoosh">
         <g>
           <Dust x={360} y={432} />
-          <Speed x={356} y={350} />
+          <Speed x={358} y={388} />
           <g transform="rotate(9 404 432)"><Townsperson look={BOY} x={404} y={432} s={1.28} pose="arms-up" mood="joy" blinkDelay={0.8} /></g>
         </g>
       </Tap>
@@ -542,28 +499,40 @@ function Page3() {
 
 // 4. "Zacchaeus wanted to see Jesus, too. But he was short, and the crowd was tall. He hopped and jumped, but he could not see a thing!"
 // Close up, from the street: the front of the crowd, shoulder to shoulder (too close to see their feet), all looking
-// down the street for Jesus. Squeezed in behind them, Zacchaeus jumps with his hands up, but his head only comes up
-// to their chins.
+// down the street for Jesus. Just behind them, Zacchaeus jumps as high as he can, his hands up and his feet off the
+// ground (little lines under them), but even then his eyes only come up to their chins.
+// (The grown-ups' eyes are at the height of the picture's eye level, y = 318; his, though he's a little further back,
+// stay well below it.)
 function Page4() {
+  const HOP = 12
   return (
     <Scene sky="day" ground="none">
       <FarHills />
       <Sand y={300} />
-      <Houses y={298} s={0.8} houses={[[70, 120, 90, 0.2], [250, 110, 100, -0.2, '#f2e2c0'], [560, 120, 92, 0.2], [740, 110, 86, -0.2, '#f2e2c0']]} />
-      <Crowd rows={[[316, 10, 790, 20, 0.48], [332, 0, 800, 18, 0.56]]} seed={50} />
+      <Houses y={296} s={0.8} houses={[[70, 120, 90, 0.2], [250, 110, 100, -0.2, '#f2e2c0'], [560, 120, 92, 0.2], [740, 110, 86, -0.2, '#f2e2c0']]} />
+      <Crowd rows={[[330, 10, 790, 20, 0.46], [344, 0, 800, 18, 0.54]]} seed={50} />
       <Tap say="I can't see! Everyone is so tall." sfx="wobble">
-        <Zacchaeus x={400} y={508} s={1.4} pose="arms-up" mood="wow" reach={[[-32, -148], [32, -148]]} purse={false} blinkDelay={0.3} />
+        <g>
+          {/* his shadow on the ground, and little lines under his feet: he's up in the air */}
+          <ellipse cx={400} cy={444} rx={15} ry={3} fill="#000" opacity={0.14} />
+          <g stroke="#9a7a4a" strokeWidth={2.6} strokeLinecap="round">
+            <path d="M388 436 l-2 5 M400 435 l0 6 M412 436 l2 5" />
+          </g>
+          <Zacchaeus x={400} y={444 - HOP} s={1.0} pose="arms-up" mood="wow" reach={[[-24, -150], [24, -150]]} blinkDelay={0.3} />
+        </g>
       </Tap>
       <Tap say="Here He comes! I can see Jesus!" sfx="good">
         <g>
-          <Townsperson look={JERICHO[0]} x={124} y={534} s={1.55} pose="point" facing="left" mood="wow" blinkDelay={1.9} />
-          <Townsperson look={NEIGHBOR} x={308} y={530} s={1.55} pose="point" facing="left" mood="wow" blinkDelay={1.3} />
+          <Townsperson look={JERICHO[1]} x={70} y={466} s={1.3} pose="wave" facing="left" blinkDelay={2.6} />
+          <Townsperson look={JERICHO[0]} x={200} y={466} s={1.3} pose="point" facing="left" mood="wow" blinkDelay={1.9} />
+          <Townsperson look={NEIGHBOR} x={330} y={466} s={1.3} pose="point" facing="left" mood="wow" blinkDelay={1.3} />
         </g>
       </Tap>
       <Tap say="Jesus is coming down the road!" sfx="pop">
         <g>
-          <Townsperson look={FARMER} x={492} y={532} s={1.55} facing="left" blinkDelay={0.7} />
-          <Townsperson look={JERICHO[2]} x={676} y={534} s={1.55} pose="wave" facing="left" blinkDelay={2.2} />
+          <Townsperson look={FARMER} x={470} y={466} s={1.3} facing="left" blinkDelay={0.7} />
+          <Townsperson look={JERICHO[2]} x={600} y={466} s={1.3} pose="wave" facing="left" blinkDelay={2.2} />
+          <Grandpa x={730} y={466} s={1.3} facing="left" blinkDelay={1.1} />
         </g>
       </Tap>
     </Scene>
@@ -782,7 +751,8 @@ function DinnerTable({ x, y, w = 360 }: { x: number; y: number; w?: number }) {
 
 // 9. "At dinner, Zacchaeus stood up and said, "Half of what I have, I'll give to the poor. And if I took too much from anyone, I'll pay them back four times as much!""
 // Dinner at his house: Jesus, Peter and John sit at the low table, and Zacchaeus stands up beside his chest of
-// coins. What he says is in his bubble: coins for the poor grandma, and for every coin he took, four coins back.
+// coins. What he says is in his bubble: his coins in two even heaps, one of them going to the poor grandma (half);
+// and for every coin he took, four coins back.
 function Page9() {
   return (
     <Scene sky="dusk" ground="none" clouds={false}>
@@ -803,13 +773,18 @@ function Page9() {
       <Tap say="I took too much, so I will give back four times as much!" sfx="good">
         <Zacchaeus x={584} y={436} s={1.18} pose="open" mood="joy" blinkDelay={0.4} />
       </Tap>
-      {/* what he says: coins for the poor grandma; and one coin he took, four coins he'll give back */}
+      {/* what he says: his coins in two even heaps, and one of them (half) for the poor grandma; and one coin he took, four coins he'll give back */}
       <Speech x={446} y={34} w={326} h={196} tail={[578, 292]}>
-        <Coin x={492} y={92} s={0.34} tilt={-10} />
-        <Coin x={514} y={80} s={0.34} tilt={8} />
-        <Coin x={504} y={104} s={0.34} />
-        <Arrow x={540} y={92} w={52} />
-        <Grandma x={652} y={128} s={0.42} pose="arms-up" mood="joy" />
+        {[478, 542].map((hx) => (
+          <g key={hx}>
+            <Coin x={hx - 12} y={108} s={0.3} />
+            <Coin x={hx + 12} y={108} s={0.3} />
+            <Coin x={hx} y={88} s={0.3} />
+          </g>
+        ))}
+        <path d="M510 70 L510 124" stroke="#c9b8d8" strokeWidth={3} strokeLinecap="round" strokeDasharray="5 6" />
+        <Arrow x={572} y={98} w={48} />
+        <Grandma x={680} y={130} s={0.42} pose="arms-up" mood="joy" />
         <path d="M466 146 L752 146" stroke="#e6dcef" strokeWidth={3} strokeLinecap="round" strokeDasharray="2 9" />
         <Coin x={496} y={188} s={0.4} />
         <Arrow x={540} y={188} w={52} />
@@ -848,19 +823,19 @@ function Page10() {
           <Townsperson look={GIRL} x={752} y={444} s={1.1} pose="wave" facing="left" blinkDelay={0.6} />
         </g>
       </Tap>
-      <Heart x={358} y={232} s={0.8} />
+      <Heart x={358} y={232} s={0.8} color={PINK} />
       <g pointerEvents="none"><Sparkles spots={[[420, 160, 9], [620, 140, 8], [300, 190, 6], [700, 210, 7]]} /></g>
     </Scene>
   )
 }
 
 // 11. "Zacchaeus gave back what he took, and more! He shared with the poor, too. Jesus loves everyone, and His love changes hearts!"
-// The next morning in front of his house: the farmer holds up the four coins he got back, the neighbor waves, and
-// Zacchaeus gives coins to the grandma and her grandchildren. Everyone is smiling now, and Jesus is glad.
+// The next morning in front of his house: the farmer holds up the four coins he got back, and Zacchaeus, his money bag
+// open, has shared with the poor: the grandpa, the grandma, the boy and the girl have two coins each (as everyone gets
+// the same in the game that follows). Everyone is smiling now, and Jesus is glad.
 function Page11() {
-  const held = (n: number, y = -76, s = 0.22) => (
-    <g>{Array.from({ length: n }, (_, i) => <Coin key={i} x={n === 1 ? 0 : (i % 2 ? 9 : -9)} y={y - Math.floor(i / 2) * 15} s={s} />)}</g>
-  )
+  /** Two coins held side by side in the hands, in figure units. */
+  const two = (y: number, s: number) => <g><Coin x={-9} y={y} s={s} /><Coin x={9} y={y} s={s} /></g>
   return (
     <Scene sky="day" ground="none" sun>
       <FarHills />
@@ -871,28 +846,29 @@ function Page11() {
       <Palm x={700} y={330} s={0.85} />
       <path d="M0 380 Q400 364 800 378 L800 450 L0 450 Z" fill="#f0dfb2" />
       <Tap say="Four coins! Thank you, Zacchaeus!" sfx="ding">
-        <g>
-          <Townsperson look={NEIGHBOR} x={64} y={436} s={1.0} pose="wave" blinkDelay={1.8} />
-          <Townsperson look={FARMER} x={172} y={440} s={1.06} pose="arms-up" mood="joy" blinkDelay={0.9}
-            item={<g>{[-50, -34, 34, 50].map((cx) => <Coin key={cx} x={cx} y={-145} s={0.2} />)}</g>} />
-        </g>
+        <Townsperson look={FARMER} x={84} y={440} s={1.06} pose="arms-up" mood="joy" blinkDelay={0.9}
+          item={<g>{[-50, -34, 34, 50].map((cx) => <Coin key={cx} x={cx} y={-145} s={0.2} />)}</g>} />
       </Tap>
       <Tap say="Here you go! These coins are for you." sfx="good">
-        <Zacchaeus x={326} y={442} s={1.14} pose="point" mood="joy" blinkDelay={0.4} item={<Coin x={60} y={-97} s={0.24} />} />
+        <Zacchaeus x={210} y={442} s={1.14} pose="hold" mood="joy" blinkDelay={0.4} item={<MoneyBag x={0} y={-62} s={0.92} />} />
       </Tap>
       <Tap say="Thank you, Zacchaeus! God bless you." sfx="ding">
         <g>
-          <Grandma x={446} y={442} s={1.08} pose="hold" facing="left" mood="joy" blinkDelay={1.2} item={held(2, -70)} />
-          <Townsperson look={BOY} x={514} y={446} s={1.08} pose="arms-up" mood="joy" blinkDelay={2.4} />
-          <Townsperson look={GIRL} x={574} y={446} s={1.08} pose="hold" blinkDelay={0.7} item={held(1, -72, 0.32)} />
+          {/* (the grandpa holds his two coins out, one in each hand, clear of his long beard) */}
+          <Grandpa x={326} y={440} s={1.06} pose="open" facing="left" mood="joy" blinkDelay={2.0} reach={[[-44, -62], [44, -62]]}
+            item={<g><Coin x={-44} y={-75} s={0.22} /><Coin x={44} y={-75} s={0.22} /></g>} />
+          <Grandma x={430} y={442} s={1.06} pose="hold" facing="left" mood="joy" blinkDelay={1.2} item={two(-70, 0.22)} />
+          <Townsperson look={BOY} x={506} y={446} s={1.08} pose="arms-up" mood="joy" blinkDelay={2.4}
+            item={<g><Coin x={-42} y={-143} s={0.3} /><Coin x={42} y={-143} s={0.3} /></g>} />
+          <Townsperson look={GIRL} x={566} y={446} s={1.08} pose="hold" blinkDelay={0.7} item={two(-72, 0.3)} />
         </g>
       </Tap>
       <Tap say="Jesus loves everyone, and His love changes hearts!" sfx="sparkle">
         <Jesus x={706} y={436} s={1.04} pose="open" facing="left" />
       </Tap>
-      <Heart x={380} y={196} s={0.8} />
+      <Heart x={380} y={196} s={0.8} color={PINK} />
       <Heart x={500} y={236} s={0.6} color="#ffcf3f" />
-      <Heart x={220} y={240} s={0.6} />
+      <Heart x={220} y={240} s={0.6} color={PINK} />
       <g pointerEvents="none"><Sparkles spots={[[268, 300, 7], [420, 286, 6], [640, 270, 8]]} /></g>
     </Scene>
   )

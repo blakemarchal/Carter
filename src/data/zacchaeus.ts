@@ -6,8 +6,10 @@ import { ZACCHAEUS_GAME } from '../art/games/zacchaeus'
 // Three visits of about 8 to 10 minutes (docs/GAME-PLAN.md §3.1): the story, the adventure, the rescue.
 // Jesus loves everyone, and His love changes hearts. Zacchaeus is short, and the story is cheerful about it, never
 // mocking. The people grumble a little, and that's all. His money is coins, as in Bible times.
-// The island's game, "Giving It Back", comes after part two, where Zacchaeus promises to give back what he took and
-// share with the poor: the child helps him do it. So the first visit has two activities instead of the game.
+// The island's game, "Help Zacchaeus Share", comes after part two: at dinner Zacchaeus promised to give half of what
+// he had to the poor, and the child helps him keep that promise, sharing his coins so everyone gets the same. (Paying
+// back four times as much isn't an even share, so it stays in the story, on page eleven.) So the first visit has two
+// activities instead of the game.
 
 /** Visit 1: rich Zacchaeus takes too much money; Jesus is coming, but he's too short to see; up the sycamore tree he goes, and Jesus stops right under it. */
 export const ZACCHAEUS_STORY_1: StoryPage[] = [
@@ -24,7 +26,7 @@ export const ZACCHAEUS_STORY_2: StoryPage[] = [
   { scene: '🌳👋', bg: 'linear-gradient(#bfe6ff,#e6ffd9)', text: 'Remember Zacchaeus, up in the sycamore tree? Jesus looked up and said, "Zacchaeus, hurry and come down! I must stay at your house today."' },
   { scene: '🙌🌳', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Zacchaeus hurried down, as fast as he could. He was so happy! But some people grumbled, "Why is Jesus going to his house?"' },
   { scene: '🍞🪙', bg: 'linear-gradient(#ffd9a8,#fff3c9)', text: 'At dinner, Zacchaeus stood up and said, "Half of what I have, I\'ll give to the poor. And if I took too much from anyone, I\'ll pay them back four times as much!"' },
-  { scene: '🏠✨', bg: 'linear-gradient(#c9b8ff,#ffd9c9)', text: 'Jesus said, "Today God\'s rescue has come to this house! The Son of Man came to look for the lost ones and save them." The Son of Man is Jesus! Zacchaeus was lost, but Jesus found him.' },
+  { scene: '🏠✨', bg: 'linear-gradient(#c9b8ff,#ffd9c9)', text: 'Jesus said, "Today God\'s rescue has come to this house! The Son of Man came to look for the lost ones and save them." Who is the Son of Man? It\'s Jesus! Zacchaeus was lost, but Jesus found him.' },
   { scene: '🪙💛', bg: 'linear-gradient(#ffe0f0,#fff3c9)', text: 'Zacchaeus gave back what he took, and more! He shared with the poor, too. Jesus loves everyone, and His love changes hearts!' },
 ]
 
@@ -57,10 +59,11 @@ export const ZACCHAEUS_STEPS: Step[] = [
   // ----- Visit 2: the adventure -----
   { kind: 'story', title: 'Hurry Down, Zacchaeus', pages: ZACCHAEUS_STORY_2, first: ZACCHAEUS_STORY_1.length },
   {
-    // (Right after his promise at dinner, page nine: the child helps him keep it, sharing his coins fairly.)
-    kind: 'share', title: 'Giving It Back',
-    intro: "Zacchaeus wants to give back the money he took, and share with people who need it. Let's help him!",
-    done: 'Everyone got the same! Zacchaeus gave back what he took, and more. Giving makes hearts so happy!',
+    // (After part two, which ends on page eleven: the half of his promise about the poor, which the child helps him
+    // keep, sharing his coins with the grandma, the grandpa and the children so that everyone gets the same.)
+    kind: 'share', title: 'Help Zacchaeus Share',
+    intro: "Zacchaeus promised to share with people who need it. Let's help him share his coins, so everyone gets the same!",
+    done: 'Everyone got the same! You helped Zacchaeus keep his promise. Giving makes hearts so happy!',
     kit: ZACCHAEUS_GAME,
   },
   {
@@ -68,7 +71,8 @@ export const ZACCHAEUS_STEPS: Step[] = [
     questions: [
       {
         say: 'Why did Zacchaeus climb up the tree?',
-        choices: [{ emoji: '💤', say: 'To take a nap' }, { emoji: '🌳', say: 'To see Jesus', art: 'story:zacchaeus:5' }, { emoji: '🐦', say: 'To find a bird' }],
+        // (The wrong answers are nowhere in page five's picture, which has a bird in it.)
+        choices: [{ emoji: '💤', say: 'To take a nap' }, { emoji: '🌳', say: 'To see Jesus', art: 'story:zacchaeus:5' }, { emoji: '🪁', say: 'To fly a kite' }],
         answer: 1,
       },
       {

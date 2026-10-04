@@ -331,9 +331,33 @@ const ZacchaeusRunning = () => (
   </g>
 )
 
+/** A diamond kite flying up on its string: four bright panels on two crossed sticks, and a tail of little bows. (A quiz's silly answer: "To fly a kite".) */
+const Kite = () => {
+  const panels: [string, string][] = [
+    ['M56 8 L56 46 L22 40 Z', '#ff6f6f'], ['M56 8 L84 38 L56 46 Z', '#ffd34d'],
+    ['M22 40 L56 46 L56 76 Z', '#5fb7ff'], ['M56 46 L84 38 L56 76 Z', '#5fd39a'],
+  ]
+  return (
+    <g strokeLinejoin="round" strokeLinecap="round">
+      {/* the string, down to the hand that holds it (off the bottom of the picture) */}
+      <path d="M56 46 Q74 70 96 98" stroke="#8a7a6a" strokeWidth={1.8} fill="none" />
+      {/* the tail, with three bows */}
+      <path d="M56 76 Q44 84 46 92 Q48 98 40 100" stroke="#8a7a6a" strokeWidth={1.8} fill="none" />
+      {[[50, 83, '#ff8cc0'], [46, 92, '#5fb7ff'], [42, 99, '#ffd34d']].map(([bx, by, c]) => (
+        <path key={String(bx)} d={`M${bx} ${by} l-6 -4 l0 8 Z M${bx} ${by} l6 -4 l0 8 Z`} fill={String(c)} stroke={ink(String(c))} strokeWidth={1.2} />
+      ))}
+      {panels.map(([d, c]) => <path key={d} d={d} fill={c} />)}
+      <path d="M56 8 L84 38 L56 76 L22 40 Z" fill="none" stroke="#5a4a6a" strokeWidth={2.6} />
+      <path d="M56 8 L56 76 M22 40 L84 38" stroke="#8a5a2e" strokeWidth={2.4} />
+      <path d="M50 16 Q44 22 40 30" stroke="#fff" strokeWidth={3} fill="none" opacity={0.6} />
+    </g>
+  )
+}
+
 export const ISL_ZACCHAEUS: Item[] = [
   { id: 'gold-coin', name: 'coin', emoji: ['🪙'], Draw: GoldCoin },
   { id: 'sycamore-tree', name: 'sycamore tree', emoji: [], Draw: SycamoreTree },
   { id: 'zacchaeus-in-tree', name: 'Zacchaeus up in the sycamore tree', emoji: [], Draw: ZacchaeusInTree },
   { id: 'zacchaeus-running', name: 'Zacchaeus running', emoji: [], Draw: ZacchaeusRunning },
+  { id: 'kite', name: 'kite', emoji: ['🪁'], Draw: Kite },
 ]
