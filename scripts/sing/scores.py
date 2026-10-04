@@ -862,7 +862,7 @@ PENTECOST_SONG = dict(
              "All the peo-ple came from far a-way, from ev-'ry land and sea;",
              'Then brave Pe-ter told them all a-bout how Je-sus sets us free!',
              'So ma-ny came that day!')
-    + _glory("Now God's Spir-it lives in all of us who love Him and o-bey;",
+    + _glory("Now God's Spir-it lives in all of us who trust in Je-sus' way;",
              "He's our Help-er and our Friend, He's with us ev-'ry sin-gle day;",
              "So let's shine like lit-tle lights and tell the world, and sing and pray!",
              "God's love is here to stay!", last=True),
