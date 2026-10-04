@@ -4,7 +4,7 @@ import StarterPick from './screens/StarterPick'
 import MapScreen from './screens/MapScreen'
 import ArkScreen from './screens/ArkScreen'
 import ParentScreen from './screens/ParentScreen'
-import IslandScreen from './screens/IslandScreen'
+import IslandView from './screens/IslandView'
 import Bedtime from './screens/Bedtime'
 import SingAlong from './screens/SingAlong'
 import BirthdayParty, { type PartyMode } from './screens/BirthdayParty'
@@ -139,8 +139,8 @@ export default function App() {
     case 'parent': view = <ParentScreen onBack={() => go('map')} onParty={() => { setParty({ mode: 'preview', back: 'parent' }); go('party') }} />; break
     case 'party': view = <BirthdayParty key={`${party.mode}-${party.age}`} mode={party.mode} age={party.age} onDone={() => go(party.back)} />; break
     default: {
-      const isl = islandById(shown.slice('island:'.length))
-      view = isl?.steps ? <IslandScreen key={isl.id} island={isl} onExit={() => go('map')} /> : null
+      const id = shown.slice('island:'.length)
+      view = islandById(id) ? <IslandView key={id} id={id} onExit={() => go('map')} /> : null
     }
   }
 

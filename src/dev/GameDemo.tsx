@@ -8,7 +8,8 @@ import SteerIt from '../activities/games/SteerIt'
 import Rhythm from '../activities/games/Rhythm'
 import ShareIt from '../activities/games/ShareIt'
 import CatchIt from '../activities/games/CatchIt'
-import { islandById, type Step } from '../data/islands'
+import type { Step } from '../data/islands'
+import { useIsland } from '../lib/useIsland'
 import { DEMO_GAMES } from './demo/games'
 
 type GameStep = Extract<Step, { kind: 'build' | 'spot' | 'paint' | 'steer' | 'rhythm' | 'share' | 'catch' }>
@@ -16,7 +17,9 @@ type GameStep = Extract<Step, { kind: 'build' | 'spot' | 'paint' | 'steer' | 'rh
 export default function GameDemo({ kind, island }: { kind: string; island?: string }) {
   const [round, setRound] = useState(0)
   const [done, setDone] = useState(false)
-  const fromIsland = island ? islandById(island)?.steps?.find((s): s is GameStep => s.kind === kind) : undefined
+  const isl = useIsland(island)
+  if (island && !isl) return <p style={{ padding: 20 }}>Loading {island}…</p>
+  const fromIsland = isl?.steps.find((s): s is GameStep => s.kind === kind)
   const demo = DEMO_GAMES[kind as keyof typeof DEMO_GAMES]
   const step = (fromIsland ?? (demo ? { kind, ...demo } : undefined)) as GameStep | undefined
   if (!step) return <p style={{ padding: 20 }}>No {kind} game{island ? ` on ${island}` : ''}.</p>

@@ -2,17 +2,18 @@
 // the game then plays your recording instead of the narrator wherever that page is read.
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { BackButton } from './ui'
-import { ISLANDS } from '../data/islands'
+import { ISLANDS, type Island } from '../data/islands'
+import { useAllIslands } from '../lib/useIsland'
 import { BEDTIME_LINES } from '../screens/Bedtime'
 import { deleteRecording, hasRecording, lineId, loadRecordings, onRecordingsChange, saveRecording, startRecording, stopRecording } from '../lib/recordings'
 import { getProgress } from '../lib/progress'
 import { setFamilyVoices, speak, stopSpeaking } from '../lib/speech'
 
 /** Every story line, exactly as the game speaks it (each part's first page includes its title). */
-function groups() {
+function groups(islands: Island[]) {
   const out: { name: string; lines: string[] }[] = []
-  for (const isl of ISLANDS) {
-    const lines = (isl.steps ?? []).flatMap((s) => (s.kind === 'story' ? s.pages.map((pg, i) => (i === 0 ? `${s.title}. ${pg.text}` : pg.text)) : []))
+  for (const isl of islands) {
+    const lines = isl.steps.flatMap((s) => (s.kind === 'story' ? s.pages.map((pg, i) => (i === 0 ? `${s.title}. ${pg.text}` : pg.text)) : []))
     if (lines.length) out.push({ name: isl.name, lines })
   }
   out.push({ name: 'Bedtime', lines: BEDTIME_LINES })
@@ -69,6 +70,7 @@ function Line({ text, busy, setBusy }: { text: string; busy: string | null; setB
 
 export default function FamilyVoices({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState<string | null>(null)
+  const islands = useAllIslands(ISLANDS.map((i) => i.id))
   useEffect(() => {
     loadRecordings()
     setFamilyVoices(true) // so "Listen" plays your recordings here
@@ -79,7 +81,8 @@ export default function FamilyVoices({ onClose }: { onClose: () => void }) {
       <header className="home-head"><BackButton onClick={onClose} /><h2>🎙️ Family voices</h2><span /></header>
       <p className="muted">Tap 🎙️, read the page aloud, then tap ⏹. Your recording plays instead of the narrator wherever that page is read, on every device.</p>
       <div className="fv-list">
-        {groups().map((g) => (
+        {!islands && <p className="muted">Getting the stories…</p>}
+        {islands && groups(islands).map((g) => (
           <section key={g.name}>
             <h3>{g.name}</h3>
             {g.lines.map((t) => <Line key={t} text={t} busy={busy} setBusy={setBusy} />)}

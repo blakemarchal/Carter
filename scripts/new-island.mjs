@@ -110,8 +110,8 @@ console.log(`Created:
   src/art/games/${id}.tsx
 
 When it's ready (see docs/ISLAND-GUIDE.md, "Before it ships"), register it:
-  src/art/scenes/index.ts   import { ${ID}_ART } from './${id}'   and   ${id}: ${ID}_ART,
-  src/data/islands.ts       import { ${ID}_STEPS } from './${id}'   and add { id: '${id}', name: '${q(name)}', emoji, color, steps: ${ID}_STEPS }
+  src/data/islands.ts       add { id: '${id}', name: '${q(name)}', emoji, color } to ISLANDS, and to CONTENT:
+                            '${id}': () => both(import('./${id}').then((m) => m.${ID}_STEPS), import('../art/scenes/${id}').then((m) => m.${ID}_ART)),
   src/data/seas.ts          (it's probably listed already: check its sea and order)
   src/data/pals.ts + src/art/pals/  the island's two new Pals
   src/data/songs.ts + scripts/sing/scores.py  the island's song

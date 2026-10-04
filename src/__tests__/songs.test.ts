@@ -13,7 +13,7 @@ describe('built-in songs', () => {
   })
 
   it("an island's song belongs to an island that's built", () => {
-    for (const s of SONGS) if (s.island) expect(islandById(s.island)?.steps, s.id).toBeTruthy()
+    for (const s of SONGS) if (s.island) expect(islandById(s.island), s.id).toBeTruthy()
   })
 
   it.each(SONGS.map((s) => [s.id, s] as const))('%s has both recordings and words in time order', (_, s) => {

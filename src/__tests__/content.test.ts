@@ -1,6 +1,6 @@
 // Checks every island and Pal, so a typo in new content can't ship.
 import { describe, expect, it } from 'vitest'
-import { ISLANDS, type Step, type Thing } from '../data/islands'
+import { ISLANDS, loadAllIslands, type Step, type Thing } from '../data/islands'
 import { STORY_ART } from '../art/scenes'
 import { SONG_IDS } from '../data/songs'
 import { SEAS } from '../data/seas'
@@ -9,6 +9,9 @@ import { PALS } from '../data/pals'
 import { RECIPES, recipeFor } from '../data/recipes'
 
 const EMOJI = /\p{Extended_Pictographic}/u
+// Every island's content (it loads on demand in the game).
+const LOADED = await loadAllIslands()
+const artOf = (id: string) => LOADED.find((i) => i.id === id)?.art ?? STORY_ART[id]
 const palIds = new Set(PALS.map((p) => p.id))
 const FX = ['spark', 'flame', 'rock', 'leaf', 'hearts', 'stars', 'wind', 'roll', 'bubbles']
 
@@ -40,8 +43,8 @@ describe('Pals', () => {
   it('ids are unique', () => expect(palIds.size).toBe(PALS.length))
 })
 
-describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('island %s', (_, isl) => {
-  const steps = isl.steps!
+describe.each(LOADED.map((i) => [i.id, i] as const))('island %s', (_, isl) => {
+  const steps = isl.steps
   const spoken: string[] = []
   it('starts with a story and ends with a reward', () => {
     expect(steps[0].kind).toBe('story')
@@ -170,14 +173,13 @@ describe.each(ISLANDS.filter((i) => i.steps).map((i) => [i.id, i] as const))('is
       expect(s.title, 'a title is read before page one, so no "!"').not.toMatch(/!/)
       next += s.pages.length
     }
-    const art = STORY_ART[isl.id]
-    if (art) expect(art.length, 'one picture per page').toBe(next)
+    expect(isl.art.length, 'one picture per page').toBe(next)
   })
   it('story cards show pages that exist', () => {
     for (const s of steps) for (const t of things(s)) {
       if (!t.art?.startsWith('story:')) continue
       const [, island, page] = t.art.split(':')
-      expect(STORY_ART[island]?.[Number(page) - 1], t.art).toBeTruthy()
+      expect(artOf(island)?.[Number(page) - 1], t.art).toBeTruthy()
     }
   })
   it('has at most three visits, none of them empty', () => {
@@ -216,7 +218,7 @@ describe('Pal Kitchen recipes', () => {
 
 it('each grumpy creature and reward Pal belongs to one island (or the birthday party) only', () => {
   const seen = new Map<string, string>([[PARTY_FOE, 'the birthday party'], [PARTY_PAL, 'the birthday party']])
-  for (const isl of ISLANDS) for (const s of isl.steps ?? []) {
+  for (const isl of LOADED) for (const s of isl.steps) {
     const id = s.kind === 'battle' ? s.foe : s.kind === 'reward' ? s.pal : null
     if (!id) continue
     expect(seen.get(id), `${id} is used by ${seen.get(id)} and ${isl.id}`).toBeUndefined()

@@ -11,8 +11,7 @@ Start with `npm run new-island -- red-sea "The Red Sea"`. It writes the three co
 | `src/data/<id>.ts` | The story (two parts), the activities, the memory verse, the mini-game, the battle, the song and the reward. Export `<ID>_STEPS`. |
 | `src/art/scenes/<id>.tsx` | One component per story page, part 1 then part 2, in order. Export `<ID>_ART`. |
 | `src/art/games/<id>.tsx` | The kit of pictures for the island's mini-game (see "The signature mini-game"). |
-| `src/art/scenes/index.ts` | Register the art: `<id>: <ID>_ART`. |
-| `src/data/islands.ts` | Register the island: `{ id, name, emoji, color, steps }`. The emoji is its landmark on the map. Raise `version` when a finished island gets new content, so players see "New!". |
+| `src/data/islands.ts` | Register the island: `{ id, name, emoji, color }` in `ISLANDS` (the emoji is its landmark on the map), and a line in `CONTENT` that loads its steps and pictures (`npm run new-island` prints it). An island's content loads only when it's needed, so the game starts quickly however many islands there are. Raise `version` when a finished island gets new content, so players see "New!". |
 | `src/data/pals.ts` + `src/art/pals/<species>.tsx` + `src/art/pals/index.ts` + `src/art/pals/faces.ts` | The island's two new Pals: the grumpy creature in the battle, and the reward Pal. |
 | `src/data/songs.ts` + `scripts/sing/scores.py` | The island's song (see "The song"). |
 | `src/art/items/isl-<id>.tsx` | New drawn things the island's activities need. |
