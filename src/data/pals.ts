@@ -367,7 +367,7 @@ export const PALS: PalDef[] = [
     id: 'glint', species: 'kingfisher', fruit: 'Goodness',
     stages: [{ name: 'Glint', xp: 0 }, { name: 'Divedash', xp: 100 }, { name: 'Sparklewing', xp: 300 }],
     moves: { basic: { name: 'Dive Dash', fx: 'roll', icon: '💫' }, brave: { name: 'Rainbow Flash', fx: 'stars', icon: '🌈' }, super: { name: 'Sunny Shine', fx: 'spark', icon: '☀️' } },
-    intro: 'is a Goodness Pal! {name} loves the calm, sparkly sea after the storm, and remembers how good Jesus is. Even the wind and the waves obey Him!',
+    intro: 'is a Goodness Pal! {name} loves the calm, sparkly lake after the storm, and remembers how good Jesus is. Even the wind and the waves obey Him!',
   },
   // The Lost Sheep
   {

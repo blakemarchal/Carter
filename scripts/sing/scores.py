@@ -667,9 +667,9 @@ STORM_SONG = dict(
     lines=_lightly('Sail-ing out, sail-ing out, on the lake they sail a-bout;', 'Je-sus slept, Je-sus slept, in the boat He slept.',
                    'Then the wind be-gan to blow, waves came splash-ing high and low;', 'Je-sus, help! Je-sus, help! We are scared, oh help!')
     + _lightly('Je-sus woke, Je-sus woke, "Peace, be still!" is what He spoke;', 'Wind went still, waves went still, calm and qui-et, still.',
-               "Ev-'ry-bod-y was a-mazed, lift-ing hands, they gave God praise:", '"Who is this? Who is this? Wind and waves o-bey!"')
+               "Ev-'ry-bod-y was a-mazed, at the qui-et lake they gazed:", '"Who is this? Who is this? Wind and waves o-bey!"')
     + _lightly("When we're scared, when we're scared, Je-sus loves us, He is there;", "We can pray, we can pray, He hears ev-'ry prayer.",
-               'Je-sus calms the wind and sea, He takes care of you and me;', 'Light-ly row, light-ly row, home a-cross the sea.', last=True),
+               'Je-sus calms the wind and sea, He takes care of you and me;', 'Light-ly row, light-ly row, safe a-cross the lake.', last=True),
     chords='C:2 G:2 ' + 'C:4 G:4 C:4 G:4 C:4 G:4 C:2 G:2 C:4 G:8 C:8 C:4 G:4 C:2 G:2 C:4 ' * 3,
 )
 
