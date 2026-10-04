@@ -15,7 +15,7 @@ import { BigFish, Cloud, Emoji, Fish, Glow, Moon, Palm, Rays, Scene, Sea, Sparkl
 
 const KING: Look = { skin: '#c68b5e', hair: 'short', hairColor: '#3b2a20', beard: 'long', beardColor: '#5a3a24', robe: '#c0504d', sash: '#ffd34d', crown: true }
 const WOMAN: Look = { skin: '#8d5a3b', hair: 'covered', hairColor: '#3b2a20', wrap: '#f0a860', robe: '#e8c06a', sash: '#c0504d' }
-// A townsman in green with a white head-wrap, so nobody mistakes him for Jonah (blue robe, gold sash).
+// A townsman in green with a white head-wrap, so nobody mistakes him for Jonah (violet robe, teal sash).
 const MAN: Look = { skin: '#c68b5e', hair: 'covered', hairColor: '#2b2020', wrap: '#f5f0e6', beard: 'short', beardColor: '#2b2020', robe: '#6b8f5a', sash: '#c0504d' }
 const GIRL: Look = { skin: '#c68b5e', hair: 'pigtails', hairColor: '#3b2a20', robe: '#ff9f80', sash: '#fff3c9', build: 'child' }
 /** The second sailor (pages three and four): a blue head-wrap and a brown robe. */

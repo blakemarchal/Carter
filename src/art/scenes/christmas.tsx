@@ -684,7 +684,7 @@ const PageAngel = () => {
       <path d="M0 300 Q160 262 340 292 Q540 250 800 286 L800 450 L0 450 Z" fill={`url(#hb${id})`} />
       <path d="M0 362 Q220 330 440 360 T800 350 L800 450 L0 450 Z" fill={`url(#hf${id})`} />
       <Glow x={410} y={170} r={240} color="#ffd970" />
-      <Tap say="Don't be afraid! I bring you happy news!" sfx="sparkle">
+      <Tap say="Don't be afraid! I bring you good news of great joy!" sfx="sparkle">
         <g className="sc-float">
           <Person x={410} y={290} s={1.3} look={PEOPLE.angel} pose="wave" />
         </g>

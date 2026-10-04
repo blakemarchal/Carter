@@ -26,7 +26,7 @@ type PersonProps = ComponentProps<typeof Person>
  * Jesus at twelve: the grown-up Jesus (PEOPLE.jesus) as a boy, with the same skin, long dark-brown hair, cream robe and
  * red sash, and no beard yet. A child's build, drawn a little bigger than the little ones (at s × JESUS_K: BoyJesus).
  */
-export const BOY_JESUS: Look = { ...PEOPLE.jesus, beard: undefined, build: 'child' }
+export const BOY_JESUS: Look = PEOPLE.boyJesus
 /** How much bigger than a little child Jesus at twelve is drawn (Person's s, times this). */
 export const JESUS_K = 1.14
 

@@ -841,7 +841,8 @@ function Page4() {
 }
 
 // 5. "So the friends went back to Jerusalem, full of joy. In a room upstairs, they prayed together every day: Peter,
-//    Andrew, James, John, Mary, Jesus' mother, and many more. They were waiting for the Helper, just like Jesus said."
+//    Andrew, James, John and many more, with Jesus' mother, Mary. They were waiting for the Helper, just like Jesus
+//    said."
 // Inside the room upstairs (Jerusalem's roofs below its window): eleven friends praying with their eyes shut, the four
 // fishermen in front, Mary in the middle, and more friends all round (Thomas, Matthew and Mary Magdalene at the back).
 function Page5() {

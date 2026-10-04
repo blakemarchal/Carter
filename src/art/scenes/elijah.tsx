@@ -1087,8 +1087,8 @@ function Palace({ x0, x1, y }: { x0: number; x1: number; y: number }) {
 
 // ---------- The pages ----------
 
-// 1. "Long ago, there was a man named Elijah, and he loved God. But King Ahab and many of God's people forgot all
-// about God. So Elijah told the king, 'There will be no rain, not one drop, until God says so!'"
+// 1. "Long ago, a man named Elijah loved God. But King Ahab and many of God's people forgot about God. So Elijah told
+// the king, 'There will be no rain, not one drop, until God says so!'"
 // Outside King Ahab's ivory palace, on a green day with a few white clouds: the king sits on his throne under a red
 // canopy, surprised; Elijah stands before him, one hand raised to heaven.
 function Page1() {
@@ -1292,8 +1292,8 @@ function TownGate({ x, y }: { x: number; y: number }) {
   )
 }
 
-// 5. "At the town gate, Elijah met a widow picking up sticks. 'Please, may I have a little bread?' he asked. She said,
-// 'I only have a little flour and a little oil, just enough for one last loaf.'"
+// 5. "At the town gate, the widow and her little boy were picking up sticks. 'Please, may I have a little bread?'
+// Elijah asked. She said, 'I only have enough flour and oil for one last loaf.'"
 // Outside the town gate on a hot, dry day: the widow holds a bundle of sticks, a little sad and worried, her little
 // boy beside her with sticks too; Elijah, tired from his long walk, asks her kindly for some bread.
 function Page5() {
@@ -1347,9 +1347,8 @@ function WidowsHouse({ children }: { children?: ReactNode }) {
   )
 }
 
-// 6. "Elijah said, 'Don't be afraid. God says your flour and oil will not run out!' So the widow shared her very
-// last bread with him. And God made her flour and oil last and last. There was enough for the widow, her little boy
-// and Elijah, every single day!"
+// 6. "'Don't be afraid,' said Elijah. 'God will not let your flour and oil run out.' So the widow shared her bread.
+// And God made her flour and oil last and last, for all three of them!"
 // In the widow's little house: she gives Elijah a round loaf of bread, happy; her little boy holds up his own piece;
 // beside them, her jar of flour and jug of oil glow softly, still full.
 function Page6() {
@@ -1378,9 +1377,8 @@ function Page6() {
   )
 }
 
-// 7. "Remember Elijah? The land was still dry, with no rain at all. Then Elijah called all the people to Mount Carmel.
-// 'Let's see who the real God is!' he said. Some people prayed to a pretend god. They called and called, all day long.
-// But nothing happened."
+// 7. "Remember? There was still no rain. Elijah called all the people to Mount Carmel. 'Let's see who the real God
+// is!' he said. Some people prayed to a pretend god, all day long. But nothing happened."
 // The mountaintop late in the day, the sun going down: beside their pile of stones and wood, the people in plum robes
 // call out with their arms up (one has sat down, yawning, tired out); there's no fire at all. Everyone else watches,
 // and Elijah speaks to them all.
@@ -1414,8 +1412,8 @@ const TippedJar = () => <g transform={`translate(${SPLASH.x} ${SPLASH.y}) rotate
 const SPLASH_MOUTH: Pt = [SPLASH.x + 24 * SPLASH.s * Math.sin((SPLASH.a * Math.PI) / 180), SPLASH.y - 24 * SPLASH.s * Math.cos((SPLASH.a * Math.PI) / 180)]
 const SPLASH_HANDS: [Pt, Pt] = [[-1, -62], [24, -56]]
 
-// 8. "Then Elijah built an altar to God with twelve big stones. He put wood on top and dug a ditch all around it.
-// 'Now pour water all over it!' he said. Splash, splash! The water ran down and filled the ditch."
+// 8. "Then Elijah built an altar to God with twelve big stones. He put wood on top and dug a ditch around it. 'Pour
+// water all over it!' he said. Splash, splash! The water filled the ditch."
 // Elijah's altar of twelve stones (tap each one to count them), the wood on top and the ditch round it, full of water.
 // A helper on each side splashes a big jar of water over the wood, and it runs down the stones. Elijah points; the
 // people watch.

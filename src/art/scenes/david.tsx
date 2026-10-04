@@ -401,7 +401,8 @@ const LionAndBear = () => (
   </Scene>
 )
 
-// 4. "God sent a man named Samuel to David's family. David's big brothers were tall and strong. But God looks at the heart. God picked David to be king one day!"
+// 4. "Remember Samuel, who listened to God? Now Samuel was old, and God sent him to David's family. David's big
+// brothers were tall and strong. But God looks at the heart. God picked David to be king one day!"
 // (1 Samuel 16) At David's home: his big brothers, tall and strong, and Samuel pointing to David, the
 // youngest, with God's light on him and a heart over him.
 const GodPicksDavid = () => (

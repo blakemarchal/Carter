@@ -12,8 +12,8 @@ import './red-sea.css'
 
 // ---------- The pages ----------
 
-// 1. "Long ago, God's people lived in Egypt. The king of Egypt was called Pharaoh. He made God's people
-// work very hard, making bricks all day long. But God loved His people, and He had a plan."
+// 1. "Remember Moses? He and his brother Aaron were on their way to Egypt. There, God's people were still
+// making bricks for Pharaoh, the king, all day long. But God loved His people, and He had a plan."
 // God's people carry bricks, straw and water; Pharaoh points from under his sunshade. God's light shines on them.
 const Page1 = () => (
   <Scene sky="day" ground="none" sun>

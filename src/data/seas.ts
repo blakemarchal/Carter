@@ -32,7 +32,7 @@ export const SEAS: Sea[] = [
     id: 'egypt', name: 'Out of Egypt', color: '#4fb0d8',
     islands: [
       { id: 'baby-moses', name: 'Baby Moses', emoji: '👶', landmark: 'moses-basket' },
-      { id: 'burning-bush', name: 'The Burning Bush', emoji: '🔥' },
+      { id: 'burning-bush', name: 'The Burning Bush', emoji: '🔥', landmark: 'burning-bush' },
       { id: 'red-sea', name: 'The Red Sea', emoji: '🌊' },
       { id: 'manna', name: 'Manna in the Desert', emoji: '🍯', landmark: 'manna-jar' },
     ],
