@@ -62,10 +62,10 @@ export const PRIESTS: Look[] = [
 
 // ---------- Trumpets, and God's special golden box ----------
 
-/** Sound coming out of a trumpet's bell at (x, y): three arcs fanning out upward (`flip`: up and to the left). */
+/** Sound rising out of a ram's horn's bell (which opens upward) at (x, y): three arcs, one above another. */
 export function Blast({ x, y, o = 1, s = 1, flip }: { x: number; y: number; o?: number; s?: number; flip?: boolean }) {
-  const arcs = [10, 18, 26].map((r) => {
-    const a0 = (-128 * Math.PI) / 180, a1 = (-42 * Math.PI) / 180
+  const arcs = [8, 14, 20].map((r) => {
+    const a0 = (-122 * Math.PI) / 180, a1 = (-58 * Math.PI) / 180
     return `M${f1(r * Math.cos(a0))} ${f1(r * Math.sin(a0))} A${r} ${r} 0 0 1 ${f1(r * Math.cos(a1))} ${f1(r * Math.sin(a1))}`
   }).join(' ')
   return (
@@ -324,7 +324,7 @@ export const Jericho = memo(function Jericho({ x, y, s = 1, fall = 0, cord = tru
 
       {/* the fallen stretches: heaps of stones, stones tumbling down, and dust */}
       {pf.map((p, j) => (p > 0.5 ? <Heap key={`fh${j}`} t0={j * STEP} t1={(j + 1) * STEP} up={hf[j]} p={p} c={C} /> : null))}
-      {pf.map((p, j) => (p > 0 ? <Tumbling key={`ft${j}`} j={j} p={p} c={C} /> : null))}
+      {pf.map((p, j) => (p > 0 && j > 1 && j < NSEG - 2 ? <Tumbling key={`ft${j}`} j={j} p={p} c={C} /> : null))}
       {pf.map((p, j) => (p > 0.05 && p < 1 ? <Dust key={`fd${j}`} t={(j + 0.5) * STEP} p={p} rx={RX} ry={RY} /> : null))}
     </g>
   )
@@ -384,8 +384,9 @@ function Heap({ t0, t1, up, p, c }: { t0: number; t1: number; up: number; p: num
 }
 
 /**
- * Three stones tumbling off a falling stretch of the front wall (p: how far it has fallen), spinning as they
- * drop, with streaks above them, and landing on the ground just in front of it (where they stay).
+ * Three stones tumbling off a falling stretch of the front wall (p: how far it has fallen): they drop
+ * straight down its face, turning a little, with streaks above them, and come to rest on the heap at its
+ * foot (where they stay), so there's always clear ground between the stones and anyone on the path.
  */
 function Tumbling({ j, p, c }: { j: number; p: number; c: WallColors }) {
   const q = Math.min(1, p / 0.8)
@@ -394,9 +395,9 @@ function Tumbling({ j, p, c }: { j: number; p: number; c: WallColors }) {
       {[0, 1, 2].map((k) => {
         const t = (j + 0.2 + k * 0.3) * STEP
         const [x0, y0] = ring(t, RX, RY, H - 4 - 22 * k)
-        const [, yl] = ring(t, RX, RY, -5 - 4 * ((k + j) % 3))
+        const [, yl] = ring(t, RX, RY, 5 + 3 * ((k + j) % 3))
         const d = (k + j) % 2 ? 1 : -1
-        const x = x0 + d * (5 + 4 * k) * q
+        const x = x0 + d * 3 * q
         const y = y0 + (yl - y0) * q * q
         const w = 13 - 2 * k + (j % 3), h = 9 - k
         return (
@@ -405,7 +406,7 @@ function Tumbling({ j, p, c }: { j: number; p: number; c: WallColors }) {
               <path d={`M${f1(x - 4)} ${f1(y - 10 - 12 * q)} L${f1(x - 4)} ${f1(y - 6)} M${f1(x + 4)} ${f1(y - 13 - 14 * q)} L${f1(x + 4)} ${f1(y - 7)}`}
                 stroke="#ffffff" strokeWidth={1.8} opacity={f1(0.85 * (1 - q))} strokeLinecap="round" />
             )}
-            <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={2} transform={`translate(${f1(x)} ${f1(y)}) rotate(${f1(d * 150 * q + 8 * k)})`}
+            <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={2} transform={`translate(${f1(x)} ${f1(y)}) rotate(${f1(d * 80 * q + 8 * k)})`}
               fill={k === 1 ? c.face : c.light} stroke={c.line} strokeWidth={1.3} />
           </g>
         )
@@ -414,12 +415,15 @@ function Tumbling({ j, p, c }: { j: number; p: number; c: WallColors }) {
   )
 }
 
-/** Dust puffing up from a stretch of wall as it falls (p: how far it has fallen), at angle t round the ring; it settles as the stones do. */
+/**
+ * Dust puffing up from a stretch of wall as it falls (p: how far it has fallen), at angle t round the ring; it
+ * settles as the stones do. It rises from just above the wall's foot and never billows down over the path.
+ */
 function Dust({ t, p, rx, ry }: { t: number; p: number; rx: number; ry: number }) {
   const [x, y] = ring(t, rx, ry)
-  const o = 0.85 * Math.sin(Math.PI * p) ** 0.7
-  const g = 1 + 0.9 * p
-  const puffs: [number, number, number][] = [[-12, -3 - 5 * p, 8], [2, -8 - 9 * p, 10], [14, -2 - 4 * p, 7], [-3, -21 - 16 * p, 7]]
+  const o = 0.72 * Math.sin(Math.PI * p) ** 0.7
+  const g = 1 + 0.45 * p
+  const puffs: [number, number, number][] = [[-10, -9 - 4 * p, 6.5], [3, -13 - 7 * p, 8], [13, -8 - 3 * p, 5.5], [-2, -27 - 12 * p, 6]]
   return (
     <g opacity={f1(o)}>
       <g fill="#e2cd9e">{puffs.map(([dx, dy, r], i) => <circle key={i} cx={f1(x + dx)} cy={f1(y + dy)} r={f1(r * g)} />)}</g>
@@ -471,6 +475,12 @@ export const MARCHERS: Marcher[] = [
   ...[3, 8, 1, 6, 9, 2, 5, 7].map((i, n): Marcher => ({ id: `folk${n}`, slot: 15.9 + n * 0.85, kind: 'folk', i, child: n % 3 === 1 })),
 ]
 const isKid = (m: Marcher) => (m.kind === 'person' && m.look.build === 'child') || (m.kind === 'folk' && !!m.child)
+/** Whether a marcher on the far side of the path, standing at (x, y) at scale sc, is all out of sight below the far wall's top. */
+function behindFarWall(m: Marcher, near: boolean, x: number, y: number, sc: number) {
+  if (near || Math.abs(x) >= RX) return false
+  const head = y - 142 * (isKid(m) ? 0.73 : 1) * sc
+  return head > -RY * Math.sqrt(1 - (x / RX) ** 2) - H - 1
+}
 
 /** One marcher, drawn at their feet (figure units: a grown-up is about 150 tall). */
 const MarcherFig = memo(function MarcherFig({ m, facing, up }: { m: Marcher; facing: 'left' | 'right'; up: boolean }) {
@@ -506,22 +516,32 @@ export function MarchingRound({ x, y, s = 1, lead = MARCH_START, lift = 0, hop =
     const sn = Math.sin(t)
     return { m, t, near: sn > 0, x: RXP * Math.cos(t), y: PY + RYP * sn, depth: 0.84 + 0.08 * (sn + 1) }
   })
-    // (Once the walls start to fall, the ones out of sight behind the city aren't drawn: with the far wall
-    // down they'd seem to stand on the roofs. They were hidden a moment before, so nobody vanishes.)
-    .filter((p) => !(fall > 0 && !p.near && Math.abs(p.x) < RX + 26))
-  const draw = (list: typeof placed) => list.sort((a, b) => a.y - b.y).map(({ m, near, x: px, y: py, depth }) => {
-    const facing = near ? 'left' : 'right'
-    const sc = k * depth
-    const up2 = up && m.kind !== 'priest' && m.kind !== 'box'
-    const fig = (
-      <g transform={`translate(${f1(px)} ${f1(py - lift - (isKid(m) ? hop : 0))}) scale(${sc.toFixed(3)})`}>
-        <MarcherFig m={m} facing={facing} up={up2} />
-        {m.kind === 'priest' && blast > 0.02 && <Blast x={facing === 'left' ? -84 : 84} y={-142} o={blast} s={1.25} flip={facing === 'left'} />}
-      </g>
-    )
-    const tap = taps[m.id]
-    return tap ? <Tap key={m.id} say={tap[0]} sfx={tap[1]}>{fig}</Tap> : <g key={m.id}>{fig}</g>
-  })
+    // (Once the walls start to fall, the ones out of sight behind the far wall aren't drawn: with it down
+    // they'd seem to stand on the roofs or on the falling wall. It hid every one of them, head and all, a
+    // moment before, so nobody vanishes; anyone who could be seen over or round its ends stays.)
+    .filter((p) => !(fall > 0 && behindFarWall(p.m, p.near, p.x, p.y, k * p.depth)))
+  const draw = (list: typeof placed) => {
+    const sorted = list.sort((a, b) => a.y - b.y)
+    const foot = (p: (typeof placed)[number]) => p.y - lift - (isKid(p.m) ? hop : 0)
+    // the trumpets' sound first, under everyone, so it never lands on anybody's head; and only along the open
+    // front and back of the line, not round its ends, where the marchers bunch up close together
+    const sounds = blast > 0.02 ? sorted.filter((p) => p.m.kind === 'priest' && Math.abs(Math.cos(p.t)) < 0.8).map((p) => {
+      const sc = k * p.depth, dir = p.near ? -1 : 1
+      return <Blast key={`s${p.m.id}`} x={p.x + dir * 82 * sc} y={foot(p) - 138 * sc} o={blast} s={1.15 * sc} flip={dir < 0} />
+    }) : []
+    const figs = sorted.map((p) => {
+      const { m } = p
+      const up2 = up && m.kind !== 'priest' && m.kind !== 'box'
+      const fig = (
+        <g transform={`translate(${f1(p.x)} ${f1(foot(p))}) scale(${(k * p.depth).toFixed(3)})`}>
+          <MarcherFig m={m} facing={p.near ? 'left' : 'right'} up={up2} />
+        </g>
+      )
+      const tap = taps[m.id]
+      return tap ? <Tap key={m.id} say={tap[0]} sfx={tap[1]}>{fig}</Tap> : <g key={m.id}>{fig}</g>
+    })
+    return [...sounds, ...figs]
+  }
   return (
     <g transform={`translate(${f1(x)} ${f1(y)}) scale(${s})`}>
       {/* the path they've worn round the city */}
@@ -736,8 +756,9 @@ function GodsLight({ x, y, r = 520, spots }: { x: number; y: number; r?: number;
 
 // ---------- The pages: part one ----------
 
-// 1. "When Moses was very old, he died. God chose Joshua to lead His people. God said, 'Be strong and brave!
-// I will be with you wherever you go.'" Joshua in God's light at the camp by the Jordan, God's people round him.
+// 1. "Moses had led God's people for a long, long time. When he was very, very old, Moses went to be with God.
+// Then God chose a new leader: Joshua! God said, 'Be strong and brave! I will be with you wherever you go.'"
+// Joshua in God's light at the camp by the Jordan, God's people round him.
 function Page1() {
   return (
     <Scene sky="day" ground="none">
@@ -799,8 +820,8 @@ function Page2() {
 
 // 3. "In Jericho lived a kind woman named Rahab. Her house was built right into the big wall! She hid the
 // two men up on her roof, to keep them safe." Up on her flat roof, which is part of the city wall (its
-// merlons and a tower right behind, and the land outside far below): the two men peeking out from behind
-// the flax drying there, and Rahab bringing one more bundle to hide them.
+// merlons and a tower right behind, and the land outside far below): the two men crouched down behind the
+// flax drying there, only their heads peeking over, and Rahab bringing one more bundle to hide them.
 function Page3() {
   const para = 262, roofBack = 304, roofFront = 404
   return (
@@ -833,8 +854,8 @@ function Page3() {
       <Flax x={262} y={384} w={104} r={10} a={2} />
       {/* the two men, behind the pile of flax, and the pile */}
       <Tap say="Thank you, Rahab! You are so kind." sfx="pop">
-        <Person x={392} y={384} s={0.64} look={SPIES[0]} pose="stand" blinkDelay={0.4} />
-        <Person x={458} y={386} s={0.64} look={SPIES[1]} pose="stand" blinkDelay={1.7} />
+        <Person x={392} y={399} s={0.64} look={SPIES[0]} pose="stand" blinkDelay={0.4} />
+        <Person x={458} y={401} s={0.64} look={SPIES[1]} pose="stand" blinkDelay={1.7} />
       </Tap>
       <Tap say="A great hiding place, under the flax!" sfx="swish">
         <Flax x={364} y={398} w={96} r={11} a={-2} />
@@ -1052,7 +1073,7 @@ function Page9() {
     <Scene sky="dawn" ground="none">
       <FarHills y={186} />
       <Plain y={200} />
-      <MarchingRound x={470} y={230} s={0.92} lead={MARCH_START + 0.3} blast={1} without={['joshua']}
+      <MarchingRound x={470} y={230} s={0.92} lead={MARCH_START + 0.3} blast={1} without={['joshua', 'boy']}
         taps={{
           priest3: ['Toooot! Toooot!', 'ding'],
         }} />
@@ -1125,7 +1146,7 @@ function Page11() {
 
 // 12. "Everyone thanked God. God was with Joshua, just as He promised. God always keeps His promises, and He is
 // with you, too!" Everyone together in God's light, thanking Him: God's people, the priests with their
-// trumpets, Joshua, and Rahab and her family; Jericho's walls flat behind them.
+// trumpets, Joshua, and Rahab with her mother, brother, father and sister; Jericho's walls flat behind them.
 function Page12() {
   return (
     <Scene sky="glory" ground="none">
@@ -1152,10 +1173,11 @@ function Page12() {
         <Person x={254} y={430} s={0.76} look={HEBREWS.dad} pose="arms-up" blinkDelay={0.4} />
       </Tap>
       <Tap say="Thank You, God, for keeping my family safe!" sfx="sparkle">
-        <Person x={548} y={432} s={0.8} look={RAHAB} pose="pray" />
-        <Person x={618} y={430} s={0.76} look={RAHAB_FAMILY[1]} pose="arms-up" blinkDelay={1.1} />
-        <Person x={688} y={432} s={0.76} look={RAHAB_FAMILY[0]} pose="arms-up" blinkDelay={0.3} />
-        <Person x={756} y={434} s={0.76} look={RAHAB_FAMILY[3]} pose="wave" blinkDelay={1.9} />
+        <Person x={540} y={432} s={0.78} look={RAHAB} pose="pray" />
+        <Person x={600} y={430} s={0.72} look={RAHAB_FAMILY[1]} pose="arms-up" blinkDelay={1.1} />
+        <Person x={658} y={434} s={0.72} look={RAHAB_FAMILY[2]} pose="arms-up" blinkDelay={2.4} />
+        <Person x={716} y={430} s={0.72} look={RAHAB_FAMILY[0]} pose="arms-up" blinkDelay={0.3} />
+        <Person x={772} y={434} s={0.72} look={RAHAB_FAMILY[3]} pose="wave" facing="left" blinkDelay={1.9} />
       </Tap>
     </Scene>
   )

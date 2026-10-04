@@ -5,6 +5,8 @@
 //               means it: 🎺 is a brass trumpet and 📯 a post horn.
 //   red-cord:   the red cord Rahab tied in her window (🧶 is a ball of yarn).
 //   golden-box: God's special golden box (the ark of the covenant), with its carrying poles.
+//   mud-brick:  one sandy mud brick, like the bricks of Jericho's walls: it's what 🧱 means (a brick), and the
+//               "Tumbling Bricks" number games count it (a practice counts its theme emoji's drawing).
 // RamsHorn and GoldenBoxShape draw the same things at any size, for the story pictures and the game.
 import { useId } from 'react'
 import type { Item } from './types'
@@ -169,8 +171,27 @@ function GoldenBoxItem() {
   )
 }
 
+/** One sandy mud brick, seen from a little above: its long front, its top and its end, with bits of straw in it. */
+function MudBrick() {
+  const front = '#e2ae6c', top = '#f3d29a', end = '#c48d50', line = ink(front)
+  return (
+    <g {...ROUND}>
+      <ellipse {...groundShadow(53, 89, 42)} />
+      <path d="M78 52 L94 38 L94 70 L78 84 Z" fill={end} stroke={line} strokeWidth={2.6} />
+      <path d="M12 52 L28 38 L94 38 L78 52 Z" fill={top} stroke={line} strokeWidth={2.6} />
+      <path d="M12 52 L78 52 L78 84 L12 84 Z" fill={front} stroke={line} strokeWidth={2.6} />
+      {/* bits of straw, and little holes, in the mud */}
+      <path d="M22 62 l7 -2 M40 72 l6 2 M58 60 l7 1 M30 78 l5 -2 M66 74 l6 -2 M38 45 l7 -1 M62 43 l6 1 M82 52 l3 4"
+        stroke={lighten(front, 0.45)} strokeWidth={2} fill="none" />
+      {[[34, 63], [52, 76], [70, 64], [24, 72], [50, 46], [86, 62]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r={1.4} fill={darken(front, 0.28)} />)}
+      <Shine x={26} y={58} rx={8} ry={3} rot={0} />
+    </g>
+  )
+}
+
 export const ISL_JERICHO: Item[] = [
   { id: 'rams-horn', name: "ram's horn trumpet", Draw: RamsHornItem },
   { id: 'red-cord', name: 'red cord', Draw: RedCord },
   { id: 'golden-box', name: "God's special golden box", Draw: GoldenBoxItem },
+  { id: 'mud-brick', name: 'brick', emoji: ['🧱'], Draw: MudBrick },
 ]

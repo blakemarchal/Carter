@@ -10,7 +10,7 @@ import { JERICHO_GAME } from '../art/games/jericho'
 
 /** Part 1: Joshua, Rahab and the two men, the red cord, across the Jordan, and God's strange plan (pictures 1 to 6). */
 export const JERICHO_STORY_1: StoryPage[] = [
-  { scene: '🙏✨', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'When Moses was very old, he died. God chose Joshua to lead His people. God said, "Be strong and brave! I will be with you wherever you go."' },
+  { scene: '🙏✨', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Moses had led God\'s people for a long, long time. When he was very, very old, Moses went to be with God. Then God chose a new leader: Joshua! God said, "Be strong and brave! I will be with you wherever you go."' },
   { scene: '🏰🌊', bg: 'linear-gradient(#bfe6ff,#e9d3b5)', text: 'Across the Jordan River was a city called Jericho. It had great big, strong walls all the way around. Joshua sent two men to go and look at it.' },
   { scene: '🏠🌾', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'In Jericho lived a kind woman named Rahab. Her house was built right into the big wall! She hid the two men up on her roof, to keep them safe.' },
   { scene: '🌙❤️', bg: 'linear-gradient(#3b3486,#35577a)', text: 'Rahab said, "I know your God is the real God. Please keep my family safe!" The men said, "Tie this red cord in your window, and everyone in your house will be safe."' },
@@ -43,7 +43,7 @@ export const JERICHO_STEPS: Step[] = [
   {
     kind: 'rhythm', title: 'March Around Jericho',
     intro: "Let's march around Jericho, just like God said! You can blow the trumpet. Tap the trumpet when a note gets to it.",
-    done: 'Crash! The big walls came tumbling down! Nothing is too hard for God.',
+    done: "Day after day, God's people marched around Jericho. Then, on the seventh day, crash! The big walls came tumbling down! Nothing is too hard for God.",
     kit: JERICHO_GAME,
   },
   // (The intro fits every level: letter sounds, reading words, finding words. 🎵 is drawn as music notes.)
@@ -72,13 +72,13 @@ export const JERICHO_STEPS: Step[] = [
       },
       {
         say: 'What happened when everybody shouted?',
-        choices: [{ emoji: '🌈', say: 'A rainbow came out' }, { emoji: '🧱', say: 'The walls fell down flat', art: 'story:jericho:10' }, { emoji: '🐸', say: 'A frog said ribbit' }],
+        choices: [{ emoji: '🌈', say: 'A rainbow came out' }, { emoji: '🧱', say: 'The walls came tumbling down', art: 'story:jericho:10' }, { emoji: '🐸', say: 'A frog said ribbit' }],
         answer: 1,
       },
     ],
   },
-  // (🪨 is drawn as a stone: the stones of the fallen walls.)
-  { kind: 'practice', skill: 'numbers', title: 'Tumbling Stones', decor: '🪨', theme: '🪨', intro: "Crash! The walls came down, and there are stones everywhere! Let's play number games with them." },
+  // (🧱 is drawn as a sandy mud brick, like the bricks of the fallen walls: art/items/isl-jericho.tsx.)
+  { kind: 'practice', skill: 'numbers', title: 'Tumbling Bricks', decor: '🧱', theme: '🧱', intro: "Crash! The walls came tumbling down, and there are bricks everywhere! Let's play number games with them." },
   { kind: 'verse', chunks: JERICHO_VERSE.chunks, ref: JERICHO_VERSE.ref },
   { kind: 'pause', line: "Stomp, stomp! Somebody grumpy is stomping around the camp. Who could it be? Let's find out next time!" },
 
