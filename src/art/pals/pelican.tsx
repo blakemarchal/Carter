@@ -3,12 +3,13 @@
 // peach pouch hanging under it. Its cream wings are folded at its sides (the one on our left peeping out from under
 // the pouch), a short tail sticks out low at its back (our right), and it stands on two short legs with orange webbed
 // feet. Gulp has a small crest of soft head feathers at the back of its head.
-// Pouchbill's crest is fuller, and its beak is open a little so a happy little fish can peek out of its pouch,
-// ready to share. Netkeeper has the fullest crest and the fish, wears a fishing net like a little cape (tied round
-// its neck with a rope, hanging down behind it at its back, with little floats along its edge), glows softly and
-// wears a crown.
-// Grumpy: a dull grey, its pouch puffed out greedily under its throat, its feathers ruffled every which way (its head
-// and body bumpy, its crest sticking out all over), with cross brows.
+// Its beak always stays shut: the little fish in this story is its friend. Pouchbill's crest is fuller, and its
+// happy little fish friend leaps and splashes in a puddle by its feet. Netkeeper has the fullest crest and wears a
+// fishing net like a little cape (tied round its neck with a rope, hanging down behind it at its back, with little
+// floats along its edge); the fish rides along in a pocket of the net on its back, peeking out over its shoulder.
+// Netkeeper glows softly and wears a crown.
+// Grumpy: a dull grey, its pouch puffed out greedily under its throat (and shut), its feathers ruffled every which
+// way (its head and body bumpy, its crest sticking out all over), with cross brows, and no fish anywhere.
 import { useId } from 'react'
 import { type BodyProps, Anim, Crown, CuteFace, ink, pt, Shine, twinklePath, useShade } from '../kit'
 
@@ -67,22 +68,15 @@ function headPath(ruffled: boolean) {
     return [HEAD.x + Math.cos(a) * r, HEAD.y + Math.sin(a) * r] as Pt
   }))
 }
-// The long beak (the top half of it), from the bottom of its face out to a rounded tip that curls down a little;
-// it opens (turning up about its base) to let Pouchbill's fish peek out
+// The long beak, from the bottom of its face out to a rounded tip that curls down a little (always shut)
 const BILL = 'M106 86 C84 84 54 91 32 102 Q22 106.5 23 113 Q24.5 118 30 115 Q32.5 110.5 36 109 C56 101 82 96 106 96 A5 5 0 0 0 106 86 Z'
 const NAIL = 'M32 102 Q22 106.5 23 113 Q24.5 118 30 115 Q32.5 110.5 36 109 Q31 106 32 102 Z'
-const BILL_OPEN = 'rotate(13 100 91)'
-// The bottom of the beak: a thin edge the pouch hangs from (seen when the beak opens), and the inside of its mouth
-const JAW = 'M106 92 C82 92 56 97 36 105 Q30 108 32 111 Q34.5 111.5 36 109 C56 101 82 96 106 96 Z'
-const MOUTH = 'M108 86 C84 82 54 89 30 100 Q24 106 30 110 C56 101 82 95 108 95 Z'
 // The soft, stretchy pouch hanging under the beak, deepest by its throat: gently full, or puffed out greedily
 // when grumpy
 const POUCH = 'M106 94 C84 97 56 103 36 110 C44 119 58 126 76 128.5 C93 130.5 105 124 111 111 Z'
 const POUCH_LINES = 'M52 116 Q72 125 100 118 M68 124 Q86 127 104 119'
 const POUCH_FULL = 'M106 94 C84 97 56 103 36 110 C44 116 54 119 64 120 C56 130 56 150 70 158 C84 166 108 162 114 146 C120 130 117 114 111 106 Z'
 const POUCH_FULL_LINES = 'M64 136 Q86 148 113 135 M68 149 Q88 158 110 149'
-// (the fish shows only above the bottom of the beak: the rest of it is down in the pouch)
-const ABOVE_JAW = '0 0 200 0 200 92 106 92 82 93 56 97.5 36 105 0 112'
 
 // The left wing, folded at its side, with three round feather tips at the bottom (the right one is its mirror image)
 const WING = 'M70 107 C58 110 50 120 48 133 C46 143 47 152 50 159 A4.2 4.2 0 0 0 56.5 163.5 A4.2 4.2 0 0 0 63.5 162 A4.2 4.2 0 0 0 68.5 156 C71.5 147 74 137 74 126 C74 117 73 111 70 107 Z'
@@ -103,7 +97,18 @@ const RUFFLED: [number, number, number, number][] = [[100, 45, -112, 12], [108, 
 const CAPE = 'M116 88 C134 90 152 100 164 116 C176 132 184 148 188 160 Q189 167 182 168 Q172 173 162 167 Q152 173 142 167 Q134 171 128 166 C118 136 112 108 116 88 Z'
 const CAPE_FLOATS: Pt[] = [[183, 167.5], [146, 169]]
 
-/** A happy little fish (peeking out of the pouch), its head at the left. */
+// Pouchbill's little fish friend, leaping and splashing in a puddle on the ground by its feet (left of them, well
+// below its beak): the puddle and a ripple round it, the fish leaping up out of it head first, and splashes
+const PUDDLE = { x: 40, y: 178.5, rx: 21, ry: 5.2 }
+const LEAP = 'translate(30.6 156.6) rotate(45)' // (the fish's tail tip in the water at (50, 176), its head up at (22, 148))
+const DROPS: [number, number, number][] = [[57, 165, 2.2], [62, 172.5, 1.6], [16, 160, 1.8], [12, 169, 1.4]]
+// Netkeeper's fish, riding in a pocket of its net on its back, peeking out over its shoulder: the pocket (behind its
+// body, so only its top shows, above its shoulder), with a rope round its top edge, and the fish in it
+const POCKET = 'M124 91 Q145 99 167 93 C171 104 168 116 158 122 C146 128 130 124 126 112 C123 104 122 97 124 91 Z'
+const POCKET_RIM = 'M124 91 Q145 99 167 93'
+const RIDE = 'translate(146 89) rotate(-55) scale(-1.12 1.12)' // (facing out, its head up by its shoulder at (154, 78))
+
+/** A happy little fish, its head at the left. */
 function Fish({ fill, line }: { fill: string; line: string }) {
   return (
     <g>
@@ -124,7 +129,7 @@ export default function Pelican({ stage, mood }: BodyProps) {
   const ids = useId().replace(/[^a-zA-Z0-9]/g, '')
   const glowId = `pg${ids}`
   const capeClip = `pc${ids}`
-  const fishClip = `pf${ids}`
+  const pocketClip = `pp${ids}`
   const WHITE = g ? '#d8d3d4' : '#fbf6ec'
   const WINGC = g ? '#cbc5c8' : '#f0e7d8'
   const LINE = g ? '#8c8389' : '#b39c84' // a warm grey-brown outline (the dove's is blue)
@@ -143,8 +148,10 @@ export default function Pelican({ stage, mood }: BodyProps) {
   const bill = useShade(BILLC, 0.4, 0.12)
   const pouch = useShade(POUCHC, 0.35, 0.14)
   const fish = useShade(FISH, 0.4, 0.12)
-  const fishOut = st >= 1 && !g // the fish peeks out of Pouchbill's (and Netkeeper's) pouch; grumpy, it's gobbled up
   const caped = st >= 2
+  // Pouchbill's fish friend splashes in a puddle by its feet; Netkeeper's rides in its net. (Grumpy, there's no fish.)
+  const splashing = st === 1 && !g
+  const riding = caped && !g
   const crests = g ? RUFFLED : CRESTS[st]
 
   return (
@@ -157,7 +164,7 @@ export default function Pelican({ stage, mood }: BodyProps) {
           <stop offset="1" stopColor={GLOW} stopOpacity={0} />
         </radialGradient>
         <clipPath id={capeClip}><path d={CAPE} /></clipPath>
-        <clipPath id={fishClip}><polygon points={ABOVE_JAW} /></clipPath>
+        <clipPath id={pocketClip}><path d={POCKET} /></clipPath>
       </defs>
 
       {/* Netkeeper's soft glow all round it */}
@@ -176,6 +183,24 @@ export default function Pelican({ stage, mood }: BodyProps) {
             ))}
           </g>
           {CAPE_FLOATS.map(([x, y]) => <ellipse key={x} cx={x} cy={y} rx={4.6} ry={3.6} fill={FLOAT} stroke={ink(FLOAT)} strokeWidth={1.6} />)}
+          {/* The fish riding in a pocket of the net on its back, peeking out happily over its shoulder (you can see
+              the rest of it through the net) */}
+          {riding && (
+            <g>
+              <g transform={RIDE}><Fish fill={fish.fill} line={ink(FISH)} /></g>
+              <path d={POCKET} fill="#f6e3c4" fillOpacity={0.55} stroke={ink(NET)} strokeWidth={2} strokeLinejoin="round" />
+              <g clipPath={`url(#${pocketClip})`}>
+                {Array.from({ length: 9 }, (_, i) => 118 + i * 7).map((x) => (
+                  <g key={x}>
+                    <polyline points={`${x - 20} 88 ${x + 20} 128`} fill="none" stroke={NET} strokeWidth={1.4} opacity={0.85} />
+                    <polyline points={`${x + 20} 88 ${x - 20} 128`} fill="none" stroke={NET} strokeWidth={1.4} opacity={0.85} />
+                  </g>
+                ))}
+              </g>
+              <path d={POCKET_RIM} fill="none" stroke={ink(NET)} strokeWidth={5.6} strokeLinecap="round" />
+              <path d={POCKET_RIM} fill="none" stroke="#e2b878" strokeWidth={3} strokeLinecap="round" />
+            </g>
+          )}
         </g>
       )}
 
@@ -221,6 +246,17 @@ export default function Pelican({ stage, mood }: BodyProps) {
         </g>
       ))}
 
+      {/* Pouchbill's little fish friend, leaping and splashing in a puddle by its feet */}
+      {splashing && (
+        <g>
+          <ellipse cx={PUDDLE.x} cy={PUDDLE.y} rx={PUDDLE.rx + 6} ry={PUDDLE.ry + 2.4} fill="none" stroke={FISH} strokeWidth={1.8} opacity={0.6} />
+          <ellipse cx={PUDDLE.x} cy={PUDDLE.y} rx={PUDDLE.rx} ry={PUDDLE.ry} fill="#cdeaff" stroke={FISH} strokeWidth={2} />
+          <ellipse cx={49} cy={177} rx={7.5} ry={2.2} fill="none" stroke="#fff" strokeWidth={1.4} opacity={0.9} />
+          <g transform={LEAP}><Fish fill={fish.fill} line={ink(FISH)} /></g>
+          {DROPS.map(([x, y, r]) => <circle key={x} cx={x} cy={y} r={r} fill="#9fd8ff" stroke={FISH} strokeWidth={1} />)}
+        </g>
+      )}
+
       {/* Netkeeper's rope, tied round its neck */}
       {caped && (
         <g>
@@ -239,27 +275,15 @@ export default function Pelican({ stage, mood }: BodyProps) {
       <Shine x={93} y={55} rx={8} ry={4.5} />
       <CuteFace x={100} y={FACE_Y} s={FACE_S} gap={15} mood={mood} mouth={false} blinkDelay={1.1} />
 
-      {/* Its beak opens a little, and the fish peeks happily out of its pouch (behind the front of the pouch, with
-          its head out between the top and bottom of the beak) */}
-      {fishOut && <path d={MOUTH} fill="#c0455f" stroke={ink(BILLC)} strokeWidth={1.6} strokeLinejoin="round" />}
-
       {/* The soft, stretchy pouch under its beak (puffed out greedily when grumpy) */}
       <path d={g ? POUCH_FULL : POUCH} fill={pouch.fill} stroke={ink(POUCHC)} strokeWidth={2.6} strokeLinejoin="round" />
       <path d={g ? POUCH_FULL_LINES : POUCH_LINES} fill="none" stroke={ink(POUCHC)} strokeWidth={1.8} strokeLinecap="round" opacity={0.55} />
       {g && <Shine x={74} y={131} rx={7} ry={4} />}
 
-      {/* Its beak: the bottom edge (seen when it opens) and the top, with a rounded tip */}
-      {fishOut && <path d={JAW} fill={bill.fill} stroke={ink(BILLC)} strokeWidth={1.8} strokeLinejoin="round" />}
-      <g transform={fishOut ? BILL_OPEN : undefined}>
-        <path d={BILL} fill={bill.fill} stroke={ink(BILLC)} strokeWidth={2.2} strokeLinejoin="round" />
-        <path d={NAIL} fill={NAILC} opacity={0.75} />
-        <polyline points="48 95.5 70 89.5 94 88" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" opacity={0.55} />
-      </g>
-      {fishOut && (
-        <g clipPath={`url(#${fishClip})`}>
-          <g transform="translate(49 98) rotate(32) scale(1.22)"><Fish fill={fish.fill} line={ink(FISH)} /></g>
-        </g>
-      )}
+      {/* Its long beak, shut, with a rounded tip */}
+      <path d={BILL} fill={bill.fill} stroke={ink(BILLC)} strokeWidth={2.2} strokeLinejoin="round" />
+      <path d={NAIL} fill={NAILC} opacity={0.75} />
+      <polyline points="48 95.5 70 89.5 94 88" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" opacity={0.55} />
 
       {st >= 2 && (
         <>
