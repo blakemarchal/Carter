@@ -15,7 +15,7 @@
 // The fish and nets themselves are in art/items/isl-fishers.tsx.
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Figure, PEOPLE, SKIN, type JHolding, type JLook, type JPose, type Mood } from '../people'
+import { EyesUp, Figure, LookingUp, PEOPLE, SKIN, type JHolding, type JLook, type JPose, type Mood } from '../people'
 import { usePlayer } from './player'
 import { Cloud, Glow, Scene, Sparkles, Sun, Tap } from './kit'
 import { FISH_COLORS, FishHeap, Fishy, NET, NET_LINE, NetBag, Rope } from '../items/isl-fishers'
@@ -555,7 +555,7 @@ const Page1 = () => (
       <Crowd seed={2} rows={[[322, 20, 450, 12, 0.42], [346, 10, 470, 11, 0.52], [378, 20, 490, 9, 0.64], [414, 30, 470, 7, 0.8]]} />
     </Tap>
     <Tap say="Hi, Jesus! Over here!" sfx="pop">
-      <Folk x={120} y={440} s={0.98} i={18} wave />
+      <Folk x={148} y={440} s={0.98} i={18} wave />
     </Tap>
     <Folk x={300} y={444} s={1} i={11} />
     <Tap say="Good morning! God loves every one of you!" sfx="sparkle">
@@ -580,7 +580,7 @@ const Page2 = () => (
     <FishingBoat x={214} y={334} s={0.5} tilt={-2} still />
     <Tap say="Time to fix this net." sfx="pop">
       <FishingBoat x={600} y={330} s={0.5} tilt={2} still band={ZEBEDEE_BOAT.band} flag={ZEBEDEE_BOAT.flag}
-        crew={<Aboard x={-70} look={ZEBEDEE} pose="hold" low={-8} blinkDelay={1.2} />}
+        crew={<Aboard x={-70} look={ZEBEDEE} low={-2} reach={[reachTo(-70, 0.9, -104, -48, 'right', -2), reachTo(-70, 0.9, -44, -46, 'right', -2)]} blinkDelay={1.2} />}
         front={<NetCurtain a={[-150, -47]} b={[-20, -41]} drop={46} sag={6} />}
       />
     </Tap>
@@ -605,10 +605,10 @@ const Page2 = () => (
   </Scene>
 )
 
-// 3. "One boat belonged to a fisherman named Peter. Jesus got into Peter's boat, and Peter pushed it out onto the
-// water. Then Jesus sat down in the boat and taught the people."
-// Peter holds the boat steady with a long oar, a little way out from the shore; Jesus sits in it, teaching the crowd
-// on the beach (Luke 5:3).
+// 3. "One boat belonged to a fisherman named Peter. His brother Andrew fished with him. Jesus got into Peter's boat, and
+// they pushed it out onto the water. Then Jesus sat down and taught the people from the boat."
+// Peter holds the boat steady with a long oar, a little way out from the shore, and Andrew waves to the crowd; Jesus
+// sits in the boat, teaching the people on the beach (Luke 5:3).
 const Page3 = () => (
   <Scene sky="day" ground="none" clouds={false}>
     <Sky tone="morning" h={214} />
@@ -622,13 +622,14 @@ const Page3 = () => (
       <Crowd sit seed={30} rows={[[322, 660, 790, 4, 0.42], [348, 620, 790, 5, 0.52], [382, 590, 790, 5, 0.64], [420, 570, 790, 4, 0.8]]} />
     </Tap>
     <Tap say="Hi, Jesus!" sfx="pop">
-      <Folk x={640} y={448} s={0.95} i={9} wave />
+      <Folk x={606} y={448} s={0.95} i={9} wave />
     </Tap>
     <FishingBoat x={290} y={378} s={0.7}
       crew={<>
         <Tap say="Hold on! I'll keep the boat steady." sfx="pop">
           <Aboard x={-160} look={PETER} pose="hold" low={-14} blinkDelay={1.4} />
         </Tap>
+        <Aboard x={-50} look={ANDREW} pose="wave" low={-10} blinkDelay={0.8} />
         <Tap say="God loves each one of you, so much!" sfx="sparkle">
           <Aboard x={120} look={JESUS} low={10} reach={[[-46, -100], [46, -100]]} blinkDelay={0.5} />
         </Tap>
@@ -817,34 +818,53 @@ const Page7 = () => (
   </Scene>
 )
 
-// 8. "Peter knelt down in front of Jesus. He was so amazed! Jesus smiled and said, "Don't be afraid. Come, follow Me,
-// and I will make you fishers of people.""
-// Close up in Peter's boat, full of fish: Peter on his knees, amazed (Luke 5:8-10); Jesus, kind and smiling, reaches
-// out to him. Andrew is amazed too. Light shines round Jesus (God is never drawn as a person).
-const Page8 = () => (
-  <Scene sky="day" ground="none" clouds={false}>
-    <Sky tone="day" h={236} />
-    <Cloud x={130} y={70} s={0.7} />
-    <Cloud x={690} y={58} s={0.6} slow />
-    <FarHills tone="day" h={236} town={160} />
-    <Lake tone="day" h={236} />
-    <Glow x={556} y={262} r={190} color="#fff5c4" />
-    <FishingBoat x={420} y={446} s={1.02} heap={56}
-      crew={<>
-        <Tap say="So many fish! Wow!" sfx="pop">
-          <Aboard x={-214} look={ANDREW} mood="wow" low={-36} blinkDelay={0.9} />
-        </Tap>
-        <Tap say="Jesus, You are so amazing!" sfx="good">
-          <Aboard x={-56} look={PETER} kneel pose="pray" mood="wow" low={-36} />
-        </Tap>
-        <Tap say="Don't be afraid. Come, follow Me!" sfx="sparkle">
-          <Aboard x={130} look={JESUS} pose="open" facing="left" low={-36} reach={[null, [58, -78]]} blinkDelay={0.3} />
-        </Tap>
-      </>}
-    />
-    <g pointerEvents="none"><Sparkles spots={[[560, 120, 10], [470, 168, 7], [660, 168, 8], [606, 92, 6], [420, 112, 6]]} /></g>
-  </Scene>
-)
+// 8. "Peter knelt down in front of Jesus. He was amazed, and a little bit scared. Jesus smiled and said, "Don't be
+// afraid. Come, follow Me, and I will make you fishers of people.""
+// Close up in Peter's boat, full of fish: Peter on his knees just right of the mast, leaning toward Jesus and gazing up
+// at Him, his hands together (Luke 5:8-10); Jesus, kind and smiling, rests a hand on his shoulder. Andrew is amazed
+// too. Light shines round Jesus (God is never drawn as a person). (They stand and kneel on the heap of fish, so the
+// kneeling shows above it.)
+const PETER_AT = 64, PETER_LOW = -56
+/** Peter's shoulder nearest Jesus (boat units): kneeling, leaning 7 degrees toward Him from his knees. */
+const peterShoulder = (): Pt => {
+  const feet = -6 + PETER_LOW, a = (7 * Math.PI) / 180
+  const [vx, vy] = [20 * 0.9, (-86 + 32) * 0.9]
+  return [PETER_AT + vx * Math.cos(a) - vy * Math.sin(a), feet + vx * Math.sin(a) + vy * Math.cos(a)]
+}
+const Page8 = () => {
+  const [sx, sy] = peterShoulder()
+  return (
+    <Scene sky="day" ground="none" clouds={false}>
+      <Sky tone="day" h={236} />
+      <Cloud x={130} y={70} s={0.7} />
+      <Cloud x={690} y={58} s={0.6} slow />
+      <FarHills tone="day" h={236} town={160} />
+      <Lake tone="day" h={236} />
+      <Glow x={470} y={290} r={200} color="#fff5c4" />
+      <FishingBoat x={272} y={476} s={1.36} heap={46}
+        crew={<>
+          <Tap say="So many fish! Wow!" sfx="pop">
+            <Aboard x={-150} look={ANDREW} mood="wow" low={-44} blinkDelay={0.9} />
+          </Tap>
+          <Tap say="Jesus, You are so amazing!" sfx="good">
+            <g transform={`rotate(7 ${PETER_AT} ${-6 + PETER_LOW})`}>
+              <LookingUp>
+                <Aboard x={PETER_AT} look={PETER} kneel pose="pray" mood="wow" low={PETER_LOW}>
+                  {/* gazing up at Jesus (a kneeling head is bowed 10 lower) */}
+                  <g transform="translate(1.5 10)"><EyesUp /></g>
+                </Aboard>
+              </LookingUp>
+            </g>
+          </Tap>
+          <Tap say="Don't be afraid. Come, follow Me!" sfx="sparkle">
+            <Aboard x={142} look={JESUS} pose="open" facing="left" low={-50} reach={[null, reachTo(142, 0.9, sx + 2, sy + 2, 'left', -50)]} blinkDelay={0.3} />
+          </Tap>
+        </>}
+      />
+      <g pointerEvents="none"><Sparkles spots={[[600, 150, 10], [540, 104, 7], [690, 210, 8], [380, 120, 6], [650, 290, 6]]} /></g>
+    </Scene>
+  )
+}
 
 // 9. "So they pulled their boats up onto the shore. They left everything, and they followed Jesus! James and John's
 // dad, Zebedee, stayed in his boat with his helpers, and waved goodbye."
@@ -890,10 +910,10 @@ const Page9 = () => (
   </Scene>
 )
 
-// 10. "Fishers of people help everyone know how much God loves them. Jesus wants you to follow Him, too! And God loves
-// you, every single day."
-// By the lake: Jesus welcomes everyone, His four new friends bring people to meet Him, and you (the child playing)
-// run to Jesus too. Hearts float up: God's love.
+// 10. "Now Peter and his friends were fishers of people. They helped everyone know how much God loves them! Jesus wants
+// you to follow Him, too. And God loves you, every single day."
+// By the lake: Jesus welcomes everyone, Peter and his friends bring people to meet Him (fishers of people), and you (the
+// child playing) run to Jesus too. Hearts float up: God's love.
 const Page10 = () => (
   <Scene sky="day" ground="none" clouds={false}>
     <Sky tone="day" h={236} />

@@ -13,7 +13,7 @@ import { FISHERS_GAME } from '../art/games/fishers'
 export const FISHERS_STORY_1: StoryPage[] = [
   { scene: '🌅👥', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'One morning, Jesus was by the Lake of Galilee. A great big crowd came to hear Him talk about God.' },
   { scene: '⛵⛵', bg: 'linear-gradient(#bfe6ff,#f3dcb0)', text: 'Two fishing boats sat on the shore. The fishermen were washing their nets. Their nets were empty. Not one fish!' },
-  { scene: '⛵🙌', bg: 'linear-gradient(#bfe6ff,#c9ecff)', text: "One boat belonged to a fisherman named Peter. Jesus got into Peter's boat, and Peter pushed it out onto the water. Then Jesus sat down in the boat and taught the people." },
+  { scene: '⛵🙌', bg: 'linear-gradient(#bfe6ff,#c9ecff)', text: "One boat belonged to a fisherman named Peter. His brother Andrew fished with him. Jesus got into Peter's boat, and they pushed it out onto the water. Then Jesus sat down and taught the people from the boat." },
   { scene: '🌊👉', bg: 'linear-gradient(#bfe6ff,#8fcbf0)', text: 'When Jesus was done teaching, He said to Peter, "Now go out where the water is deep, and let down your nets."' },
   { scene: '🙏🎣', bg: 'linear-gradient(#bfe6ff,#7fc4ea)', text: 'Peter said, "Teacher, we worked hard all night, and we didn\'t catch anything. But because You say so, I will!"' },
 ]
@@ -22,9 +22,9 @@ export const FISHERS_STORY_1: StoryPage[] = [
 export const FISHERS_STORY_2: StoryPage[] = [
   { scene: '🐟🐟🐟', bg: 'linear-gradient(#bfe6ff,#7fc4ea)', text: 'Peter let down the nets, just like Jesus said. Then, splash! So many fish! The nets were so full, they started to break.' },
   { scene: '⛵🐟⛵', bg: 'linear-gradient(#bfe6ff,#8fcbf0)', text: 'Peter waved to James and John in the other boat. "Come and help us!" Soon both boats were so full of fish, they sank down low in the water!' },
-  { scene: '🙏✨', bg: 'linear-gradient(#fff6d9,#bfe6ff)', text: 'Peter knelt down in front of Jesus. He was so amazed! Jesus smiled and said, "Don\'t be afraid. Come, follow Me, and I will make you fishers of people."' },
+  { scene: '🙏✨', bg: 'linear-gradient(#fff6d9,#bfe6ff)', text: 'Peter knelt down in front of Jesus. He was amazed, and a little bit scared. Jesus smiled and said, "Don\'t be afraid. Come, follow Me, and I will make you fishers of people."' },
   { scene: '⛵👣', bg: 'linear-gradient(#bfe6ff,#f3dcb0)', text: 'So they pulled their boats up onto the shore. They left everything, and they followed Jesus! James and John\'s dad, Zebedee, stayed in his boat with his helpers and waved goodbye.' },
-  { scene: '💛👣', bg: 'linear-gradient(#ffe0f0,#bfe6ff)', text: 'Fishers of people help everyone know how much God loves them. Jesus wants you to follow Him, too! And God loves you, every single day.' },
+  { scene: '💛👣', bg: 'linear-gradient(#ffe0f0,#bfe6ff)', text: 'Now Peter and his friends were fishers of people. They helped everyone know how much God loves them! Jesus wants you to follow Him, too. And God loves you, every single day.' },
 ]
 
 // (Story cards, `story:fishers:<n>`, count the pages from 1 through both parts: part two starts at page 6.)
@@ -79,9 +79,10 @@ export const FISHERS_STEPS: Step[] = [
     ],
   },
   // (The intro fits every level: counting, what comes next, adding. Counting and adding show the fish.)
-  { kind: 'practice', skill: 'numbers', title: 'Fish Numbers', decor: '⛵', theme: '🐟', intro: "So many fish! Let's play some number games with them." },
+  { kind: 'practice', skill: 'numbers', title: 'Fish Numbers', decor: '⛵', theme: '🐟', intro: "So many fish! Let's play some number games." },
   { kind: 'verse', chunks: FISHERS_VERSE.chunks, ref: FISHERS_VERSE.ref },
-  { kind: 'pause', line: "Uh oh! Someone with a great big beak wants to gobble up all the fish. Who could it be? Let's find out next time!" },
+  // (Gulp grabs and won't share: his Goodness and sharing arc. Never eating fish, right after ten smiling ones were caught.)
+  { kind: 'pause', line: "Uh oh! Someone with a great big beak wants to grab all the fish for himself. Who could it be? Let's find out next time!" },
 
   // ----- Visit 3: the rescue -----
   {
@@ -97,7 +98,7 @@ export const FISHERS_STEPS: Step[] = [
       { emoji: '👣', say: 'everyone following Jesus', art: 'story:fishers:9' },
     ],
   },
-  { kind: 'battle', foe: 'gulp', intro: 'Oh no! A grumpy pelican named Gulp is gobbling up all the fish! Gulp just needs a friend.' },
+  { kind: 'battle', foe: 'gulp', intro: "Oh no! A grumpy pelican named Gulp is grabbing all the fish and won't share! Gulp just needs a friend." },
   { kind: 'song', song: 'song-fishers', intro: "Let's sing about the fishermen who followed Jesus! You can sing it on your Ark any time, too." },
   // (Peter's net full of fish, from the story: art/items/isl-fishers.tsx.)
   { kind: 'reward', pal: 'splash', sticker: 'net-of-fish', stickerName: 'net full of fish' },

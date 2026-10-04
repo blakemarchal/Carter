@@ -131,7 +131,7 @@ await sleep(500)
 await snap('start-hand')
 await sleep(700)
 await snap('start-hand-slid')
-check((await said()).some((l) => /^Catch the falling/.test(l)), 'with a line: "Catch the falling…"')
+check((await said()).some((l) => /^Catch the /.test(l)), 'with a line: "Catch the …!"')
 
 // 3. Catch the first one by dragging the catcher under it.
 s = await state()
@@ -210,7 +210,7 @@ if (helped) {
   check(s.hand > 0.5, 'idle: the hand comes back')
   await sleep(600)
   await snap('idle-hand')
-  check(late.some((l) => /Slide under|Catch the falling/.test(l)), `idle: a hint line (${JSON.stringify(late)})`)
+  check(late.some((l) => /Slide under|^Catch the /.test(l)), `idle: a hint line (${JSON.stringify(late)})`)
 }
 
 // 8. A finger dragged far past the end of the lane: the catcher stops at the end.

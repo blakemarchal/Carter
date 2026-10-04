@@ -34,27 +34,27 @@ export const FISH_COLORS = ['#ffbf47', '#62bdf5', '#ff8a6e'] as const
  * A cheerful little fish, side-on, facing right (`flip`: left): a round body with a pale belly, a forked
  * tail, a fin on top and one on its side, and a happy face. (x, y) is its middle; it's about 70 long and 34
  * tall at s = 1. `rot` turns it (degrees). `wag`: its tail swishes, as it swims. `flat`: plain colors and
- * no shine, for a heap of many.
+ * no shine, for a heap of many. `bold`: thicker outlines (times this), to read when it's small.
  */
-export function Fishy({ x = 0, y = 0, s = 1, color = FISH_COLORS[0], flip, rot = 0, wag, flat, delay = 0 }: {
-  x?: number; y?: number; s?: number; color?: string; flip?: boolean; rot?: number; wag?: boolean; flat?: boolean; delay?: number
+export function Fishy({ x = 0, y = 0, s = 1, color = FISH_COLORS[0], flip, rot = 0, wag, flat, delay = 0, bold = 1 }: {
+  x?: number; y?: number; s?: number; color?: string; flip?: boolean; rot?: number; wag?: boolean; flat?: boolean; delay?: number; bold?: number
 }) {
   const body = useShade(color, 0.42, 0.16)
   const line = ink(color)
   const fin = darken(color, 0.14)
   const tail = (
-    <path d="M-21 0 Q-29 -13 -40 -16 Q-34 -1 -40 15 Q-29 13 -21 0 Z" fill={fin} stroke={line} strokeWidth={2.2} strokeLinejoin="round" />
+    <path d="M-21 0 Q-29 -13 -40 -16 Q-34 -1 -40 15 Q-29 13 -21 0 Z" fill={fin} stroke={line} strokeWidth={2.2 * bold} strokeLinejoin="round" />
   )
   return (
     <g transform={`translate(${x} ${y})${rot ? ` rotate(${rot})` : ''} scale(${flip ? -s : s} ${s})`}>
       {!flat && <defs>{body.def}</defs>}
       {wag ? <g className="fs-wag" style={{ animationDelay: `${delay}s` } as CSSProperties}>{tail}</g> : tail}
-      <path d="M-11 -12 Q-5 -25 12 -15 Q1 -14 -11 -12 Z" fill={fin} stroke={line} strokeWidth={2} strokeLinejoin="round" />
-      <path d="M31 1 C31 -10 19 -16 4 -16 C-11 -16 -23 -8 -25 0 C-23 8 -11 16 4 16 C19 16 31 11 31 1 Z" fill={flat ? color : body.fill} stroke={line} strokeWidth={2.4} />
+      <path d="M-11 -12 Q-5 -25 12 -15 Q1 -14 -11 -12 Z" fill={fin} stroke={line} strokeWidth={2 * bold} strokeLinejoin="round" />
+      <path d="M31 1 C31 -10 19 -16 4 -16 C-11 -16 -23 -8 -25 0 C-23 8 -11 16 4 16 C19 16 31 11 31 1 Z" fill={flat ? color : body.fill} stroke={line} strokeWidth={2.4 * bold} />
       <path d="M-21 5 C-13 12 -2 14.5 6 14.5 C17 14.5 25 11 28.5 5.5 C17 9.5 -5 10.5 -21 5 Z" fill={lighten(color, 0.62)} opacity={0.9} />
-      <path d="M12 -11 Q7 0 12 11" stroke={line} strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.5} />
+      <path d="M12 -11 Q7 0 12 11" stroke={line} strokeWidth={1.6 * bold} fill="none" strokeLinecap="round" opacity={0.5} />
       {!flat && <path d="M-6 -6 q3 3 6 0 M2 -9 q3 3 6 0 M-4 1 q3 3 6 0" stroke={lighten(color, 0.45)} strokeWidth={1.5} fill="none" strokeLinecap="round" />}
-      <path d="M1 3 Q11 5 9 13 Q2 11 1 3 Z" fill={fin} stroke={line} strokeWidth={1.6} strokeLinejoin="round" />
+      <path d="M1 3 Q11 5 9 13 Q2 11 1 3 Z" fill={fin} stroke={line} strokeWidth={1.6 * bold} strokeLinejoin="round" />
       <CuteFace x={20} y={-3} s={0.3} gap={10} />
       {!flat && <Shine x={6} y={-10} rx={5.5} ry={2.4} rot={-10} />}
     </g>
@@ -108,7 +108,7 @@ function crowd(half: (up: number) => number, top: number, len: number, seed: num
  * little from above, so its dark inside shows) and a bag of net below it, `depth` deep. `fill` (0 to 1) is
  * how full of fish it is: its first ten are counted out one by one into the net, filling it from the
  * bottom (`n` = 10), and it bulges as it fills. `many`: a bulging net packed with lots of fish (a crowd, not
- * a count). `torn`: so full, a few cords have broken, and a fish is wriggling out.
+ * a count). `torn`: so full, it has broken: a hole with its cords snapping outward, and two fish slipping out.
  */
 export function NetBag({ x = 0, y = 0, w = 128, depth = 92, fill = 0, many, torn, seed = 3, rim = true, mesh = w / 5.5, inside = '#2f6585' }: {
   x?: number; y?: number; w?: number; depth?: number; fill?: number; many?: boolean; torn?: boolean; seed?: number; rim?: boolean
@@ -156,7 +156,16 @@ export function NetBag({ x = 0, y = 0, w = 128, depth = 92, fill = 0, many, torn
     return lines.join(' ')
   }
   const cord = Math.max(0.9, w * 0.013)
-  const hole = { x: W * 0.68, y: d * 0.6 }
+  // The hole where the net has broken (torn): the cords round it have snapped and spring outward.
+  const hole = { x: W * 0.6, y: d * 0.56, rx: w * 0.13, ry: w * 0.1 }
+  const snapped = Array.from({ length: 10 }, (_, i) => {
+    const a = (i / 10) * Math.PI * 2 + 0.25
+    const [cx, cy] = [Math.cos(a), Math.sin(a)]
+    const ex = hole.x + cx * hole.rx * 0.96, ey = hole.y + cy * hole.ry * 0.96
+    const L = w * (i % 2 ? 0.05 : 0.07)
+    return `M${ex.toFixed(1)} ${ey.toFixed(1)} q${(cx * L * 0.55 - cy * L * 0.35).toFixed(1)} ${(cy * L * 0.55 + cx * L * 0.35).toFixed(1)} ${(cx * L).toFixed(1)} ${(cy * L).toFixed(1)}`
+  }).join(' ')
+  const out1 = 70 * fs * 1.1
   return (
     <g transform={`translate(${x} ${y})`}>
       <defs>
@@ -165,7 +174,7 @@ export function NetBag({ x = 0, y = 0, w = 128, depth = 92, fill = 0, many, torn
         {torn && (
           <mask id={`nh${id}`}>
             <rect x={-out - 20} y={-ry - 20} width={out * 2 + 40} height={d + 60} fill="#fff" />
-            <ellipse cx={hole.x} cy={hole.y} rx={w * 0.09} ry={w * 0.07} fill="#000" transform={`rotate(-30 ${hole.x} ${hole.y})`} />
+            <ellipse cx={hole.x} cy={hole.y} rx={hole.rx} ry={hole.ry} fill="#000" />
           </mask>
         )}
       </defs>
@@ -186,10 +195,12 @@ export function NetBag({ x = 0, y = 0, w = 128, depth = 92, fill = 0, many, torn
       <path d={body} fill="none" stroke={NET} strokeWidth={cord * 1.2} />
       {torn && (
         <g>
-          {/* broken cords round the hole, and a fish wriggling out of it */}
-          <path d={`M${hole.x - w * 0.11} ${hole.y - w * 0.02} l${w * 0.035} ${w * 0.02} M${hole.x + w * 0.05} ${hole.y - w * 0.08} l${-w * 0.01} ${w * 0.04} M${hole.x + w * 0.1} ${hole.y + w * 0.02} l${-w * 0.035} ${w * 0.005} M${hole.x - w * 0.03} ${hole.y + w * 0.08} l${w * 0.012} ${-w * 0.035}`}
-            stroke={NET} strokeWidth={Math.max(1.2, w * 0.014)} strokeLinecap="round" />
-          <Fishy x={hole.x + w * 0.14} y={hole.y - w * 0.05} s={fs * 1.05} rot={-20} color={FISH_COLORS[1]} wag />
+          {/* the broken cords round the hole, springing outward, and two fish slipping out of it: one halfway out,
+              one away already */}
+          <path d={snapped} stroke={NET_LINE} strokeWidth={cord * 2.2} fill="none" strokeLinecap="round" opacity={0.6} />
+          <path d={snapped} stroke={NET} strokeWidth={cord * 1.3} fill="none" strokeLinecap="round" />
+          <Fishy x={hole.x + out1 * 0.42} y={hole.y + out1 * 0.08} s={fs * 1.1} rot={12} color={FISH_COLORS[1]} wag />
+          <Fishy x={hole.x + out1 * 1.55} y={hole.y + out1 * 0.5} s={fs * 1.05} rot={-14} color={FISH_COLORS[2]} wag delay={0.25} />
         </g>
       )}
       {rim && <Rope d={`M${W} 0 A${W} ${ry} 0 0 1 ${-W} 0`} w={Math.max(2.4, w * 0.03)} />}
@@ -240,13 +251,44 @@ function EmptyNet() {
   )
 }
 
-/** A fishing net hung on a pole, bulging with fish: so heavy, the pole bends. */
+/** Bright colors for the big fish in the sticker net: orange, blue, coral and yellow. */
+const BOLD = ['#ff9419', '#2f9cec', '#ff5f52', '#ffc81f']
+
+/**
+ * A fishing net bulging with fish (the island's sticker, so it reads small): a round bag of big-diamond net with a
+ * rope round its open mouth, and four big bright fish: three inside (one's tail poking out through the net), and one
+ * peeking up out of the top.
+ */
 function NetOfFish() {
+  const id = uid(useId())
+  // (a full sack of net, sagging as it sits on the ground: narrow at its mouth, wide and heavy at the bottom)
+  const bag = 'M31 24 C14 32 3 62 6 82 Q10 96 50 97 Q90 96 94 82 C97 62 86 32 69 24 Z'
+  const mouth = { x: 50, y: 24, rx: 19, ry: 5.5 }
+  const lines: string[] = []
+  for (let k = -6; k <= 7; k++) lines.push(`M${k * 17 - 40} 14 l92 92`, `M${k * 17 + 40} 14 l-92 92`)
+  const mesh = lines.join(' ')
   return (
     <g>
-      <Pole bend={5} />
-      <Rope d="M22 18 L22 31 M78 18 L78 31" w={2.4} />
-      <NetBag x={50} y={32} w={58} depth={52} fill={1} />
+      <defs><clipPath id={`nf${id}`}><path d={bag} /></clipPath></defs>
+      <ellipse cx={50} cy={97} rx={34} ry={3.5} fill="#000" opacity={0.12} />
+      {/* the back of the rope round the mouth, and the inside of the net */}
+      <Rope d={`M${mouth.x - mouth.rx} ${mouth.y} A${mouth.rx} ${mouth.ry} 0 0 1 ${mouth.x + mouth.rx} ${mouth.y}`} w={3} />
+      <ellipse cx={mouth.x} cy={mouth.y} rx={mouth.rx} ry={mouth.ry} fill="#6b5a3e" opacity={0.35} />
+      {/* the fish: one peeking out of the top, two big ones in the net, and one whose tail pokes out through it */}
+      <Fishy x={56} y={21} s={0.46} rot={-68} color={BOLD[3]} bold={1.7} />
+      <g clipPath={`url(#nf${id})`}>
+        <Fishy x={36} y={78} s={0.62} rot={-4} color={BOLD[0]} bold={1.7} />
+        <Fishy x={66} y={62} s={0.6} rot={8} flip color={BOLD[1]} bold={1.7} />
+      </g>
+      <Fishy x={20} y={52} s={0.5} rot={14} color={BOLD[2]} bold={1.7} />
+      {/* the net in front of them: big diamonds of thin cord */}
+      <g clipPath={`url(#nf${id})`}>
+        <path d={mesh} stroke={NET_LINE} strokeWidth={3} fill="none" opacity={0.55} />
+        <path d={mesh} stroke="#fff6dd" strokeWidth={1.6} fill="none" />
+      </g>
+      <path d={bag} fill="none" stroke={NET_LINE} strokeWidth={3.4} opacity={0.65} />
+      <path d={bag} fill="none" stroke="#fff6dd" strokeWidth={1.8} />
+      <Rope d={`M${mouth.x + mouth.rx} ${mouth.y} A${mouth.rx} ${mouth.ry} 0 0 1 ${mouth.x - mouth.rx} ${mouth.y}`} w={3} />
     </g>
   )
 }
