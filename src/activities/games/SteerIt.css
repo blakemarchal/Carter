@@ -1,5 +1,18 @@
 /* Steer it (SteerIt.tsx): lead the hero along the glowing way. */
 .steer-it .practice-head .speaker { width: 56px; height: 56px; font-size: 28px; }
+.steer-it .practice-head .speaker:disabled { opacity: .45; }
+
+/* The board: as big as fits, always 16:9 (whichever way the screen is turned), so the picture fills it
+   with no white bands. Standing up, the title and the board sit together in the middle of the screen. */
+@media (max-aspect-ratio: 1/1) {
+  .steer-it { justify-content: center; }
+  .steer-it .game-wrap { flex: 0 1 auto; }
+}
+@supports (width: 1cqw) {
+  .steer-it .game-wrap { container-type: size; }
+  .steer-it .game-board { width: min(100cqw, calc(100cqh * 16 / 9)); height: auto; max-width: none; max-height: none; }
+  @media (max-aspect-ratio: 1/1) { .steer-it .game-wrap { container-type: inline-size; } }
+}
 .steer-layer { touch-action: none; cursor: grab; }
 .steer-layer.dragging { cursor: grabbing; }
 
