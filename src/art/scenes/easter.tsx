@@ -11,9 +11,10 @@
 //     Peter and John (9); Jesus says "Mary!" in the garden, with every flower open (10); and Jesus with His friends,
 //     all of them overjoyed (11).
 // Jesus is PEOPLE.jesus, at the supper and after He is risen; the angel is PEOPLE.angel; His friends are the four
-// fishermen (PEOPLE.peter, andrew, james and john), Thomas and Matthew. New here (exported, for people.tsx later):
-// MARY_MAGDALENE (not Jesus' mother, PEOPLE.mary), her friends SPICE_FRIENDS, the kind friends at the tomb
-// (JOSEPH_OF_ARIMATHEA and NICODEMUS), THOMAS and MATTHEW. God is never drawn as a person: His presence is light.
+// fishermen (PEOPLE.peter, andrew, james and john), PEOPLE.thomas and PEOPLE.matthew, and PEOPLE.maryMagdalene (not
+// Jesus' mother, PEOPLE.mary): all three first drawn here, and at Pentecost too. New here (exported, for people.tsx
+// later): Mary Magdalene's friends SPICE_FRIENDS, and the kind friends at the tomb (JOSEPH_OF_ARIMATHEA and
+// NICODEMUS). God is never drawn as a person: His presence is light.
 // The garden tomb (Tomb, with its RoundStone) is drawn here for the story and for the paint game (games/easter.tsx).
 import { useId, type ComponentType, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
@@ -26,8 +27,6 @@ type Pt = [number, number]
 
 // ---------- The people ----------
 
-/** Mary Magdalene, one of Jesus' friends (not His mother Mary, PEOPLE.mary): a cream head scarf and a rose-red robe with a golden sash. */
-export const MARY_MAGDALENE: JLook = { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#f6ead2', robe: '#cc4f72', sash: '#f0c24a' }
 /**
  * The friends who came with Mary Magdalene on Sunday morning with sweet spices (Mark 16:1): Mary the mother of James
  * ("the other Mary", Matthew 28:1), in a lavender scarf and a purple robe, and Salome, in a sea-green scarf and gold.
@@ -40,10 +39,6 @@ export const SPICE_FRIENDS: JLook[] = [
 export const JOSEPH_OF_ARIMATHEA: JLook = { skin: SKIN.medium, hair: 'covered', hairColor: '#4a3020', wrap: '#efe4cc', beard: 'short', beardColor: '#5a3a24', robe: '#3f7f6a', sash: '#e8c25a' }
 /** Nicodemus, who came with him (John 19:39): old, with a long white beard, a blue head cloth and a brown robe. */
 export const NICODEMUS: JLook = { skin: SKIN.tan, hair: 'covered', hairColor: '#d8d2c8', wrap: '#9fb3d8', beard: 'long', beardColor: '#ece8e0', robe: '#8a6a4a', sash: '#c0504d' }
-/** Thomas, one of Jesus' twelve friends: a short black beard and a sea-green robe. */
-export const THOMAS: JLook = { skin: SKIN.tan, hair: 'short', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#4fa39a', sash: '#f0d38a' }
-/** Matthew, one of Jesus' twelve friends: a cream head cloth and a plum robe. */
-export const MATTHEW: JLook = { skin: SKIN.medium, hair: 'covered', hairColor: '#4a3020', wrap: '#f0e2c0', beard: 'short', beardColor: '#5a3a24', robe: '#9a5a8a', sash: '#e8dcc0' }
 /** The angel at the tomb: the game's angel, its light drawn round it on the page (so it isn't cut off where it sits). */
 const ANGEL: Look = { ...PEOPLE.angel, glow: false }
 
@@ -584,7 +579,7 @@ function Page1() {
       <UpperRoom />
       <Tap say="Mmm, that bread smells so good!" sfx="chomp">
         <g>
-          <AtTable x={124} look={THOMAS} blinkDelay={0.4} />
+          <AtTable x={124} look={PEOPLE.thomas} blinkDelay={0.4} />
           <AtTable x={216} look={PEOPLE.james} blinkDelay={1.9} />
           <AtTable x={308} look={PEOPLE.john} blinkDelay={1.2} />
         </g>
@@ -593,7 +588,7 @@ function Page1() {
         <g>
           <AtTable x={492} look={PEOPLE.peter} blinkDelay={0.8} />
           <AtTable x={584} look={PEOPLE.andrew} blinkDelay={2.4} />
-          <AtTable x={676} look={MATTHEW} blinkDelay={1.5} />
+          <AtTable x={676} look={PEOPLE.matthew} blinkDelay={1.5} />
         </g>
       </Tap>
       <Tap say="Thank You, God, for this bread." sfx="sparkle">
@@ -671,7 +666,7 @@ function Page3() {
         </g>
       </Tap>
       <Tap say="We love Jesus so much." sfx="ding">
-        <Figure x={268} y={420} s={1.12} look={MARY_MAGDALENE} mood="sad" blinkDelay={1.6}><Tear /></Figure>
+        <Figure x={268} y={420} s={1.12} look={PEOPLE.maryMagdalene} mood="sad" blinkDelay={1.6}><Tear /></Figure>
       </Tap>
       <Tap say="I miss Jesus." sfx="ding">
         <Figure x={530} y={418} s={1.1} look={SPICE_FRIENDS[0]} mood="sad" pose="pray" blinkDelay={0.3} />
@@ -706,7 +701,7 @@ function Page4() {
       </Tap>
       <Tap say="We will come back with sweet spices." sfx="ding">
         <g>
-          <Figure x={196} y={420} s={1.04} look={MARY_MAGDALENE} mood="sad" pose="pray" blinkDelay={1.1} />
+          <Figure x={196} y={420} s={1.04} look={PEOPLE.maryMagdalene} mood="sad" pose="pray" blinkDelay={1.1} />
           <Figure x={270} y={424} s={1.0} look={SPICE_FRIENDS[0]} mood="sad" blinkDelay={2.3} />
         </g>
       </Tap>
@@ -734,7 +729,7 @@ function Page5() {
       </Tap>
       <SitOnFloor x={412} y={408} s={1.1} look={PEOPLE.john} mood="sad" blinkDelay={2.1} />
       <Tap say="I miss Jesus so much." sfx="ding">
-        <SitOnFloor x={520} y={406} s={1.08} look={MARY_MAGDALENE} mood="sad" pose="pray" blinkDelay={1.6}><Tear /></SitOnFloor>
+        <SitOnFloor x={520} y={406} s={1.08} look={PEOPLE.maryMagdalene} mood="sad" pose="pray" blinkDelay={1.6}><Tear /></SitOnFloor>
       </Tap>
       <SitOnFloor x={630} y={400} s={1.1} look={PEOPLE.andrew} mood="sad" blinkDelay={0.9} />
       <Tap say="The little lamp is still shining. Something wonderful is coming!" sfx="ding"><OilLamp x={736} y={430} s={1.3} glow={110} /></Tap>
@@ -764,7 +759,7 @@ function Page6() {
         <Figure x={340} y={406} s={1.08} look={SPICE_FRIENDS[0]} pose="hold" item={<SpiceJar color="#8fb8e0" />} blinkDelay={1.8} />
       </Tap>
       <Tap say="Who will roll the big stone away for us?" sfx="ding">
-        <Figure x={446} y={398} s={1.1} look={MARY_MAGDALENE} pose="hold" item={<SpiceJar />} blinkDelay={1.1} />
+        <Figure x={446} y={398} s={1.1} look={PEOPLE.maryMagdalene} pose="hold" item={<SpiceJar />} blinkDelay={1.1} />
       </Tap>
       <ThoughtBubble x={600} y={120} w={170} h={120} tail={[[486, 266, 6], [510, 236, 9], [540, 200, 12]]}>
         <RoundStone x={590} y={124} r={38} />
@@ -794,7 +789,7 @@ function Page7() {
         <AngelOnStone x={625} y={232} s={1.0} pose="wave" />
       </Tap>
       <Tap say="Who rolled the big stone away?" sfx="pop">
-        <Figure x={180} y={428} s={1.1} look={MARY_MAGDALENE} mood="wow" pose="hold" item={<SpiceJar />} blinkDelay={1.1} />
+        <Figure x={180} y={428} s={1.1} look={PEOPLE.maryMagdalene} mood="wow" pose="hold" item={<SpiceJar />} blinkDelay={1.1} />
       </Tap>
       <Tap say="Wow! An angel!" sfx="pop">
         <g>
@@ -828,7 +823,7 @@ function Page8() {
         <g>
           <Figure x={62} y={444} s={1.14} look={SPICE_FRIENDS[1]} mood="wow" pose="hold" item={<SpiceJar color="#d9905e" />} blinkDelay={1.4} />
           <Figure x={142} y={446} s={1.16} look={SPICE_FRIENDS[0]} mood="wow" pose="hold" item={<SpiceJar color="#8fb8e0" />} blinkDelay={0.6} />
-          <Figure x={226} y={448} s={1.2} look={MARY_MAGDALENE} mood="joy" pose="hold" item={<SpiceJar />} blinkDelay={0.3} />
+          <Figure x={226} y={448} s={1.2} look={PEOPLE.maryMagdalene} mood="joy" pose="hold" item={<SpiceJar />} blinkDelay={0.3} />
         </g>
       </Tap>
       <Sparkles spots={[[300, 130, 9], [470, 160, 7], [380, 96, 6], [700, 120, 8]]} color="#fff6b0" />
@@ -864,7 +859,7 @@ function Page9() {
           <SpeedLines x={226} y={400} s={0.6} />
           <g transform="rotate(9 270 410)"><Figure x={270} y={410} s={1.08} look={SPICE_FRIENDS[0]} mood="joy" pose="arms-up" blinkDelay={1.7} /></g>
           <SpeedLines x={346} y={406} s={0.6} />
-          <g transform="rotate(10 388 418)"><Figure x={388} y={418} s={1.1} look={MARY_MAGDALENE} mood="joy" pose="wave" blinkDelay={0.9} /></g>
+          <g transform="rotate(10 388 418)"><Figure x={388} y={418} s={1.1} look={PEOPLE.maryMagdalene} mood="joy" pose="wave" blinkDelay={0.9} /></g>
         </g>
       </Tap>
     </Scene>
@@ -889,7 +884,7 @@ function Page10() {
       </Tap>
       <Say x={556} y={84} w={150} h={66} tail={[548, 238]} text="Mary!" />
       <Tap say="Jesus! You're alive!" sfx="good">
-        <Figure x={334} y={424} s={1.18} look={MARY_MAGDALENE} mood="teary" pose="pray" blinkDelay={1.2} />
+        <Figure x={334} y={424} s={1.18} look={PEOPLE.maryMagdalene} mood="teary" pose="pray" blinkDelay={1.2} />
       </Tap>
       <Tap say="Flutter, flutter!" sfx="swish">
         <g>
@@ -915,7 +910,7 @@ function Page11() {
         <Glow x={400} y={300} r={180} color="#fff4cc" />
         <Tap say="Hooray! Jesus is alive!" sfx="good">
           <g>
-            <Figure x={140} y={438} s={1.12} look={MATTHEW} mood="joy" pose="wave" facing="left" blinkDelay={0.4} />
+            <Figure x={140} y={438} s={1.12} look={PEOPLE.matthew} mood="joy" pose="wave" facing="left" blinkDelay={0.4} />
             <Figure x={214} y={434} s={1.14} look={PEOPLE.james} mood="joy" blinkDelay={1.6} />
             <Figure x={306} y={440} s={1.12} look={PEOPLE.john} mood="joy" pose="wave" facing="left" blinkDelay={2.2} />
           </g>
@@ -923,7 +918,7 @@ function Page11() {
         <Tap say="It's really You, Jesus!" sfx="good">
           <g>
             <Figure x={494} y={440} s={1.16} look={PEOPLE.peter} mood="joy" pose="wave" blinkDelay={0.7} />
-            <Figure x={588} y={436} s={1.1} look={MARY_MAGDALENE} mood="teary" pose="pray" blinkDelay={1.3} />
+            <Figure x={588} y={436} s={1.1} look={PEOPLE.maryMagdalene} mood="teary" pose="pray" blinkDelay={1.3} />
             <Figure x={662} y={438} s={1.12} look={PEOPLE.andrew} mood="joy" pose="wave" blinkDelay={2.6} />
           </g>
         </Tap>

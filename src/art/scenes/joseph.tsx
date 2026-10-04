@@ -70,12 +70,19 @@ export const JOSEPH_PEOPLE = {
   josephEgypt: { ...JOSEPH_FACE, robe: '#f7f2e6', sash: '#c9a46a', pleats: true },
   /** Joseph the ruler of Egypt: fine linen, a gold collar and a gold band round his head. */
   josephRuler: { ...JOSEPH_FACE, robe: '#fbf8ef', sash: '#3f7fd0', pleats: true, collar: '#ffd34d', band: '#ffd34d' },
-  /** Jacob, Joseph's father: old, with a long white beard, a head cloth and a shepherd's staff. */
-  jacob: { skin: SKIN.medium, hair: 'covered', hairColor: '#e8e4dc', wrap: '#efe6d2', beard: 'long', beardColor: '#f4f1ea', robe: '#5a7fb8', sash: '#e0b45a' },
+  /**
+   * Jacob, Joseph's father: old, with a long grey beard, a head cloth striped in rust, a golden-ochre robe with a russet
+   * sash, and a shepherd's staff. (Not his grandfather Abraham's white beard, plain cream head cloth and blue robe; and
+   * not green, as old Mordecai wears on Queen Esther, or brick red, as Moses does.)
+   */
+  jacob: { skin: SKIN.medium, hair: 'covered', hairColor: '#9a938b', wrap: '#efe6d2', wrapStripes: '#b5553a', beard: 'long', beardColor: '#aaa39b', robe: '#c08428', sash: '#8a3f2c' },
   /** Benjamin, the youngest brother: a little boy. */
   benjamin: { skin: SKIN.medium, hair: 'short', hairColor: '#3b2a20', robe: '#8fc66a', sash: '#fff3c9', build: 'child' },
-  /** Pharaoh, the king of Egypt: the striped headdress with a gold band, a gold collar, and his crook. */
-  pharaoh: { skin: SKIN.tan, hair: 'short', hairColor: '#2b2020', robe: '#fbf8ef', sash: '#d0503f', pleats: true, collar: '#ffd34d', nemes: ['#ffd34d', '#2a5aa8'], band: '#ffd34d' },
+  /**
+   * Pharaoh, the king of Egypt in Joseph's day: a red headdress striped with gold, with a gold band, a gold collar, and his
+   * crook. (The Pharaoh in Moses' day, long after, wears gold and blue: scenes/moses.tsx.)
+   */
+  pharaoh: { skin: SKIN.tan, hair: 'short', hairColor: '#2b2020', robe: '#fbf8ef', sash: '#d0503f', pleats: true, collar: '#ffd34d', nemes: ['#d8433a', '#ffd34d'], band: '#ffd34d' },
   /** People of Egypt: workers, a little girl, and a kind old man. */
   egyptMan: { skin: SKIN.tan, hair: 'short', hairColor: '#1f1a1a', robe: '#f2ecdc', sash: '#5f8fc0', pleats: true },
   egyptMan2: { skin: SKIN.deep, hair: 'short', hairColor: '#1f1a1a', robe: '#efe6d0', sash: '#d0503f', pleats: true },

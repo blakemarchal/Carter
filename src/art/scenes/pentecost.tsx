@@ -7,11 +7,12 @@
 // God is never drawn as a person: His presence is light (Glow, Rays, Sparkles). The Holy Spirit is never drawn as a person
 // either: only as wind (Gust, soft swirls) and as little flames of warm light (SpiritFlame) resting just above each head,
 // like candle lights, that never burn anything. Jesus is PEOPLE.jesus, the two angels are PEOPLE.angel, and Peter, Andrew,
-// James, John and Mary, Jesus' mother, are PEOPLE's.
+// James, John and Mary, Jesus' mother, are PEOPLE's; so are Mary Magdalene, Thomas and Matthew, His friends from Easter
+// Morning, and one more friend (PEOPLE.disciple).
 // Shared with the mini-game (art/games/pentecost.tsx), and for other islands (they can move to kit.tsx and people.tsx):
-// more of Jesus' friends (FRIENDS), the visitors from many lands (VISITORS, VisitorFigure, Dress, FolkHat, FarCrowd), the
-// faces Amazed and Speaking, SpiritFlame, Gust, GloryCloud, OliveTree, Roofs, FarTemple, FarJerusalem, the house with the
-// room upstairs (UpperHouse) and WonderBubble.
+// the women among Jesus' friends (FRIENDS), the visitors from many lands (VISITORS, VisitorFigure, Dress, FolkHat,
+// FarCrowd), the faces Amazed and Speaking, SpiritFlame, Gust, GloryCloud, OliveTree, Roofs, FarTemple, FarJerusalem, the
+// house with the room upstairs (UpperHouse) and WonderBubble.
 import { useId, type ComponentProps, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { EyesUp, Figure, Kneel, Laughing, LaughFace, LookingUp, Person, PEOPLE, ShutEyes, SKIN, Sitting, SittingOnRock, type JLook, type JPose, type Look, type Mood, type Pose } from '../people'
@@ -25,20 +26,16 @@ type Pt = [number, number]
 // ---------- People ----------
 
 /**
- * More of Jesus' friends, who prayed with Peter, Andrew, James, John and Mary, Jesus' mother, in the room upstairs (Acts
- * 1:14: "with the women"): three women and two more men. No woman wears a blue head scarf like Mary's.
+ * The women who prayed with Peter, Andrew, James, John and Mary, Jesus' mother, in the room upstairs (Acts 1:14: "with the
+ * women"): Mary Magdalene (PEOPLE.maryMagdalene, from Easter Morning), and two more. No woman wears a blue head scarf like
+ * Mary's. (Thomas and Matthew, PEOPLE's too, and PEOPLE.disciple are the other men there.)
  */
 export const FRIENDS: Look[] = [
+  PEOPLE.maryMagdalene,
   /** A woman with a coral head scarf and a sage-green robe. */
   { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8875a', robe: '#7fb48a', sash: '#f5e6c8' },
-  /** A man with a short black beard and a slate-teal robe. */
-  { skin: '#a8714a', hair: 'short', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#5f8f9a', sash: '#e8c25a' },
   /** A woman with a lilac head scarf and an amber robe. */
   { skin: '#e3b48c', hair: 'covered', hairColor: '#4a3020', wrap: '#b98ad0', robe: '#e6a157', sash: '#fff1d6' },
-  /** An older man with a cream head cloth, a long brown beard and a plum robe. */
-  { skin: SKIN.medium, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8dcc0', beard: 'long', beardColor: '#5a3a24', robe: '#8a6aa8', sash: '#f0d38a' },
-  /** A woman with a sunny yellow head scarf and a rose-red robe. */
-  { skin: SKIN.medium, hair: 'covered', hairColor: '#3b2a20', wrap: '#f2c94c', robe: '#c46a6a', sash: '#f5f0e6' },
 ]
 
 /** What a visitor wears on their head, over a Person's own hair or head cloth. */
@@ -593,10 +590,11 @@ function UpperRoom({ bright, glow, inWindow, windowSay, children }: {
 }
 
 // Everyone in the room upstairs (pages 5, 6 and 7), always in the same places: [who, look, x]. The four fishermen kneel in
-// front; Mary, Jesus' mother, kneels in the middle of the second row with two friends; four more friends stand at the back.
-type Who = 'andrew' | 'peter' | 'john' | 'james' | 'mary' | 'disciple' | 'friend1' | 'friend2' | 'friend3' | 'friend4' | 'friend5'
-const BACK: [Who, Look, number][] = [['friend2', FRIENDS[1], 64], ['friend3', FRIENDS[2], 146], ['friend4', FRIENDS[3], 654], ['friend5', FRIENDS[4], 736]]
-const MIDDLE: [Who, Look, number][] = [['friend1', FRIENDS[0], 205], ['mary', PEOPLE.mary, 400], ['disciple', PEOPLE.disciple, 595]]
+// front; Mary, Jesus' mother, kneels in the middle of the second row with two friends; Thomas, a friend, Matthew and Mary
+// Magdalene stand at the back.
+type Who = 'andrew' | 'peter' | 'john' | 'james' | 'mary' | 'disciple' | 'thomas' | 'matthew' | 'maryMagdalene' | 'friend1' | 'friend2'
+const BACK: [Who, Look, number][] = [['thomas', PEOPLE.thomas, 64], ['friend2', FRIENDS[2], 146], ['matthew', PEOPLE.matthew, 654], ['maryMagdalene', PEOPLE.maryMagdalene, 736]]
+const MIDDLE: [Who, Look, number][] = [['friend1', FRIENDS[1], 205], ['mary', PEOPLE.mary, 400], ['disciple', PEOPLE.disciple, 595]]
 const FRONT: [Who, Look, number][] = [['andrew', PEOPLE.andrew, 108], ['peter', PEOPLE.peter, 300], ['john', PEOPLE.john, 500], ['james', PEOPLE.james, 692]]
 const ROWS = { back: { y: 300, s: 0.8 }, middle: { y: 352, s: 0.98 }, front: { y: 436, s: 1.12 } }
 const beardOf = (l: Look) => (l.beard ? l.beardColor ?? l.hairColor : undefined)
@@ -781,7 +779,8 @@ function Page2() {
 // 3. "Then Jesus lifted up His hands and blessed them. And as they watched, Jesus went up, up, up into heaven, and a
 //    cloud hid Him."
 // The same hilltop: Jesus rising into the bright sky with His hands lifted up, a soft white cloud wrapping round His feet,
-// warm light all round; His friends look up, amazed and glad.
+// warm light all round; His friends look up, amazed and glad: the six who were at His special supper on Easter Morning
+// (Matthew, Peter, John, Andrew, James and Thomas).
 function Page3() {
   return (
     <Scene sky="day" ground="none" clouds={false}>
@@ -799,22 +798,22 @@ function Page3() {
         </g>
       </Tap>
       <Sparkles spots={[[300, 110, 9], [500, 96, 10], [270, 200, 7], [536, 196, 8], [400, 40, 8]]} />
-      <LookingUp><Person x={110} y={440} s={0.96} look={PEOPLE.disciple} pose="wave" blinkDelay={0.6}><EyesUp /></Person></LookingUp>
+      <LookingUp><Person x={110} y={440} s={0.96} look={PEOPLE.matthew} pose="wave" blinkDelay={0.6}><EyesUp /></Person></LookingUp>
       <Tap say="Look! Jesus is going up to heaven!" sfx="pop">
         <LookingUp><Person x={214} y={444} s={1} look={PEOPLE.peter} pose="wave" blinkDelay={0.2}><EyesUp /></Person></LookingUp>
       </Tap>
       <LookingUp><Figure x={320} y={446} s={0.98} look={PEOPLE.john} pose="pray" mood="wow" blinkDelay={1.4}><EyesUp /></Figure></LookingUp>
       <LookingUp><Person x={486} y={446} s={0.98} look={PEOPLE.andrew} pose="wave" facing="left" blinkDelay={0.9}><EyesUp /></Person></LookingUp>
       <Figure x={592} y={444} s={0.98} look={PEOPLE.james} pose="arms-up" mood="joy" blinkDelay={0.3} />
-      <LookingUp><Person x={692} y={440} s={0.94} look={FRIENDS[1]} pose="wave" facing="left" blinkDelay={1.1}><EyesUp /></Person></LookingUp>
+      <LookingUp><Person x={692} y={440} s={0.94} look={PEOPLE.thomas} pose="wave" facing="left" blinkDelay={1.1}><EyesUp /></Person></LookingUp>
     </Scene>
   )
 }
 
 // 4. "His friends kept looking up at the sky. Then two angels in white stood beside them. "Jesus went up to heaven,"
 //    they said. "And one day, He will come back!""
-// The same hilltop, the sky empty but for a soft cloud and its light: two angels stand beside the friends, one pointing up;
-// the friends turn to them, amazed and happy.
+// The same hilltop, the sky empty but for a soft cloud and its light: two angels stand beside the friends (Peter, John,
+// Andrew, James and Thomas), one pointing up; the friends turn to them, amazed and happy.
 function Page4() {
   return (
     <Scene sky="day" ground="none" clouds={false}>
@@ -836,7 +835,7 @@ function Page4() {
       <Figure x={476} y={446} s={0.98} look={PEOPLE.john} pose="pray" mood="joy" facing="left" blinkDelay={1.2} />
       <LookingUp><Person x={566} y={444} s={0.98} look={PEOPLE.andrew} pose="wave" facing="left" blinkDelay={0.8}><EyesUp /></Person></LookingUp>
       <Figure x={654} y={442} s={0.98} look={PEOPLE.james} mood="wow" facing="left" blinkDelay={0.4} />
-      <LookingUp><Person x={740} y={438} s={0.94} look={PEOPLE.disciple} pose="wave" facing="left" blinkDelay={1.5}><EyesUp /></Person></LookingUp>
+      <LookingUp><Person x={740} y={438} s={0.94} look={PEOPLE.thomas} pose="wave" facing="left" blinkDelay={1.5}><EyesUp /></Person></LookingUp>
     </Scene>
   )
 }
@@ -844,7 +843,7 @@ function Page4() {
 // 5. "So the friends went back to Jerusalem, full of joy. In a room upstairs, they prayed together every day: Peter,
 //    Andrew, James, John, Mary, Jesus' mother, and many more. They were waiting for the Helper, just like Jesus said."
 // Inside the room upstairs (Jerusalem's roofs below its window): eleven friends praying with their eyes shut, the four
-// fishermen in front, Mary in the middle, and more friends all round.
+// fishermen in front, Mary in the middle, and more friends all round (Thomas, Matthew and Mary Magdalene at the back).
 function Page5() {
   return (
     <UpperRoom inWindow={<Birds spots={[[330, 90, 0.8], [356, 78, 0.6]]} />} windowSay={["We're way up high! Look at all the roofs.", 'pop']}>
@@ -911,7 +910,7 @@ function Page7() {
 
 /** The friends on the roof on page 8, in house units: [look, x, pose, speaking, a wonder to tell about]. */
 const ON_ROOF: [Look, number, JPose, boolean, string | null][] = [
-  [PEOPLE.mary, -196, 'arms-up', false, '🌈'], [FRIENDS[0], -118, 'pray', false, null], [PEOPLE.peter, -40, 'open', true, '💛'],
+  [PEOPLE.mary, -196, 'arms-up', false, '🌈'], [PEOPLE.maryMagdalene, -118, 'pray', false, null], [PEOPLE.peter, -40, 'open', true, '💛'],
   [PEOPLE.john, 38, 'arms-up', true, '🐋'], [PEOPLE.james, 116, 'wave', true, '⭐'], [PEOPLE.andrew, 194, 'open', true, '🦁'],
 ]
 

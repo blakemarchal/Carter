@@ -203,17 +203,31 @@ export function Person({ x, y, s = 1, look, pose = 'stand', holding, facing = 'r
 // ---------- Characters ----------
 // Bible characters have medium/tan skin; hair and robes are earthy and warm.
 
+/** Jesus, grown up: long brown hair, a short beard, a white robe and a red sash. */
+const JESUS = { skin: SKIN.medium, hair: 'long', hairColor: '#5a3a24', beard: 'short', robe: '#f5f0e6', sash: '#c0504d' } satisfies Look
+
 export const PEOPLE = {
   noah: { skin: SKIN.medium, hair: 'short', hairColor: '#e8e4dc', beard: 'long', beardColor: '#f2efe8', robe: '#9a6b45', sash: '#d9b56a' },
   noahsWife: { skin: SKIN.medium, hair: 'covered', hairColor: '#5a3a24', wrap: '#c98aa8', robe: '#b77fa0', sash: '#f0d38a' },
   david: { skin: SKIN.tan, hair: 'curly', hairColor: '#7a4a24', robe: '#7cb06a', sash: '#c98448', build: 'child' },
   goliath: { skin: SKIN.tan, hair: 'short', hairColor: '#3b2a20', beard: 'short', robe: '#8d95a8', helmet: true, build: 'giant' },
   saul: { skin: SKIN.medium, hair: 'short', hairColor: '#3b2a20', beard: 'short', robe: '#8a5bb0', sash: '#ffd34d', crown: true },
-  jonah: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#5f8fc0', sash: '#e0b45a' },
+  /**
+   * Jonah: a deep violet robe and a teal sash. (Not blue and gold, as Andrew is, out on the lake in a storm; not orange,
+   * as Peter is in that boat, and as Haman and one of Daniel's jealous officials are just before Jonah's island.)
+   */
+  jonah: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#663f9c', sash: '#38b0a0' },
   sailor: { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e06a5a', robe: '#c9a46a', beard: 'short', beardColor: '#3b2a20' },
-  jesus: { skin: SKIN.medium, hair: 'long', hairColor: '#5a3a24', beard: 'short', robe: '#f5f0e6', sash: '#c0504d' },
+  jesus: JESUS,
+  /** Jesus as a boy (little Jesus at Christmas, Jesus at twelve, "Jesus Grew Up"): His long hair, robe and sash, and no beard yet. */
+  boyJesus: { ...JESUS, beard: undefined, build: 'child' },
   boy: { skin: SKIN.tan, hair: 'short', hairColor: '#3b2a20', robe: '#e6b85a', sash: '#a0612f', build: 'child' },
-  disciple: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#a07a5a', sash: '#6b8f5a' },
+  /**
+   * One of Jesus' friends (with the baskets at the Loaves and Fishes, and praying in the room upstairs at Pentecost):
+   * near-black hair and beard, a deep wine-red robe and a gold sash. (Not brown and green, as Joseph, Jesus' earthly
+   * father, wears; and not plum, as Matthew does in that same room.)
+   */
+  disciple: { skin: '#a8714a', hair: 'short', hairColor: '#2b1f18', beard: 'short', robe: '#7a3040', sash: '#e8c25a' },
   // The fishermen Jesus called to follow Him (Fishers of People), who sail with Him across the lake
   /** Simon Peter, a fisherman: curly dark hair and beard, a rust-red robe and a sea-blue sash. */
   peter: { skin: SKIN.tan, hair: 'curly', hairColor: '#3b2a20', beard: 'short', beardColor: '#3b2a20', robe: '#c8643c', sash: '#5f8fc0' },
@@ -223,6 +237,13 @@ export const PEOPLE = {
   james: { skin: SKIN.medium, hair: 'short', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#6b8f5a', sash: '#e8dcc0' },
   /** John, the youngest fisherman: no beard yet, a golden robe and a purple sash. */
   john: { skin: SKIN.medium, hair: 'short', hairColor: '#5a3a24', robe: '#d9a85a', sash: '#8a5bb0' },
+  // More of Jesus' friends, first drawn for Easter Morning, who come to Pentecost too
+  /** Mary Magdalene, one of Jesus' friends (not His mother Mary): a cream head scarf and a rose-red robe with a golden sash. */
+  maryMagdalene: { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#f6ead2', robe: '#cc4f72', sash: '#f0c24a' },
+  /** Thomas, one of Jesus' twelve friends: a short black beard and a sea-green robe. */
+  thomas: { skin: SKIN.tan, hair: 'short', hairColor: '#2b1f18', beard: 'short', beardColor: '#2b1f18', robe: '#4fa39a', sash: '#f0d38a' },
+  /** Matthew, one of Jesus' twelve friends: a cream head cloth and a plum robe. */
+  matthew: { skin: SKIN.medium, hair: 'covered', hairColor: '#4a3020', wrap: '#f0e2c0', beard: 'short', beardColor: '#5a3a24', robe: '#9a5a8a', sash: '#e8dcc0' },
   mary: { skin: SKIN.medium, hair: 'covered', hairColor: '#4a3020', wrap: '#5f8fd0', robe: '#bcd4f0', sash: '#f5f0e6' },
   joseph: { skin: SKIN.medium, hair: 'short', hairColor: '#4a3020', beard: 'short', robe: '#a0703f', sash: '#6b8f5a' },
   shepherd: { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8dcc0', robe: '#8f7a5a', beard: 'short', beardColor: '#3b2a20', sash: '#c0504d' },
@@ -433,9 +454,10 @@ export const SilverHair = ({ color = '#e9e5de' }: { color?: string }) => (
 // ---------- Figure ----------
 // Figure is Person (the same body, face and proportions) plus a few things Person can't draw yet: a coat of
 // many colors (`coat` stripes on the robe and sleeves), faces for feelings (`mood`: grumpy brothers, a
-// surprised Pharaoh, happy tears), crossed arms and hugs (`pose`, `reach`), kneeling (`kneel`), and Egyptian
-// dress (`collar`, `band`, `nemes`, `pleats`). First drawn for Joseph's Coat (scenes/joseph.tsx, where
-// Sleeper draws someone lying asleep with its Head). When Person gains these, Figure can become Person.
+// surprised Pharaoh, happy tears), crossed arms and hugs (`pose`, `reach`), kneeling (`kneel`), a striped
+// head cloth (`wrapStripes`), and Egyptian dress (`collar`, `band`, `nemes`, `pleats`). First drawn for
+// Joseph's Coat (scenes/joseph.tsx, where Sleeper draws someone lying asleep with its Head). When Person
+// gains these, Figure can become Person.
 
 type Pt = [number, number]
 
@@ -462,6 +484,11 @@ export interface JLook extends Look {
   nemes?: [string, string]
   /** Pleats down an Egyptian linen robe. */
   pleats?: boolean
+  /**
+   * A striped head cloth (with hair "covered"): two bands of this color along its front edge, and two across its ends
+   * (as Jacob wears it). Figure and Head draw it; Person draws a plain head cloth.
+   */
+  wrapStripes?: string
 }
 
 /** Arms for each pose: the shoulder, (an elbow,) then the hand, left arm first (figure coordinates). */
@@ -571,6 +598,10 @@ function Collar({ color }: { color: string }) {
   )
 }
 
+/** A head cloth (hair "covered"): its top, over the head, and its ends, hanging down behind the face to the shoulders. */
+const CLOTH_TOP = 'M-25 -112 Q-26 -142 0 -142 Q26 -142 25 -112 Q14 -128 0 -127 Q-14 -128 -25 -112 Z'
+const CLOTH_ENDS = 'M-26 -112 Q-30 -82 -22 -86 L22 -86 Q30 -82 26 -112 Z'
+
 /**
  * A head (figure coordinates: its middle at (0, -114), as Person draws it), with hair or headwear, and a
  * face for `mood`. Used by Figure, and by Sleeper (scenes/joseph.tsx) for someone lying down.
@@ -587,11 +618,20 @@ export function Head({ look, mood = 'happy', blinkDelay = 0 }: { look: JLook; mo
   const eyeRx = mood === 'wow' ? 3.6 : 3.2
   const nemes = look.nemes
   const lip = bearded ? '#d0707e' : '#6b2a3a'
+  const stripes = look.hair === 'covered' && !nemes ? look.wrapStripes : undefined
   return (
     <g>
       <defs>{skin.def}{hair.def}</defs>
       {back && !nemes && (
         <path d="M-26 -112 Q-30 -82 -22 -86 L22 -86 Q30 -82 26 -112 Z" fill={look.hair === 'covered' ? wrap : hair.fill} stroke={ink(look.hair === 'covered' ? wrap : look.hairColor)} strokeWidth={2.5} />
+      )}
+      {/* (a striped head cloth: two bands across its ends, where they hang down beside the face) */}
+      {stripes && (
+        <g>
+          <defs><clipPath id={`wd${nid}`}><path d={CLOTH_ENDS} /></clipPath></defs>
+          <path d="M-36 -98 L36 -98 M-36 -92.5 L36 -92.5" stroke={stripes} strokeWidth={2.6} clipPath={`url(#wd${nid})`} />
+          <path d={CLOTH_ENDS} fill="none" stroke={ink(wrap)} strokeWidth={2.5} />
+        </g>
       )}
       {nemes && (
         <g>
@@ -670,8 +710,16 @@ export function Head({ look, mood = 'happy', blinkDelay = 0 }: { look: JLook; mo
           ))}
           <path d="M-24 -121 Q0 -130 24 -121" stroke={look.band ?? '#ffd34d'} strokeWidth={4} fill="none" strokeLinecap="round" />
         </g>
+      ) : stripes ? (
+        <g>
+          <defs><clipPath id={`wt${nid}`}><path d={CLOTH_TOP} /></clipPath></defs>
+          <path d={CLOTH_TOP} fill={wrap} />
+          {/* two bands along its front edge */}
+          <path d="M-31 -115.5 Q-14 -131.5 0 -130.5 Q14 -131.5 31 -115.5 M-31 -120.5 Q-14 -136.5 0 -135.5 Q14 -136.5 31 -120.5" stroke={stripes} strokeWidth={2.6} fill="none" clipPath={`url(#wt${nid})`} />
+          <path d={CLOTH_TOP} fill="none" stroke={ink(wrap)} strokeWidth={2.5} />
+        </g>
       ) : look.hair === 'covered' ? (
-        <path d="M-25 -112 Q-26 -142 0 -142 Q26 -142 25 -112 Q14 -128 0 -127 Q-14 -128 -25 -112 Z" fill={wrap} stroke={ink(wrap)} strokeWidth={2.5} />
+        <path d={CLOTH_TOP} fill={wrap} stroke={ink(wrap)} strokeWidth={2.5} />
       ) : look.hair === 'curly' ? (
         <g fill={hair.fill} stroke={ink(look.hairColor)} strokeWidth={2}>
           {[[-16, -128], [-6, -134], [6, -134], [16, -128], [-21, -118], [21, -118]].map(([cx, cy]) => <circle key={`${cx}${cy}`} cx={cx} cy={cy} r={8} />)}

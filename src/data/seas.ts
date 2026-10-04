@@ -34,7 +34,7 @@ export const SEAS: Sea[] = [
       { id: 'baby-moses', name: 'Baby Moses', emoji: '👶', landmark: 'moses-basket' },
       { id: 'burning-bush', name: 'The Burning Bush', emoji: '🔥' },
       { id: 'red-sea', name: 'The Red Sea', emoji: '🌊' },
-      { id: 'manna', name: 'Manna in the Desert', emoji: '🍯' },
+      { id: 'manna', name: 'Manna in the Desert', emoji: '🍯', landmark: 'manna-jar' },
     ],
   },
   {
@@ -49,7 +49,7 @@ export const SEAS: Sea[] = [
   {
     id: 'kings', name: 'Kings & Prophets', color: '#6aa8e8',
     islands: [
-      { id: 'elijah', name: 'Elijah', emoji: '🔥' },
+      { id: 'elijah', name: 'Elijah', emoji: '🔥', landmark: 'fire-from-heaven' },
       { id: 'esther', name: 'Queen Esther', emoji: '👑' },
       { id: 'daniel', name: 'Daniel & the Lions', emoji: '🦁' },
       { id: 'jonah', name: 'Jonah & the Big Fish', emoji: '🐋' },
@@ -77,8 +77,8 @@ export const SEAS: Sea[] = [
     id: 'easter', name: 'Easter & Beyond', color: '#9f9cf0',
     islands: [
       { id: 'palm-sunday', name: 'Palm Sunday', emoji: '🌴', landmark: 'palm-branch' },
-      { id: 'easter', name: 'Easter Morning', emoji: '🌅' },
-      { id: 'pentecost', name: 'Pentecost', emoji: '🕊️' },
+      { id: 'easter', name: 'Easter Morning', emoji: '🌅', landmark: 'empty-tomb' },
+      { id: 'pentecost', name: 'Pentecost', emoji: '🕊️', landmark: 'pentecost-flame' },
     ],
   },
 ]

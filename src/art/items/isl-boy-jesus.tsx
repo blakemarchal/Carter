@@ -3,14 +3,15 @@
 // drawing is what that emoji means. Every item can be used anywhere once it's here.
 //
 // "Jesus Grew Up": the same Jesus at four ages, each standing on the same ground in its box, so they can be put in
-// order by size: baby Jesus in the manger, little Jesus, Jesus at twelve (as on the island), and Jesus grown up
-// (PEOPLE.jesus). They're asked for by id (no emoji: 👶 stays a plain baby everywhere).
+// order by size: baby Jesus in the manger, little Jesus (as at Christmas, when the wise men came), Jesus at twelve (as
+// on the island), both PEOPLE.boyJesus, and Jesus grown up (PEOPLE.jesus). They're asked for by id (no emoji: 👶 stays a
+// plain baby everywhere).
 import type { Item } from './types'
 import { groundShadow, ink, useShade } from './draw'
-import { Baby, Figure, Person, PEOPLE, type Look } from '../people'
+import { Baby, Figure, Person, PEOPLE } from '../people'
 
-/** Jesus as a boy (as on the Boy Jesus at the Temple island): the grown-up Jesus' skin, long hair and robe, and no beard. */
-const BOY: Look = { ...PEOPLE.jesus, beard: undefined, build: 'child' }
+/** Jesus as a boy: the grown-up Jesus' skin, long hair and robe, and no beard. */
+const BOY = PEOPLE.boyJesus
 
 /** Baby Jesus asleep on the hay in a low wooden manger. */
 function JesusBaby() {
