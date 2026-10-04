@@ -6,81 +6,12 @@ import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'r
 import { darken, ink, lighten, MOON, useShade } from '../kit'
 import { fluff } from '../items/draw'
 import { Baby, Person, PEOPLE, SKIN, type Look } from '../people'
-import { Cloud, Cow, Glow, Manger, Palm, Rays, Scene, Sheep, Sparkles, Stable, Tap, Tree, sparkle } from './kit'
+import { Cloud, Cow, Donkey, Glow, Manger, Palm, Rays, Scene, Sheep, Sparkles, Stable, Tap, Tree, sparkle } from './kit'
 
 const gid = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '')
 
 // ---------- Local props ----------
-
-/**
- * A friendly little donkey, side view facing right (origin at the hooves). `rider` sits side-saddle on
- * its back, facing us: her top half above the saddle, her hands resting in her lap and her feet
- * hanging down the donkey's side.
- */
-function Donkey({ x, y, s = 1, flip, rider, blinkDelay = 0 }: { x: number; y: number; s?: number; flip?: boolean; rider?: Look; blinkDelay?: number }) {
-  const c = '#a89c9e'
-  const coat = useShade(c, 0.3, 0.2)
-  const clip = `dk${useId().replace(/[^a-zA-Z0-9]/g, '')}`
-  const leg = (lx: number, far?: boolean) => (
-    <g key={lx}>
-      <rect x={lx} y={-46} width={12} height={44} rx={5} fill={far ? darken(c, 0.12) : coat.fill} stroke={ink(c)} strokeWidth={2.5} />
-      <rect x={lx - 1} y={-9} width={14} height={9} rx={3} fill="#5a4646" />
-    </g>
-  )
-  return (
-    <g transform={`translate(${x} ${y}) scale(${flip ? -s : s} ${s})`}>
-      <defs>
-        {coat.def}
-        {/* the rider shows from the saddle up */}
-        <clipPath id={clip}><rect x={-90} y={-280} width={180} height={190} /></clipPath>
-      </defs>
-      <g className="pa-tail" style={{ '--o': '100% 0%' } as CSSProperties}>
-        <path d="M-50 -66 Q-64 -54 -62 -32" stroke={ink(c)} strokeWidth={5} fill="none" strokeLinecap="round" />
-        <ellipse cx={-62} cy={-27} rx={6} ry={9} fill="#5a4646" />
-      </g>
-      {leg(-30, true)}
-      {leg(24, true)}
-      <ellipse cx={0} cy={-62} rx={56} ry={28} fill={coat.fill} stroke={ink(c)} strokeWidth={3} />
-      <ellipse cx={4} cy={-46} rx={36} ry={10} fill="#e4dcdc" opacity={0.85} />
-      {leg(-46)}
-      {leg(36)}
-      <path d="M30 -80 Q46 -102 54 -118 L76 -106 Q66 -82 50 -58 Z" fill={coat.fill} stroke={ink(c)} strokeWidth={3} strokeLinejoin="round" />
-      <path d="M32 -84 Q44 -104 54 -122" stroke="#5a4646" strokeWidth={8} strokeLinecap="round" fill="none" />
-      <g className="pa-ear" style={{ '--o': '50% 100%' } as CSSProperties}>
-        <ellipse cx={56} cy={-142} rx={7.5} ry={21} transform="rotate(-18 56 -142)" fill={coat.fill} stroke={ink(c)} strokeWidth={2.5} />
-        <ellipse cx={56} cy={-140} rx={3.5} ry={13} transform="rotate(-18 56 -140)" fill="#f2b8c6" />
-      </g>
-      <ellipse cx={72} cy={-140} rx={7.5} ry={21} transform="rotate(14 72 -140)" fill={coat.fill} stroke={ink(c)} strokeWidth={2.5} />
-      <ellipse cx={72} cy={-138} rx={3.5} ry={13} transform="rotate(14 72 -138)" fill="#f2b8c6" />
-      <ellipse cx={70} cy={-112} rx={22} ry={18} transform="rotate(24 70 -112)" fill={coat.fill} stroke={ink(c)} strokeWidth={3} />
-      <ellipse cx={86} cy={-98} rx={15} ry={12} fill="#e4dcdc" stroke={ink(c)} strokeWidth={2.5} />
-      <ellipse cx={93} cy={-100} rx={2.2} ry={3} fill="#7a6a6a" />
-      <path d="M80 -91 Q86 -87 92 -91" stroke="#5a4646" strokeWidth={2} fill="none" strokeLinecap="round" />
-      <g className="pa-blink" style={{ '--d': `${blinkDelay}s` } as CSSProperties}>
-        <ellipse cx={70} cy={-116} rx={4} ry={5} fill="#2b2140" />
-        <circle cx={68.6} cy={-118} r={1.6} fill="#fff" />
-      </g>
-      <ellipse cx={74} cy={-104} rx={4} ry={2.5} fill="#ff7fb0" opacity={0.5} />
-      {rider && <g clipPath={`url(#${clip})`}><Person x={-6} y={-40} s={0.8} look={rider} pose="hold" blinkDelay={blinkDelay + 0.7} /></g>}
-      {/* saddle blanket with a little gold fringe */}
-      <path d={rider ? 'M-34 -84 Q-6 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z' : 'M-30 -86 Q-2 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z'} fill="#c0504d" stroke={ink('#c0504d')} strokeWidth={2.5} strokeLinejoin="round" />
-      {(rider ? [-29, 22, 27] : [-24, -12, 0, 12, 24]).map((fx) => <circle key={fx} cx={fx} cy={-56} r={2.6} fill="#ffd34d" />)}
-      {rider && (
-        <g>
-          {/* feet, peeking out under the hem */}
-          <ellipse cx={-14} cy={-45} rx={7} ry={4} fill="#7a5233" />
-          <ellipse cx={4} cy={-45} rx={7} ry={4} fill="#7a5233" />
-          {/* her legs hanging down the donkey's side (two of them, a fold between) */}
-          <path d="M-24 -86 L14 -86 L13 -52 Q-4 -46 -22 -51 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
-          <path d="M-5 -78 L-5 -50" stroke={ink(rider.robe)} strokeWidth={1.8} opacity={0.6} strokeLinecap="round" />
-          {/* her lap on the saddle, and her hands resting in it */}
-          <path d="M-29 -91 Q-6 -98 17 -91 Q21 -85 17 -79 Q-6 -74 -29 -79 Q-33 -85 -29 -91 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
-          {[-13, 1].map((hx) => <circle key={hx} cx={hx} cy={-88} r={5.6} fill={rider.skin} stroke={ink(rider.skin)} strokeWidth={1.8} />)}
-        </g>
-      )}
-    </g>
-  )
-}
+// (The little donkey is the kit's: Donkey, in ./kit.)
 
 /**
  * A Bethlehem house: flat roof, an arched door and window(s); `lit` glows them for the night. The door
@@ -654,7 +585,7 @@ const PageTrip = () => (
     <path d="M40 450 Q240 404 420 372 Q540 344 610 312 L628 314 Q570 356 450 392 Q300 432 200 450 Z" fill="#fbe6bd" opacity={0.85} />
     <Palm x={110} y={392} s={0.85} />
     <Glow x={300} y={300} r={90} color="#fff3c8" />
-    <Tap say="Hee-haw!" sfx="wobble"><Donkey x={300} y={420} s={1.05} rider={PEOPLE.mary} /></Tap>
+    <Tap say="Hee-haw!" sfx="wobble"><Donkey x={300} y={420} s={1.05} rider={PEOPLE.mary} smallRider /></Tap>
     <Tap say="Bethlehem is just ahead!"><Person x={450} y={414} s={1.05} look={PEOPLE.joseph} holding="stick" blinkDelay={1.3} /></Tap>
     <Sparkles spots={[[250, 210, 8], [350, 200, 6], [300, 175, 5]]} />
   </Scene>

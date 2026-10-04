@@ -3,11 +3,14 @@
 // boats rock, people blink and breathe. Animation classes live in styles.css under "Story scenes".
 // At the bottom, props first drawn for one island, for every island: Rock, WoolSheep and Birds; Tent,
 // CampTent, FarCamp, MudHouse and Mat; ThoughtBubble, Dream, Zs and MusicNote; FishingBoat (Peter's boat, with
-// BOAT, its shapes, and BOAT_COLORS); Folk, the little people in a crowd; and Heart.
+// BOAT, its shapes, and BOAT_COLORS); Folk, the little people in a crowd; Heart; the little Donkey (with
+// DONKEY_RIDER, where its rider sits); and God's house in Jerusalem and the city round it: Temple, Colonnade (with
+// Flame, a lamp's flame), Paving, FarHouses, Jerusalem and CityWall, in TEMPLE_COLORS.
 import { useId, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { itemById, itemForEmoji } from '../items'
 import { FishHeap } from '../items/isl-fishers'
+import { Person, type Look } from '../people'
 
 export type Sky = 'day' | 'dawn' | 'dusk' | 'night' | 'storm' | 'dark' | 'glory'
 export type Ground = 'meadow' | 'hills' | 'sea' | 'beach' | 'desert' | 'town' | 'stable' | 'none'
@@ -1128,6 +1131,469 @@ export function Heart({ x, y, s = 1, color = '#ff8fb1', shaded }: { x: number; y
         {shaded ? <ShadedHeart color={color} /> : <path d={HEART} fill={color} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />}
         <ellipse cx={-10} cy={-10} rx={4} ry={2.4} fill="#fff" opacity={0.65} transform="rotate(-35 -10 -10)" />
       </g>
+    </g>
+  )
+}
+
+// ---------- The little donkey (Baby Jesus, Boy Jesus at the Temple, the Good Samaritan, Palm Sunday) ----------
+
+const f1 = (n: number) => n.toFixed(1)
+
+/**
+ * Where someone riding the Donkey sits, in its units: their Person (or Figure) is drawn at (x, y), s big, and shows from
+ * the seat up.
+ */
+export const DONKEY_RIDER = { x: -6, y: -31, s: 0.95 }
+/** Where a `smallRider` sits. */
+const SMALL_RIDER = { x: -6, y: -40, s: 0.8 }
+/** The red of its saddle blanket. */
+const SADDLE = '#c0504d'
+
+/** One coat hanging over the donkey's back (in its units): from x0 to x1 along the back at `top`, its hem at `hem`. */
+function DrapedCoat({ x0, x1, top, hem, cloth, stripe }: { x0: number; x1: number; top: number; hem: number; cloth: string; stripe: string }) {
+  const mid = (x0 + x1) / 2
+  const d = `M${x0} ${top + 4} Q${mid} ${top - 6} ${x1} ${top + 4} L${x1 + 3} ${hem - 2} Q${x1 - 9} ${hem + 4} ${mid + 14} ${hem} Q${mid} ${hem + 5} ${mid - 14} ${hem + 1} Q${x0 + 9} ${hem + 5} ${x0 - 3} ${hem - 1} Z`
+  const band = `M${x0 - 1.5} ${hem - 8} Q${x0 + 9} ${hem - 3} ${mid - 14} ${hem - 6} Q${mid} ${hem - 2} ${mid + 14} ${hem - 7} Q${x1 - 9} ${hem - 3} ${x1 + 2.5} ${hem - 9}`
+  return (
+    <g strokeLinejoin="round">
+      <path d={d} fill={cloth} stroke={ink(cloth)} strokeWidth={2.4} />
+      <path d={band} stroke={stripe} strokeWidth={3.4} fill="none" />
+      {/* a tassel at each corner */}
+      {[x0 - 3, x1 + 3].map((tx) => (
+        <g key={tx}>
+          <path d={`M${tx} ${hem - 2} L${tx} ${hem + 5}`} stroke={stripe} strokeWidth={2} strokeLinecap="round" />
+          <circle cx={tx} cy={hem + 6.5} r={2.3} fill={stripe} stroke={darken(stripe, 0.3)} strokeWidth={0.9} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+/** Where the coats lie over its back, the bottom one first: [x0, x1, top, hem] each. */
+const COAT_LAYERS: [number, number, number, number][] = [[-50, 44, -92, -40], [-45, 38, -95, -53], [-39, 32, -97, -66]]
+
+/**
+ * A friendly little donkey, side view facing right (or `flip`), origin at its hooves: first drawn for the Baby Jesus
+ * island, and on Boy Jesus at the Temple, the Good Samaritan and Palm Sunday too. A soft shadow under it.
+ * On its back: a red saddle blanket with a little gold fringe (`blanketStripe`: a stripe across it, that color;
+ * `blanket` false: none, for a young donkey nobody has ridden yet), or `coats` laid over it instead, for a soft seat
+ * ([cloth, stripe] each, the bottom one first, up to three). `load`: two rolled-up bundles on top and a water skin at
+ * its side, for a long trip; `bags`: a woven bag hanging at its side. `lead`: a rope halter, round its nose and up
+ * behind its eye to its ear, with the lead rope running to that point, in its units (tied to a post, or held).
+ * `rider` sits side-saddle on its back, facing us, shown from the seat up: a Person in that look, hands resting in the
+ * lap (`riderKids` are drawn on them, in a Person's units: bandages, a face), or `riderArt` in its place (another pose,
+ * or a Figure, drawn at DONKEY_RIDER). Their lap, and their legs hanging down its side, are drawn in `rider`'s look,
+ * with `hands` of their hands resting in the lap (`rest`: which one, when it's one). `smallRider`: the rider drawn
+ * smaller (Mary, on the Baby Jesus island).
+ * `walk`: it walks, its legs swung by this CSS class from the island's own CSS (one pair with the class, the other with
+ * it and "b", the other way); `step`: its legs swung that many degrees, set by hand (in a game, on the beat).
+ */
+export function Donkey({ x, y, s = 1, flip, blanket = true, blanketStripe, coats, load, bags, lead, rider, riderArt, riderKids, smallRider, hands = 2, rest = 'left', walk, step, blinkDelay = 0 }: {
+  x: number; y: number; s?: number; flip?: boolean
+  blanket?: boolean; blanketStripe?: string; coats?: [string, string][]; load?: boolean; bags?: boolean; lead?: Pt
+  rider?: Look; riderArt?: ReactNode; riderKids?: ReactNode; smallRider?: boolean; hands?: 0 | 1 | 2
+  /** With one hand in the lap: which one (the rider's own left or right). */
+  rest?: 'left' | 'right'
+  walk?: string; step?: number; blinkDelay?: number
+}) {
+  const c = '#a89c9e'
+  const fur = useShade(c, 0.3, 0.2)
+  const clip = `dk${uidOf(useId())}`
+  const seat = smallRider ? SMALL_RIDER : DONKEY_RIDER
+  const lap = hands === 2 ? (smallRider ? [-13, 1] : [-13.6, 1.6]) : hands === 1 ? [rest === 'left' ? -24 : 13] : []
+  // (a little donkey far away gets a thicker rope, so it still shows)
+  const rope = Math.max(1, 0.5 / s)
+  const leg = (lx: number, far: boolean, b: boolean) => (
+    <g key={lx}>
+      <g className={walk ? `${walk}${b ? ' b' : ''}` : undefined}>
+        <g transform={step ? `rotate(${f1(b ? -step : step)} ${lx + 6} -46)` : undefined}>
+          <rect x={lx} y={-46} width={12} height={44} rx={5} fill={far ? darken(c, 0.12) : fur.fill} stroke={ink(c)} strokeWidth={2.5} />
+          <rect x={lx - 1} y={-9} width={14} height={9} rx={3} fill="#5a4646" />
+        </g>
+      </g>
+    </g>
+  )
+  return (
+    <g transform={`translate(${f1(x)} ${f1(y)}) scale(${flip ? -s : s} ${s})`}>
+      <defs>
+        {fur.def}
+        {/* the rider shows from the seat up */}
+        {rider && <clipPath id={clip}><rect x={-90} y={-280} width={180} height={190} /></clipPath>}
+      </defs>
+      <ellipse cx={0} cy={-1} rx={64} ry={6} fill="#000" opacity={0.1} />
+      <g className="pa-tail" style={{ '--o': '100% 0%' } as CSSProperties}>
+        <path d="M-50 -66 Q-64 -54 -62 -32" stroke={ink(c)} strokeWidth={5} fill="none" strokeLinecap="round" />
+        <ellipse cx={-62} cy={-27} rx={6} ry={9} fill="#5a4646" />
+      </g>
+      {leg(-30, true, false)}
+      {leg(24, true, true)}
+      <ellipse cx={0} cy={-62} rx={56} ry={28} fill={fur.fill} stroke={ink(c)} strokeWidth={3} />
+      <ellipse cx={4} cy={-46} rx={36} ry={10} fill="#e4dcdc" opacity={0.85} />
+      {leg(-46, false, true)}
+      {leg(36, false, false)}
+      <path d="M30 -80 Q46 -102 54 -118 L76 -106 Q66 -82 50 -58 Z" fill={fur.fill} stroke={ink(c)} strokeWidth={3} strokeLinejoin="round" />
+      <path d="M32 -84 Q44 -104 54 -122" stroke="#5a4646" strokeWidth={8} strokeLinecap="round" fill="none" />
+      <g className="pa-ear" style={{ '--o': '50% 100%' } as CSSProperties}>
+        <ellipse cx={56} cy={-142} rx={7.5} ry={21} transform="rotate(-18 56 -142)" fill={fur.fill} stroke={ink(c)} strokeWidth={2.5} />
+        <ellipse cx={56} cy={-140} rx={3.5} ry={13} transform="rotate(-18 56 -140)" fill="#f2b8c6" />
+      </g>
+      <ellipse cx={72} cy={-140} rx={7.5} ry={21} transform="rotate(14 72 -140)" fill={fur.fill} stroke={ink(c)} strokeWidth={2.5} />
+      <ellipse cx={72} cy={-138} rx={3.5} ry={13} transform="rotate(14 72 -138)" fill="#f2b8c6" />
+      <ellipse cx={70} cy={-112} rx={22} ry={18} transform="rotate(24 70 -112)" fill={fur.fill} stroke={ink(c)} strokeWidth={3} />
+      <ellipse cx={86} cy={-98} rx={15} ry={12} fill="#e4dcdc" stroke={ink(c)} strokeWidth={2.5} />
+      <ellipse cx={93} cy={-100} rx={2.2} ry={3} fill="#7a6a6a" />
+      <path d="M80 -91 Q86 -87 92 -91" stroke="#5a4646" strokeWidth={2} fill="none" strokeLinecap="round" />
+      <g className="pa-blink" style={{ '--d': `${blinkDelay}s` } as CSSProperties}>
+        <ellipse cx={70} cy={-116} rx={4} ry={5} fill="#2b2140" />
+        <circle cx={68.6} cy={-118} r={1.6} fill="#fff" />
+      </g>
+      <ellipse cx={74} cy={-104} rx={4} ry={2.5} fill="#ff7fb0" opacity={0.5} />
+      {lead && (
+        <g fill="none" stroke="#8a5a2e" strokeLinecap="round" strokeLinejoin="round">
+          {/* the rope halter: round the nose, and up behind the eye to the ear */}
+          <path d="M73 -101 Q88 -113 100 -101" strokeWidth={3 * rope} />
+          <path d="M74 -100 L56 -121" strokeWidth={2.6 * rope} />
+          <path d={`M80 -88 Q${f1((80 + lead[0]) / 2)} ${f1(Math.max(-88, lead[1]) + 26)} ${f1(lead[0])} ${f1(lead[1])}`} strokeWidth={2.4 * rope} />
+          <circle cx={80} cy={-89} r={2.6} strokeWidth={2} />
+        </g>
+      )}
+      {bags && (
+        <g strokeLinejoin="round">
+          {/* a woven bag, hanging at its side behind the saddle */}
+          <path d="M-50 -84 Q-36 -90 -26 -84 L-27 -55 Q-38 -49 -50 -56 Z" fill="#d6aa52" stroke="#8a6a2a" strokeWidth={2.2} />
+          <path d="M-48 -74 L-28 -76 M-48 -64 L-28 -66" stroke="#f2d38a" strokeWidth={2.4} />
+          <path d="M-46 -82 Q-38 -76 -30 -82" stroke="#8a6a2a" strokeWidth={1.6} fill="none" />
+        </g>
+      )}
+      {rider && (
+        <g clipPath={`url(#${clip})`}>
+          {riderArt ?? <Person x={seat.x} y={seat.y} s={seat.s} look={rider} pose="hold" blinkDelay={blinkDelay + 0.7}>{riderKids}</Person>}
+        </g>
+      )}
+      {/* the coats, one over another, with stripes and tassels; or the saddle blanket, with a little gold fringe */}
+      {coats ? (
+        <g>
+          {coats.slice(0, COAT_LAYERS.length).map(([cloth, stripe], i) => {
+            const [x0, x1, top, hem] = COAT_LAYERS[i]
+            return <DrapedCoat key={i} x0={x0} x1={x1} top={top} hem={hem} cloth={cloth} stripe={stripe} />
+          })}
+        </g>
+      ) : blanket && (
+        <>
+          <path d={rider ? 'M-34 -84 Q-6 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z' : 'M-30 -86 Q-2 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z'} fill={SADDLE} stroke={ink(SADDLE)} strokeWidth={2.5} strokeLinejoin="round" />
+          {blanketStripe && <path d="M-31 -71 Q-2 -79 28 -72" stroke={blanketStripe} strokeWidth={4} fill="none" />}
+          {(rider ? [-29, 22, 27] : [-24, -12, 0, 12, 24]).map((fx) => <circle key={fx} cx={fx} cy={-56} r={2.6} fill="#ffd34d" />)}
+        </>
+      )}
+      {load && (
+        <g strokeLinejoin="round">
+          {/* a water skin hanging at its side, and two rolled-up bundles tied on top */}
+          <path d="M8 -84 Q22 -82 22 -68 Q20 -54 8 -56 Q-2 -60 0 -72 Q2 -82 8 -84 Z" fill="#9a6a42" stroke="#5f3f22" strokeWidth={2} />
+          <ellipse cx={-14} cy={-98} rx={20} ry={11} fill="#e8d6b0" stroke="#a8875a" strokeWidth={2.2} />
+          <path d="M-22 -107 Q-25 -98 -22 -89 M-6 -107 Q-3 -98 -6 -89" stroke="#8a6a3a" strokeWidth={2.2} fill="none" />
+          <ellipse cx={12} cy={-99} rx={16} ry={10} fill="#7fa8d0" stroke="#4f7aa8" strokeWidth={2.2} />
+          <path d="M6 -108 Q3 -99 6 -90 M19 -108 Q22 -99 19 -90" stroke="#3f6a98" strokeWidth={2} fill="none" />
+        </g>
+      )}
+      {rider && (
+        <g>
+          {/* feet, peeking out under the hem */}
+          <ellipse cx={-14} cy={-45} rx={7} ry={4} fill="#7a5233" />
+          <ellipse cx={4} cy={-45} rx={7} ry={4} fill="#7a5233" />
+          {/* legs hanging down the donkey's side (two of them, a fold between) */}
+          <path d="M-24 -86 L14 -86 L13 -52 Q-4 -46 -22 -51 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
+          <path d="M-5 -78 L-5 -50" stroke={ink(rider.robe)} strokeWidth={1.8} opacity={0.6} strokeLinecap="round" />
+          {/* the lap on the seat, and the hands resting in it */}
+          <path d="M-29 -91 Q-6 -98 17 -91 Q21 -85 17 -79 Q-6 -74 -29 -79 Q-33 -85 -29 -91 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
+          {lap.map((hx) => <circle key={hx} cx={hx} cy={-88} r={smallRider ? 5.6 : 6.6} fill={rider.skin} stroke={ink(rider.skin)} strokeWidth={1.8} />)}
+        </g>
+      )}
+    </g>
+  )
+}
+
+// ---------- God's house in Jerusalem, and the city (Boy Jesus at the Temple, Palm Sunday) ----------
+
+/**
+ * God's house's colors: its gold trim (`gold`, edged `goldInk`), its white marble (`marble`, edged `marbleInk`, with
+ * faint rows of stone, `course`), and the golden-cream stone of its steps and floors (`stone`, edged `stoneInk`).
+ */
+export const TEMPLE_COLORS = { gold: '#f2c440', goldInk: '#a8761c', marble: '#fbf6ea', marbleInk: '#bba67c', course: '#ebdfc2', stone: '#efe1bf', stoneInk: '#c4aa78' }
+const { gold: GOLD, goldInk: GOLD_INK, marble: MARBLE, marbleInk: MARBLE_INK, course: COURSE, stone: STONE, stoneInk: STONE_INK } = TEMPLE_COLORS
+
+/** Little gold spikes along a roof edge, from x0 to x1, standing on y. */
+function Spikes({ x0, x1, y }: { x0: number; x1: number; y: number }) {
+  const n = Math.max(2, Math.round((x1 - x0) / 8))
+  const d = Array.from({ length: n + 1 }, (_, i) => {
+    const sx = x0 + ((x1 - x0) * i) / n
+    return `M${(sx - 1.8).toFixed(1)} ${y} L${sx.toFixed(1)} ${y - 9} L${(sx + 1.8).toFixed(1)} ${y} Z`
+  }).join(' ')
+  return <path d={d} fill={GOLD} stroke={GOLD_INK} strokeWidth={0.9} strokeLinejoin="round" />
+}
+
+/** Faint rows of stone across a wall, from x0 to x1, every `gap` up from y0 to y1. */
+function Courses({ x0, x1, y0, y1, gap = 22 }: { x0: number; x1: number; y0: number; y1: number; gap?: number }) {
+  const ys: number[] = []
+  for (let yy = y0; yy > y1; yy -= gap) ys.push(yy)
+  return <path d={ys.map((yy) => `M${x0} ${yy} H${x1}`).join(' ')} stroke={COURSE} strokeWidth={1.6} />
+}
+
+/** The golden grapevine over the temple's door: a wavy gold stem with leaves and three bunches of purple grapes. */
+function Vine() {
+  return (
+    <g strokeLinejoin="round">
+      <path d="M-58 -186 q14.5 -7 29 0 t29 0 t29 0 t29 0" stroke={GOLD_INK} strokeWidth={4.5} fill="none" strokeLinecap="round" />
+      <path d="M-58 -186 q14.5 -7 29 0 t29 0 t29 0 t29 0" stroke={GOLD} strokeWidth={2.6} fill="none" strokeLinecap="round" />
+      {[-50, -22, 8, 36, 52].map((lx, i) => (
+        <ellipse key={lx} cx={lx} cy={i % 2 ? -183 : -192} rx={5.5} ry={3.2} transform={`rotate(${i % 2 ? 24 : -24} ${lx} ${i % 2 ? -183 : -192})`} fill={GOLD} stroke={GOLD_INK} strokeWidth={1.2} />
+      ))}
+      {[-36, 0, 36].map((gx) => (
+        <g key={gx} fill="#7b4fa0" stroke="#4f2f6a" strokeWidth={0.9}>
+          {[[-3.2, -182], [3.2, -182], [0, -178], [-3.2, -174.4], [3.2, -174.4], [0, -171]].map(([dx, dy], j) => <circle key={j} cx={gx + dx} cy={dy} r={2.8} />)}
+        </g>
+      ))}
+    </g>
+  )
+}
+
+/**
+ * God's house in Jerusalem, the temple, seen from the front: a tall white building trimmed with gold, up on wide steps,
+ * with lower wings either side, gold spikes along its roofs, a golden grapevine over its great doorway, and (inside the
+ * doorway, in the shade) the big curtain of blue, purple and scarlet. (x, y) = the middle of its bottom step; at s = 1
+ * it's 300 wide and about 250 tall. `inside` is drawn in the doorway, in front of the curtain, in the same units (its
+ * floor is at y = -22; it's 80 wide and 143 tall). `shine`: a soft glow behind it, and sparkles on its gold.
+ */
+export function Temple({ x, y, s = 1, shine, inside }: { x: number; y: number; s?: number; shine?: boolean; inside?: ReactNode }) {
+  const wall = useShade(MARBLE, 0.5, 0.07)
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>{wall.def}</defs>
+      {shine && <Glow x={0} y={-130} r={240} color="#fff3c0" />}
+      {/* the side wings */}
+      {[-1, 1].map((d) => (
+        <g key={d} transform={`scale(${d} 1)`}>
+          <rect x={78} y={-152} width={52} height={130} fill={wall.fill} stroke={MARBLE_INK} strokeWidth={2.5} />
+          <Courses x0={80} x1={128} y0={-44} y1={-146} />
+          <rect x={74} y={-162} width={60} height={11} rx={2} fill={GOLD} stroke={GOLD_INK} strokeWidth={2} />
+          <Spikes x0={77} x1={131} y={-162} />
+        </g>
+      ))}
+      {/* the tall middle, with a pillar either side of the door */}
+      <rect x={-80} y={-232} width={160} height={210} fill={wall.fill} stroke={MARBLE_INK} strokeWidth={2.5} />
+      <Courses x0={-78} x1={78} y0={-44} y1={-226} />
+      {[-1, 1].map((d) => (
+        <g key={d}>
+          <rect x={d * 64 - 6} y={-226} width={12} height={204} fill="#fffaf0" stroke={MARBLE_INK} strokeWidth={2} />
+          <rect x={d * 64 - 9} y={-230} width={18} height={10} rx={2} fill={GOLD} stroke={GOLD_INK} strokeWidth={1.6} />
+          <rect x={d * 64 - 9} y={-30} width={18} height={8} rx={2} fill={GOLD} stroke={GOLD_INK} strokeWidth={1.6} />
+        </g>
+      ))}
+      <rect x={-87} y={-243} width={174} height={12} rx={2} fill={GOLD} stroke={GOLD_INK} strokeWidth={2} />
+      <Spikes x0={-84} x1={84} y={-243} />
+      {/* the great doorway: a gold frame, and inside, in the shade, the curtain (blue with gold stars, a purple and red hem) */}
+      <rect x={-47} y={-172} width={94} height={150} fill={GOLD} stroke={GOLD_INK} strokeWidth={2.5} />
+      <rect x={-40} y={-165} width={80} height={143} fill="#2b3f78" />
+      {[-30, -10, 10, 30].map((fx) => <rect key={fx} x={fx - 3} y={-165} width={6} height={143} fill="#35508f" />)}
+      {[[-30, -140], [-10, -118], [10, -140], [30, -118], [-30, -92], [10, -92], [-10, -66], [30, -66]].map(([sx, sy], i) => (
+        <path key={i} d={sparkle(sx, sy, 3.6)} fill="#d8b04a" opacity={0.75} />
+      ))}
+      <rect x={-40} y={-50} width={80} height={11} fill="#5a3a7e" />
+      <rect x={-40} y={-39} width={80} height={8} fill="#963532" />
+      <rect x={-40} y={-165} width={80} height={143} fill="#1e1530" opacity={0.18} />
+      {inside}
+      <Vine />
+      {/* the steps */}
+      <rect x={-130} y={-24} width={260} height={9} fill={STONE} stroke={STONE_INK} strokeWidth={2} />
+      <rect x={-140} y={-16} width={280} height={9} fill={STONE} stroke={STONE_INK} strokeWidth={2} />
+      <rect x={-150} y={-8} width={300} height={9} fill={STONE} stroke={STONE_INK} strokeWidth={2} />
+      <path d="M-128 -22.5 H128 M-138 -14.5 H138 M-148 -6.5 H148" stroke="#fbf3de" strokeWidth={1.6} />
+      {shine && <Sparkles spots={[[-70, -250, 7], [60, -246, 6], [-112, -170, 5], [118, -168, 6], [0, -200, 5]]} color="#fff8d0" />}
+    </g>
+  )
+}
+
+/** A lamp's little flame, flickering (sc-flicker, in styles.css): its foot at (x, y), h tall. `d`: when it flickers. */
+export function Flame({ x, y, h = 16, d = 0 }: { x: number; y: number; h?: number; d?: number }) {
+  const w = h * 0.36
+  return (
+    <g className="sc-flicker" style={{ animationDelay: `${d}s` } as CSSProperties}>
+      <path d={`M${x} ${y} C${x - w * 1.2} ${y - h * 0.35} ${x - w * 0.55} ${y - h * 0.75} ${x} ${y - h} C${x + w * 0.55} ${y - h * 0.75} ${x + w * 1.2} ${y - h * 0.35} ${x} ${y} Z`}
+        fill="#ffb347" stroke="#f08a2a" strokeWidth={1.2} />
+      <path d={`M${x} ${y - h * 0.08} C${x - w * 0.6} ${y - h * 0.32} ${x - w * 0.3} ${y - h * 0.58} ${x} ${y - h * 0.72} C${x + w * 0.3} ${y - h * 0.58} ${x + w * 0.6} ${y - h * 0.32} ${x} ${y - h * 0.08} Z`}
+        fill="#fff3b0" />
+    </g>
+  )
+}
+
+/** One stone column: its foot at (x, y), h tall, w wide, with a gold top. */
+function Column({ x, y, h, w = 22 }: { x: number; y: number; h: number; w?: number }) {
+  const id = `cl${uidOf(useId())}`
+  return (
+    <g>
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#e9dcbf" /><stop offset="0.35" stopColor="#fffaf0" /><stop offset="1" stopColor="#d9c8a2" />
+        </linearGradient>
+      </defs>
+      <rect x={x - w / 2 - 5} y={y - 9} width={w + 10} height={9} rx={2} fill={STONE} stroke={STONE_INK} strokeWidth={2} />
+      <rect x={x - w / 2} y={y - h + 12} width={w} height={h - 21} fill={`url(#${id})`} stroke={MARBLE_INK} strokeWidth={2} />
+      <path d={`M${x - w * 0.18} ${y - h + 16} V${y - 12} M${x + w * 0.18} ${y - h + 16} V${y - 12}`} stroke="#e4d6b6" strokeWidth={1.4} />
+      <path d={`M${x - w / 2 - 7} ${y - h + 12} Q${x - w / 2 - 9} ${y - h + 3} ${x - w / 2 - 2} ${y - h} L${x + w / 2 + 2} ${y - h} Q${x + w / 2 + 9} ${y - h + 3} ${x + w / 2 + 7} ${y - h + 12} Z`}
+        fill={GOLD} stroke={GOLD_INK} strokeWidth={1.8} strokeLinejoin="round" />
+      <path d={`M${x - w / 2 - 3} ${y - h + 7} Q${x} ${y - h + 11} ${x + w / 2 + 3} ${y - h + 7}`} stroke={GOLD_INK} strokeWidth={1.2} fill="none" opacity={0.7} />
+    </g>
+  )
+}
+
+/**
+ * A long porch of stone columns round the courts of God's house (Solomon's porch): its back wall in the shade, the columns
+ * on a low step, and the roof beam on top with a gold band (and a low wall along the roof, `parapet`). From x0 to x1, its
+ * step on the ground at y; the columns are h tall, at the x's in `cols`. `back` is drawn in the shade, behind the columns.
+ */
+export function Colonnade({ x0, x1, y, h, cols, w = 22, parapet = true, back, frieze, lamps = [] }: {
+  x0: number; x1: number; y: number; h: number; cols: number[]; w?: number; parapet?: boolean; back?: ReactNode
+  /** A woven band of blue, red and gold along the back wall, under the roof. */
+  frieze?: boolean
+  /** Little gold lamps hanging from the roof on chains, at these x's, their flames flickering. */
+  lamps?: number[]
+}) {
+  const wallTop = y - h
+  return (
+    <g>
+      <rect x={x0} y={y - h - 22} width={x1 - x0} height={h + 22} fill="#dcc497" />
+      {frieze && (
+        <g>
+          <path d={Array.from({ length: Math.ceil(h / 46) }, (_, i) => `M${x0} ${wallTop + 74 + i * 46} H${x1}`).filter((_, i) => wallTop + 74 + i * 46 < y - 20).join(' ')} stroke="#ceb586" strokeWidth={1.6} />
+          <rect x={x0} y={wallTop + 22} width={x1 - x0} height={30} fill="#3b56a8" opacity={0.85} />
+          <rect x={x0} y={wallTop + 22} width={x1 - x0} height={5} fill="#c8433f" />
+          <rect x={x0} y={wallTop + 47} width={x1 - x0} height={5} fill="#c8433f" />
+          {Array.from({ length: Math.ceil((x1 - x0) / 40) }, (_, i) => <path key={i} d={sparkle(x0 + 20 + i * 40, wallTop + 37, 6)} fill={GOLD} />)}
+        </g>
+      )}
+      <rect x={x0} y={y - h} width={x1 - x0} height={20} fill="#c7a873" opacity={0.75} />
+      {lamps.map((lx, i) => (
+        <g key={lx}>
+          <path d={`M${lx} ${wallTop} L${lx} ${wallTop + 54} M${lx} ${wallTop + 54} L${lx - 12} ${wallTop + 70} M${lx} ${wallTop + 54} L${lx + 12} ${wallTop + 70}`} stroke="#8a6a3a" strokeWidth={1.6} fill="none" />
+          <circle cx={lx} cy={wallTop + 74} r={26} fill="#ffe7a0" opacity={0.28} />
+          <path d={`M${lx - 15} ${wallTop + 70} Q${lx} ${wallTop + 86} ${lx + 15} ${wallTop + 70} Z`} fill={GOLD} stroke={GOLD_INK} strokeWidth={1.8} strokeLinejoin="round" />
+          <Flame x={lx} y={wallTop + 70} h={14} d={-i * 0.3} />
+        </g>
+      ))}
+      {back}
+      <rect x={x0} y={y - 9} width={x1 - x0} height={10} fill={STONE} stroke={STONE_INK} strokeWidth={2} />
+      {cols.map((cx) => <Column key={cx} x={cx} y={y - 8} h={h - 8} w={w} />)}
+      {parapet && <rect x={x0} y={y - h - 36} width={x1 - x0} height={15} fill="#f1e7d0" stroke={MARBLE_INK} strokeWidth={2} />}
+      <rect x={x0} y={y - h - 23} width={x1 - x0} height={23} fill={MARBLE} stroke={MARBLE_INK} strokeWidth={2.5} />
+      <rect x={x0} y={y - h - 13} width={x1 - x0} height={5} fill={GOLD} />
+      <path d={`M${x0} ${y - h - 13} H${x1} M${x0} ${y - h - 8} H${x1}`} stroke={GOLD_INK} strokeWidth={1} opacity={0.6} />
+    </g>
+  )
+}
+
+/** The courts' stone floor, from y down to the bottom of the picture: big pale flagstones, their joints wider apart nearer us. */
+export function Paving({ y, color = '#ecdcb4', line = '#d5bf92' }: { y: number; color?: string; line?: string }) {
+  const rows: [number, number][] = []
+  let yy = y, gap = 10
+  while (yy < 450) { rows.push([yy, Math.min(gap, 450 - yy)]); yy += gap; gap *= 1.32 }
+  return (
+    <g>
+      <rect x={0} y={y} width={800} height={450 - y} fill={color} />
+      {rows.map(([ry, rh], i) => {
+        const w = rh * 4.6
+        const off = (i % 2) * w * 0.5
+        const xs = Array.from({ length: Math.ceil(800 / w) + 2 }, (_, k) => k * w - off)
+        return (
+          <g key={i} stroke={line} strokeWidth={Math.min(2.4, 1 + rh * 0.03)}>
+            <path d={`M0 ${ry} H800`} />
+            {xs.map((jx) => <path key={jx} d={`M${jx} ${ry} L${jx} ${ry + rh}`} />)}
+          </g>
+        )
+      })}
+    </g>
+  )
+}
+
+/** Little flat-roofed houses far away (a town on a hill): [x, foot y, width] each. */
+export function FarHouses({ spots, color = '#efdcb2', line = '#c9a670' }: { spots: [number, number, number][]; color?: string; line?: string }) {
+  return (
+    <g>
+      {spots.map(([hx, hy, w], i) => (
+        <g key={i}>
+          <rect x={hx - w / 2} y={hy - w * 0.72} width={w} height={w * 0.72} fill={color} stroke={line} strokeWidth={1.6} />
+          <rect x={hx - w / 2 - 1.5} y={hy - w * 0.76} width={w + 3} height={w * 0.1} fill={line} />
+          <rect x={hx - w * 0.1 + (i % 2 ? w * 0.18 : -w * 0.16)} y={hy - w * 0.3} width={w * 0.2} height={w * 0.3} fill="#8a5a36" />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+/**
+ * Jerusalem on its hill, far away: the city wall round the hilltop with towers and a gate, flat-roofed houses packed inside,
+ * and God's house on top, on its great platform with porches round it, shining (`shine`). (x, y) = the bottom middle of
+ * the hill; at s = 1 the hill is 620 wide and the temple's top is about 300 up.
+ */
+export function Jerusalem({ x, y, s = 1, shine = true }: { x: number; y: number; s?: number; shine?: boolean }) {
+  const wallC = '#e6c792', wallInk = '#b08d55'
+  const towers = [-238, -120, 20, 236]
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M-310 0 Q-280 -70 -230 -100 Q-150 -140 0 -146 Q150 -140 230 -100 Q280 -70 310 0 Z" fill="#c8c27e" />
+      <path d="M-310 0 Q-260 -40 -180 -56 Q0 -76 180 -56 Q260 -40 310 0 Z" fill="#b6b56e" />
+      {/* the houses, packed in on the hilltop (behind the wall) */}
+      <FarHouses spots={[[-210, -122, 26], [-182, -132, 30], [-150, -126, 24], [-124, -140, 28], [-96, -128, 26], [-66, -144, 30], [-40, -132, 24], [-200, -150, 22], [-160, -156, 26], [-112, -162, 22]]} />
+      {/* God's house: the great platform with its porches, and the temple in the middle */}
+      <rect x={-10} y={-178} width={236} height={92} fill="#e9cf9c" stroke={wallInk} strokeWidth={2.5} />
+      <path d="M-10 -150 H226 M-10 -122 H226" stroke="#d6b77e" strokeWidth={1.6} />
+      <rect x={-12} y={-186} width={240} height={10} fill="#f6ecd4" stroke={MARBLE_INK} strokeWidth={1.8} />
+      {Array.from({ length: 16 }, (_, i) => <rect key={i} x={-6 + i * 15} y={-198} width={4} height={12} fill="#fbf6ea" stroke={MARBLE_INK} strokeWidth={0.8} />)}
+      <rect x={-12} y={-202} width={240} height={5} fill="#f6ecd4" stroke={MARBLE_INK} strokeWidth={1.2} />
+      <Temple x={108} y={-198} s={0.42} shine={shine} />
+      {/* the city wall, with its towers and a gate */}
+      <path d="M-262 -76 Q-240 -96 -230 -98 L-14 -98 L-14 -70 L-262 -50 Z" fill={wallC} stroke={wallInk} strokeWidth={2.5} strokeLinejoin="round" />
+      <path d="M226 -86 L262 -74 L262 -50 L226 -58 Z" fill={wallC} stroke={wallInk} strokeWidth={2.5} strokeLinejoin="round" />
+      {Array.from({ length: 13 }, (_, i) => <rect key={i} x={-226 + i * 16.5} y={-106} width={9} height={9} fill={wallC} stroke={wallInk} strokeWidth={1.6} />)}
+      {towers.map((tx) => (
+        <g key={tx}>
+          <rect x={tx - 13} y={-122} width={26} height={tx === 236 ? 66 : 62} fill="#e0bd84" stroke={wallInk} strokeWidth={2.2} />
+          {[-9, 0, 9].map((mx) => <rect key={mx} x={tx + mx - 3.5} y={-129} width={7} height={8} fill="#e0bd84" stroke={wallInk} strokeWidth={1.4} />)}
+        </g>
+      ))}
+      <path d="M-188 -58 L-188 -78 Q-178 -90 -168 -78 L-168 -60 Z" fill="#6b4630" stroke={wallInk} strokeWidth={1.8} />
+    </g>
+  )
+}
+
+/**
+ * A stretch of Jerusalem's city wall up close, with a gate tower: big golden stone blocks, battlements, and a tall arched
+ * gateway (`through`: drawn in the gateway, what's beyond it). From x0 to x1, its foot at y, h tall; the gate's middle at gx.
+ */
+export function CityWall({ x0, x1, y, h, gx, through }: { x0: number; x1: number; y: number; h: number; gx: number; through?: ReactNode }) {
+  const c = '#e6c792', line = '#b08d55'
+  const id = `gw${uidOf(useId())}`
+  const top = y - h, tw = 150, tt = top - 50
+  const blocks: string[] = []
+  for (let r = 0, by = y; by > top + 4; r++, by -= 26) {
+    blocks.push(`M${x0} ${by} H${x1}`)
+    for (let bx = x0 + (r % 2) * 30; bx < x1; bx += 60) blocks.push(`M${bx} ${by} V${Math.max(top, by - 26)}`)
+  }
+  return (
+    <g>
+      <defs><clipPath id={id}><path d={`M${gx - 36} ${y} V${y - 104} Q${gx} ${y - 140} ${gx + 36} ${y - 104} V${y} Z`} /></clipPath></defs>
+      <rect x={x0} y={top} width={x1 - x0} height={h} fill={c} stroke={line} strokeWidth={2.5} />
+      <path d={blocks.join(' ')} stroke="#d2b07a" strokeWidth={1.8} />
+      {Array.from({ length: Math.ceil((x1 - x0) / 34) }, (_, i) => <rect key={i} x={x0 + 4 + i * 34} y={top - 16} width={20} height={16} fill={c} stroke={line} strokeWidth={2} />)}
+      {/* the gate tower */}
+      <rect x={gx - tw / 2} y={tt} width={tw} height={y - tt} fill="#e0bd84" stroke={line} strokeWidth={2.5} />
+      <path d={`M${gx - tw / 2} ${tt + 40} H${gx + tw / 2} M${gx - tw / 2} ${tt + 80} H${gx + tw / 2} M${gx - tw / 2} ${tt + 120} H${gx + tw / 2}`} stroke="#cfa86c" strokeWidth={1.8} />
+      {[-60, -30, 0, 30, 60].map((mx) => <rect key={mx} x={gx + mx - 9} y={tt - 18} width={18} height={18} fill="#e0bd84" stroke={line} strokeWidth={2} />)}
+      <rect x={gx - 8} y={tt + 18} width={16} height={22} rx={8} fill="#5a3a24" />
+      <g clipPath={`url(#${id})`}>
+        <rect x={gx - 40} y={y - 150} width={80} height={150} fill="#5a3a24" />
+        {through}
+      </g>
+      <path d={`M${gx - 36} ${y} V${y - 104} Q${gx} ${y - 140} ${gx + 36} ${y - 104} V${y}`} fill="none" stroke={line} strokeWidth={3} />
+      <path d={`M${gx - 44} ${y} V${y - 106} Q${gx} ${y - 150} ${gx + 44} ${y - 106} V${y}`} fill="none" stroke="#cfa86c" strokeWidth={5} />
     </g>
   )
 }

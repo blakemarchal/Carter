@@ -1,14 +1,7 @@
 /* Boy Jesus at the Temple (art/scenes/boy-jesus.tsx and art/games/boy-jesus.tsx): motion its pictures and its mini-game
    need that styles.css doesn't have. Like the pa-* classes, these only run inside an svg with class "pa-anim" (story
-   pictures and the game board both have it). Never on an element with a transform attribute: wrap it in a <g>. */
-
-/* A little flame (a lamp, the campfire): it flickers and sways from its foot. */
-.pa-anim .bj-flicker { animation: bjflicker 1.1s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
-@keyframes bjflicker {
-  0% { transform: scale(1, 1) rotate(-3deg); }
-  50% { transform: scale(1.06, .92) rotate(1deg); }
-  100% { transform: scale(.94, 1.08) rotate(3deg); }
-}
+   pictures and the game board both have it). Never on an element with a transform attribute: wrap it in a <g>.
+   (The lamps' and the campfire's flames are the kit's Flame: their flicker, sc-flicker, is in styles.css.) */
 
 /* An arm held up and still (a trumpet to the lips, a hand up to ask a question): no waving. */
 .bj-still .pa-wing { animation: none !important; }
@@ -26,6 +19,5 @@
 .spot-thumb .bj-word { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pa-anim .bj-flicker { animation: none !important; }
   .pa-anim .bj-word { display: none; }
 }

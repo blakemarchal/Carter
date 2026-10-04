@@ -10,15 +10,15 @@
 //   - Jesus on the bench beside him, listening: found, He puts up His hand to ask a question, smiling.
 // A hiding place (the roof wall, the jar) is drawn in the Picture and drawn again, the same, over what hides behind it
 // (in its target's Draw), so a found thing can come out in front of it. Pieces are drawn in board units in a layer of
-// their own, so they only use the pa-* and bj-* animations.
+// their own, so they only use the pa-* and bj-* animations (and sc-flicker, the lamp's flames: the kit's Flame).
 import type { ReactNode } from 'react'
 import type { At, SpotKit, SpotTarget } from '../../activities/games/types'
 import { ink, useShade } from '../kit'
 import { Person, SittingOnRock } from '../people'
-import { Birds, Cloud, Glow, Scene, WoolSheep } from '../scenes/kit'
+import { Birds, Cloud, Colonnade, Glow, Paving, Scene, Temple, TEMPLE_COLORS, WoolSheep } from '../scenes/kit'
 import {
-  Bench, BOY_JESUS, Colonnade, HeldScroll, JESUS_K, Lampstand, LEVITE, MARBLE_INK, OpenScroll, Paving, pilgrim, RolledScroll,
-  SittingDove, Talking, TEACHERS, Temple, Trumpet, Word,
+  Bench, BOY_JESUS, HeldScroll, JESUS_K, Lampstand, LEVITE, OpenScroll, pilgrim, RolledScroll, SittingDove, Talking, TEACHERS,
+  Trumpet, Word,
 } from '../scenes/boy-jesus'
 
 /** The ground under the porches, and where the bench and the big jar stand. */
@@ -135,8 +135,8 @@ function Doves({ found }: { found: boolean }) {
           <SittingDove x={724} y={89} s={0.72} facing="left" blinkDelay={1.1} />
           {/* the low wall along the porch roof, drawn again in front of them */}
           <rect x={640} y={76} width={124} height={13} fill="#f1e7d0" />
-          <path d="M640 77 H764" stroke={MARBLE_INK} strokeWidth={2} />
-          <path d="M640 89 H764" stroke={MARBLE_INK} strokeWidth={2.5} />
+          <path d="M640 77 H764" stroke={TEMPLE_COLORS.marbleInk} strokeWidth={2} />
+          <path d="M640 89 H764" stroke={TEMPLE_COLORS.marbleInk} strokeWidth={2.5} />
         </g>
       )}
     </Board>

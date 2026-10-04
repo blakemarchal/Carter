@@ -14,12 +14,13 @@
 // New people (for PEOPLE in people.tsx, later), all exported from here: LAWYER, TRAVELER, PRIEST, TEMPLE_HELPER,
 // SAMARITAN and INNKEEPER. The traveler, the priest, the temple helper and the Samaritan are in the activities' pictures
 // too, so their looks (and the hurts, bandages, faces and head cloth drawn over them) live in art/items/isl-samaritan.tsx.
-// The donkey is the Baby Jesus island's (scenes/christmas.tsx), copied here with a rider who has bandages, saddle
-// bags, a halter and lead rope, and legs that walk. God is never drawn as a person: His love is light (page 11).
-import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
+// The donkey is the kit's (Donkey, scenes/kit.tsx, first drawn for the Baby Jesus island), with the Samaritan's striped
+// saddle blanket and bag, a halter and lead rope, the hurt man riding it (bandaged), and legs that walk (SamaritansDonkey).
+// God is never drawn as a person: His love is light (page 11).
+import { useId, type ComponentProps, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { Figure, Kneel, Person, PEOPLE, Sitting, SittingOnRock, SKIN, type Look } from '../people'
-import { Birds, Cloud, Dream, Glow, Heart, Moon, Palm, Rays, Rock, Scene, Sparkles, Sun, Tap } from './kit'
+import { Birds, Cloud, Donkey, Dream, Glow, Heart, Moon, Palm, Rays, Rock, Scene, Sparkles, Sun, Tap } from './kit'
 import {
   Bandages, HelperWalking, Hurry, Hurts, LEFT_ARM, PriestWalking, SadFace, SamaritanCloth, SAMARITAN, TRAVELER,
 } from '../items/isl-samaritan'
@@ -401,102 +402,16 @@ const RoadRock = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => <Roc
 
 // ---------- The donkey ----------
 
-/** The Samaritan's saddle blanket: red, with a saffron stripe (like his head cloth) and a gold fringe. */
-const BLANKET = '#c0504d'
+/** The saffron stripe across the Samaritan's saddle blanket (like his head cloth). */
+const SAFFRON = '#f0b44a'
 
 /**
- * The Samaritan's friendly little donkey, side view facing right (or `flip`), origin at its hooves: the Baby Jesus
- * island's donkey (scenes/christmas.tsx). `rider` sits side-saddle on its back, facing us, from the saddle up, his
- * hands in his lap and his feet hanging down its side; `riderKids` are drawn on him (in a Person's units: bandages, a
- * face). `bags`: a woven bag and a water skin hanging at its side. `lead`: a rope halter, with the lead rope running to
- * that point (in the donkey's units). `walk`: its legs step (in the game).
+ * The Samaritan's donkey: the kit's Donkey, with a saffron stripe across its red saddle blanket (like his head cloth)
+ * and his woven bag hanging at its side. `walk`: its legs step (sm-leg, in samaritan.css: in the game). The rest as
+ * for Donkey.
  */
-export function Donkey({ x, y, s = 1, flip, rider, riderKids, bags, lead, walk, blinkDelay = 0 }: {
-  x: number; y: number; s?: number; flip?: boolean; rider?: Look; riderKids?: ReactNode; bags?: boolean; lead?: Pt; walk?: boolean; blinkDelay?: number
-}) {
-  const c = '#a89c9e'
-  const coat = useShade(c, 0.3, 0.2)
-  const clip = `dk${gid(useId())}`
-  const leg = (lx: number, far: boolean, b: boolean) => (
-    <g key={lx}>
-      <g className={walk ? `sm-leg${b ? ' b' : ''}` : undefined}>
-        <rect x={lx} y={-46} width={12} height={44} rx={5} fill={far ? darken(c, 0.12) : coat.fill} stroke={ink(c)} strokeWidth={2.5} />
-        <rect x={lx - 1} y={-9} width={14} height={9} rx={3} fill="#5a4646" />
-      </g>
-    </g>
-  )
-  return (
-    <g transform={`translate(${x} ${y}) scale(${flip ? -s : s} ${s})`}>
-      <defs>
-        {coat.def}
-        {/* the rider shows from the saddle up */}
-        <clipPath id={clip}><rect x={-90} y={-280} width={180} height={190} /></clipPath>
-      </defs>
-      <ellipse cx={0} cy={-1} rx={64} ry={6} fill="#000" opacity={0.1} />
-      <g className="pa-tail" style={{ '--o': '100% 0%' } as CSSProperties}>
-        <path d="M-50 -66 Q-64 -54 -62 -32" stroke={ink(c)} strokeWidth={5} fill="none" strokeLinecap="round" />
-        <ellipse cx={-62} cy={-27} rx={6} ry={9} fill="#5a4646" />
-      </g>
-      {leg(-30, true, false)}
-      {leg(24, true, true)}
-      <ellipse cx={0} cy={-62} rx={56} ry={28} fill={coat.fill} stroke={ink(c)} strokeWidth={3} />
-      <ellipse cx={4} cy={-46} rx={36} ry={10} fill="#e4dcdc" opacity={0.85} />
-      {leg(-46, false, true)}
-      {leg(36, false, false)}
-      <path d="M30 -80 Q46 -102 54 -118 L76 -106 Q66 -82 50 -58 Z" fill={coat.fill} stroke={ink(c)} strokeWidth={3} strokeLinejoin="round" />
-      <path d="M32 -84 Q44 -104 54 -122" stroke="#5a4646" strokeWidth={8} strokeLinecap="round" fill="none" />
-      <g className="pa-ear" style={{ '--o': '50% 100%' } as CSSProperties}>
-        <ellipse cx={56} cy={-142} rx={7.5} ry={21} transform="rotate(-18 56 -142)" fill={coat.fill} stroke={ink(c)} strokeWidth={2.5} />
-        <ellipse cx={56} cy={-140} rx={3.5} ry={13} transform="rotate(-18 56 -140)" fill="#f2b8c6" />
-      </g>
-      <ellipse cx={72} cy={-140} rx={7.5} ry={21} transform="rotate(14 72 -140)" fill={coat.fill} stroke={ink(c)} strokeWidth={2.5} />
-      <ellipse cx={72} cy={-138} rx={3.5} ry={13} transform="rotate(14 72 -138)" fill="#f2b8c6" />
-      <ellipse cx={70} cy={-112} rx={22} ry={18} transform="rotate(24 70 -112)" fill={coat.fill} stroke={ink(c)} strokeWidth={3} />
-      <ellipse cx={86} cy={-98} rx={15} ry={12} fill="#e4dcdc" stroke={ink(c)} strokeWidth={2.5} />
-      <ellipse cx={93} cy={-100} rx={2.2} ry={3} fill="#7a6a6a" />
-      <path d="M80 -91 Q86 -87 92 -91" stroke="#5a4646" strokeWidth={2} fill="none" strokeLinecap="round" />
-      <g className="pa-blink" style={{ '--d': `${blinkDelay}s` } as CSSProperties}>
-        <ellipse cx={70} cy={-116} rx={4} ry={5} fill="#2b2140" />
-        <circle cx={68.6} cy={-118} r={1.6} fill="#fff" />
-      </g>
-      <ellipse cx={74} cy={-104} rx={4} ry={2.5} fill="#ff7fb0" opacity={0.5} />
-      {lead && (
-        <g fill="none" stroke="#8a5a2e" strokeLinecap="round" strokeLinejoin="round">
-          {/* the rope halter: round the nose, and up behind the eye to the ear */}
-          <path d="M73 -101 Q88 -113 100 -101" strokeWidth={3} />
-          <path d="M74 -100 L56 -121" strokeWidth={2.6} />
-          <path d={`M80 -88 Q${f1((80 + lead[0]) / 2)} ${f1(Math.max(-88, lead[1]) + 26)} ${f1(lead[0])} ${f1(lead[1])}`} strokeWidth={2.4} />
-          <circle cx={80} cy={-89} r={2.6} strokeWidth={2} />
-        </g>
-      )}
-      {bags && (
-        <g strokeLinejoin="round">
-          {/* a woven bag and a water skin, hanging at its side behind the saddle */}
-          <path d="M-50 -84 Q-36 -90 -26 -84 L-27 -55 Q-38 -49 -50 -56 Z" fill="#d6aa52" stroke="#8a6a2a" strokeWidth={2.2} />
-          <path d="M-48 -74 L-28 -76 M-48 -64 L-28 -66" stroke="#f2d38a" strokeWidth={2.4} />
-          <path d="M-46 -82 Q-38 -76 -30 -82" stroke="#8a6a2a" strokeWidth={1.6} fill="none" />
-        </g>
-      )}
-      {rider && <g clipPath={`url(#${clip})`}><Person x={-6} y={-31} s={0.95} look={rider} pose="hold" blinkDelay={blinkDelay + 0.7}>{riderKids}</Person></g>}
-      {/* the saddle blanket, with a stripe and a little gold fringe */}
-      <path d={rider ? 'M-34 -84 Q-6 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z' : 'M-30 -86 Q-2 -94 26 -86 L30 -60 Q-2 -52 -32 -58 Z'} fill={BLANKET} stroke={ink(BLANKET)} strokeWidth={2.5} strokeLinejoin="round" />
-      <path d="M-31 -71 Q-2 -79 28 -72" stroke="#f0b44a" strokeWidth={4} fill="none" />
-      {(rider ? [-29, 22, 27] : [-24, -12, 0, 12, 24]).map((fx) => <circle key={fx} cx={fx} cy={-56} r={2.6} fill="#ffd34d" />)}
-      {rider && (
-        <g>
-          {/* feet, peeking out under the hem */}
-          <ellipse cx={-14} cy={-45} rx={7} ry={4} fill="#7a5233" />
-          <ellipse cx={4} cy={-45} rx={7} ry={4} fill="#7a5233" />
-          {/* his legs hanging down the donkey's side (two of them, a fold between) */}
-          <path d="M-24 -86 L14 -86 L13 -52 Q-4 -46 -22 -51 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
-          <path d="M-5 -78 L-5 -50" stroke={ink(rider.robe)} strokeWidth={1.8} opacity={0.6} strokeLinecap="round" />
-          {/* his lap on the saddle, and his hands resting in it */}
-          <path d="M-29 -91 Q-6 -98 17 -91 Q21 -85 17 -79 Q-6 -74 -29 -79 Q-33 -85 -29 -91 Z" fill={rider.robe} stroke={ink(rider.robe)} strokeWidth={2.5} strokeLinejoin="round" />
-          {[-13.6, 1.6].map((hx) => <circle key={hx} cx={hx} cy={-88} r={6.6} fill={rider.skin} stroke={ink(rider.skin)} strokeWidth={1.8} />)}
-        </g>
-      )}
-    </g>
-  )
+function SamaritansDonkey({ walk, ...p }: Omit<ComponentProps<typeof Donkey>, 'walk' | 'bags' | 'blanketStripe'> & { walk?: boolean }) {
+  return <Donkey {...p} bags blanketStripe={SAFFRON} walk={walk ? 'sm-leg' : undefined} />
 }
 
 /** The hurt man riding the donkey: bandaged, and smiling now (in a Person's units, for the donkey's `riderKids`). */
@@ -510,7 +425,7 @@ export const RiderBandaged = () => <Bandages arm={LEFT_ARM.hold} />
 export function OnTheWay({ x, y, s = 1, walk, blinkDelay = 0 }: { x: number; y: number; s?: number; walk?: boolean; blinkDelay?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <Donkey x={0} y={0} rider={TRAVELER} riderKids={<RiderBandaged />} bags lead={[124, -40]} walk={walk} blinkDelay={blinkDelay} />
+      <SamaritansDonkey x={0} y={0} rider={TRAVELER} riderKids={<RiderBandaged />} lead={[124, -40]} walk={walk} blinkDelay={blinkDelay} />
       <g className={walk ? 'sm-walk' : undefined}>
         <Person x={152} y={4} look={SAMARITAN} blinkDelay={blinkDelay + 1.3}><SamaritanCloth /></Person>
       </g>
@@ -796,7 +711,7 @@ function Page4() {
       </RoadPlace>
       <Tap say="Here comes someone else, far away on the hill!" sfx="sparkle">
         <g>
-          <Donkey x={112} y={256} s={0.2} bags />
+          <SamaritansDonkey x={112} y={256} s={0.2} />
           <Person x={146} y={257} s={0.2} look={SAMARITAN} />
         </g>
       </Tap>
@@ -824,7 +739,7 @@ function Page5() {
     <Scene sky="day" ground="none" sun>
       <RoadPlace />
       <Tap say="Hee-haw! My friend stopped to help." sfx="wobble">
-        <Donkey x={470} y={338} s={0.86} flip bags blinkDelay={0.8} />
+        <SamaritansDonkey x={470} y={338} s={0.86} flip blinkDelay={0.8} />
       </Tap>
       <RoadRock x={HURT.rock} y={HURT.y} s={1.08} />
       <Tap say="Someone stopped! Thank you." sfx="pop">
@@ -860,7 +775,7 @@ function Page6() {
         <OilJar x={318} y={428} s={1.15} />
       </Tap>
       <Tap say="Thank you, my kind friend!" sfx="sparkle">
-        <Donkey x={410} y={372} s={1.02} rider={TRAVELER} riderKids={<RiderBandaged />} bags lead={[121, -78]} blinkDelay={0.6} />
+        <SamaritansDonkey x={410} y={372} s={1.02} rider={TRAVELER} riderKids={<RiderBandaged />} lead={[121, -78]} blinkDelay={0.6} />
       </Tap>
       <Tap say="Up you go, onto my donkey. I will take care of you." sfx="pop">
         <Person x={588} y={384} s={1.02} look={SAMARITAN} pose="point" facing="left" blinkDelay={1.4}><SamaritanCloth /></Person>
@@ -992,7 +907,7 @@ function Page9() {
       <Tap say="Cock-a-doodle-doo! Good morning!" sfx="wobble">
         <Rooster x={730} y={318} s={0.9} />
       </Tap>
-      <Donkey x={170} y={408} s={0.86} bags blinkDelay={0.5} />
+      <SamaritansDonkey x={170} y={408} s={0.86} blinkDelay={0.5} />
       <Tap say="Please take care of him. I will come back." sfx="ding">
         <Person x={452} y={412} s={0.96} look={SAMARITAN} pose="point" blinkDelay={1.1}>
           <SamaritanCloth />

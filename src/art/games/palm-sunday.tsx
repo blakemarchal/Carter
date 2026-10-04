@@ -9,8 +9,8 @@
 // their palm branches up high and still, shouting "Hosanna!", and palm leaves and sparkles burst up round Him.
 import { memo } from 'react'
 import type { RhythmKit } from '../../activities/games/types'
-import { BranchOnRoad, CHILDREN, CityWall, CoatOnRoad, Crowd, JesusOnDonkey, PalmWaver, TOWNSFOLK } from '../scenes/palm-sunday'
-import { Cloud, Glow, MusicNote, Scene, Sparkles, Sun } from '../scenes/kit'
+import { BranchOnRoad, CHILDREN, CoatOnRoad, Crowd, JesusOnDonkey, PalmWaver, TOWNSFOLK } from '../scenes/palm-sunday'
+import { CityWall, Cloud, Glow, MusicNote, Scene, Sparkles, Sun } from '../scenes/kit'
 import { Figure } from '../people'
 import { PalmFrond } from '../items/isl-palm-sunday'
 
