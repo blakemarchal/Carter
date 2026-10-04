@@ -76,7 +76,7 @@ export const PAL_FACES: Record<Species, PalFace> = {
   mole: face(89, 0.8, [100, 57], { y: 114.5, rx: 5, ry: 4.5 }),
   puppy: face(80, 0.86, [100, 52], { y: 105, rx: 5.5, ry: 5 }),
   ostrich: face(40, 0.72, [100, 24], { y: 52.5, rx: 6, ry: 5 }),
-  ladybug: face(131, 0.86, [100, 106]),
+  ladybug: face(146, 0.78, [100, 123]),
   squirrel: face(86, 0.85, [100, 55], { y: 109, rx: 5, ry: 4.5 }),
   frog: face(74, 1.15, [100, 57, -6], { y: 107, rx: 9, ry: 7 }),
 }
