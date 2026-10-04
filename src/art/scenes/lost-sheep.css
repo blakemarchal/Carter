@@ -1,0 +1,30 @@
+/* The Lost Sheep (art/scenes/lost-sheep.tsx and art/games/lost-sheep.tsx): motion its pictures and its mini-game need
+   that styles.css doesn't have. Like the pa-* classes, these only run inside an svg with class "pa-anim" (story
+   pictures and the game board both have it). Never on an element with a transform attribute: wrap it in a <g>. */
+
+/* "Little lamb!", "Baa!": the little lines of a call going out, one after another, fading as they go. */
+.pa-anim .ls-call path { animation: lscall 1.8s ease-out infinite; }
+.pa-anim .ls-call path:nth-child(2) { animation-delay: .3s; }
+.pa-anim .ls-call path:nth-child(3) { animation-delay: .6s; }
+@keyframes lscall { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+
+/* A tambourine, shaken in time. */
+.pa-anim .ls-shake { animation: lsshake .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes lsshake { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+
+/* A found thing's happy word in the mini-game ("Baa!", "Hoo, hoo!"): it pops up, floats up a little and fades away. */
+.pa-anim .ls-word { animation: lsword 2.6s ease-out forwards; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes lsword {
+  0% { transform: translateY(6px) scale(.4); opacity: 0; }
+  14% { transform: translateY(0) scale(1.12); opacity: 1; }
+  24% { transform: translateY(0) scale(1); }
+  72% { opacity: 1; }
+  100% { transform: translateY(-12px) scale(1); opacity: 0; }
+}
+/* (On the shelf of finds, each little picture is just the thing.) */
+.spot-thumb .ls-word { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-anim .ls-call path, .pa-anim .ls-shake { animation: none !important; }
+  .pa-anim .ls-word { display: none; }
+}
