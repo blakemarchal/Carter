@@ -2,10 +2,10 @@
 // narration, and every activity's pictures with what the narrator says for each. Not linked from the
 // game itself; it's how we check that the pictures and the words agree before an island ships.
 import type { ReactNode } from 'react'
-import { STORY_ART } from '../art/scenes'
 import Pic from '../components/Pic'
 import PlayerArtProvider from '../components/PlayerArt'
 import { ISLANDS, type Island, type Step, type Thing } from '../data/islands'
+import { useAllIslands } from '../lib/useIsland'
 import { palById } from '../data/pals'
 import { SONGS } from '../data/songs'
 import { Board, BoardLayer } from '../activities/games/Board'
@@ -40,6 +40,15 @@ function KitPicture({ s }: { s: Step }) {
   } else if (s.kind === 'rhythm') {
     const k = s.kit
     layers = <k.Backdrop beat={0} hits={0} />
+  } else if (s.kind === 'catch') {
+    const k = s.kit
+    layers = (
+      <><k.Backdrop caught={0} /><BoardLayer>
+        {k.falling.map((F, i) => <g key={i} transform={`translate(${k.lane.from + ((i + 1) * (k.lane.to - k.lane.from)) / (k.falling.length + 1)} 120)`}><F /></g>)}
+        <g transform={`translate(${(k.lane.from + k.lane.to) / 2} ${k.lane.y})`}><k.Catcher fill={0.5} /></g>
+        {k.Front && <k.Front />}
+      </BoardLayer></>
+    )
   } else if (s.kind === 'share') {
     const k = s.kit
     layers = <BoardLayer><rect width={800} height={450} fill="#fff4e0" />{k.people.map((p, i) => <g key={p.id} transform={`translate(${130 + i * (540 / Math.max(1, k.people.length - 1))} 250)`}><p.Draw /></g>)}</BoardLayer>
@@ -70,6 +79,8 @@ function StepView({ s, n }: { s: Step; n: number }) {
       return game('rhythm', s.title, s.intro, s.done, <>{s.kit.instrument}, {s.kit.notes.length} notes at {s.kit.bpm} beats a minute</>)
     case 'share':
       return game('share it', s.title, s.intro, s.done, <>{say(s.kit.item)} ({s.kit.plural}) among {s.kit.people.map((p) => p.say).join(', ')}; rounds {s.kit.rounds.map((r) => `${r.items} for ${r.people}`).join(', ')}</>)
+    case 'catch':
+      return game('catch it', s.title, s.intro, s.done, <>Catch {s.kit.goal} {s.plural}</>)
     case 'song': {
       const song = SONGS.find((x) => x.id === s.song)
       return (
@@ -108,23 +119,23 @@ function StepView({ s, n }: { s: Step; n: number }) {
     case 'verse':
       return <section>{head(`Memory verse (${s.ref})`)}<p>&ldquo;{s.chunks.join(' ')}&rdquo;</p></section>
     case 'battle':
-      return <section>{head(`Battle: ${palById(s.foe).stages[0].name}`)}<p>&ldquo;{s.intro}&rdquo;</p></section>
+      return <section>{head(`Battle: ${palById(s.foe)?.stages[0].name ?? `${s.foe} (not a Pal yet)`}`)}<p>&ldquo;{s.intro}&rdquo;</p></section>
     case 'pause':
       return <section>{head('End of the visit ("To be continued")')}<p>&ldquo;{s.line}&rdquo;</p></section>
     case 'reward':
-      return <section>{head(`Reward: ${palById(s.pal).stages[0].name}`)}<div className="rv-row">sticker {say({ emoji: s.sticker, say: s.stickerName })}</div></section>
+      return <section>{head(`Reward: ${palById(s.pal)?.stages[0].name ?? `${s.pal} (not a Pal yet)`}`)}<div className="rv-row">sticker {say({ emoji: s.sticker, art: s.sticker, say: s.stickerName })}</div></section>
   }
 }
 
 /** An island step by step, visit by visit; story pages are numbered as story cards count them. */
 function IslandView({ isl }: { isl: Island }) {
-  const art = STORY_ART[isl.id] ?? []
+  const art = isl.art
   let visit = 1
   return (
     <article>
       <h2>{isl.emoji} {isl.name}</h2>
       <h3 className="rv-visit">Visit 1</h3>
-      {isl.steps?.map((s, i) => {
+      {isl.steps.map((s, i) => {
         const out: ReactNode[] = []
         if (s.kind === 'story') {
           const first = s.first ?? 0
@@ -150,13 +161,15 @@ function IslandView({ isl }: { isl: Island }) {
 
 export default function Review({ route }: { route: string }) {
   const only = route.split('/')[1]
-  const islands = ISLANDS.filter((i) => !only || i.id === only)
+  const shown = ISLANDS.filter((i) => !only || i.id === only)
+  const islands = useAllIslands(shown.map((i) => i.id))
   return (
     <PlayerArtProvider>
       <div className="review">
-        <h1>Review {only ? `· ${islands[0]?.name ?? only}` : ''}</h1>
+        <h1>Review {only ? `· ${shown[0]?.name ?? only}` : ''}</h1>
         <p className="muted">Each picture beside what the narrator says. Islands: {ISLANDS.map((i) => <a key={i.id} href={`#review/${i.id}`} onClick={() => setTimeout(() => location.reload())}>{i.name} </a>)}</p>
-        {islands.map((isl) => <IslandView key={isl.id} isl={isl} />)}
+        {!islands && <p className="muted">Getting the islands…</p>}
+        {islands?.map((isl) => <IslandView key={isl.id} isl={isl} />)}
       </div>
     </PlayerArtProvider>
   )

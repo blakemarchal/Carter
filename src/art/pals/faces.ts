@@ -51,6 +51,12 @@ export const PAL_FACES: Record<Species, PalFace> = {
   tambourine: face(108, 0.95, [100, 59]),
   cub: face(87, 0.9, [100, 56], { y: 112, rx: 5.5, ry: 5.5 }),
   owl: face(94, 1.08, [100, 62], { y: 107, rx: 5.5, ry: 6 }),
+  crocodile: face(62, 0.86, [100, 49], { y: 121, rx: 13, ry: 8 }),
+  lily: face(106, 0.88, [100, 80]),
+  hedgehog: face(104, 0.85, [100, 62], { y: 131, rx: 5.5, ry: 5 }),
+  hyrax: face(87, 0.85, [100, 62], { y: 110, rx: 5.5, ry: 5.5 }),
+  tortoise: face(133, 0.9, [100, [67, 60, 49]]),
+  quail: face(99, 0.85, [100, 72], { y: 111, rx: 5, ry: 5.5 }),
 }
 
 /** PalArt draws a Pal at stage n scaled about (100, 110) in its box. */

@@ -217,6 +217,15 @@ export const PEOPLE = {
   angel: { skin: SKIN.light, hair: 'long', hairColor: '#f2d27a', robe: '#ffffff', sash: '#ffd34d', wings: true, glow: true },
   mom: { skin: SKIN.light, hair: 'long', hairColor: '#7a4a24', robe: '#c9a8ff', sash: '#ffffff' },
   dad: { skin: SKIN.light, hair: 'short', hairColor: '#5a3a24', beard: 'short', robe: '#5fb7ff', sash: '#3b6fa0' },
+  // The Moses islands (scenes/moses.tsx draws Pharaoh with his headdress and collar)
+  /** Moses: a grown man with a long brown beard, a cream head cloth, a brick-red robe and his shepherd's staff. */
+  moses: { skin: SKIN.tan, hair: 'covered', hairColor: '#4a3020', wrap: '#f0e4c4', beard: 'long', beardColor: '#7a4a28', robe: '#b0533c', sash: '#e8c25a' },
+  /** Aaron, Moses' big brother: a short dark beard, a sky-blue head cloth and a purple robe. */
+  aaron: { skin: SKIN.medium, hair: 'covered', hairColor: '#3b2a20', wrap: '#a9c8ec', beard: 'short', beardColor: '#3b2a20', robe: '#6a5bb0', sash: '#f0d38a' },
+  /** Miriam, Moses' big sister: a rose head scarf and a sunny robe (she plays the tambourine). */
+  miriam: { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8668a', robe: '#f2b33d', sash: '#2fa59a' },
+  /** Pharaoh, the king of Egypt: white linen and a blue sash. Draw him with <Pharaoh>, which adds his headdress and collar. */
+  pharaoh: { skin: SKIN.tan, hair: 'covered', hairColor: '#2b1f18', wrap: '#f2c94c', robe: '#fbf6ea', sash: '#3a6fc4' },
 } satisfies Record<string, Look>
 
 // ---------- The player and their family ----------

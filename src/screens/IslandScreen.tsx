@@ -23,8 +23,8 @@ import PaintIt from '../activities/games/PaintIt'
 import SteerIt from '../activities/games/SteerIt'
 import Rhythm from '../activities/games/Rhythm'
 import ShareIt from '../activities/games/ShareIt'
+import CatchIt from '../activities/games/CatchIt'
 import type { Island, Step } from '../data/islands'
-import { STORY_ART } from '../art/scenes'
 import { completeIsland, getProgress, savedStep, today, update } from '../lib/progress'
 import { countVisit } from '../lib/voyage'
 import { ScoreContext, starsFor } from '../lib/score'
@@ -39,7 +39,7 @@ import { backupNow } from '../lib/backup'
 const MOOD: Record<Step['kind'], Mood | null> = {
   story: 'story', pairs: 'play', practice: 'play', sequence: 'play', sort: 'play', quiz: 'story', count: 'play',
   trace: 'play', maze: 'play', verse: 'story', battle: 'battle', reward: 'home', pause: 'home',
-  build: 'play', spot: 'play', paint: 'play', steer: 'play', share: 'play', rhythm: null, song: null,
+  build: 'play', spot: 'play', paint: 'play', steer: 'play', share: 'play', catch: 'play', rhythm: null, song: null,
 }
 
 /** The steps of the visit that `step` is in: from just after the last pause before it, to its own pause. */
@@ -52,7 +52,7 @@ function visitOf(steps: Step[], step: number) {
 }
 
 export default function IslandScreen({ island, onExit }: { island: Island; onExit: () => void }) {
-  const steps = island.steps!
+  const steps = island.steps
   const reward = steps.length - 1 // the last step is always the reward
   // Pick up where this player left off (the start of the activity they were on).
   const [step, setStep] = useState(() => Math.min(savedStep(getProgress(), island.id, island.version), reward))
@@ -128,7 +128,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   switch (current.kind) {
     case 'story': {
       const first = current.first ?? 0
-      body = <StoryBook title={current.title} pages={current.pages} art={STORY_ART[island.id]?.slice(first, first + current.pages.length)} onDone={next} />
+      body = <StoryBook title={current.title} pages={current.pages} art={island.art.slice(first, first + current.pages.length)} onDone={next} />
       break
     }
     case 'pairs':
@@ -172,6 +172,9 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       break
     case 'share':
       body = <ShareIt title={current.title} intro={current.intro} done={current.done} kit={current.kit} onDone={next} />
+      break
+    case 'catch':
+      body = <CatchIt title={current.title} intro={current.intro} done={current.done} plural={current.plural} kit={current.kit} onDone={next} />
       break
     case 'song':
       body = <SongSpot song={current.song} intro={current.intro} onDone={next} />

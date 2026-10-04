@@ -3,7 +3,7 @@
 // boats rock, people blink and breathe. Animation classes live in styles.css under "Story scenes".
 import { useId, type CSSProperties, type ReactNode } from 'react'
 import { ink, lighten, useShade } from '../kit'
-import { itemForEmoji } from '../items'
+import { itemById, itemForEmoji } from '../items'
 
 export type Sky = 'day' | 'dawn' | 'dusk' | 'night' | 'storm' | 'dark' | 'glory'
 export type Ground = 'meadow' | 'hills' | 'sea' | 'beach' | 'desert' | 'town' | 'stable' | 'none'
@@ -516,8 +516,9 @@ export function Tap({ say, sfx = 'pop', count, children }: {
 }
 
 /** A thing in a picture, by its emoji: the drawn item (art/items) when there is one, else the emoji. (x, y) is its middle. */
-export function Emoji({ e, x, y, size = 60, bob, flip }: { e: string; x: number; y: number; size?: number; bob?: boolean; flip?: boolean }) {
-  const item = itemForEmoji(e)
+export function Emoji({ e, art, x, y, size = 60, bob, flip }: { e: string; art?: string; x: number; y: number; size?: number; bob?: boolean; flip?: boolean }) {
+  // (`art`: a drawing's id, to use instead of the emoji's)
+  const item = (art ? itemById(art) : undefined) ?? itemForEmoji(e)
   if (item) {
     const k = size / 100
     return (

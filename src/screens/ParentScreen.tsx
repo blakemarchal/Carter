@@ -11,6 +11,7 @@ import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, 
 import FamilyVoices from '../components/FamilyVoices'
 import FamilySongs from '../components/FamilySongs'
 import FamilyAccounts from '../components/FamilyAccounts'
+import StickerFace from '../components/StickerFace'
 import { FamilyCastEditor, PlayerDetails } from '../components/FamilyEditor'
 import { birthdayLabel, daysUntil } from '../lib/birthday'
 import { isGrownup } from '../lib/party'
@@ -283,7 +284,7 @@ export default function ParentScreen({ onBack, onParty }: { onBack: () => void; 
       <section>
         <h3>Today ({me.emoji} {me.name})</h3>
         <p>{mins} min played (gentle reminder at 60 min)</p>
-        <p>Islands finished: {p.islandsDone.length ? p.islandsDone.join(', ') : 'none yet'} · Pals: {Object.keys(p.pals).length} · Stickers: {p.stickers.join(' ') || 'none'}</p>
+        <p>Islands finished: {p.islandsDone.length ? p.islandsDone.join(', ') : 'none yet'} · Pals: {Object.keys(p.pals).length} · Stickers: {p.stickers.length ? p.stickers.map((s) => <StickerFace key={s} s={s} />) : 'none'}</p>
       </section>
       <Week p={p} />
       <Islands p={p} />

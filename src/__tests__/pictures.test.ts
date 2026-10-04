@@ -1,7 +1,7 @@
 // Every picture an activity shows is drawn (art/items or a story card), so it shows exactly what the
 // narrator says and looks the same on every device. (Story pictures may still use a few emoji.)
 import { expect, it } from 'vitest'
-import { ISLANDS, type Thing } from '../data/islands'
+import { loadAllIslands, type Thing } from '../data/islands'
 import { RECIPES } from '../data/recipes'
 import { CVC, LETTER_PICS } from '../data/words'
 import { itemById, itemForEmoji } from '../art/items'
@@ -11,11 +11,11 @@ const drawn = (e: string, art?: string) =>
   (art?.startsWith('story:') ?? false) || (art ? !!itemById(art) : false) ||
   [...segmenter.segment(e)].every((g) => !!itemForEmoji(g.segment))
 
-it('every activity picture is drawn', () => {
+it('every activity picture is drawn', async () => {
   const missing = new Set<string>()
   const check = (where: string, e: string, art?: string) => { if (!drawn(e, art)) missing.add(`${where}: ${e}${art ? ` (${art})` : ''}`) }
   const thing = (where: string, t: Thing) => check(where, t.emoji, t.art)
-  for (const isl of ISLANDS) for (const s of isl.steps ?? []) {
+  for (const isl of await loadAllIslands()) for (const s of isl.steps) {
     const at = `${isl.id} ${s.kind}`
     if (s.kind === 'pairs') s.animals.forEach((a) => check(at, a))
     if (s.kind === 'sequence') s.items.forEach((t) => thing(at, t))
@@ -24,7 +24,7 @@ it('every activity picture is drawn', () => {
     if (s.kind === 'count') { thing(at, s.item); check(`${at} container`, s.basket, s.basketArt) }
     if (s.kind === 'maze') { thing(at, s.hero); thing(at, s.goal) }
     if (s.kind === 'practice' && s.theme) check(at, s.theme)
-    if (s.kind === 'reward') check(at, s.sticker)
+    if (s.kind === 'reward') check(at, s.sticker, s.sticker) // (an emoji, or a drawing's id)
   }
   for (const r of RECIPES) {
     check(`recipe ${r.id}`, r.emoji)

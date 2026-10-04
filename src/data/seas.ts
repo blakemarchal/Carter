@@ -6,6 +6,8 @@ export interface SeaIsland {
   name: string
   /** Its landmark on the map (drawn when art/items has a picture for it). */
   emoji: string
+  /** A drawing (art/items id) to show as the landmark instead, for a thing no emoji names. */
+  landmark?: string
 }
 
 export interface Sea {
@@ -29,7 +31,7 @@ export const SEAS: Sea[] = [
   {
     id: 'egypt', name: 'Out of Egypt', color: '#4fb0d8',
     islands: [
-      { id: 'baby-moses', name: 'Baby Moses', emoji: '👶' },
+      { id: 'baby-moses', name: 'Baby Moses', emoji: '👶', landmark: 'moses-basket' },
       { id: 'burning-bush', name: 'The Burning Bush', emoji: '🔥' },
       { id: 'red-sea', name: 'The Red Sea', emoji: '🌊' },
       { id: 'manna', name: 'Manna in the Desert', emoji: '🍯' },

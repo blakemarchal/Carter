@@ -10,7 +10,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import PalArt from '../components/PalArt'
 import { HoldButton } from '../components/ui'
-import { islandById } from '../data/islands'
+import { islandById, loadIsland, loadedIsland } from '../data/islands'
 import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
 import { currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
 import { count } from '../lib/stats'
@@ -31,7 +31,7 @@ type MapIsland = SeaIsland & { at: P; color: string; built: boolean }
 /** Where the boat docks at each island: in the water just right of it, clear of its name. */
 const dock = (i: MapIsland): P => [i.at[0] + 134, i.at[1] + 6]
 /** Built islands have content (data/islands.ts); the rest are coming soon. */
-const built = (id: string) => !!islandById(id)?.steps
+const built = (id: string) => !!islandById(id)
 
 /** A smooth curve through the docks (Catmull-Rom as cubic Béziers). */
 function routePath(pts: P[]) {
@@ -79,7 +79,7 @@ function IslandShape({ isl, state, pressed, stars, resting, fresh }: { isl: MapI
       <Palm x={54} y={4} s={0.8} flip />
       {/* The landmark: its drawing, or else the emoji. It was 54px emoji text on the baseline y = -12,
           which centres the picture about 19 units higher; Emoji centres on (x, y). */}
-      <g className="map-landmark"><Emoji e={isl.emoji} x={4} y={-31} size={54} /></g>
+      <g className="map-landmark"><Emoji e={isl.emoji} art={isl.landmark} x={4} y={-31} size={54} /></g>
       {state === 'done' && (
         <g transform="translate(36 -64)">
           <line x1={0} y1={0} x2={0} y2={40} stroke="#7a5a3a" strokeWidth={4} />
@@ -236,10 +236,11 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   /** Whether going into an island now starts a new visit (rather than replaying, or finishing one). */
   const startsNewVisit = (id: string) => {
     if (p.islandsDone.includes(id)) return false
-    const isl = islandById(id)
-    const k = savedStep(p, id, isl?.version)
-    return k === 0 || isl?.steps?.[k - 1]?.kind === 'pause'
+    const k = savedStep(p, id, islandById(id)?.version)
+    return k === 0 || loadedIsland(id)?.steps[k - 1]?.kind === 'pause'
   }
+  // This sea's islands start loading now, so each one opens right away when it's tapped.
+  useEffect(() => { for (const i of def.islands) if (built(i.id)) loadIsland(i.id).catch(() => {}) }, [sea])
   const goSea = (n: number) => {
     if (sailing || n < 0 || n >= SEAS.length) return
     sfx.whoosh()
@@ -293,7 +294,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
     setTimeout(arrive, ms + 400)
   }
 
-  const tapIsland = (i: number) => {
+  const tapIsland = async (i: number) => {
     if (sailing) return
     sfx.pop()
     const isl = islands[i]
@@ -303,6 +304,8 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
       speak(before ? `Finish ${before.name} first, then sail here!` : 'Finish the islands in the sea before this one first!')
       return
     }
+    // (where an island's visits begin is in its content: load it first, if it hasn't loaded yet)
+    if (resting) await loadIsland(isl.id).catch(() => {})
     if (resting && startsNewVisit(isl.id)) {
       count('rest-day')
       speak("The Ark is resting until tomorrow! You can play an island you've finished, visit your Pals, sing, or have a bedtime story.")

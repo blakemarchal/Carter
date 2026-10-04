@@ -1,0 +1,33 @@
+/* The Burning Bush (art/scenes/burning-bush.tsx and art/games/burning-bush.tsx): motion its pictures and its
+   mini-game need that styles.css and red-sea.css don't have. Like the pa-* classes, these only run inside an
+   svg with class "pa-anim" (story pictures and the game board both have it). Never on an element with a transform. */
+
+/* The bush's flames: each tongue licks up and sways a little, from its foot (they never grow or spread). */
+.pa-anim .bb-flame { animation: bbflame 1.15s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes bbflame {
+  0% { transform: scale(1, 1) rotate(-3deg); }
+  50% { transform: scale(1.06, .93) rotate(1deg); }
+  100% { transform: scale(.95, 1.07) rotate(3deg); }
+}
+
+/* God's voice from the bush: soft rings of light that spread out and fade. (Each ring sets where it spreads
+   from, the bush, inline: transform-box view-box, and transform-origin in picture units.) */
+.pa-anim .bb-call { animation: bbcall 2.4s ease-out infinite; }
+@keyframes bbcall { 0% { transform: scale(.7); opacity: 0; } 25% { opacity: .95; } 100% { transform: scale(1.12); opacity: 0; } }
+
+/* A found sheep's "Baa!" in the mini-game: it pops up, floats up a little and fades away. */
+.pa-anim .bb-baa { animation: bbbaa 2.6s ease-out forwards; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes bbbaa {
+  0% { transform: translateY(6px) scale(.4); opacity: 0; }
+  14% { transform: translateY(0) scale(1.12); opacity: 1; }
+  24% { transform: translateY(0) scale(1); }
+  72% { opacity: 1; }
+  100% { transform: translateY(-12px) scale(1); opacity: 0; }
+}
+/* (On the shelf of finds, each little picture is just the animal.) */
+.spot-thumb .bb-baa { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-anim [class*="bb-"] { animation: none !important; }
+  .pa-anim .bb-baa { display: none; }
+}
