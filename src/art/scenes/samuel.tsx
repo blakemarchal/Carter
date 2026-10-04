@@ -207,8 +207,11 @@ const DayHills = ({ children }: { children?: ReactNode }) => (
 
 // ---------- Hannah's home (by day) ----------
 
-/** Inside Hannah's home: plaster walls, wooden beams, a sunny window with its shutters open, and a wooden floor. */
-function HomeInside({ children }: { children?: ReactNode }) {
+/**
+ * Inside Hannah's home: plaster walls, wooden beams, a sunny window with its shutters open, the sunshine falling
+ * in across the room, and a wooden floor. `sun`: what tapping the window or the sunshine says.
+ */
+function HomeInside({ children, sun }: { children?: ReactNode; sun?: string }) {
   const id = uidOf(useId())
   return (
     <Scene sky="day" ground="none" clouds={false}>
@@ -220,12 +223,16 @@ function HomeInside({ children }: { children?: ReactNode }) {
       <rect width={800} height={26} fill="#8a6040" />
       {Array.from({ length: 9 }, (_, i) => <circle key={i} cx={40 + i * 92} cy={34} r={9} fill="#7a5233" stroke="#5a3a20" strokeWidth={2} />)}
       {/* the window, with the sun and a cloud, its shutters open */}
-      <rect x={520} y={78} width={128} height={110} rx={6} fill="#a8e0ff" stroke="#a8804a" strokeWidth={5} />
-      <Sun x={560} y={118} s={0.42} />
-      <Cloud x={612} y={150} s={0.3} />
-      <path d="M584 80 L584 186" stroke="#8a6040" strokeWidth={5} />
-      {[-1, 1].map((d) => <rect key={d} x={d < 0 ? 476 : 652} y={84} width={40} height={100} rx={4} fill="#6fa86a" stroke="#4a7a46" strokeWidth={3} />)}
-      <rect x={510} y={186} width={148} height={10} rx={3} fill="#c9a06a" stroke="#a8804a" strokeWidth={2} />
+      <Tappable say={sun} sfx="sparkle">
+        <g>
+          <rect x={520} y={78} width={128} height={110} rx={6} fill="#a8e0ff" stroke="#a8804a" strokeWidth={5} />
+          <Sun x={560} y={118} s={0.42} />
+          <Cloud x={612} y={150} s={0.3} />
+          <path d="M584 80 L584 186" stroke="#8a6040" strokeWidth={5} />
+          {[-1, 1].map((d) => <rect key={d} x={d < 0 ? 476 : 652} y={84} width={40} height={100} rx={4} fill="#6fa86a" stroke="#4a7a46" strokeWidth={3} />)}
+          <rect x={510} y={186} width={148} height={10} rx={3} fill="#c9a06a" stroke="#a8804a" strokeWidth={2} />
+        </g>
+      </Tappable>
       {/* a shelf with clay jars */}
       <rect x={110} y={150} width={150} height={10} rx={3} fill="#a8743f" stroke="#6b4628" strokeWidth={2} />
       {[[136, 1], [178, 0.8], [222, 1.1]].map(([jx, k]) => (
@@ -239,7 +246,7 @@ function HomeInside({ children }: { children?: ReactNode }) {
       <rect y={334} width={800} height={8} fill="#b8925a" />
       {[372, 410].map((fy) => <path key={fy} d={`M0 ${fy} H800`} stroke="#c49d68" strokeWidth={2} />)}
       {/* the sunshine falling in */}
-      <path d="M526 192 L644 192 L470 448 L230 448 Z" fill={`url(#${id}b)`} />
+      <Tappable say={sun} sfx="sparkle"><path d="M526 192 L644 192 L470 448 L230 448 Z" fill={`url(#${id}b)`} /></Tappable>
       {children}
     </Scene>
   )
@@ -755,9 +762,18 @@ export function HallWide({ warm = 1, eliLamp = true, lamp, bed, children }: { wa
 
 // ---------- Story pages: part one ----------
 
-// 1. "Long ago, there was a woman named Hannah. She wanted a baby very much. One day at God's house, she
-// prayed and prayed. 'Please, God, give me a baby boy. He will serve You all his life.'"
-// Hannah kneeling to pray in front of God's house, dreaming of a baby; old Eli on his seat by its door.
+/** A wistful face, in Person's own units (eyes held shut by sm-shut, praying): gently sad brows and a small soft frown over the smile. */
+const Wistful = ({ skin }: { skin: string }) => (
+  <g strokeLinecap="round" fill="none">
+    <ellipse cx={0} cy={-104.4} rx={6.6} ry={3.3} fill={darken(skin, 0.03)} />
+    <path d="M-3.8 -102.2 Q0 -104.4 3.8 -102.2" stroke="#6b2a3a" strokeWidth={2} />
+    <path d="M-13 -119.4 L-5.2 -121.8 M13 -119.4 L5.2 -121.8" stroke="#4a3020" strokeWidth={1.8} />
+  </g>
+)
+
+// 1. "Long ago, there was a woman named Hannah. She wanted a baby very much, and she felt sad. One day at God's
+// house, she prayed and prayed. 'Please, God, give me a baby boy. He will be Your helper all his life.'"
+// Hannah kneeling to pray in front of God's house, a little sad, dreaming of a baby; old Eli on his seat by its door.
 const Page1 = () => (
   <DayHills>
     <Sun x={724} y={68} s={0.62} />
@@ -770,7 +786,7 @@ const Page1 = () => (
       <EliOnSeat x={690} y={356} s={0.84} blinkDelay={1.4} />
     </Tap>
     <Tap say="Please, God, give me a baby boy." sfx="good">
-      <g className="sm-shut"><Kneel x={312} y={418} s={1.3} look={HANNAH} pose="pray" /></g>
+      <g className="sm-shut"><Kneel x={312} y={418} s={1.3} look={HANNAH} pose="pray"><Wistful skin={HANNAH.skin} /></Kneel></g>
     </Tap>
     <Tap say="A baby! Hannah wanted a baby so much." sfx="sparkle">
       <ThoughtBubble x={160} y={120} w={196} h={136} tail={[[276, 254, 7], [248, 226, 10], [216, 192, 13]]}>
@@ -785,16 +801,17 @@ const Page1 = () => (
 
 // 2. "Old Eli the priest saw Hannah praying. He said, 'Go in peace. May God give you what you asked for.'
 // And Hannah was not sad anymore."
-// Eli, up from his seat, raising his hand to bless her; Hannah glad, with hearts.
+// Eli, up from his seat, raising his hand to bless her; Hannah glad, with hearts. (Eli stands clear of the
+// doorway's curtain and its gold tie-back, so nothing seems to grow out of his head.)
 const Page2 = () => (
   <DayHills>
     <Cloud x={120} y={64} s={0.7} />
     <Cloud x={420} y={46} s={0.55} slow />
     <Tree x={92} y={350} s={0.84} />
     <GodsHouse x={560} y={350} s={1.02} />
-    <Seat x={716} y={378} s={1.02} />
+    <Seat x={754} y={378} s={1.02} />
     <Tap say="Go in peace!" sfx="sparkle">
-      <Eli x={612} y={424} s={1.16} pose="wave" facing="left" blinkDelay={0.9} />
+      <Eli x={674} y={426} s={1.16} pose="wave" facing="left" blinkDelay={0.9} />
     </Tap>
     <Tap say="Thank you, Eli!" sfx="good">
       <Person x={318} y={428} s={1.18} look={HANNAH} pose="hold" />
@@ -815,10 +832,9 @@ const Page2 = () => (
 // God for him.'"
 // At home, the sun shining in on Hannah and baby Samuel in her arms; his cradle, and her basket of wool.
 const Page3 = () => (
-  <HomeInside>
-    <Tap say="The sun is shining in. God heard Hannah's prayer!" sfx="sparkle">
-      <Sparkles spots={[[480, 236, 8], [420, 200, 6], [540, 290, 6], [470, 330, 7]]} color="#fffbe0" />
-    </Tap>
+  <HomeInside sun="The sun is shining in. God heard Hannah's prayer!">
+    {/* (the sunshine's sparkles let a tap through, to the sunshine) */}
+    <g pointerEvents="none"><Sparkles spots={[[480, 236, 8], [420, 200, 6], [540, 290, 6], [470, 330, 7]]} color="#fffbe0" /></g>
     <Tap say="A little bed for baby Samuel." sfx="pop"><Cradle x={640} y={432} s={1.1} /></Tap>
     <Tap say="Soft wool, for making clothes." sfx="pop"><WoolBasket x={104} y={436} s={1.2} /></Tap>
     <Tap say="Thank You, God, for baby Samuel!" sfx="good">
@@ -965,10 +981,11 @@ const Page8 = () => (
 )
 
 // 9. "Then it happened a third time! Now Eli understood. God was calling Samuel! Eli said, 'Go and lie down.
-// If He calls you, say, Speak, Lord. I am listening.'"
-// Eli's room again: Eli wide awake now, his hand raised; Samuel close by, listening.
+// If He calls you, say: Speak, Lord. I am listening.'"
+// Eli's room again, a little closer: Eli wide awake now, his hand raised; Samuel close by, listening. (Through
+// the doorway, God's lamp shows whole, just inside the left edge.)
 const Page9 = () => (
-  <ElisRoom lamp={[470, 221]} zoom={{ k: 1.24, cx: 446, cy: 268 }}>
+  <ElisRoom lamp={[470, 221]} zoom={{ k: 1.2, cx: 405, cy: 262 }}>
     <Tap say="It is God who is calling you, Samuel!" sfx="sparkle">
       <EliInBed x={546} y={426} s={1.22} pose="wave" />
     </Tap>
@@ -981,13 +998,17 @@ const Page9 = () => (
 
 // 10. "Samuel lay down. Then God came and called, just like before: 'Samuel! Samuel!' And Samuel said,
 // 'Speak, Lord. I am listening.'"
-// God's light (never a person) shining by Samuel's bed; Samuel sitting up, hands together, listening.
+// God's light (never a person) shining by Samuel's bed; Samuel sitting up, hands together, listening. (Only the
+// light's bright middle and its sparkles answer a tap: its wide rays and glow let taps through, so a tap on God's
+// lamp is always the lamp's.)
 const Page10 = () => (
   <SamuelsCorner lamp={<Tap say="God's lamp is glowing." sfx="ding"><CornerLamp /></Tap>}>
     <Tap say="God came and called, Samuel! Samuel!" sfx="sparkle">
       <g>
-        <Rays x={404} y={230} r={320} n={16} color="#fff3c0" opacity={0.28} />
-        <Glow x={404} y={230} r={160} color="#fff6d0" />
+        <g pointerEvents="none">
+          <Rays x={404} y={230} r={320} n={16} color="#fff3c0" opacity={0.28} />
+          <Glow x={404} y={230} r={160} color="#fff6d0" />
+        </g>
         <Glow x={404} y={230} r={70} color="#ffffff" />
         <Sparkles spots={[[364, 152, 8], [458, 178, 7], [410, 110, 6], [336, 236, 5], [476, 262, 6], [430, 304, 5]]} color="#fffbe0" />
       </g>
@@ -1002,6 +1023,7 @@ const Page10 = () => (
 // 11. "God spoke to Samuel, and Samuel listened. Samuel grew up, and God was with him. He told everyone
 // what God said."
 // Samuel grown up, in front of God's house in God's light, telling the people; they listen, and old Eli smiles.
+// (God's wide rays let taps through, and Eli is drawn over the light, so a tap on Eli is always his.)
 /** God's people, come to listen to Samuel (page 11): moms and dads and children. */
 const LISTENERS: Look[] = [
   { skin: SKIN.tan, hair: 'covered', hairColor: '#3b2a20', wrap: '#e8dcc0', beard: 'short', beardColor: '#3b2a20', robe: '#c98448', sash: '#6b8f5a' },
@@ -1017,14 +1039,14 @@ const Page11 = () => (
     <Cloud x={110} y={60} s={0.7} />
     <Cloud x={720} y={52} s={0.55} slow />
     <GodsHouse x={400} y={316} s={0.78} />
-    <Tap say="Samuel listens to God." sfx="pop"><EliOnSeat x={514} y={342} s={0.76} blinkDelay={1.2} /></Tap>
     <Tap say="God was with Samuel." sfx="sparkle">
       <g>
-        <Rays x={400} y={300} r={290} n={16} color="#fff3c0" opacity={0.3} />
+        <g pointerEvents="none"><Rays x={400} y={300} r={290} n={16} color="#fff3c0" opacity={0.3} /></g>
         <Glow x={400} y={300} r={150} color="#fff6c8" />
         <Sparkles spots={[[318, 214, 7], [482, 226, 6], [400, 168, 8]]} color="#fffbe0" />
       </g>
     </Tap>
+    <Tap say="I'm so glad you listened, Samuel!" sfx="pop"><EliOnSeat x={514} y={342} s={0.76} blinkDelay={1.2} /></Tap>
     <Tap say="We are listening, Samuel!" sfx="pop">
       <g>
         <Person x={84} y={424} s={0.98} look={LISTENERS[0]} pose="hold" blinkDelay={0.2} />
@@ -1054,6 +1076,22 @@ const OpenBible = ({ skin }: { skin: string }) => (
   </g>
 )
 
+/**
+ * A little electric bedside lamp with a cloth shade, switched on (a child's room today: a safe light, no flame,
+ * like the one in the Bedtime room). Its glow is drawn behind it with Warmth. (x, y): where it stands.
+ */
+function BedsideLamp({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`} strokeLinejoin="round">
+      <path d="M-17 0 Q0 -11 17 0 Z" fill="#c98aa8" stroke="#9a5a7a" strokeWidth={2.5} />
+      <rect x={-3} y={-42} width={6} height={40} rx={2} fill="#c98aa8" stroke="#9a5a7a" strokeWidth={1.4} />
+      <path d="M-28 -42 L-17 -82 L17 -82 L28 -42 Z" fill="#fff0b8" stroke="#d0a860" strokeWidth={3} />
+      <path d="M-21.5 -66 L21.5 -66" stroke="#f6dc94" strokeWidth={2.4} />
+      <path d="M-28 -42 Q0 -35 28 -42" stroke="#d0a860" strokeWidth={2.4} fill="none" />
+    </g>
+  )
+}
+
 /** A cozy bedroom at night today: soft walls, a window with the moon and stars, and a little table for a lamp. */
 function MyRoom({ children, win }: { children?: ReactNode; win?: string }) {
   return (
@@ -1076,10 +1114,11 @@ function MyRoom({ children, win }: { children?: ReactNode; win?: string }) {
 
 // 12. "God hears us when we pray, just like He heard Hannah. And God speaks to us in the Bible. So let's
 // listen to God, just like Samuel!"
-// You, at bedtime: sitting up in bed with the Bible open, a little lamp glowing, the moon and stars outside.
+// You, at bedtime: sitting up in bed with the Bible open, a little bedside lamp glowing, the moon and stars
+// outside. (The quilt is a much lighter shade of your clothes, as in the Bedtime room, so your sleeves show.)
 const Page12 = () => {
   const me = usePlayer()
-  const quilt = lighten(me.look.robe, 0.12)
+  const quilt = lighten(me.look.robe, 0.3)
   return (
     <MyRoom win="Good night, moon! Good night, stars!">
       {/* a little picture of a rainbow on the wall */}
@@ -1087,8 +1126,8 @@ const Page12 = () => {
         <rect x={84} y={92} width={116} height={86} rx={6} fill="#fffaf0" stroke="#c98a50" strokeWidth={6} />
         {['#ff5d5d', '#ffa64d', '#ffe14d', '#5fd39a', '#5fb7ff'].map((c, i) => <path key={c} d={`M${108 + i * 6} 160 A${34 - i * 6} ${34 - i * 6} 0 0 1 ${176 - i * 6} 160`} stroke={c} strokeWidth={6} fill="none" />)}
       </g>
-      <Warmth x={712} y={290} r={170} o={0.5} />
-      <Tap say="My little lamp is glowing." sfx="ding"><ClayLamp x={706} y={318} s={1.3} lit glow={60} /></Tap>
+      <Warmth x={710} y={254} r={200} o={0.7} />
+      <Tap say="My little lamp is glowing." sfx="ding"><BedsideLamp x={710} y={318} s={1.2} /></Tap>
       <Tap say="Speak, Lord. I am listening!" sfx="good">
         <Bed x={364} y={432} s={1.4} w={250} quilt={quilt} who={{ look: me.look, k: 1.3, pose: 'hold', blinkDelay: 0.5, front: <OpenBible skin={me.look.skin} /> }} />
       </Tap>

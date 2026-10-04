@@ -11,7 +11,7 @@ import { SAMUEL_GAME } from '../art/games/samuel'
 
 /** Visit 1: Hannah's prayer, baby Samuel, his new home in God's house, and a voice in the night. */
 export const SAMUEL_STORY_1: StoryPage[] = [
-  { scene: '🙏👶', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Long ago, there was a woman named Hannah. She wanted a baby very much. One day at God\'s house, she prayed and prayed. "Please, God, give me a baby boy. He will be Your helper all his life."' },
+  { scene: '🙏👶', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Long ago, there was a woman named Hannah. She wanted a baby very much, and she felt sad. One day at God\'s house, she prayed and prayed. "Please, God, give me a baby boy. He will be Your helper all his life."' },
   { scene: '👴🏽💛', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Old Eli the priest saw Hannah praying. He said, "Go in peace. May God give you what you asked for." And Hannah was not sad anymore.' },
   { scene: '👶🏽☀️', bg: 'linear-gradient(#ffe9c9,#fff3c9)', text: 'God heard Hannah\'s prayer! Soon she had a baby boy. She named him Samuel, because she said, "I asked God for him."' },
   { scene: '👩🏽🧒🏽', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'When Samuel was old enough, Hannah kept her promise. She brought him to God\'s house, to help old Eli and learn all about God.' },
