@@ -13,7 +13,7 @@ import { ink, useShade } from '../kit'
 import { fluff } from '../items/draw'
 import { Figure, Person, PEOPLE, Sitting, SittingOnRock, SKIN, type Look } from '../people'
 import { LambFace, LittleLamb, SHEPHERD, ShepherdCarrying, StoneFold } from '../items/isl-lost-sheep'
-import { Birds, Dream, Glow, Moon, MudHouse, MusicNote, Rays, Rock, Scene, Sparkles, Sun, Tap, ThoughtBubble, Tree, WoolSheep } from './kit'
+import { Birds, Dream, Glow, Heart, Moon, MudHouse, MusicNote, Rays, Rock, Scene, Sparkles, Sun, Tap, ThoughtBubble, Tree, WoolSheep } from './kit'
 import './lost-sheep.css'
 
 // ---------- The shepherd's things ----------
@@ -354,18 +354,6 @@ export const NEIGHBORS = {
 const SitKid = ({ x, y, s = 1, look, blinkDelay }: { x: number; y: number; s?: number; look: Look; blinkDelay?: number }) => (
   <Sitting x={x} y={y} s={s * 0.74} look={{ ...look, build: undefined }} blinkDelay={blinkDelay} />
 )
-
-/** A drawn heart that bobs gently. */
-function Heart({ x, y, s = 1, color = '#ff8fb1' }: { x: number; y: number; s?: number; color?: string }) {
-  return (
-    <g className="sc-float">
-      <g transform={`translate(${x} ${y}) scale(${s})`}>
-        <path d="M0 16 C-24 2 -26 -14 -14 -19 C-7 -22 -2 -17 0 -11 C2 -17 7 -22 14 -19 C26 -14 24 2 0 16 Z" fill={color} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
-        <ellipse cx={-10} cy={-10} rx={4} ry={2.4} fill="#fff" opacity={0.65} transform="rotate(-35 -10 -10)" />
-      </g>
-    </g>
-  )
-}
 
 /** A tambourine held up in a hand at (x, y), in figure units. */
 const Tambourine = ({ x, y }: { x: number; y: number }) => (
@@ -736,4 +724,4 @@ function Page10() {
 export const LOST_SHEEP_ART: ComponentType[] = [Page1, Page2, Page3, Page4, Page5, Page6, Page7, Page8, Page9, Page10]
 
 // (the mini-game, art/games/lost-sheep.tsx, draws its evening hillside with these too)
-export { FarSheep, Heart, HILL_COLORS, Hills, scatter, Tufts }
+export { FarSheep, HILL_COLORS, Hills, scatter, Tufts }

@@ -7,13 +7,13 @@
 // The storm is exciting, never frightening: big round rolling waves and a whooshing wind, no lightning, nobody falls
 // in, and faces are worried, never terrified. Jesus is PEOPLE.jesus; His friends are the four fishermen
 // (PEOPLE.peter, andrew, james and john), as on Fishers of People. God is never drawn as a person: His presence is light.
-// Props other islands could use are exported: FishingBoat (and BOAT, its shapes, for the paint game), Asleep
-// (someone lying asleep on a cushion), Cushion, LittleBoat, Gulls, SwimmingGull, StormCloud, Swells, Wind, Splash,
-// Crescent, and Folk (copied from Loaves & Fishes).
-import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
+// The boat is FishingBoat, in kit.tsx (with BOAT, its shapes, for the paint game): the same boat as on Fishers of
+// People. The people on the shore are kit.tsx's Folk. Props other islands could use are exported: Asleep (someone
+// lying asleep on a cushion), Cushion, LittleBoat, Gulls, SwimmingGull, StormCloud, Swells, Wind, Splash and Crescent.
+import { useId, type ComponentType, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { Figure, Head, PEOPLE, type JHolding, type JLook, type JPose, type Mood } from '../people'
-import { Cloud, Flower, Glow, Scene, Sparkles, Sun, Tap, Zs } from './kit'
+import { Cloud, FishingBoat, Flower, Folk, Glow, Scene, Sparkles, Sun, Tap, Zs } from './kit'
 
 const uidOf = (id: string) => id.replace(/[^a-zA-Z0-9]/g, '')
 type Pt = [number, number]
@@ -139,105 +139,9 @@ const PinkCloud = ({ x, y, s = 1, slow }: { x: number; y: number; s?: number; sl
   </g>
 )
 
-// ---------- The fishing boat ----------
-// Boat units: (0, 0) is the middle of the waterline and the prow is on the right. At s = 1 the hull is 500 long and
-// the mast stands 310 above the water. We see a little way down into the boat: its far rim, and the inside of its
-// far side between the rims. People stand in it with their feet on its floor (y ≈ -6), hidden by its near side.
-
-/** The boat's shapes (boat units), shared with the paint game. */
-export const BOAT = {
-  /** The near side of the hull: its rim high at the stern and the prow and low in the middle, and a round bottom. */
-  hull: 'M-250 -64 Q-10 -10 246 -80 Q252 -26 210 18 Q0 44 -214 16 Q-254 -10 -250 -64 Z',
-  /** The rim along the top of the near side. */
-  rim: 'M-250 -64 Q-10 -10 246 -80',
-  /** The blue band painted along the hull under the rim. */
-  stripe: 'M-249 -58 Q-10 -4 245 -74 L242.5 -48 Q-10 22 -246.5 -32 Z',
-  /** The far rim, and the inside of the boat between the two rims. */
-  farRim: 'M-244 -80 Q-10 -38 240 -96',
-  inside: 'M-244 -80 Q-10 -38 240 -96 L246 -80 Q-10 -10 -250 -64 Z',
-  /** The square sail, full of wind (bellying out toward the prow), hanging from its yard. */
-  sail: 'M-88 -270 L148 -284 Q174 -218 146 -152 Q32 -134 -80 -146 Q-102 -208 -88 -270 Z',
-  /** The sail rolled up along its yard. */
-  furled: 'M-94 -276 Q30 -298 154 -292 Q162 -282 152 -274 Q30 -266 -88 -260 Q-100 -266 -94 -276 Z',
-}
-export const BOAT_COLORS = { wood: '#b5794a', line: '#6f4322', rim: '#d9a066', inside: '#7d5030', plank: '#8f5a2e', stripe: '#3f8fb8', sail: '#ffe3a1', mast: '#7a5233', flag: '#e0604d' }
-const MAST_X = 34
-
-/**
- * The disciples' fishing boat: a wooden boat with a blue band along its side, a mast and a square sail (`sail`: full of
- * wind, or rolled up), and a little red flag. It rocks on the water, unless `still`. `crew` stand in it (boat units, feet on
- * the floor at y ≈ -6); `stern` is at the back, in front of them (someone asleep); `inside` is drawn in the bottom of the
- * boat before them (water sloshing in); `front` over everything (spray). `flag` is how hard the wind blows its flag (0 to 2).
- */
-export function FishingBoat({ x, y, s = 1, tilt = 0, facing = 'right', sail = 'full', still, flag = 1, crew, stern, inside, front }: {
-  x: number; y: number; s?: number; tilt?: number; facing?: 'left' | 'right'; sail?: 'full' | 'furled'; still?: boolean; flag?: number
-  crew?: ReactNode; stern?: ReactNode; inside?: ReactNode; front?: ReactNode
-}) {
-  const uid = uidOf(useId())
-  const C = BOAT_COLORS
-  const wood = useShade(C.wood, 0.22, 0.22)
-  const cloth = useShade(C.sail, 0.3, 0.12)
-  // (the flag hangs down in still air, and streams out straight in a gale)
-  const fl = 18 + flag * 14, droop = Math.max(0, 1 - flag) * 14
-  const body = (
-    <g transform={`translate(${x} ${y}) rotate(${tilt}) scale(${facing === 'left' ? -s : s} ${s})`}>
-      <defs>
-        {wood.def}{cloth.def}
-        <clipPath id={`hl${uid}`}><path d={BOAT.hull} /></clipPath>
-        <clipPath id={`in${uid}`}><path d={BOAT.inside} /></clipPath>
-      </defs>
-      {/* the inside of the boat: its far side, with ribs, and the far rim */}
-      <path d={BOAT.inside} fill={C.inside} />
-      <g clipPath={`url(#in${uid})`}>
-        {[-200, -130, -60, 10, 80, 150, 210].map((rx) => <path key={rx} d={`M${rx} -110 L${rx + 4} -20`} stroke={darken(C.inside, 0.2)} strokeWidth={5} />)}
-        <path d="M-244 -70 Q-10 -28 240 -86" stroke={lighten(C.inside, 0.12)} strokeWidth={4} fill="none" />
-      </g>
-      <path d={BOAT.farRim} stroke={C.rim} strokeWidth={6} fill="none" strokeLinecap="round" />
-      {/* the mast, its stay to the prow, the yard and the sail, then the flag (in front, so a limp flag hangs over the rolled-up sail) */}
-      <path d={`M${MAST_X} -300 L240 -90`} stroke="#8a6a4a" strokeWidth={2} />
-      <path d={`M${MAST_X} -20 L${MAST_X} -312`} stroke={C.mast} strokeWidth={9} strokeLinecap="round" />
-      <path d="M-96 -270 L154 -285" stroke={C.mast} strokeWidth={7} strokeLinecap="round" />
-      {sail === 'full' ? (
-        <g>
-          <path d="M-80 -146 L-132 -48 M146 -152 L196 -68" stroke="#8a6a4a" strokeWidth={2} />
-          <path d={BOAT.sail} fill={cloth.fill} stroke={ink(C.sail)} strokeWidth={3} strokeLinejoin="round" />
-          <path d="M30 -277 Q38 -210 32 -138" stroke={darken(C.sail, 0.12)} strokeWidth={2} fill="none" />
-          <path d="M-84 -232 Q34 -246 156 -250 M-88 -190 Q36 -200 160 -204" stroke={darken(C.sail, 0.08)} strokeWidth={1.6} fill="none" opacity={0.7} />
-          {/* a patch, sewn on */}
-          <rect x={70} y={-196} width={30} height={24} rx={3} fill={darken(C.sail, 0.06)} stroke={darken(C.sail, 0.25)} strokeWidth={1.5} strokeDasharray="3 2" transform="rotate(-4 85 -184)" />
-        </g>
-      ) : (
-        <g>
-          <path d={BOAT.furled} fill={cloth.fill} stroke={ink(C.sail)} strokeWidth={3} strokeLinejoin="round" />
-          {[-60, -10, 40, 90, 136].map((tx) => <path key={tx} d={`M${tx} ${-290 + (tx + 90) * -0.02} l-3 22`} stroke="#a0703f" strokeWidth={3} strokeLinecap="round" />)}
-        </g>
-      )}
-      <path d={`M${MAST_X} -311 Q${MAST_X + fl * 0.5} ${-312 + droop * 0.3} ${MAST_X + fl * 0.95} ${-302 + droop} Q${MAST_X + fl * 0.45} ${-299 + droop * 0.6} ${MAST_X} -293 Z`}
-        fill={C.flag} stroke={ink(C.flag)} strokeWidth={2} strokeLinejoin="round" />
-      {inside && <g clipPath={`url(#in${uid})`}>{inside}</g>}
-      {crew}
-      {stern}
-      {/* the near side: the hull, its blue band and plank seams, and the rim */}
-      <path d={BOAT.hull} fill={wood.fill} />
-      <g clipPath={`url(#hl${uid})`}>
-        <path d={BOAT.stripe} fill={C.stripe} />
-        <path d="M-249 -55 Q-10 -1 245 -71" stroke={lighten(C.stripe, 0.3)} strokeWidth={2.5} fill="none" opacity={0.8} />
-        <path d="M-262 -6 Q-10 46 262 -22 M-262 14 Q-10 62 262 -2" stroke={C.plank} strokeWidth={2.5} fill="none" />
-      </g>
-      <path d={BOAT.hull} fill="none" stroke={C.line} strokeWidth={4} strokeLinejoin="round" />
-      <path d={BOAT.rim} stroke={C.rim} strokeWidth={7} fill="none" strokeLinecap="round" />
-      {/* the stem post curling up at the prow, and the stern post */}
-      {['M244 -80 Q264 -98 258 -120 Q254 -130 244 -124', 'M-248 -64 Q-264 -80 -258 -96'].map((d) => (
-        <g key={d}>
-          <path d={d} stroke={C.line} strokeWidth={10} fill="none" strokeLinecap="round" />
-          <path d={d} stroke={C.rim} strokeWidth={5} fill="none" strokeLinecap="round" />
-        </g>
-      ))}
-      {front}
-    </g>
-  )
-  return still ? body : <g className="sc-rock">{body}</g>
-}
+// ---------- In the boat ----------
+// The boat is kit.tsx's FishingBoat. Boat units: (0, 0) is the middle of the waterline and the prow is on the right;
+// the mast is at x = 34. People stand in it with their feet on its floor (y ≈ -6), hidden by its near side.
 
 /** Someone standing in the boat (boat units): a Figure with their feet on its floor, so its near side hides their legs. `low` sits them lower (sitting down), or higher (less than 0: up on the stern). */
 function Aboard({ x, look, s = 0.9, low = 0, ...rest }: {
@@ -468,68 +372,7 @@ export function LittleBoat({ x, y, s = 1, sail = '#fff7e8', hull = '#a8714a', st
   return still ? body : <g className="sc-rock">{body}</g>
 }
 
-// ---------- People on the shore (Folk is copied from Loaves & Fishes) ----------
-
-const SKINS = ['#d9a47a', '#c68b5e', '#f6d2b8', '#8d5a3b', '#e3b48c']
-const ROBES = ['#e6b85a', '#7cb06a', '#5f8fc0', '#c98aa8', '#b5794a', '#e07a5f', '#9a8fd0', '#6fb7b0', '#d9b56a', '#f29a9a']
-const WRAPS = ['#f5f0e6', '#c0504d', '#7cb0e0', '#e8dcc0', '#d9b56a', '#a98cff']
-const HAIRS = ['#3b2a20', '#4a3020', '#2b1f18', '#5a3a24', '#e8e4dc']
-
-/**
- * One small person in the crowd, front view, standing or sitting on the grass. `i` picks the colors. Standing, both arms
- * hang at the sides (with `wave`, the right one waves); sitting, the hands rest in the lap.
- */
-export function Folk({ x, y, s = 1, i = 0, sit, wave }: { x: number; y: number; s?: number; i?: number; sit?: boolean; wave?: boolean }) {
-  const robe = ROBES[i % ROBES.length]
-  const skin = SKINS[(i * 7 + 2) % SKINS.length]
-  const kind = (i * 5) % 4 // 0, 3: head covering · 1: short hair · 2: long hair
-  const hair = HAIRS[(i * 3) % HAIRS.length]
-  const wrap = WRAPS[(i * 11) % WRAPS.length]
-  const covered = kind === 0 || kind === 3
-  const hy = sit ? -38 : -54
-  const cap = `M-12 ${hy} Q-13 ${hy - 15} 0 ${hy - 15} Q13 ${hy - 15} 12 ${hy} Q6 ${hy - 8} 0 ${hy - 7} Q-6 ${hy - 8} -12 ${hy} Z`
-  const back = `M-13 ${hy - 3} Q-16 ${hy + 15} -11 ${hy + 13} L11 ${hy + 13} Q16 ${hy + 15} 13 ${hy - 3} Z`
-  const [sx, sy] = sit ? [-13, -21] : [-10.5, -39]
-  const [hx, hy2] = sit ? [-8, -8] : [-17.5, -19]
-  const arm = (ax: number, ay: number, bx: number, by: number) => (
-    <>
-      <path d={`M${ax} ${ay} L${bx} ${by}`} stroke={ink(robe)} strokeWidth={6.5} strokeLinecap="round" />
-      <path d={`M${ax} ${ay} L${bx} ${by}`} stroke={robe} strokeWidth={4.5} strokeLinecap="round" />
-    </>
-  )
-  const hand = (cx: number, cy: number, r = 3.4) => <circle cx={cx} cy={cy} r={r} fill={skin} stroke={ink(skin)} strokeWidth={1.5} />
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      {(covered || kind === 2) && <path d={back} fill={covered ? wrap : hair} stroke={ink(covered ? wrap : hair)} strokeWidth={2} />}
-      {sit ? (
-        <path d="M-22 0 Q-24 -22 -12 -26 Q0 -30 12 -26 Q24 -22 22 0 Q0 4 -22 0 Z" fill={robe} stroke={ink(robe)} strokeWidth={2.5} strokeLinejoin="round" />
-      ) : (
-        <>
-          <ellipse cx={-7} cy={-2} rx={6} ry={3} fill="#7a5233" />
-          <ellipse cx={7} cy={-2} rx={6} ry={3} fill="#7a5233" />
-          <path d="M-12 -42 Q0 -46 12 -42 L17 -4 Q0 0 -17 -4 Z" fill={robe} stroke={ink(robe)} strokeWidth={2.5} strokeLinejoin="round" />
-        </>
-      )}
-      {arm(sx, sy, hx, hy2)}
-      {!wave && arm(-sx, sy, -hx, hy2)}
-      {wave && (
-        <g className="pa-wing" style={{ '--o': '0% 100%' } as CSSProperties}>
-          {arm(9, hy + 18, 20, hy - 2)}
-          {hand(20, hy - 3, 3.6)}
-        </g>
-      )}
-      {hand(hx, hy2)}
-      {!wave && hand(-hx, hy2)}
-      <circle cx={0} cy={hy} r={11} fill={skin} stroke={ink(skin)} strokeWidth={2} />
-      <circle cx={-4} cy={hy} r={1.9} fill="#2b2140" />
-      <circle cx={4} cy={hy} r={1.9} fill="#2b2140" />
-      <ellipse cx={-7} cy={hy + 4} rx={2.6} ry={1.6} fill="#ff7fb0" opacity={0.55} />
-      <ellipse cx={7} cy={hy + 4} rx={2.6} ry={1.6} fill="#ff7fb0" opacity={0.55} />
-      <path d={`M-3 ${hy + 5} Q0 ${hy + 8.5} 3 ${hy + 5}`} stroke="#6b2a3a" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-      <path d={cap} fill={covered ? wrap : hair} stroke={ink(covered ? wrap : hair)} strokeWidth={2} />
-    </g>
-  )
-}
+// ---------- People on the shore (kit.tsx's Folk) ----------
 
 /** Rows of Folk sitting on the grass, back row first: [y, from x, to x, how many, size]. `seed` picks their colors; every `waveEvery`th one waves. */
 function SittingCrowd({ rows, seed = 0, waveEvery = 7 }: { rows: [number, number, number, number, number][]; seed?: number; waveEvery?: number }) {
@@ -700,7 +543,7 @@ const Page5 = () => (
       <Wind x={40} y={290} s={0.6} />
     </Tap>
     <Gulls spots={[[690, 86, 0.9]]} />
-    <FishingBoat x={430} y={388} s={0.98} sail="full" tilt={-3} flag={1.6}
+    <FishingBoat x={430} y={388} s={0.98} sail="full" tilt={-3} wind={1.6}
       crew={<>
         <Tap say="Look at the sky!" sfx="ding"><Aboard x={-70} look={JOHN} mood="wow" facing="left" reach={[null, [50, -140]]} blinkDelay={0.9} /></Tap>
         <Aboard x={-14} look={PETER} mood="sad" reach={[null, reachTo(-14, 0.9, 30, -86)]} blinkDelay={1.8} />
@@ -741,7 +584,7 @@ const Page6 = () => (
     <Swells y={352} amp={58} len={250} color="#3a6d9e" shift={10} />
     <Wind x={30} y={180} s={0.8} />
     <Wind x={590} y={150} s={0.7} />
-    <FishingBoat x={392} y={366} s={0.92} sail="furled" tilt={-9} flag={2}
+    <FishingBoat x={392} y={366} s={0.92} sail="furled" tilt={-9} wind={2}
       inside={<Sloshing />}
       crew={<>
         <Tap say="Scoop the water out!" sfx="plop"><Aboard x={-60} look={ANDREW} mood="sad" holding="jar" blinkDelay={0.3} /></Tap>
@@ -773,7 +616,7 @@ const Page7 = () => (
     <Lake tone="storm" h={226} waves="choppy" />
     <Swells y={290} amp={34} len={200} color="#467aa8" shift={-70} slow />
     <Wind x={610} y={150} s={0.7} />
-    <FishingBoat x={460} y={380} s={1.12} sail="furled" tilt={-5} flag={2}
+    <FishingBoat x={460} y={380} s={1.12} sail="furled" tilt={-5} wind={2}
       inside={<Sloshing />}
       crew={<>
         <Tap say="Teacher, wake up! Help us!" sfx="wobble">
@@ -833,7 +676,7 @@ function Page8() {
       {beams.map(([a, b, c, d], i) => <path key={i} d={`M${x + a} 104 L${x + b} 104 L${x + d} 384 L${x + c} 384 Z`} fill={`url(#bm${id})`} />)}
       <Glow x={x} y={292} r={96} color="#fff3c0" />
       <Swells y={360} amp={44} len={250} color="#3a6d9e" shift={-30} />
-      <FishingBoat x={440} y={376} s={0.98} sail="furled" tilt={-2} flag={1.2}
+      <FishingBoat x={440} y={376} s={0.98} sail="furled" tilt={-2} wind={1.2}
         crew={<>
           <Tap say="Peace! Be still!" sfx="sparkle">
             <Aboard x={-150} look={JESUS} s={1} low={-22} reach={[[-66, -88], [66, -88]]}><CalmMouth beard={JESUS.hairColor} /></Aboard>
@@ -871,9 +714,9 @@ const Page9 = () => (
     {/* the hills, the moon and the boat shining in the still water */}
     <Mirrored y={250.5} opacity={0.35}><FarHills tone="calm" h={250} /></Mirrored>
     <LightPath x={700} h={250} color="#fff3b0" n={5} opacity={0.6} />
-    <Mirrored y={352}><FishingBoat x={400} y={352} s={0.84} sail="furled" still flag={0} /></Mirrored>
+    <Mirrored y={352}><FishingBoat x={400} y={352} s={0.84} sail="furled" still wind={0} /></Mirrored>
     <Tap say="Wow! It's so calm and quiet now." sfx="good">
-      <FishingBoat x={400} y={352} s={0.84} sail="furled" still flag={0}
+      <FishingBoat x={400} y={352} s={0.84} sail="furled" still wind={0}
         crew={<>
           <Aboard x={-160} look={JESUS} />
           <Aboard x={-80} look={JOHN} mood="wow" pose="arms-up" blinkDelay={0.5} />
@@ -897,7 +740,7 @@ const Page10 = () => (
     <Crescent x={680} y={70} s={0.9} />
     <FarHills tone="calm" h={276} />
     <Lake tone="calm" h={276} waves="glass" />
-    <FishingBoat x={392} y={420} s={1.24} sail="furled" still flag={0}
+    <FishingBoat x={392} y={420} s={1.24} sail="furled" still wind={0}
       crew={<>
         <Tap say="You can always trust Me." sfx="sparkle"><Aboard x={-160} look={JESUS} pose="open" /></Tap>
         <Tap say="Who is this? Even the wind and the waves obey Him!" sfx="ding">
@@ -934,7 +777,7 @@ const Page11 = () => (
     {[[452, 404], [472, 392], [478, 418], [500, 408]].map(([x, y], i) => (
       <ellipse key={i} cx={x} cy={y} rx={5} ry={3} fill="#c4a874" opacity={0.7} transform={`rotate(-22 ${x} ${y})`} />
     ))}
-    <FishingBoat x={250} y={392} s={0.72} sail="furled" still flag={0}
+    <FishingBoat x={250} y={392} s={0.72} sail="furled" still wind={0}
       crew={<>
         <Tap say="Hooray! We're here!" sfx="good"><Aboard x={20} look={JAMES} pose="wave" blinkDelay={2} /></Tap>
         <Aboard x={130} look={ANDREW} blinkDelay={0.3} />

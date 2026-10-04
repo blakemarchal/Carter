@@ -4,82 +4,13 @@
 // The day goes by from page to page: a bright morning (1), midday (2), a golden late afternoon (3–8),
 // dusk (9), evening at the boy's home (10), then the next morning by the lake (11).
 // Props other stories could use are exported (Crutch, SickMat, BrokenBread, Home), and so are the people's
-// looks; they can move to kit.tsx and people.tsx.
-import type { ComponentType, CSSProperties, ReactNode } from 'react'
+// looks; they can move to kit.tsx and people.tsx. The crowd's people are kit.tsx's Folk, and the hearts its Heart.
+import type { ComponentType, ReactNode } from 'react'
 import { ink } from '../kit'
 import { Person, PEOPLE, type Look } from '../people'
-import { Basket, Boat, Bread, Fish, Flower, Glow, Rays, Scene, Sheep, Sparkles, Sun, Tap, Tree } from './kit'
+import { Basket, Boat, Bread, Fish, Flower, Folk, Glow, Heart, Rays, Scene, Sheep, Sparkles, Sun, Tap, Tree } from './kit'
 
 // ---------- Local props ----------
-
-const SKINS = ['#d9a47a', '#c68b5e', '#f6d2b8', '#8d5a3b', '#e3b48c']
-const ROBES = ['#e6b85a', '#7cb06a', '#5f8fc0', '#c98aa8', '#b5794a', '#e07a5f', '#9a8fd0', '#6fb7b0', '#d9b56a', '#f29a9a']
-const WRAPS = ['#f5f0e6', '#c0504d', '#7cb0e0', '#e8dcc0', '#d9b56a', '#a98cff']
-const HAIRS = ['#3b2a20', '#4a3020', '#2b1f18', '#5a3a24', '#e8e4dc']
-
-/**
- * One small person in the crowd, front view, standing or sitting on the grass. `i` picks the colors.
- * Standing, both arms hang at the sides (with `wave`, the right one waves). Sitting, the hands rest in
- * the lap, hold the tummy (`hungry`), or hold up some food (`hold`).
- */
-function Folk({ x, y, s = 1, i = 0, sit, hold, hungry, wave }: {
-  x: number; y: number; s?: number; i?: number; sit?: boolean; hold?: 'bread' | 'fish'; hungry?: boolean; wave?: boolean
-}) {
-  const robe = ROBES[i % ROBES.length]
-  const skin = SKINS[(i * 7 + 2) % SKINS.length]
-  const kind = (i * 5) % 4 // 0, 3: head covering · 1: short hair · 2: long hair
-  const hair = HAIRS[(i * 3) % HAIRS.length]
-  const wrap = WRAPS[(i * 11) % WRAPS.length]
-  const covered = kind === 0 || kind === 3
-  const hy = sit ? -38 : -54
-  const cap = `M-12 ${hy} Q-13 ${hy - 15} 0 ${hy - 15} Q13 ${hy - 15} 12 ${hy} Q6 ${hy - 8} 0 ${hy - 7} Q-6 ${hy - 8} -12 ${hy} Z`
-  const back = `M-13 ${hy - 3} Q-16 ${hy + 15} -11 ${hy + 13} L11 ${hy + 13} Q16 ${hy + 15} 13 ${hy - 3} Z`
-  // The left arm: from the shoulder to the hand (the right arm mirrors it, unless it's waving).
-  const [sx, sy] = sit ? [-13, -21] : [-10.5, -39]
-  const [hx, hy2] = sit ? (hold ? [-8, -16] : hungry ? [-6, -12] : [-8, -8]) : [-17.5, -19]
-  const arm = (ax: number, ay: number, bx: number, by: number) => (
-    <>
-      <path d={`M${ax} ${ay} L${bx} ${by}`} stroke={ink(robe)} strokeWidth={6.5} strokeLinecap="round" />
-      <path d={`M${ax} ${ay} L${bx} ${by}`} stroke={robe} strokeWidth={4.5} strokeLinecap="round" />
-    </>
-  )
-  const hand = (cx: number, cy: number, r = 3.4) => <circle cx={cx} cy={cy} r={r} fill={skin} stroke={ink(skin)} strokeWidth={1.5} />
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      {(covered || kind === 2) && <path d={back} fill={covered ? wrap : hair} stroke={ink(covered ? wrap : hair)} strokeWidth={2} />}
-      {sit ? (
-        <path d="M-22 0 Q-24 -22 -12 -26 Q0 -30 12 -26 Q24 -22 22 0 Q0 4 -22 0 Z" fill={robe} stroke={ink(robe)} strokeWidth={2.5} strokeLinejoin="round" />
-      ) : (
-        <>
-          <ellipse cx={-7} cy={-2} rx={6} ry={3} fill="#7a5233" />
-          <ellipse cx={7} cy={-2} rx={6} ry={3} fill="#7a5233" />
-          <path d="M-12 -42 Q0 -46 12 -42 L17 -4 Q0 0 -17 -4 Z" fill={robe} stroke={ink(robe)} strokeWidth={2.5} strokeLinejoin="round" />
-        </>
-      )}
-      {arm(sx, sy, hx, hy2)}
-      {!wave && arm(-sx, sy, -hx, hy2)}
-      {wave && (
-        <g className="pa-wing" style={{ '--o': '0% 100%' } as CSSProperties}>
-          {arm(9, hy + 18, 20, hy - 2)}
-          {hand(20, hy - 3, 3.6)}
-        </g>
-      )}
-      {hold === 'bread' && <ellipse cx={0} cy={hy + 20} rx={8} ry={5} fill="#e0a75e" stroke="#a8702c" strokeWidth={2} />}
-      {hold === 'fish' && <Fish x={0} y={hy + 20} s={0.36} color="#ffa64d" />}
-      {hand(hx, hy2)}
-      {!wave && hand(-hx, hy2)}
-      <circle cx={0} cy={hy} r={11} fill={skin} stroke={ink(skin)} strokeWidth={2} />
-      <circle cx={-4} cy={hy} r={1.9} fill="#2b2140" />
-      <circle cx={4} cy={hy} r={1.9} fill="#2b2140" />
-      <ellipse cx={-7} cy={hy + 4} rx={2.6} ry={1.6} fill="#ff7fb0" opacity={0.55} />
-      <ellipse cx={7} cy={hy + 4} rx={2.6} ry={1.6} fill="#ff7fb0" opacity={0.55} />
-      {hungry
-        ? <ellipse cx={0} cy={hy + 6} rx={1.8} ry={2.3} fill="#6b2a3a" />
-        : <path d={`M-3 ${hy + 5} Q0 ${hy + 8.5} 3 ${hy + 5}`} stroke="#6b2a3a" strokeWidth={1.6} fill="none" strokeLinecap="round" />}
-      <path d={cap} fill={covered ? wrap : hair} stroke={ink(covered ? wrap : hair)} strokeWidth={2} />
-    </g>
-  )
-}
 
 type Row = [y: number, x0: number, x1: number, n: number, s: number]
 
@@ -148,17 +79,8 @@ const Hand = ({ x, y, skin }: { x: number; y: number; skin: string }) => (
   <circle cx={x} cy={y} r={7} fill={skin} stroke={ink(skin)} strokeWidth={2} />
 )
 
-/** A drawn heart that bobs gently: love, sharing, being thankful. */
-function Heart({ x, y, s = 1, color = '#ffcf3f' }: { x: number; y: number; s?: number; color?: string }) {
-  return (
-    <g className="sc-float">
-      <g transform={`translate(${x} ${y}) scale(${s})`}>
-        <path d="M0 16 C-24 2 -26 -14 -14 -19 C-7 -22 -2 -17 0 -11 C2 -17 7 -22 14 -19 C26 -14 24 2 0 16 Z" fill={color} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
-        <ellipse cx={-10} cy={-10} rx={4} ry={2.4} fill="#fff" opacity={0.65} transform="rotate(-35 -10 -10)" />
-      </g>
-    </g>
-  )
-}
+/** The hearts here (kit.tsx's Heart: love, sharing, being thankful) are gold. */
+const GOLD = '#ffcf3f'
 
 /** A fluffy thought bubble whose little puffs trail down toward (tx, ty). */
 function Thought({ x, y, tx, ty, children }: { x: number; y: number; tx: number; ty: number; children?: ReactNode }) {
@@ -351,8 +273,8 @@ const PageTeach = () => (
     <Tap say="I feel all better! Thank you, Jesus!" sfx="good">
       <Person x={524} y={432} s={1.12} look={WELL_GIRL} pose="arms-up" blinkDelay={0.3} />
     </Tap>
-    <Heart x={300} y={250} s={0.6} />
-    <Heart x={540} y={226} s={0.75} />
+    <Heart x={300} y={250} s={0.6} color={GOLD} />
+    <Heart x={540} y={226} s={0.75} color={GOLD} />
     <g pointerEvents="none"><Sparkles spots={[[476, 296, 7], [584, 300, 6], [404, 398, 5], [118, 250, 7], [250, 262, 5]]} /></g>
   </Scene>
 )
@@ -431,7 +353,7 @@ const PageShare = () => (
     <Tap say="Have the people sit down." sfx="sparkle">
       <Person x={442} y={405} s={1.15} look={PEOPLE.jesus} pose="point" facing="left" />
     </Tap>
-    <Tap sfx="ding"><Heart x={372} y={250} /></Tap>
+    <Tap sfx="ding"><Heart x={372} y={250} color={GOLD} /></Tap>
     <g pointerEvents="none"><Sparkles spots={[[325, 262, 6], [420, 230, 7], [478, 312, 5]]} /></g>
   </Scene>
 )
@@ -538,8 +460,8 @@ const PageAte = () => (
       <Hand x={-13} y={-56} skin={MOTHER.skin} />
       <Hand x={13} y={-56} skin={MOTHER.skin} />
     </Person>
-    <Heart x={262} y={282} s={0.7} />
-    <Heart x={618} y={288} s={0.7} />
+    <Heart x={262} y={282} s={0.7} color={GOLD} />
+    <Heart x={618} y={288} s={0.7} color={GOLD} />
   </Scene>
 )
 
@@ -557,7 +479,7 @@ const PageBaskets = () => (
     {/* Tap each basket to count them, one to twelve. */}
     {[0, 1, 2, 3, 4, 5].map((i) => <Tap key={`b${i}`} count="baskets" sfx="plop"><Basket x={362 + i * 60} y={360} s={0.74} fill={i % 2 ? 'fish' : 'bread'} /></Tap>)}
     {[0, 1, 2, 3, 4, 5].map((i) => <Tap key={`f${i}`} count="baskets" sfx="plop"><Basket x={332 + i * 70} y={410} s={0.86} fill={i % 2 ? 'bread' : 'fish'} /></Tap>)}
-    <Heart x={205} y={196} />
+    <Heart x={205} y={196} color={GOLD} />
     <g pointerEvents="none"><Sparkles spots={[[420, 290, 8], [560, 280, 10], [680, 300, 7], [330, 220, 6]]} /></g>
     <rect width={800} height={450} fill="#ff9a6a" opacity={0.06} pointerEvents="none" />
   </Scene>
@@ -614,7 +536,7 @@ const PageBread = () => (
       </Person>
     </Tap>
     <Tap say="Jesus fills our hearts with love!" sfx="ding">
-      <Heart x={400} y={180} s={1.5} />
+      <Heart x={400} y={180} s={1.5} color={GOLD} />
     </Tap>
     <Person x={110} y={420} s={1.02} look={BOYS_DAD} facing="right" blinkDelay={1.8} />
     <Person x={188} y={424} s={0.98} look={BOYS_MOM} pose="pray" facing="right" blinkDelay={0.6} />

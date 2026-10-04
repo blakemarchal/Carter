@@ -1,5 +1,5 @@
 // Jesus Calms the Storm: the island's mini-game, "Paint it" (color by number; activities/games/types.ts, PaintKit):
-// "Paint the Boat". The fishing boat from the story (scenes/storm.tsx, FishingBoat) sails across the lake in the evening,
+// "Paint the Boat". The fishing boat from the story (FishingBoat, scenes/kit.tsx) sails across the lake in the evening,
 // before the storm, with Jesus and His four friends aboard, and nearly everything round them is a region to paint, each
 // big enough for small fingers:
 //   1 yellow: the setting sun and the sail;
@@ -13,8 +13,8 @@
 import { useId } from 'react'
 import type { At, PaintKit } from '../../activities/games/types'
 import { Figure, PEOPLE } from '../people'
-import { Glow, Scene, Sparkles } from '../scenes/kit'
-import { BOAT, BOAT_COLORS, Gulls, LittleBoat } from '../scenes/storm'
+import { BOAT, BOAT_COLORS, Glow, Scene, Sparkles } from '../scenes/kit'
+import { Gulls, LittleBoat } from '../scenes/storm'
 
 const INK = '#4a3a5a'
 
