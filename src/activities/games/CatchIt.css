@@ -12,7 +12,8 @@
   background: #fff; border-radius: 999px; padding: 4px 20px 4px 8px; box-shadow: 0 4px 0 rgba(0, 0, 0, .08);
   font-size: 28px; font-weight: 800; line-height: 1; color: var(--ink);
 }
-.catch-count-pic { width: 46px; height: 46px; overflow: visible; display: block; }
+/* (On a soft pink disc, so a white thing, like manna or rain, shows up on the white.) */
+.catch-count-pic { width: 46px; height: 46px; display: block; border-radius: 50%; background: #ffd9ea; box-shadow: inset 0 2px 0 rgba(120, 60, 100, .1); }
 .catch-count b { font-size: 44px; color: var(--pink-deep); min-width: 1.1ch; text-align: center; padding-top: 3px; animation: catchcount .45s cubic-bezier(.3, 1.6, .5, 1); }
 .catch-count span { padding-top: 4px; }
 @keyframes catchcount { 0% { scale: .6; } 60% { scale: 1.3; } 100% { scale: 1; } }

@@ -53,8 +53,9 @@ function Backdrop({ progress }: { progress: number }) {
     <Scene sky="day" ground="none" clouds={false}>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={mix('#f7b9a8', '#8fd3ff', p)} />
-          <stop offset="1" stopColor={mix('#ffe6b8', '#e2f6ff', p)} />
+          {/* (early morning: a soft blue sky over a golden glow on the horizon; then bright day) */}
+          <stop offset="0" stopColor={mix('#b4c6ee', '#8fd3ff', p)} />
+          <stop offset="1" stopColor={mix('#ffd9a8', '#e2f6ff', p)} />
         </linearGradient>
       </defs>
       <rect width={800} height={450} fill={`url(#${id})`} />

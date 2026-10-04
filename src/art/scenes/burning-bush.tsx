@@ -5,7 +5,8 @@
 // New here, for other islands (and people.tsx) to reuse: JETHRO, ZIPPORAH and her SISTERS in their Midian
 // clothes (Sister, MidianTrim), the grumpy SHEPHERDS; faces (MosesSad, MosesWonder, SadFace, GrumpyFace);
 // BareFeet and KneelingBarefoot (holy ground); props: Well, Trough, PouringBucket, TravelBundle, BurningBush,
-// MountainOfGod, Sandals, Boulder, Scrub, Clumps, Footprints and a rock Hyrax; backgrounds: MidianLand.
+// MountainOfGod, Sandals, Boulder, Scrub, Clumps, Footprints; animals: a rock Hyrax and a desert Hedgehog;
+// backgrounds: MidianLand.
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { Person, SKIN, type Look, type Pose } from '../people'
@@ -13,7 +14,7 @@ import { Cloud, Emoji, Glow, Palm, Rays, Scene, Sheep, Sparkles, Sun, Tap } from
 import { usePlayer } from './player'
 import {
   AARON, BrickBasket, BrickStack, Column, Desert, DryingBricks, flame, Folk, Goat, Grip, Heart, HEBREWS, MOSES,
-  Pyramid, Staff, StaffInLeftHand, Straw, type PersonProps,
+  Pharaoh, Pyramid, Staff, StaffInLeftHand, Straw, type PersonProps,
 } from './moses'
 import { Rock, SittingOnRock, WoolSheep } from './david'
 import { Tent, ThoughtBubble } from './abraham'
@@ -630,10 +631,9 @@ const Page2 = () => (
     <Cloud x={120} y={150} s={0.45} />
     <Cloud x={470} y={170} s={0.4} slow />
     <FarBirds spots={[[520, 96, 1], [548, 110, 0.8], [500, 120, 0.7]]} />
-    <Tap say="Midian is far, far away, over there." sfx="pop">
-      <path d="M500 296 Q560 240 616 262 Q666 220 726 250 Q770 232 820 246 L820 300 L500 300 Z" fill="#dba077" />
-      <path d="M560 296 Q620 266 676 278 Q730 260 820 272 L820 300 L560 300 Z" fill="#cf9168" />
-    </Tap>
+    {/* the hills of Midian, far away ahead */}
+    <path d="M500 296 Q560 240 616 262 Q666 220 726 250 Q770 232 820 246 L820 300 L500 300 Z" fill="#dba077" />
+    <path d="M560 296 Q620 266 676 278 Q730 260 820 272 L820 300 L560 300 Z" fill="#cf9168" />
     <Desert />
     <Tap say="Egypt is far behind now." sfx="pop">
       <Pyramid x={78} y={294} w={74} h={46} />
@@ -682,7 +682,7 @@ const Page3 = () => (
     <Tap say="Go away! Our goats drink first!" sfx="wobble">
       <Person x={430} y={380} s={0.78} look={SHEPHERDS[0]} blinkDelay={1.4}><GrumpyFace beard={SHEPHERDS[0].beardColor!} /></Person>
     </Tap>
-    <Tap say="The trough is full of water for the animals." sfx="plop">
+    <Tap say="A deep well, full of cool water." sfx="plop">
       <Trough x={TROUGH.x} y={TROUGH.y} w={TROUGH.w} />
     </Tap>
     <Tap say="Go away! Our goats drink first!" sfx="wobble">
@@ -691,9 +691,7 @@ const Page3 = () => (
       <Person x={516} y={418} s={0.84} look={SHEPHERDS[1]} pose="point" blinkDelay={0.6}><GrumpyFace beard={SHEPHERDS[1].beardColor!} /></Person>
     </Tap>
     {/* the seven sisters, waiting sadly with their sheep: the big sisters at the back, the little ones in front */}
-    <Tap say="Baa! We are so thirsty." sfx="pop">
-      <Sheep x={780} y={382} s={0.4} facing="left" />
-    </Tap>
+    <Sheep x={780} y={382} s={0.4} facing="left" />
     <Tap count="sisters"><Sister i={1} x={612} y={376} s={0.72} sad blinkDelay={0.3} /></Tap>
     <Tap count="sisters"><Sister i={0} x={668} y={372} s={0.74} sad blinkDelay={1.1} /></Tap>
     <Tap count="sisters"><Sister i={2} x={724} y={378} s={0.72} sad blinkDelay={2.0} /></Tap>
@@ -701,9 +699,7 @@ const Page3 = () => (
     <Tap count="sisters"><Sister i={4} x={638} y={442} s={0.8} sad blinkDelay={1.6} /></Tap>
     <Tap count="sisters"><Sister i={5} x={686} y={438} s={0.8} sad blinkDelay={2.4} /></Tap>
     <Tap count="sisters"><Sister i={6} x={734} y={442} s={0.8} sad blinkDelay={0.2} /></Tap>
-    <Tap say="Baa! We are so thirsty." sfx="pop">
-      <Sheep x={774} y={446} s={0.48} facing="left" />
-    </Tap>
+    <Sheep x={774} y={446} s={0.48} facing="left" />
     {/* Moses, resting on a rock after his long walk, his bundle by his feet */}
     <Tap say="Oh no! That is not kind." sfx="plop">
       <Rock x={86} y={428} s={0.8} />
@@ -743,7 +739,7 @@ const Page4 = () => (
       <Sister i={3} x={102} y={440} s={0.88} pose="arms-up" blinkDelay={1.4} />
       <Sister i={6} x={44} y={436} s={0.86} blinkDelay={2.1} />
     </Tap>
-    <Tap say="Hooray! Our sheep are drinking!" sfx="good">
+    <Tap say="Thank you for helping us, Moses!" sfx="good">
       <Sister i={1} x={624} y={408} s={0.8} pose="arms-up" blinkDelay={0.9} />
       <Sister i={2} x={686} y={402} s={0.78} blinkDelay={1.9} />
       <Sister i={4} x={656} y={444} s={0.86} pose="arms-up" blinkDelay={0.1} />
@@ -781,10 +777,8 @@ const Page5 = () => (
       <Sister i={0} x={368} y={434} s={0.98} facing="left" blinkDelay={2} />
       <Heart x={330} y={232} s={0.9} />
     </Tap>
-    <Tap say="Baa! Baa!" sfx="pop">
-      <Sheep x={740} y={444} s={0.56} facing="left" />
-      <Sheep x={226} y={448} s={0.46} />
-    </Tap>
+    <Sheep x={740} y={444} s={0.56} facing="left" />
+    <Sheep x={226} y={448} s={0.46} />
   </Scene>
 )
 
@@ -899,7 +893,8 @@ const Page9 = () => (
 
 // 10. "God said, 'I have seen how hard My people work in Egypt, and I care about them. I will send you to
 // Pharaoh, to bring My people out of Egypt.'"
-// Moses kneels and listens; he thinks of God's people working hard in Egypt, and God's love for them (a heart).
+// Moses kneels and listens; he thinks of God's people working hard in Egypt for Pharaoh, and God's love for
+// them (a heart).
 const Page10 = () => (
   <Scene sky="day" ground="none" clouds={false}>
     <Mountainside x={560} />
@@ -916,8 +911,8 @@ const Page10 = () => (
         <Pyramid x={96} y={176} w={92} h={58} />
         <Pyramid x={150} y={178} w={58} h={36} />
         <path d="M58 178 Q196 168 340 176" stroke="#e8c88c" strokeWidth={6} fill="none" strokeLinecap="round" />
-        <BrickStack x={292} y={180} rows={3} cols={3} />
         {[[186, 182, 3], [222, 186, 6], [252, 180, 9]].map(([fx, fy, i]) => <Folk key={fx} x={fx} y={fy} s={0.82} i={i} up load />)}
+        <Pharaoh x={298} y={184} s={0.44} facing="left" blinkDelay={0.9} />
         <Heart x={196} y={70} s={0.95} />
       </ThoughtBubble>
     </Tap>

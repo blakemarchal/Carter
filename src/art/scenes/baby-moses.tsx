@@ -28,8 +28,12 @@ export const JOCHEBED: JLook = { skin: SKIN.tan, hair: 'covered', hairColor: '#3
 /** Miriam as a girl, Moses' big sister: PEOPLE.miriam's rose head scarf, sunny robe and teal sash, with a child's build. Draw her with <MiriamGirl>, which adds her fringe. */
 export const MIRIAM_GIRL: JLook = { ...MIRIAM, build: 'child' }
 
-/** The princess, Pharaoh's daughter: white linen with pleats, a turquoise sash, a gold collar, and a gold band in her straight black hair. Draw her with <Princess>, which adds her hair and a lotus flower. */
-export const PRINCESS: JLook = { skin: SKIN.tan, hair: 'long', hairColor: '#1f1712', robe: '#fbf8ef', sash: '#2fa5c8', pleats: true, collar: '#f2c94c', band: '#f2c94c' }
+/**
+ * The princess, Pharaoh's daughter: straight black hair cut level at her shoulders, white linen with pleats,
+ * a turquoise sash, a gold collar and a gold band. Draw her with <Princess>, which adds her hair beside her
+ * face (`hair` is 'short' underneath, so nothing hangs behind her collar when she kneels) and a lotus flower.
+ */
+export const PRINCESS: JLook = { skin: SKIN.tan, hair: 'short', hairColor: '#1f1712', robe: '#fbf8ef', sash: '#2fa5c8', pleats: true, collar: '#f2c94c', band: '#f2c94c' }
 
 /** The princess's two helpers: long dark hair with a ribbon round it, white linen and a colored sash (no gold: that's the princess). Draw them with <Helper>. */
 export const PRINCESS_HELPERS: JLook[] = [
@@ -291,6 +295,15 @@ export function LeapingFish({ x, y, color = '#ffb347', s = 1 }: { x: number; y: 
   )
 }
 
+/** Little birds flying far away over the river: [x, y, size] each. */
+export const Birds = ({ spots }: { spots: [number, number, number][] }) => (
+  <g className="sc-float">
+    {spots.map(([x, y, k], i) => (
+      <path key={i} d={`M${x - 11 * k} ${y - 3 * k} Q${x - 5 * k} ${y - 8 * k} ${x} ${y} Q${x + 5 * k} ${y - 8 * k} ${x + 11 * k} ${y - 3 * k}`} stroke="#5a6478" strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    ))}
+  </g>
+)
+
 /**
  * The princess's bathing place: wide stone steps coming down into the river, seen from the water, with a
  * square post at each side of the bottom and the top step. (x, y): the middle of the bottom step's front
@@ -406,13 +419,13 @@ export function OilLamp({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
  */
 function HomeRoom({ night }: { night?: boolean }) {
   const id = uidOf(useId())
-  const wall = night ? '#dcbd8a' : '#efd9ae'
+  const wall = night ? '#d6b47f' : '#efd9ae'
   return (
     <g>
       <defs>
-        <radialGradient id={`${id}v`} cx="50%" cy="55%" r="70%">
-          <stop offset="0.55" stopColor="#2a1a3a" stopOpacity={0} />
-          <stop offset="1" stopColor="#2a1a3a" stopOpacity={night ? 0.42 : 0.08} />
+        <radialGradient id={`${id}v`} cx="50%" cy="58%" r="70%">
+          <stop offset="0.45" stopColor="#2a1a3a" stopOpacity={0} />
+          <stop offset="1" stopColor="#2a1a3a" stopOpacity={night ? 0.5 : 0.08} />
         </radialGradient>
       </defs>
       <rect x={0} y={0} width={800} height={340} fill={wall} />
@@ -646,7 +659,8 @@ const Page3 = () => (
       <Sparkles spots={[[470, 150, 9], [640, 120, 8], [560, 190, 6], [700, 180, 7], [410, 210, 6]]} color="#fffbe0" />
     </Tap>
     <MudHouse x={566} y={334} w={260} h={120} door={0.36} win={-0.32} />
-    <Heart x={526} y={244} s={0.8} />
+    <Heart x={560} y={176} s={0.8} />
+    <Heart x={618} y={196} s={0.5} color="#ffcf3f" />
     <Tap say="Dear God, please keep the babies safe." sfx="good">
       <Figure x={402} y={440} s={1.0} look={HEBREWS.girl} pose="pray" blinkDelay={0.5} />
       <Figure x={706} y={442} s={0.98} look={HEBREWS.grandma} pose="pray" blinkDelay={2.0}><SilverHair /></Figure>
@@ -690,30 +704,31 @@ const Page4 = () => (
 // tucks him in; the pot of coating stands by with its brush; Miriam brings an armful of reeds.
 const Page5 = () => (
   <Scene sky="day" ground="none" clouds={false}>
-    <Cloud x={560} y={50} s={0.5} />
-    <Cloud x={250} y={36} s={0.4} slow />
-    <path d="M0 196 Q200 188 400 196 T800 192 L800 224 L0 224 Z" fill="#efd9a6" />
-    <Palm x={470} y={208} s={0.4} />
-    <Palm x={496} y={212} s={0.32} />
-    <River y={218} y2={284} n={6} />
-    {[[310, 288, 74], [570, 286, 84], [748, 288, 78]].map(([px, py, ph], i) => <Papyrus key={px} x={px} y={py} h={ph} n={5} delay={-i * 0.9} />)}
-    <path d="M0 282 Q200 274 400 284 T800 278 L800 450 L0 450 Z" fill="#e2cd96" />
-    <path d="M0 384 Q240 368 480 384 T800 376 L800 450 L0 450 Z" fill="#d9c088" />
-    <MudHouse x={58} y={360} w={196} h={136} door={0.28} win={-0.2} />
-    <Palm x={184} y={350} s={0.72} />
-    <ReedPile x={140} y={440} s={0.95} />
+    <Cloud x={560} y={58} s={0.5} />
+    <Cloud x={250} y={44} s={0.4} slow />
+    <Birds spots={[[330, 112, 1], [362, 128, 0.8], [690, 132, 0.9]]} />
+    <path d="M0 230 Q200 222 400 230 T800 226 L800 256 L0 256 Z" fill="#efd9a6" />
+    <Palm x={470} y={242} s={0.42} />
+    <Palm x={496} y={246} s={0.34} />
+    <River y={250} y2={312} n={6} />
+    {[[318, 316, 74], [600, 314, 84], [756, 316, 78]].map(([px, py, ph], i) => <Papyrus key={px} x={px} y={py} h={ph} n={5} delay={-i * 0.9} />)}
+    <path d="M0 310 Q200 302 400 312 T800 306 L800 450 L0 450 Z" fill="#e2cd96" />
+    <path d="M0 398 Q240 384 480 398 T800 390 L800 450 L0 450 Z" fill="#d9c088" />
+    <MudHouse x={62} y={384} w={214} h={150} door={0.3} win={-0.2} />
+    <Palm x={198} y={380} s={0.8} />
+    <ReedPile x={142} y={444} s={1.0} />
     <Tap say="Here are more reeds, Mom!" sfx="ding">
-      <MiriamGirl x={262} y={444} s={1.22} pose="hold" mood="joy" blinkDelay={0.8} item={<ReedBundle x={0} y={-62} />} />
+      <MiriamGirl x={266} y={446} s={1.3} pose="hold" mood="joy" blinkDelay={0.8} item={<ReedBundle x={0} y={-62} />} />
     </Tap>
     <Tap say="Dab, dab! Now no water can get in." sfx="plop">
-      <PitchPot x={366} y={446} s={1.25} />
+      <PitchPot x={372} y={448} s={1.3} />
     </Tap>
-    <ellipse cx={480} cy={447} rx={84} ry={8} fill="#000" opacity={0.12} />
+    <ellipse cx={490} cy={449} rx={92} ry={8} fill="#000" opacity={0.12} />
     <Tap say="A little basket boat, made of reeds!" sfx="pop">
-      <ReedBasket x={480} y={394} s={1.3} lid="hood" baby="happy" />
+      <ReedBasket x={490} y={392} s={1.42} lid="hood" baby="happy" />
     </Tap>
     <Tap say="Snug and safe, my little one." sfx="good">
-      <Figure x={616} y={446} s={1.2} look={JOCHEBED} kneel facing="left" reach={[null, [73, -84]]} blinkDelay={1.6} />
+      <Figure x={640} y={448} s={1.3} look={JOCHEBED} kneel facing="left" reach={[null, [72, -75]]} blinkDelay={1.6} />
     </Tap>
   </Scene>
 )
@@ -847,8 +862,10 @@ const Page8 = () => {
       <Tap say="Oh, little one, don't cry. I will take care of you." sfx="good">
         <Princess x={454} y={stepAt(y, 1, rise, tread)} s={1.05} facing="left" kneel reach={[null, [70, -79]]} blinkDelay={0.6} />
       </Tap>
+      {/* the basket's lid, just lifted off and set down on the step */}
+      <BasketLid x={228} y={stepAt(y, 1, rise, tread) - 4} s={0.62} tilt={-10} />
       <Tap say="Look, a baby boy!" sfx="ding">
-        <Helper i={0} x={196} y={stepAt(y, 1, rise, tread)} s={1.0} mood="wow" pose="present" item={<BasketLid x={0} y={-80} s={0.64} tilt={-8} />} blinkDelay={1.1} />
+        <Helper i={0} x={190} y={stepAt(y, 2, rise, tread)} s={1.0} mood="wow" pose="open" blinkDelay={1.1} />
       </Tap>
       <Tap say="The princess loves the baby." sfx="sparkle">
         <Heart x={400} y={226} s={0.8} />
@@ -856,7 +873,6 @@ const Page8 = () => {
         <Heart x={344} y={200} s={0.5} color="#ffcf3f" />
       </Tap>
       {/* Miriam, still watching from the reeds by the water */}
-      <rect x={-10} y={176} width={160} height={290} fill="#4aa2dc" opacity={0.3} />
       <path d="M-10 330 Q60 318 140 330 L150 460 L-10 460 Z" fill="#cfae74" />
       <MiriamGirl x={74} y={372} s={0.86} mood="wow" blinkDelay={0.9} />
       <Reeds x={44} y={380} h={60} />

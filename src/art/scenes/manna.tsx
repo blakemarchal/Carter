@@ -527,7 +527,7 @@ const Page2 = () => (
     </Tap>
     <Tap say="Empty! Not one crumb left." sfx="plop">
       <WovenBasket x={290} y={406} w={60} k={0} />
-      <EmptySack x={342} y={444} s={0.9} />
+      <EmptySack x={342} y={436} s={0.9} />
     </Tap>
     <Tap say="My tummy is rumbling! Grumble, rumble." sfx="wobble">
       <Person x={410} y={440} s={0.92} look={BOY} pose="hold" blinkDelay={1.6}>
@@ -657,6 +657,8 @@ const Page4 = () => (
 // Dawn: white flakes everywhere on the sand. Grandma and grandpa come out of the tent; everyone wonders.
 const Page5 = () => (
   <Scene sky="dawn" ground="none" clouds={false}>
+    <Cloud x={190} y={86} s={0.75} />
+    <Cloud x={470} y={60} s={0.6} slow />
     <Sun x={612} y={232} s={0.85} />
     <Mountains y={276} color="#e3b4c2" k={0.85} />
     <Sands far="#f3d8ac" near="#ecca94" farY={284} nearY={350} />
@@ -689,7 +691,7 @@ const Page5 = () => (
 /** A thin round wafer of manna with a bite out of it (figure units, held in front: its middle at (x, y)). */
 const Wafer = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <g transform={`translate(${x} ${y}) scale(${s})`}>
-    <path d="M-13 -2 A13 6.5 0 1 0 9 -6.5 Q6.5 -3.5 9.5 -1 Q5.5 -0.5 7 3 Q3 1.5 -13 -2 Z" fill={MANNA} stroke={MANNA_LINE} strokeWidth={1.6} />
+    <path d="M-13 -2 A13 6.5 0 1 0 9 -6.5 Q6.5 -3.5 9.5 -1 Q5.5 -0.5 7 3 Q3 1.5 -13 -2 Z" fill={MANNA} stroke="#b8a888" strokeWidth={1.3} />
     {[[-6, 0.5], [-1, 2.6], [-2, -2.2]].map(([dx, dy], i) => <circle key={i} cx={dx} cy={dy} r={0.9} fill="#d9ccb2" />)}
   </g>
 )
@@ -712,9 +714,9 @@ const Page6 = () => (
       <Hands skin={DAD.skin} />
     </Person>
     <Tap say="Just enough for today." sfx="pop">
-      <Kneel x={96} y={438} s={0.9} look={MOM} pose="stand" />
-      <WovenBasket x={136} y={422} w={44} k={0.6} seed={5} />
-      <Flake x={127} y={413} r={3.4} />
+      <Kneel x={96} y={430} s={0.9} look={MOM} pose="stand" />
+      <WovenBasket x={136} y={410} w={44} k={0.6} seed={5} />
+      <Flake x={126} y={404} r={3.4} />
     </Tap>
     <Tap say="Manna means, what is it?" sfx="ding">
       <Person x={318} y={442} s={0.92} look={GIRL} pose="hold" blinkDelay={0.9}>
@@ -724,7 +726,7 @@ const Page6 = () => (
     </Tap>
     <Tap say="Yum! It tastes like crackers made with honey!" sfx="chomp">
       <Laughing>
-        <Person x={414} y={448} s={1.0} look={BOY} pose="hold"><LaughFace /><Wafer x={1} y={-74} s={1.4} /><Hands skin={BOY.skin} /></Person>
+        <Person x={414} y={448} s={1.0} look={BOY} pose="hold"><LaughFace /><Wafer x={2} y={-75} s={1.9} /><Hands skin={BOY.skin} /></Person>
       </Laughing>
       <Heart x={414} y={314} s={0.45} color="#ffcf3f" />
       <Sparkles spots={[[360, 330, 6], [462, 372, 5]]} color="#ffe27a" />
@@ -757,9 +759,9 @@ const Page7 = () => (
       </Laughing>
     </Tap>
     <Tap say="Pee-yew! Smelly, spoiled manna!" sfx="wobble">
-      <ClayJar x={518} y={340} s={0.92} fill="spoiled" />
+      <ClayJar x={506} y={343} s={0.92} fill="spoiled" />
       <Grip x={518} y={340} skin={NEIGHBOR.skin} />
-      <Stink x={518} y={328} s={1.3} />
+      <Stink x={504} y={330} s={1.3} />
     </Tap>
     <Tap say="Bzzz, bzzz!" sfx="whoosh">
       <Fly x={472} y={292} s={1.25} />
@@ -780,22 +782,23 @@ const Page7 = () => (
 
 // 8. "But every morning, there was fresh manna on the ground again. Some people gathered a lot, and some
 // gathered a little. And everyone had just enough!"
-// Sunrise, fresh manna everywhere. Dad has a big basket, the girl a little bowl: both have just enough.
+// Early morning, fresh manna everywhere. Dad has a big basket, the girl a little bowl: both have just enough.
 const Page8 = () => (
   <Scene sky="dawn" ground="none" clouds={false}>
-    <Rays x={400} y={250} r={560} n={16} color="#fff6c8" opacity={0.3} />
-    <Sun x={400} y={238} s={0.95} />
+    <Cloud x={560} y={84} s={0.7} />
+    <Cloud x={700} y={140} s={0.5} slow />
+    <Sun x={250} y={234} s={0.9} />
     <Mountains y={280} color="#e6b9b8" k={0.85} />
     <Sands far="#f4dbaa" near="#eccb92" farY={288} nearY={352} />
     <FarCamp y={302} s={0.25} xs={[30, 120, 210, 590, 680, 770]} shift={2} />
-    <MannaGround y0={304} y1={448} n={300} seed={41} clear={[[660, 372, 150, 18], [460, 400, 40, 10]]} glints={8} />
-    <CampTent x={666} y={374} s={0.72} />
     <Tap say="Fresh manna, every morning!" sfx="sparkle">
+      <MannaGround y0={304} y1={448} n={300} seed={41} clear={[[660, 372, 150, 18], [460, 400, 40, 10]]} glints={8} />
       <Sparkles spots={[[560, 330, 7], [610, 420, 6], [120, 330, 6]]} />
     </Tap>
+    <CampTent x={666} y={374} s={0.72} />
     <Person x={466} y={402} s={0.8} look={GRANDPA} holding="stick" blinkDelay={2.2} />
     <Kneel x={96} y={436} s={0.86} look={MOM} pose="hold">
-      <Bowl x={0} y={-66} w={34} k={0.8} />
+      <Bowl x={0} y={-71} w={36} k={0.8} />
       <Hands skin={MOM.skin} />
     </Kneel>
     <Tap say="A big basket for me. Just enough!" sfx="good">
@@ -807,7 +810,7 @@ const Page8 = () => (
     </Tap>
     <Tap say="A little bowl for me. Just enough!" sfx="good">
       <Person x={336} y={442} s={0.94} look={GIRL} pose="hold" blinkDelay={0.9}>
-        <Bowl x={0} y={-66} w={28} k={0.75} seed={12} />
+        <Bowl x={0} y={-71} w={32} k={0.75} seed={12} />
         <Hands skin={GIRL.skin} />
       </Person>
       <Sparkles spots={[[306, 340, 5], [368, 334, 6]]} color="#ffe27a" />
@@ -828,7 +831,7 @@ const Page9 = () => (
     <Sands farY={286} nearY={352} />
     <FarCamp y={300} s={0.26} xs={[460, 550, 640, 730, 800]} shift={1} />
     <CampTent x={270} y={378} s={0.86} />
-    <Staff x1={36} y1={446} x2={150} y2={452} />
+    <Staff x1={40} y1={440} x2={152} y2={444} />
     <Tap say="Twice as much, and still fresh and yummy!" sfx="sparkle">
       <WovenBasket x={462} y={392} w={56} k={1} seed={13} />
       <WovenBasket x={526} y={396} w={56} k={1} seed={14} />
@@ -903,7 +906,9 @@ const Page11 = () => (
         <GatheringFolk key={fx} x={fx} y={fy} s={0.62} i={i} child={!!child} />
       ))}
     </Tap>
-    <Person x={514} y={432} s={1.0} look={MOSES} holding="staff" blinkDelay={1.2} />
+    <Tap say="God fed us, every single day!" sfx="good">
+      <Person x={514} y={432} s={1.0} look={MOSES} holding="staff" blinkDelay={1.2} />
+    </Tap>
     <Person x={214} y={444} s={0.9} look={BOY} blinkDelay={1.6} />
     <Person x={290} y={442} s={0.9} look={GIRL} pose="point" blinkDelay={0.9} />
     <Tap say="A jar of manna, so we always remember!" sfx="sparkle">

@@ -315,7 +315,11 @@ export function RockSpring({ x, y, s = 1, dry, pool = 124 }: { x: number; y: num
 
 // ---------- The items ----------
 
-/** Aaron's golden jar, heaped with manna, shining: kept so everyone would remember how God fed them. (No emoji: 🍯 is honey, 🫙 an empty jar.) */
+/**
+ * Aaron's golden jar, heaped with manna, shining: kept so everyone would remember how God fed them. The
+ * island's reward sticker. Its emoji is 🏺, the ancient jar with two handles (🍯 is honey, 🫙 an empty
+ * glass jar): a sticker is named by its emoji.
+ */
 function MannaJarItem() {
   const id = `mj${uid(useId())}`
   return (
@@ -370,11 +374,53 @@ function MannaWafers() {
 }
 
 /** The big rock with fresh water pouring out of it into a pool (Exodus 17:6). */
-const RockWaterItem = () => <RockSpring x={61} y={86} s={0.235} pool={86} />
+const RockWaterItem = () => <RockSpring x={62} y={88} s={0.265} pool={70} />
+
+/**
+ * The manna someone saved overnight (Exodus 16:20): a clay jar with the manna in its mouth gone gray-green
+ * and lumpy, wavy green smell lines rising from it, and a fly buzzing round it. Pee-yew!
+ */
+function SpoiledManna() {
+  const c = '#d9875a'
+  const clay = useShade(c, 0.3, 0.2)
+  const line = ink(c)
+  return (
+    <g strokeLinejoin="round">
+      <defs>{clay.def}</defs>
+      <ellipse {...groundShadow(44, 93, 26)} />
+      {/* smell lines, rising */}
+      {[28, 42, 56].map((x, i) => (
+        <g key={x} transform={`translate(${x} ${i === 1 ? 12 : 18})`}>
+          <path d="M0 28 q-5 -6 0 -12 t0 -12 t0 -12" stroke="#5f8f3a" strokeWidth={5.6} fill="none" strokeLinecap="round" />
+          <path d="M0 28 q-5 -6 0 -12 t0 -12 t0 -12" stroke="#a8d46a" strokeWidth={3} fill="none" strokeLinecap="round" />
+        </g>
+      ))}
+      {/* the jar, and the spoiled manna in its mouth */}
+      <ellipse cx={44} cy={50} rx={15} ry={4.2} fill={darken(c, 0.45)} stroke={line} strokeWidth={2} />
+      <path d="M31 51 Q32 42 38 44.5 Q41 38 47 42.5 Q53 39 55 46 Q59 47 57 51 Z" fill="#a5ab84" stroke="#6f7652" strokeWidth={1.6} />
+      {[[36, 48, 1.8], [44, 45, 1.5], [51, 48, 1.7], [47, 49.5, 1.2]].map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill="#7d8a5a" />)}
+      <path d="M31 52 Q14 62 14 76 Q14 90 31 93 L57 93 Q74 90 74 76 Q74 62 57 52 Z" fill={clay.fill} stroke={line} strokeWidth={2.4} />
+      <path d="M29.5 50 A14.5 4.4 0 0 0 58.5 50" stroke={darken(c, 0.12)} strokeWidth={3.6} fill="none" />
+      <path d="M16 74 Q44 82 72 74" stroke="#f2c08a" strokeWidth={2.6} fill="none" />
+      <Shine x={22} y={70} rx={2.6} ry={7} rot={12} />
+      {/* the fly, buzzing round, with its dotted loop */}
+      <path d="M70 30 C60 36 54 24 62 18 C70 12 76 20 70 26" stroke="#6b6680" strokeWidth={1.4} fill="none" strokeDasharray="2.4 3" strokeLinecap="round" opacity={0.8} />
+      <g transform="translate(80 22)">
+        {[[-3, -20], [3, 20]].map(([wx, rot]) => <ellipse key={wx} cx={wx} cy={-7} rx={3.6} ry={6.4} transform={`rotate(${rot} ${wx} -7)`} fill="#ffffff" opacity={0.85} stroke="#a9b8cc" strokeWidth={1} />)}
+        <ellipse cx={0} cy={0} rx={7} ry={5.6} fill="#4a4560" stroke="#2b2838" strokeWidth={1.4} />
+        <circle cx={5} cy={-2.4} r={3} fill="#ffffff" stroke="#2b2838" strokeWidth={0.9} />
+        <circle cx={7.6} cy={-0.8} r={2.8} fill="#ffffff" stroke="#2b2838" strokeWidth={0.9} />
+        <circle cx={5.6} cy={-2.2} r={1.3} fill={EYE} />
+        <circle cx={8.1} cy={-0.6} r={1.2} fill={EYE} />
+      </g>
+    </g>
+  )
+}
 
 export const ISL_MANNA: Item[] = [
-  { id: 'manna-jar', name: 'jar of manna', Draw: MannaJarItem },
+  { id: 'manna-jar', name: 'jar of manna', emoji: ['🏺'], Draw: MannaJarItem },
   { id: 'quail', name: 'quail', Draw: QuailItem },
   { id: 'manna-wafers', name: 'manna, like crackers made with honey', Draw: MannaWafers },
   { id: 'rock-water', name: 'water pouring out of a rock', Draw: RockWaterItem },
+  { id: 'spoiled-manna', name: 'spoiled, smelly manna', Draw: SpoiledManna },
 ]

@@ -10,8 +10,9 @@
   100% { transform: scale(.95, 1.07) rotate(3deg); }
 }
 
-/* God's voice from the bush: soft rings of light that spread out and fade. */
-.pa-anim .bb-call { animation: bbcall 2.4s ease-out infinite; transform-box: fill-box; transform-origin: 0% 50%; }
+/* God's voice from the bush: soft rings of light that spread out and fade. (Each ring sets where it spreads
+   from, the bush, inline: transform-box view-box, and transform-origin in picture units.) */
+.pa-anim .bb-call { animation: bbcall 2.4s ease-out infinite; }
 @keyframes bbcall { 0% { transform: scale(.7); opacity: 0; } 25% { opacity: .95; } 100% { transform: scale(1.12); opacity: 0; } }
 
 /* A found sheep's "Baa!" in the mini-game: it pops up, floats up a little and fades away. */

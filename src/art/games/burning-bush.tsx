@@ -1,8 +1,9 @@
 // The Burning Bush: the island's mini-game, Spot it ("Where Are the Sheep?"; activities/games/types.ts, SpotKit).
 // Moses has led the flock to the mountain of God, and some of his sheep and goats have wandered off over its
 // warm, rocky slopes. Each one hides: behind a boulder or a bush, on a high ledge, in a cave, behind a dune,
-// up on a tall rock. Hidden, only a bit of it peeks out (a head round a rock, horns over a bush, eyes in the
-// dark); found, it comes out happily in front of its hiding place, with a little "Baa!".
+// up on a tall rock. Hidden, only a bit of it peeks out (a head round a rock, horns over a bush, a dim, woolly
+// shape with a shining eye far back in the cave); found, it comes out happily in front of its hiding place,
+// with a little "Baa!" (or "Maa!") that pops up and fades away (burning-bush.css).
 // A hiding place is drawn in the Picture, and drawn again, the same, over the hidden animal (in its target's
 // Draw), so a found animal can step out in front of it. Pieces are drawn in board units in a layer of their
 // own, so they only use the pa-* and bb-* animations.
@@ -128,7 +129,7 @@ function CaveSheep({ found }: { found: boolean }) {
       {found ? (
         <g>
           <Sheep x={CAVE.x + 4} y={CAVE.floor - 2} s={0.56} facing="left" />
-          <Baa x={CAVE.x - 26} y={CAVE.floor - 64} />
+          <Baa x={CAVE.x - 4} y={CAVE.floor - 72} />
         </g>
       ) : (
         // far back in the dark: a sheep, dim but woolly, its eye shining (over the sheep's own eye)
@@ -166,20 +167,20 @@ export const BURNING_BUSH_GAME: SpotKit = {
   Picture,
   targets: [
     // a sheep behind the big boulder: its head peeks round the rock; found, it steps out in front
-    target('boulder-sheep', SPOTS.boulder, 46, 'A sheep!', hider(SPOTS.boulder, BIG_BOULDER, [162, 418], [198, 440], sheep('right', 0.64), [222, 384])),
+    target('boulder-sheep', SPOTS.boulder, 46, 'A sheep behind the big rock!', hider(SPOTS.boulder, BIG_BOULDER, [162, 418], [198, 440], sheep('right', 0.64), [222, 384])),
     // a sheep behind the bush: its head and woolly back peek over the top; found, it comes out in front
-    target('bush-sheep', SPOTS.leftBush, 46, 'Another sheep!', hider(SPOTS.leftBush, LEFT_BUSH, [276, 392], [296, 446], sheep('right', 0.62), [336, 392])),
+    target('bush-sheep', SPOTS.leftBush, 46, 'A sheep behind the bush!', hider(SPOTS.leftBush, LEFT_BUSH, [276, 392], [296, 446], sheep('right', 0.62), [336, 392])),
     // a little lamb on the high ledge, peeking over the little rock; found, it stands on the ledge
-    target('ledge-lamb', SPOTS.ledge, 42, 'A little lamb!', hider(SPOTS.ledge, LEDGE_ROCK, [222, 200], [196, 228], sheep('left', 0.42), [168, 180])),
+    target('ledge-lamb', SPOTS.ledge, 42, 'A little lamb, way up high!', hider(SPOTS.ledge, LEDGE_ROCK, [222, 200], [196, 228], sheep('left', 0.42), [168, 180])),
     // a sheep behind the dune: its ears and the top of its head over the crest; found, it stands on top
-    target('dune-sheep', SPOTS.dune, 44, 'A sheep on the sand!', hider(SPOTS.dune, DUNE, [418, 412], [436, 392], sheep('right', 0.58), [476, 336])),
+    target('dune-sheep', SPOTS.dune, 44, 'A sheep behind the sand hill!', hider(SPOTS.dune, DUNE, [418, 412], [436, 392], sheep('right', 0.58), [476, 336])),
     // a sheep behind the rock on the hillside: its head round the rock's edge; found, it stands beside it
-    target('outcrop-sheep', SPOTS.outcrop, 44, 'A sheep by the rocks!', hider(SPOTS.outcrop, OUTCROP, [508, 272], [530, 296], sheep('right', 0.52), [566, 238])),
+    target('outcrop-sheep', SPOTS.outcrop, 44, 'A sheep up on the hill!', hider(SPOTS.outcrop, OUTCROP, [508, 272], [530, 296], sheep('right', 0.52), [566, 238])),
     // a sheep in the cave: only its eyes in the dark; found, it stands in the cave's mouth
     target('cave-sheep', SPOTS.cave, 44, 'A sheep in the cave!', CaveSheep),
     // a goat behind the tall rock: only its horns over the top; found, it stands right up on top (goats love to climb)
-    target('rock-goat', SPOTS.tallRock, 44, 'A goat! He likes to climb.', hider(SPOTS.tallRock, TALL_ROCK, [756, 322], [748, 292], goat('left', 0.6), [700, 236], 'Maa!')),
+    target('rock-goat', SPOTS.tallRock, 44, 'A goat on top of the rock! Goats love to climb.', hider(SPOTS.tallRock, TALL_ROCK, [756, 322], [748, 292], goat('left', 0.6), [700, 236], 'Maa!')),
     // a goat behind the other bush: its horns and tail peek out; found, it comes out in front
-    target('bush-goat', SPOTS.rightBush, 46, 'A goat!', hider(SPOTS.rightBush, RIGHT_BUSH, [598, 418], [616, 448], goat('left', 0.6, '#f2ece2', '#4a3a33'), [570, 380], 'Maa!')),
+    target('bush-goat', SPOTS.rightBush, 46, 'A goat behind the bush!', hider(SPOTS.rightBush, RIGHT_BUSH, [598, 418], [616, 448], goat('left', 0.6, '#f2ece2', '#4a3a33'), [570, 380], 'Maa!')),
   ],
 }

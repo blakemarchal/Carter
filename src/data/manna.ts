@@ -66,9 +66,8 @@ export const MANNA_STEPS: Step[] = [
         answer: 2,
       },
       {
-        // (The story's own picture of the smelly jar, page 7.)
         say: 'What happened to the manna that people saved overnight?',
-        choices: [{ emoji: '🫙', say: 'It was spoiled and smelly', art: 'story:manna:7' }, { emoji: '🐸', say: 'It turned into a frog' }, { emoji: '🎂', say: 'It turned into a cake' }],
+        choices: [{ emoji: '🫙', say: 'It was spoiled and smelly', art: 'spoiled-manna' }, { emoji: '🐸', say: 'It turned into a frog' }, { emoji: '🎂', say: 'It turned into a cake' }],
         answer: 0,
       },
       {
@@ -99,7 +98,7 @@ export const MANNA_STEPS: Step[] = [
   },
   { kind: 'battle', foe: 'shelly', intro: 'Oh no! A grumpy little tortoise named Shelly is grumbling that dinner is much too slow! Shelly just needs a friend.' },
   { kind: 'song', song: 'song-manna', intro: "Let's sing about the bread from heaven that God gave His people every morning! You can sing it on your Ark any time, too." },
-  // (The sticker is Aaron's jar of manna, the drawn item 'manna-jar' (art/items/isl-manna.tsx): no emoji means
-  // a jar of manna, so it's named by the item's id. See the report: the sticker book draws stickers by emoji.)
-  { kind: 'reward', pal: 'quilly', sticker: 'manna-jar', stickerName: 'jar of manna' },
+  // (Aaron's jar of manna, from the end of the story: a sticker is named by its emoji, and the drawing for 🏺,
+  // the ancient jar with two handles, is his golden jar heaped with manna, art/items/isl-manna.tsx.)
+  { kind: 'reward', pal: 'quilly', sticker: '🏺', stickerName: 'jar of manna' },
 ]
