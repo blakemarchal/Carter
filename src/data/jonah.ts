@@ -27,7 +27,7 @@ export const JONAH_STORY_2: StoryPage[] = [
 // World English Bible (public domain). The reference is written "First John", because it's read aloud
 // too, and the narrator would say "1 John" as "one John".
 export const JONAH_VERSE = {
-  ref: 'First John 4:8',
+  ref: '1 John 4:8',
   chunks: ['God', 'is', 'love.'],
 }
 

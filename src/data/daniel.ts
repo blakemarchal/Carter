@@ -77,11 +77,11 @@ export const DANIEL_STEPS: Step[] = [
   {
     kind: 'sequence', title: 'Tell the Story', intro: "Can you tell Daniel's story? Put the pictures in order, from the first to the last.",
     items: [
-      { emoji: '🙏', say: 'Daniel prays by his window', art: 'story:daniel:1' },
-      { emoji: '📜', say: 'The king signs the new rule', art: 'story:daniel:3' },
-      { emoji: '🦁', say: "Daniel goes into the lions' den", art: 'story:daniel:6' },
-      { emoji: '🌅', say: 'The king hurries to the den', art: 'story:daniel:8' },
-      { emoji: '🙌', say: 'Daniel comes out safe', art: 'story:daniel:10' },
+      { emoji: '🙏', say: 'Daniel praying by his window', art: 'story:daniel:1' },
+      { emoji: '📜', say: 'the king signing the new rule', art: 'story:daniel:3' },
+      { emoji: '🦁', say: "Daniel going into the lions' den", art: 'story:daniel:6' },
+      { emoji: '🌅', say: 'the king hurrying to the den', art: 'story:daniel:8' },
+      { emoji: '🙌', say: 'Daniel coming out safe', art: 'story:daniel:10' },
     ],
   },
   { kind: 'battle', foe: 'growly', intro: 'Oh no! A grumpy lion cub named Growly is growling at everybody! Growly just needs a friend.' },

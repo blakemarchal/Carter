@@ -15,6 +15,12 @@ describe('toSpoken', () => {
   it('reads Bible references as numbers', () => {
     expect(toSpoken('Genesis 9:13.', 'grok')).toBe('Genesis nine, thirteen.')
   })
+  it('says numbered books as First, Second, Third', () => {
+    expect(toSpoken('1 John 4:8', 'grok')).toBe('First John four, eight')
+    expect(toSpoken('2 Kings 2:11', 'device')).toBe('Second Kings two, eleven')
+    expect(toSpoken('John 3:16', 'grok')).toBe('John three, sixteen')
+    expect(toSpoken('1 sheep and 2 goats', 'grok')).toBe('one sheep and two goats')
+  })
   it('drops emoji (including skin tones and joiners) and spells out &', () => {
     expect(toSpoken('You got a 🌈 sticker! 👍🏽', 'grok')).toBe('You got a sticker!')
     expect(toSpoken('David & Goliath', 'grok')).toBe('David and Goliath')

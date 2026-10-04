@@ -45,12 +45,17 @@ const HETERONYMS: { re: RegExp; grok: string; device: string }[] = [
   { re: /\b([Bb])ow\b(?!\s+down)/g, grok: '/boʊ/', device: '$1eau' },
 ]
 
+/** The Bible's numbered books: 1 Samuel, 2 Kings, 1 John… */
+const NUMBERED_BOOK = /\b([1-3]) (?=(?:Samuel|Kings|Chronicles|Corinthians|Thessalonians|Timothy|Peter|John)\b)/g
+
 export function toSpoken(text: string, voice: 'grok' | 'device'): string {
   let out = text
   for (const h of HETERONYMS) out = out.replace(h.re, voice === 'grok' ? h.grok : h.device)
   return out
     .replace(/⟦([a-z])⟧/g, (_, l: string) => (voice === 'grok' ? `/${PHONICS[l].ipa}/` : PHONICS[l].say))
     .replace(EMOJI, '')
+    // Numbered books: "1 John 4:8" is said "First John", not "one John"
+    .replace(NUMBERED_BOOK, (_, n: string) => `${['First', 'Second', 'Third'][Number(n) - 1]} `)
     .replace(/(\d+):(\d+)/g, '$1, $2') // Bible references: "Genesis 9:13" -> "Genesis nine, thirteen"
     .replace(/\d+/g, (d) => numberWords(Number(d)))
     .replace(/\s*&\s*/g, ' and ')
