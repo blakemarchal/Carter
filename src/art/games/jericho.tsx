@@ -13,6 +13,7 @@ import type { RhythmKit } from '../../activities/games/types'
 import { Cloud, Glow, Palm, Rays, Scene, Sparkles } from '../scenes/kit'
 import { FarHills, LAP_BEATS, MARCH_START, MarchingRound, Plain, Tufts } from '../scenes/jericho'
 import { MusicNote } from '../scenes/david'
+import { RamsHornItem } from '../items/isl-jericho'
 
 // The tune: "When the Saints Go Marching In" (a traditional spiritual: a marching song), as Musica Viva
 // writes it (abcnotation.com, "When the saints go marching in", K:C), in G: its first line, its third
@@ -102,6 +103,8 @@ function MarchBackdrop({ beat, hits }: { beat: number; hits: number }) {
 export const JERICHO_GAME: RhythmKit = {
   Backdrop: MarchBackdrop,
   instrument: 'trumpet',
+  // (the priests' trumpets were rams' horns: the circle shows one, not a band trumpet)
+  Icon: () => <g transform="translate(-42 -42) scale(0.84)"><RamsHornItem /></g>,
   notes: JERICHO_TUNE,
   bpm: 80,
 }

@@ -105,6 +105,11 @@ export interface RhythmKit {
    */
   Backdrop: ComponentType<{ beat: number; hits: number }>
   instrument: 'harp' | 'tambourine' | 'drum' | 'trumpet'
+  /**
+   * Drawn in the middle of the circle instead of the instrument's own picture, when the story's
+   * instrument looks different (Jericho's trumpets are rams' horns). A piece, centred on (0, 0), about 80 across.
+   */
+  Icon?: ComponentType
   /** The tune to tap: [beat, MIDI pitch] for each note, beats counted from 0. Keep it short (16 to 24 notes). */
   notes: [number, number][]
   /** Beats per minute; slow for small hands (70 to 90). */

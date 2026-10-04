@@ -111,7 +111,7 @@ export function GoldenBoxShape({ line = 2 }: { line?: number }) {
 
 // ---------- The items ----------
 
-function RamsHornItem() {
+export function RamsHornItem() {
   return (
     <g {...ROUND}>
       <ellipse {...groundShadow(54, 92, 30)} />

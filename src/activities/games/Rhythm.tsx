@@ -866,7 +866,7 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
             <g transform={`scale(${(1 + 0.05 * pulse + (flash ? 0.05 : 0)).toFixed(3)})`}>
               <circle r={R} className={`rhythm-target ${near ? 'near' : ''} ${flash ? 'flash' : ''}`} />
               <circle r={R - 10} fill="none" stroke="#ffe3a0" strokeWidth={3} strokeDasharray="5 9" />
-              <InstrumentIcon kind={instrument} />
+              {kit.Icon ? <kit.Icon /> : <InstrumentIcon kind={instrument} />}
             </g>
             {bursts.map((b) => (
               <g key={b.id} className={b.hit ? 'rhythm-burst' : 'rhythm-ripple'}>
