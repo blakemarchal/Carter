@@ -11,7 +11,7 @@ import { BURNING_BUSH_GAME } from '../art/games/burning-bush'
 /** Visit 1: from the palace to Midian, where Moses helps at the well and becomes a shepherd, up to the mountain of God. */
 export const BURNING_BUSH_STORY_1: StoryPage[] = [
   { scene: '🏛️🧔🏽🧱', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: "Baby Moses grew up in the palace of the king of Egypt. But Moses loved God's people. He was sad to see them work so hard, making bricks all day long." },
-  { scene: '🧔🏽🏜️👣', bg: 'linear-gradient(#bfe6ff,#ffe9b5)', text: 'When Moses was all grown up, he had to leave Egypt. He walked far, far away, across the hot desert, to a land called Midian.' },
+  { scene: '🧔🏽🏜️👣', bg: 'linear-gradient(#bfe6ff,#ffe9b5)', text: 'One day, Moses had to leave Egypt. He walked far, far away, across the hot desert, to a land called Midian.' },
   { scene: '🪣😠🐑', bg: 'linear-gradient(#bfe6ff,#ffe9b5)', text: 'In Midian, Moses sat down by a well. Seven sisters came to give their sheep a drink. But some grumpy shepherds pushed them away. That was not kind!' },
   { scene: '🧔🏽💧🐑', bg: 'linear-gradient(#bfe6ff,#ffe9b5)', text: 'So Moses stood up and helped the sisters! He pulled up water from the well and filled the trough. All their thirsty sheep had a drink. Slurp, slurp!' },
   { scene: '⛺👴🏽💛', bg: 'linear-gradient(#bfe6ff,#ffe9b5)', text: 'The sisters told their father, Jethro, all about kind Moses. Jethro said, "Come and live with us!" Moses married Zipporah, one of the sisters. And he became a shepherd.' },
@@ -71,7 +71,7 @@ export const BURNING_BUSH_STEPS: Step[] = [
       },
       {
         say: 'Who did God say would help Moses?',
-        choices: [{ emoji: '🦁', say: 'A lion' }, { emoji: '🧔🏽', say: 'His brother Aaron', art: 'story:burning-bush:12' }, { emoji: '🐭', say: 'A little mouse' }],
+        choices: [{ emoji: '🦁', say: 'A lion' }, { emoji: '🧔🏽', say: 'His brother Aaron', art: 'aaron' }, { emoji: '🐭', say: 'A little mouse' }],
         answer: 1,
       },
     ],

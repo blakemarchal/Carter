@@ -175,7 +175,7 @@ export const BURNING_BUSH_GAME: SpotKit = {
     // a sheep behind the dune: its ears and the top of its head over the crest; found, it stands on top
     target('dune-sheep', SPOTS.dune, 44, 'A sheep behind the sand hill!', hider(SPOTS.dune, DUNE, [418, 412], [436, 392], sheep('right', 0.58), [476, 336])),
     // a sheep behind the rock on the hillside: its head round the rock's edge; found, it stands beside it
-    target('outcrop-sheep', SPOTS.outcrop, 44, 'A sheep up on the hill!', hider(SPOTS.outcrop, OUTCROP, [508, 272], [530, 296], sheep('right', 0.52), [566, 238])),
+    target('outcrop-sheep', SPOTS.outcrop, 44, 'A sheep up on the hill!', hider(SPOTS.outcrop, OUTCROP, [495, 272], [530, 296], sheep('right', 0.52), [566, 238])),
     // a sheep in the cave: only its eyes in the dark; found, it stands in the cave's mouth
     target('cave-sheep', SPOTS.cave, 44, 'A sheep in the cave!', CaveSheep),
     // a goat behind the tall rock: only its horns over the top; found, it stands right up on top (goats love to climb)

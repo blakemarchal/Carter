@@ -14,7 +14,7 @@ import { Cloud, Emoji, Glow, Palm, Rays, Scene, Sheep, Sparkles, Sun, Tap } from
 import { usePlayer } from './player'
 import {
   AARON, BrickBasket, BrickStack, Column, Desert, DryingBricks, flame, Folk, Goat, Grip, Heart, HEBREWS, MOSES,
-  Pharaoh, Pyramid, Staff, StaffInLeftHand, Straw, type PersonProps,
+  Pharaoh, Pyramid, SKINS, Staff, StaffInLeftHand, Straw, type PersonProps,
 } from './moses'
 import { Rock, SittingOnRock, WoolSheep } from './david'
 import { Tent, ThoughtBubble } from './abraham'
@@ -84,6 +84,32 @@ export const SadFace = ({ skin }: { skin: string }) => (
 /** A grumpy bearded face (in a Person's own units): brows low in the middle and a frown under the moustache. */
 export const GrumpyFace = ({ beard }: { beard: string }) => <g><Brows mood="grumpy" /><BeardFrown color={beard} /></g>
 
+/**
+ * A tired face, "Phew!" (in a Person's own units): brows up in the middle, a frown (under the moustache, when
+ * there's a `beard`: its color), and a drop of sweat by the head. `skin` covers the smile when there's no beard.
+ */
+export const TiredFace = ({ skin, beard }: { skin: string; beard?: string }) => (
+  <g>
+    {beard ? <g><Brows mood="sad" /><BeardFrown color={beard} /></g> : <SadFace skin={skin} />}
+    <path d="M29 -129 q5.5 8 0 11 q-5.5 -3 0 -11 Z" fill="#8fd3ff" stroke="#5aa8d8" strokeWidth={1.4} />
+  </g>
+)
+
+/** One of God's people far away (moses.tsx's Folk), tired from carrying bricks all day: a little frown in place of the smile. */
+function TiredFolk({ x, y, s = 1, i = 0, up, load }: { x: number; y: number; s?: number; i?: number; up?: boolean; load?: boolean }) {
+  const hy = -54 // (Folk's face, in its own units)
+  const skin = SKINS[(i * 7 + 2) % SKINS.length]
+  return (
+    <g>
+      <Folk x={x} y={y} s={s} i={i} up={up} load={load} />
+      <g transform={`translate(${x} ${y}) scale(${s})`}>
+        <ellipse cx={0} cy={hy + 6.6} rx={4} ry={2.6} fill={skin} />
+        <path d={`M-3 ${hy + 8} Q0 ${hy + 5} 3 ${hy + 8}`} stroke="#6b2a3a" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+      </g>
+    </g>
+  )
+}
+
 /** One of the seven sisters (0 is Zipporah, the oldest), in her Midian clothes. `sad`: a sad face. */
 export function Sister({ i, sad, children, ...p }: Omit<PersonProps, 'look'> & { i: number; sad?: boolean }) {
   const look = SEVEN[i % SEVEN.length]
@@ -129,8 +155,8 @@ export const BareFeet = ({ skin }: { skin: string }) => (
 
 /**
  * Someone kneeling barefoot, seen from the front (on holy ground): the Person from the knees up, their robe
- * pooled on the ground, and the bare soles of their feet peeking out behind. (x, y) = their knees on the
- * ground. (Like scenes/daniel.tsx's Kneel, with bare feet.)
+ * pooled on the ground, and a bare foot peeking out behind them on each side: the sole, and the toes at its
+ * tip. (x, y) = their knees on the ground. (Like scenes/daniel.tsx's Kneel, with bare feet.)
  */
 export function KneelingBarefoot({ x, y, s = 1, look, pose = 'pray', facing = 'right', blinkDelay = 0, children }: {
   x: number; y: number; s?: number; look: Look; pose?: Pose; facing?: 'left' | 'right'; blinkDelay?: number; children?: ReactNode
@@ -139,16 +165,20 @@ export function KneelingBarefoot({ x, y, s = 1, look, pose = 'pray', facing = 'r
   const k = look.build === 'child' ? 0.74 : 1
   const drop = 26 * k
   const w = 33 * k
-  const back = facing === 'left' ? 1 : -1
+  const line = ink(look.skin)
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
       <defs><clipPath id={clip}><rect x={-140} y={-320} width={280} height={316} /></clipPath></defs>
-      {[0, 1].map((i) => {
-        const fx = back * (w + 2 - i * 8 * k), fy = (-7 - i * 3) * k
+      {/* a foot each side, its heel tucked under the robe and its toes out at the tip, tipped up a little */}
+      {[-1, 1].map((d) => {
+        const fx = d * (w + 5 * k), fy = -6 * k
         return (
-          <g key={i} transform={`rotate(${back * 28} ${fx} ${fy})`}>
-            <ellipse cx={fx} cy={fy} rx={8.5 * k} ry={5.2 * k} fill={look.skin} stroke={ink(look.skin)} strokeWidth={1.5} />
-            <ellipse cx={fx + back * 1.4 * k} cy={fy - 0.8 * k} rx={5 * k} ry={2.6 * k} fill={lighten(look.skin, 0.28)} />
+          <g key={d} transform={`rotate(${-d * 24} ${fx} ${fy})`}>
+            <ellipse cx={fx} cy={fy} rx={9 * k} ry={5.2 * k} fill={look.skin} stroke={line} strokeWidth={1.5} />
+            <ellipse cx={fx + d * 1.4 * k} cy={fy - 0.3 * k} rx={5.4 * k} ry={2.8 * k} fill={lighten(look.skin, 0.28)} />
+            {([[-3.4, 2.1], [-1.1, 1.6], [1.1, 1.5], [3.2, 1.4]] as const).map(([ty, r]) => (
+              <circle key={ty} cx={fx + d * 9.4 * k} cy={fy + ty * k} r={r * k} fill={look.skin} stroke={line} strokeWidth={0.9} />
+            ))}
           </g>
         )
       })}
@@ -596,7 +626,9 @@ const Page1 = () => (
     <Palm x={452} y={292} s={0.48} />
     <path d="M330 318 Q560 302 800 312 L800 450 L330 450 Z" fill="#e8c88c" />
     <DryingBricks x={650} y={340} />
-    {[[566, 330, 4], [622, 324, 7], [708, 328, 1]].map(([fx, fy, i]) => <Folk key={fx} x={fx} y={fy} s={0.6} i={i} up load />)}
+    <Tap say="Phew! So many bricks. We are so tired." sfx="plop">
+      {[[566, 330, 4], [622, 324, 7], [708, 328, 1]].map(([fx, fy, i]) => <TiredFolk key={fx} x={fx} y={fy} s={0.6} i={i} up load />)}
+    </Tap>
     <BrickStack x={746} y={430} rows={4} cols={4} />
     <Tap say="Phew! So many bricks. We are so tired." sfx="plop">
       <Person x={470} y={432} s={0.8} look={HEBREWS.dad} blinkDelay={2.2}>
@@ -604,11 +636,13 @@ const Page1 = () => (
         <BrickBasket x={30} y={-46} />
         <Grip x={-30} y={-46} skin={HEBREWS.dad.skin} />
         <Grip x={30} y={-46} skin={HEBREWS.dad.skin} />
+        <TiredFace skin={HEBREWS.dad.skin} beard={HEBREWS.dad.beardColor} />
       </Person>
       <Person x={594} y={440} s={0.76} look={HEBREWS.mom} pose="hold" blinkDelay={0.8}>
         <Straw x={0} y={-64} />
         <Grip x={-8} y={-60} skin={HEBREWS.mom.skin} />
         <Grip x={8} y={-60} skin={HEBREWS.mom.skin} />
+        <TiredFace skin={HEBREWS.mom.skin} />
       </Person>
     </Tap>
     <PalaceHall />
@@ -621,8 +655,8 @@ const Page1 = () => (
   </Scene>
 )
 
-// 2. "When Moses was all grown up, he had to leave Egypt. He walked far, far away, across the hot desert, to a
-// land called Midian."
+// 2. "One day, Moses had to leave Egypt. He walked far, far away, across the hot desert, to a land called
+// Midian."
 // Moses walks on with a walking stick and a bundle, his footprints winding back to Egypt's tiny pyramids; the
 // hills of Midian are far ahead.
 const Page2 = () => (
@@ -682,7 +716,7 @@ const Page3 = () => (
     <Tap say="Go away! Our goats drink first!" sfx="wobble">
       <Person x={430} y={380} s={0.78} look={SHEPHERDS[0]} blinkDelay={1.4}><GrumpyFace beard={SHEPHERDS[0].beardColor!} /></Person>
     </Tap>
-    <Tap say="A deep well, full of cool water." sfx="plop">
+    <Tap say="A long trough for the animals to drink from." sfx="plop">
       <Trough x={TROUGH.x} y={TROUGH.y} w={TROUGH.w} />
     </Tap>
     <Tap say="Go away! Our goats drink first!" sfx="wobble">
@@ -718,9 +752,9 @@ const Page4 = () => (
     <Oasis />
     <Tap say="Hmph! Off we go." sfx="wobble">
       <Goat x={694} y={306} s={0.26} />
-      <Person x={722} y={308} s={0.36} look={SHEPHERDS[0]} />
+      <Person x={722} y={308} s={0.36} look={SHEPHERDS[0]}><GrumpyFace beard={SHEPHERDS[0].beardColor!} /></Person>
       <Goat x={750} y={312} s={0.26} coat="#4a3a33" patch="#2b2422" />
-      <Person x={776} y={312} s={0.36} look={SHEPHERDS[1]} blinkDelay={1} />
+      <Person x={776} y={312} s={0.36} look={SHEPHERDS[1]} blinkDelay={1}><GrumpyFace beard={SHEPHERDS[1].beardColor!} /></Person>
     </Tap>
     <Well x={WELL.x} y={WELL.y} bucket="none" />
     {/* the sheep stand behind the trough, so it's drawn over their noses */}
@@ -808,7 +842,7 @@ const Page6 = () => (
       <Sheep x={292} y={428} s={0.56} />
       <Sheep x={216} y={418} s={0.5} />
       <WoolSheep x={150} y={436} s={0.58} head="down" />
-      <Goat x={84} y={418} s={0.5} />
+      <Goat x={92} y={398} s={0.46} />
       <Sheep x={240} y={448} s={0.4} />
       <Sheep x={58} y={446} s={0.5} />
     </Tap>
@@ -904,14 +938,14 @@ const Page10 = () => (
     <StaffOnGround x1={210} x2={74} y={420} />
     <Sandals x={250} y={442} s={1.05} />
     <Tap say="Me? Go and see Pharaoh?" sfx="plop">
-      <KneelingBarefoot x={388} y={434} s={1.06} look={MOSES} pose="stand" blinkDelay={1.6} />
+      <KneelingBarefoot x={388} y={434} s={1.06} look={MOSES} pose="stand" blinkDelay={1.6}><MosesWonder /></KneelingBarefoot>
     </Tap>
     <Tap say="God sees how hard His people work. And He cares about them!" sfx="sparkle">
       <ThoughtBubble x={196} y={130} w={330} h={190} tail={[[350, 262, 7], [318, 236, 10], [280, 212, 13]]}>
         <Pyramid x={96} y={176} w={92} h={58} />
         <Pyramid x={150} y={178} w={58} h={36} />
         <path d="M58 178 Q196 168 340 176" stroke="#e8c88c" strokeWidth={6} fill="none" strokeLinecap="round" />
-        {[[186, 182, 3], [222, 186, 6], [252, 180, 9]].map(([fx, fy, i]) => <Folk key={fx} x={fx} y={fy} s={0.82} i={i} up load />)}
+        {[[186, 182, 3], [222, 186, 6], [252, 180, 9]].map(([fx, fy, i]) => <TiredFolk key={fx} x={fx} y={fy} s={0.82} i={i} up load />)}
         <Pharaoh x={298} y={184} s={0.44} facing="left" blinkDelay={0.9} />
         <Heart x={196} y={70} s={0.95} />
       </ThoughtBubble>

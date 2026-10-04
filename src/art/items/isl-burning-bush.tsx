@@ -4,6 +4,7 @@
 import { useId } from 'react'
 import type { Item } from './types'
 import { darken, groundShadow, ink, lighten, Shine, useShade } from './draw'
+import { Person, PEOPLE } from '../people'
 
 const uid = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '')
 
@@ -111,8 +112,19 @@ function BurningBush() {
   )
 }
 
+/** Aaron, Moses' big brother (PEOPLE.aaron: a short dark beard, a sky-blue head cloth and a purple robe), waving hello. */
+function Aaron() {
+  return (
+    <g>
+      <ellipse {...groundShadow(50, 94, 24)} />
+      <Person x={50} y={95} s={0.58} look={PEOPLE.aaron} pose="wave" blinkDelay={0.7} />
+    </g>
+  )
+}
+
 export const ISL_BURNING_BUSH: Item[] = [
   // (🩴 is a thong sandal: these are leather sandals with a loop for the big toe.)
   { id: 'moses-sandals', name: 'sandals', emoji: ['🩴'], Draw: Sandals },
   { id: 'burning-bush', name: 'the bush that did not burn up', emoji: [], Draw: BurningBush },
+  { id: 'aaron', name: 'Aaron, the brother of Moses', emoji: [], Draw: Aaron },
 ]
