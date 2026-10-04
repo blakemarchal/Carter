@@ -6,8 +6,8 @@
 import { useId } from 'react'
 import type { SpotKit, SpotTarget } from '../../activities/games/types'
 import { starPath, useShade } from '../kit'
-import { Scene } from '../scenes/kit'
-import { Abraham, Camel, NightDunes, Sarah, Tent } from '../scenes/abraham'
+import { Scene, Tent } from '../scenes/kit'
+import { Abraham, Camel, NightDunes, Sarah } from '../scenes/abraham'
 
 /** A soft band of faraway light across the sky (just a glow: nothing in it to count). */
 function MilkyWay() {

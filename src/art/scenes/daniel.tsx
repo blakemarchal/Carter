@@ -5,17 +5,16 @@
 //
 // Made here to share (they can move into people.tsx and kit.tsx later):
 //   People: DANIEL, DARIUS and OFFICIALS (the three jealous men), drawn with Daniel (his blue and gold robe),
-//     KingDarius (his cape and tall crown) and Official (each one's fancy hat); Kneel (anyone kneeling, seen
-//     from the front); Brows and BeardFrown (a grumpy or a sad face on any Person); ShutEyes.
-//   Animals: GentleLion (standing, walking, sitting, lying down or asleep) and Zs (over a sleeper).
+//     KingDarius (his cape and tall crown) and Official (each one's fancy hat). (Kneel, Brows, BeardFrown and
+//     ShutEyes, first made here, are in people.tsx now.)
+//   Animals: GentleLion (standing, walking, sitting, lying down or asleep), with the kit's Zs over a sleeper.
 //   Places: LionsDen (outside, with its round stone door), DenInside, ThroneRoom, KingsBedroom, PalaceFront
 //     and DanielsRoom (with the open window).
 import { useId, type CSSProperties, type ComponentType, type ReactNode } from 'react'
 import { CuteFace, darken, ink, lighten, Shine, useShade } from '../kit'
 import { fluff } from '../items/draw'
-import { Person, PEOPLE, SKIN, type Holding, type Look, type Pose } from '../people'
-import { Emoji, Glow, Moon, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
-import { ThoughtBubble } from './abraham'
+import { BeardFrown, Brows, Kneel, Person, PEOPLE, ShutEyes, SKIN, type Holding, type Look, type Pose } from '../people'
+import { Emoji, Glow, Moon, Scene, Sparkles, Sun, Tap, ThoughtBubble, Zs, sparkle } from './kit'
 import { usePlayer } from './player'
 
 const uid = (prefix: string, id: string) => `${prefix}${id.replace(/[^a-zA-Z0-9]/g, '')}`
@@ -38,23 +37,6 @@ export const OFFICIALS: Look[] = [
   { skin: SKIN.deep, hair: 'short', hairColor: '#3b2a20', beard: 'long', beardColor: '#4a3428', robe: '#8a4f7d', sash: '#5fb7ff' },
 ]
 
-/** In a Person's own units (give as its children): eyebrows for a grumpy face (low in the middle) or a sad one (raised in the middle). */
-export const Brows = ({ mood }: { mood: 'grumpy' | 'sad' }) => (
-  <path d={mood === 'grumpy' ? 'M-14 -123.5 L-4.5 -119.8 M14 -123.5 L4.5 -119.8' : 'M-13.5 -119.6 L-4.5 -123.2 M13.5 -119.6 L4.5 -123.2'}
-    stroke="#2b2140" strokeWidth={2.6} strokeLinecap="round" fill="none" />
-)
-
-/** In a Person's own units: a frown in place of a bearded Person's smile (the smile is covered with beard). */
-export const BeardFrown = ({ color }: { color: string }) => (
-  <g>
-    <ellipse cx={0} cy={-98.3} rx={6} ry={2.6} fill={color} />
-    <path d="M-3.6 -96.9 Q0 -99.7 3.6 -96.9" stroke="#d0707e" strokeWidth={2.2} fill="none" strokeLinecap="round" />
-  </g>
-)
-
-/** Put inside a scene: every Person or Pal in a `dn-shut` group has their eyes gently closed (praying, or asleep). */
-export const ShutEyes = () => <style>{'.dn-shut .pa-blink{animation:none!important;transform:scaleY(.14)!important;transform-box:fill-box;transform-origin:center}'}</style>
-
 /** Daniel's robe is blue and gold: a gold band near its hem, in Person's own units. */
 const DanielHem = () => <path d="M-33.2 -17.5 Q0 -8.8 33.2 -17.5" stroke={GOLD} strokeWidth={4.5} fill="none" />
 
@@ -67,40 +49,6 @@ export function Daniel({ x, y, s = 1, pose = 'stand', holding, facing = 'right',
       <DanielHem />
       {children}
     </Person>
-  )
-}
-
-/**
- * Someone kneeling, seen from the front: the Person from the knees up, their robe pooled on the floor, and the
- * soles of their feet peeking out behind. (x, y) = their knees on the floor. `hem`: a band of color on the robe.
- */
-export function Kneel({ x, y, s = 1, look, pose = 'pray', facing = 'right', blinkDelay = 0, hem, children }: {
-  x: number; y: number; s?: number; look: Look; pose?: Pose; facing?: 'left' | 'right'; blinkDelay?: number; hem?: string; children?: ReactNode
-}) {
-  const clip = uid('kn', useId())
-  const k = look.build === 'child' ? 0.74 : 1
-  const drop = 26 * k // (the shins, folded back out of sight)
-  const w = 33 * k // the robe's half-width at the knees
-  const back = facing === 'left' ? 1 : -1 // (the feet peek out on the side behind them)
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <defs><clipPath id={clip}><rect x={-140} y={-320} width={280} height={316} /></clipPath></defs>
-      {[0, 1].map((i) => {
-        const fx = back * (w + 2 - i * 8 * k), fy = (-7 - i * 3) * k
-        return (
-          <g key={i} transform={`rotate(${back * 28} ${fx} ${fy})`}>
-            <ellipse cx={fx} cy={fy} rx={8.5 * k} ry={5.2 * k} fill="#7a5233" stroke="#4a2f1c" strokeWidth={1.5} />
-            <ellipse cx={fx + back * 1.2 * k} cy={fy - 0.6 * k} rx={5.4 * k} ry={3 * k} fill="#c9946a" />
-          </g>
-        )
-      })}
-      <g clipPath={`url(#${clip})`}>
-        <Person x={0} y={drop} s={1} look={look} pose={pose} facing={facing} blinkDelay={blinkDelay}>{children}</Person>
-      </g>
-      <path d={`M${-w + 1} ${-10 * k} Q${-w - 6 * k} ${-2 * k} ${-w + 3} ${1.5 * k} Q0 ${6 * k} ${w - 3} ${1.5 * k} Q${w + 6 * k} ${-2 * k} ${w - 1} ${-10 * k} Q0 ${-5 * k} ${-w + 1} ${-10 * k} Z`}
-        fill={look.robe} stroke={ink(look.robe)} strokeWidth={2.5} strokeLinejoin="round" />
-      {hem && <path d={`M${-w + 3} ${-2 * k} Q0 ${3 * k} ${w - 3} ${-2 * k}`} stroke={hem} strokeWidth={4} fill="none" strokeLinecap="round" />}
-    </g>
   )
 }
 
@@ -334,21 +282,6 @@ export function GentleLion({ x, y, s = 1, facing = 'right', pose = 'stand', mane
         {body}
       </g>
       {zs && <Zs x={x + f * (hx + 4) * s} y={y + (hy - 34) * s} s={s} dir={f} />}
-    </g>
-  )
-}
-
-/** Three little Zs drifting up from a sleeper; (x, y) is the first, smallest one. They lean the way `dir` says (1 right, -1 left). */
-export function Zs({ x, y, s = 1, dir = 1, color = '#fffbe6', line = '#5b4f8a' }: { x: number; y: number; s?: number; dir?: number; color?: string; line?: string }) {
-  const z = (cx: number, cy: number, r: number) => `M${cx - r} ${cy - r} L${cx + r} ${cy - r} L${cx - r} ${cy + r} L${cx + r} ${cy + r}`
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      {[[0, 0, 4.5, 0], [dir * 12, -14, 6, 0.7], [dir * 26, -32, 7.5, 1.4]].map(([cx, cy, r, d], i) => (
-        <g key={i} className="sc-float" style={{ animationDelay: `${d}s`, animationDuration: '3.6s' }}>
-          <path d={z(cx, cy, r)} stroke={line} strokeWidth={5.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={z(cx, cy, r)} stroke={color} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        </g>
-      ))}
     </g>
   )
 }
@@ -989,7 +922,7 @@ const Page6 = () => (
 /**
  * What the king thinks of, awake all night (page 7): Daniel in the den, kneeling to pray in the moonlight,
  * with a lion fast asleep beside him. A little picture of the den in a thought bubble at (x, y), its puffs
- * trailing down to `tail` (Abraham's ThoughtBubble).
+ * trailing down to `tail` (the kit's ThoughtBubble).
  */
 function DenThought({ x, y, tail }: { x: number; y: number; tail: [number, number, number][] }) {
   const id = uid('dt', useId())

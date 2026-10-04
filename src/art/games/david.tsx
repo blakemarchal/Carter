@@ -6,9 +6,9 @@
 // little more, and from the third one the little lamb hops on the beat, higher and higher.
 import { useId } from 'react'
 import type { RhythmKit } from '../../activities/games/types'
-import { PEOPLE } from '../people'
-import { Glow, Scene, Sparkles } from '../scenes/kit'
-import { Lyre, MusicNote, Rock, SittingOnRock, WoolSheep } from '../scenes/david'
+import { PEOPLE, SittingOnRock } from '../people'
+import { Glow, MusicNote, Rock, Scene, Sparkles, WoolSheep } from '../scenes/kit'
+import { Lyre } from '../scenes/david'
 
 // The tune: "Old Hundredth" (Louis Bourgeois, 1551), the old psalm tune sung to Psalm 100 ("All people
 // that on earth do dwell") and to the Doxology: a song from the Psalms, like David's own. Its first

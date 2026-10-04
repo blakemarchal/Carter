@@ -1,8 +1,10 @@
 // Story illustration kit. A scene is an 800 x 450 svg: <Scene sky ground> plus props and people
 // (../people.tsx). Gentle motion is built in: clouds drift, waves roll, rain falls, stars twinkle,
 // boats rock, people blink and breathe. Animation classes live in styles.css under "Story scenes".
+// At the bottom, props first drawn for one island, for every island: Rock, WoolSheep and Birds; Tent,
+// CampTent, FarCamp, MudHouse and Mat; ThoughtBubble, Dream, Zs and MusicNote.
 import { useId, type CSSProperties, type ReactNode } from 'react'
-import { ink, lighten, useShade } from '../kit'
+import { darken, ink, lighten, useShade } from '../kit'
 import { itemById, itemForEmoji } from '../items'
 
 export type Sky = 'day' | 'dawn' | 'dusk' | 'night' | 'storm' | 'dark' | 'glory'
@@ -561,6 +563,358 @@ export function Cake({ x, y, s = 1, candles = 5 }: { x: number; y: number; s?: n
           </g>
         )
       })}
+    </g>
+  )
+}
+
+// ---------- Rocks, sheep and birds ----------
+
+/** How far the seat of a Rock is above the ground, in its own units. */
+const SEAT = 30
+
+/**
+ * A big smooth rock to sit on: a flat seat (SEAT·s up) in the middle, and a rounded bump at the back on
+ * the left. (x, y) = the ground under the middle of the seat. `night`: in the moonlight.
+ */
+export function Rock({ x, y, s = 1, night }: { x: number; y: number; s?: number; night?: boolean }) {
+  const color = night ? '#8d93ab' : '#c2b8a6'
+  const shade = useShade(color, 0.3, 0.2)
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>{shade.def}</defs>
+      <ellipse cx={-6} cy={0} rx={80} ry={6} fill="#000" opacity={0.14} />
+      <path d={`M-78 0 Q-86 -30 -68 -50 Q-52 -66 -36 -56 Q-28 -50 -26 ${-SEAT - 2} Q0 ${-SEAT - 4} 34 ${-SEAT - 1} Q58 ${-SEAT + 1} 64 -14 Q68 -4 62 0 Z`}
+        fill={shade.fill} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
+      <path d="M-66 -40 Q-58 -54 -46 -54" stroke="#fff" strokeWidth={3.5} opacity={0.35} fill="none" strokeLinecap="round" />
+      <path d="M40 -20 l7 6 l-2 9" stroke={ink(color)} strokeWidth={1.8} fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={0.55} />
+      <path d="M-58 -16 l8 4" stroke={ink(color)} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.45} />
+    </g>
+  )
+}
+
+// The kit's sheep (Sheep, above) in more poses, with the same wool, face and colors.
+const WOOL: [number, number][] = [[-24, -40], [-6, -48], [12, -44], [24, -34], [-26, -26], [0, -28], [20, -24]]
+const SHEEP_FACE = '#4a3a3a', SHEEP_EAR = '#3d2f31'
+/** Where the ear [x, y, turn], the point it turns about, the face [x, y, rx, ry, turn] and the eye are, for each way of holding the head. */
+const SHEEP_HEADS = {
+  up: { ear: [30, -51, -35], hinge: [35, -48], face: [40, -40, 13, 11, 0], eye: [45, -43] },
+  down: { ear: [30, -25, 15], hinge: [37, -23], face: [45, -14, 11, 12.5, -25], eye: [48.5, -18] },
+  rest: { ear: [28, -23, 20], hinge: [33, -21], face: [40, -12, 12.5, 10, 8], eye: [44, -14] },
+} as const
+
+/**
+ * A sheep side-on, facing right (or `facing="left"`), drawn like the kit's Sheep. (x, y) = the ground
+ * under it. `head`: "up" (as the kit's), "down" (eating grass or drinking), or "rest" (lying down, its
+ * legs tucked under it). `sleepy`: eyes shut (always, when resting). For music: `ear` turns the ear
+ * (degrees; more is perkier), and `tail` shows a little woolly tail at the back, turned `wag` degrees.
+ */
+export function WoolSheep({ x, y, s = 1, facing = 'right', head = 'up', sleepy, ear = 0, tail, wag = 0 }: {
+  x: number; y: number; s?: number; facing?: 'left' | 'right'; head?: 'up' | 'down' | 'rest'; sleepy?: boolean
+  ear?: number; tail?: boolean; wag?: number
+}) {
+  const H = SHEEP_HEADS[head]
+  const rest = head === 'rest'
+  const dy = rest ? 11 : 0 // lying down: the wool sits on the ground
+  const shut = sleepy || rest
+  return (
+    <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -s : s} ${s})`}>
+      {rest ? (
+        // a front hoof peeking out from under the wool
+        <rect x={20} y={-7} width={13} height={7} rx={3.5} fill={SHEEP_FACE} />
+      ) : (
+        <>
+          {[-14, 24].map((lx) => <rect key={lx} x={lx} y={-24} width={7} height={23} rx={3.5} fill="#2f2528" />)}
+          {[-24, 14].map((lx) => <rect key={lx} x={lx} y={-22} width={8} height={22} rx={4} fill={SHEEP_FACE} />)}
+        </>
+      )}
+      <g className="sc-breathe">
+        {tail && (
+          <g transform={`rotate(${wag} -36 ${-36 + dy})`}>
+            <circle cx={-43} cy={-38 + dy} r={6.5} fill="#fffaf2" stroke="#d8cfc2" strokeWidth={2.5} />
+          </g>
+        )}
+        <g fill="#fffaf2" stroke="#d8cfc2" strokeWidth={2.5}>
+          {WOOL.map(([cx, cy], i) => <circle key={i} cx={cx} cy={cy + dy} r={15} />)}
+        </g>
+        <g transform={`rotate(${ear} ${H.hinge[0]} ${H.hinge[1]})`}>
+          <ellipse cx={H.ear[0]} cy={H.ear[1]} rx={8} ry={3.8} fill={SHEEP_EAR} transform={`rotate(${H.ear[2]} ${H.ear[0]} ${H.ear[1]})`} />
+        </g>
+        <ellipse cx={H.face[0]} cy={H.face[1]} rx={H.face[2]} ry={H.face[3]} fill={SHEEP_FACE} transform={`rotate(${H.face[4]} ${H.face[0]} ${H.face[1]})`} />
+        {shut ? (
+          <path d={`M${H.eye[0] - 3.4} ${H.eye[1] - 0.6} q3.4 2.8 6.8 0`} stroke="#fff" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+        ) : (
+          <>
+            <circle cx={H.eye[0]} cy={H.eye[1]} r={2.8} fill="#fff" />
+            <circle cx={H.eye[0] + 0.8} cy={H.eye[1]} r={1.4} fill="#2b2140" />
+          </>
+        )}
+      </g>
+    </g>
+  )
+}
+
+/** Little birds flying far away over the river: [x, y, size] each. */
+export const Birds = ({ spots }: { spots: [number, number, number][] }) => (
+  <g className="sc-float">
+    {spots.map(([x, y, k], i) => (
+      <path key={i} d={`M${x - 11 * k} ${y - 3 * k} Q${x - 5 * k} ${y - 8 * k} ${x} ${y} Q${x + 5 * k} ${y - 8 * k} ${x + 11 * k} ${y - 3 * k}`} stroke="#5a6478" strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    ))}
+  </g>
+)
+
+// ---------- Tents, homes and a sleeping mat ----------
+
+/** Abraham's tent cloth (woven goat hair) and its stripes (his camel carries the tent rolled up: scenes/abraham.tsx). */
+export const CLOTH = '#7d5a45', STRIPE = '#ead3a5'
+
+/**
+ * Abraham's tent: a wide, low tent of woven goat hair with cream stripes, held up by poles and pegged out
+ * with ropes. Its front is open, with the door flaps tied back: dark inside, or warm with lamplight at
+ * night (`lit`). (x, y) = the middle of its front on the ground; at s = 1 it's about 400 wide (with its
+ * ropes) and 220 tall, and its doorway fits a grown-up. `children` stand in the doorway, in front of the
+ * back wall and behind the door flaps.
+ */
+export function Tent({ x, y, s = 1, lit, children }: { x: number; y: number; s?: number; lit?: boolean; children?: ReactNode }) {
+  const cloth = useShade(CLOTH, 0.22, 0.2)
+  const line = ink(CLOTH)
+  const glow = `tg${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>
+        {cloth.def}
+        <radialGradient id={glow} cx="50%" cy="60%" r="65%">
+          <stop offset="0" stopColor="#fff1c0" /><stop offset="0.6" stopColor="#ffc95e" /><stop offset="1" stopColor="#c9822e" />
+        </radialGradient>
+      </defs>
+      <ellipse cx={0} cy={-2} rx={190} ry={10} fill="#000" opacity={0.1} />
+      {/* ropes out to the pegs */}
+      {[-1, 1].map((d) => (
+        <g key={d} stroke="#9a7a55" strokeWidth={2.2} strokeLinecap="round">
+          <path d={`M${d * 168} -138 L${d * 214} 0 M${d * 120} -176 L${d * 196} 0`} fill="none" />
+          <path d={`M${d * 214} 2 L${d * 210} -14 M${d * 196} 2 L${d * 192} -14`} stroke="#6b4422" strokeWidth={4} />
+        </g>
+      ))}
+      {/* inside: the back wall (dark by day, lamplit at night), a rug, and the middle pole */}
+      <rect x={-134} y={-172} width={268} height={172} fill={lit ? `url(#${glow})` : '#46302a'} />
+      {!lit && <path d="M-134 -172 L134 -172 L134 -150 Q0 -140 -134 -150 Z" fill="#33221c" />}
+      <rect x={-118} y={-18} width={236} height={18} fill="#b5553f" />
+      <path d={`M-114 -9 ${Array.from({ length: 12 }, () => 'l9.8 -5 l9.8 5').join(' ')}`} stroke="#f0d38a" strokeWidth={2.2} fill="none" />
+      <rect x={-5} y={-206} width={10} height={190} rx={3} fill={lit ? '#9a6a3a' : '#6b4a2e'} />
+      {lit && (
+        <g>
+          <path d="M0 -150 L0 -130" stroke="#5a3a20" strokeWidth={2} />
+          <Glow x={0} y={-118} r={60} color="#fff3c0" />
+          <path d="M-9 -130 L9 -130 L6 -112 L-6 -112 Z" fill="#c98448" stroke="#8a5428" strokeWidth={2} />
+          <path d="M0 -127 Q-5 -118 0 -114 Q5 -118 0 -127 Z" fill="#fff7c9" />
+        </g>
+      )}
+      {children}
+      {/* the door flaps, tied back, and the side walls */}
+      {[-1, 1].map((d) => (
+        <g key={d} transform={`scale(${d} 1)`}>
+          <path d="M-182 -132 L-136 -172 Q-122 -120 -104 -86 Q-118 -48 -128 0 L-188 0 Z" fill={cloth.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
+          <path d="M-134 -164 Q-121 -118 -108 -88 Q-120 -50 -130 -4" stroke={STRIPE} strokeWidth={5} fill="none" />
+          <path d="M-170 -128 L-176 -2" stroke={darken(CLOTH, 0.15)} strokeWidth={2} />
+          <path d="M-112 -92 q-6 2 -6 8 q6 1 8 -4" stroke="#c0504d" strokeWidth={3} fill="none" strokeLinecap="round" />
+        </g>
+      ))}
+      {/* the roof, high in the middle and sagging between the poles, with woven stripes */}
+      <path d="M-196 -128 L-150 -178 Q-96 -168 -60 -192 Q0 -226 60 -192 Q96 -168 150 -178 L196 -128 Q148 -142 100 -138 Q50 -160 0 -156 Q-50 -160 -100 -138 Q-148 -142 -196 -128 Z"
+        fill={cloth.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
+      <path d="M-178 -142 Q-144 -152 -104 -150 Q-52 -170 0 -168 Q52 -170 104 -150 Q144 -152 178 -142" stroke={STRIPE} strokeWidth={6} fill="none" strokeLinecap="round" />
+      <path d="M-160 -164 Q-120 -164 -82 -168 Q-40 -192 0 -194 Q40 -192 82 -168 Q120 -164 160 -164" stroke={STRIPE} strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.85} />
+      <path d="M-168 -153 Q-130 -158 -94 -159 Q-46 -181 0 -181 Q46 -181 94 -159 Q130 -158 168 -153" stroke="#c0504d" strokeWidth={2.5} fill="none" strokeLinecap="round" opacity={0.8} />
+      {/* the tops of the poles */}
+      {[-150, 0, 150].map((px) => <circle key={px} cx={px} cy={px ? -178 : -210} r={4} fill="#6b4422" />)}
+    </g>
+  )
+}
+
+/** The tents' woven cloth: [cloth, stripe]. The family's own tent is the terracotta one. */
+export const FAMILY_TENT = ['#c2603f', '#f5ddb0'] as const
+export const TENT_CLOTHS: [string, string][] = [['#8a6248', '#ecd6ab'], ['#a9876a', '#f3e5c8'], ['#6f5446', '#dcc39c'], ['#c08a5a', '#f6e6c6'], ['#9a6b52', '#ead6b0'], ['#7d7f5e', '#e8e0c0']]
+
+/**
+ * A tent in God's people's camp: woven cloth with stripes, high in the middle and sagging between its
+ * poles, its front open with the door flaps tied back, pegged out with ropes. (x, y) = the middle of its
+ * front on the ground; at s = 1 it's about 300 wide (with its ropes) and 160 tall, and its doorway (about
+ * 140 wide at the bottom, 100 tall) fits someone at about s = 0.6. `children` stand in the doorway, in front
+ * of the dark back wall and behind the door flaps.
+ */
+export function CampTent({ x, y, s = 1, cloth = FAMILY_TENT[0], stripe = FAMILY_TENT[1], children }: {
+  x: number; y: number; s?: number; cloth?: string; stripe?: string; children?: ReactNode
+}) {
+  const shade = useShade(cloth, 0.22, 0.2)
+  const line = ink(cloth)
+  const roof = 'M-146 -82 L-110 -122 Q-66 -114 -40 -134 Q0 -158 40 -134 Q66 -114 110 -122 L146 -82 Q104 -92 64 -90 Q32 -106 0 -104 Q-32 -106 -64 -90 Q-104 -92 -146 -82 Z'
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <defs>{shade.def}</defs>
+      <ellipse cx={0} cy={-1} rx={150} ry={8} fill="#000" opacity={0.1} />
+      {/* ropes out to the pegs */}
+      {[-1, 1].map((d) => (
+        <g key={d} strokeLinecap="round">
+          <path d={`M${d * 132} -86 L${d * 156} 0 M${d * 96} -118 L${d * 144} 0`} stroke="#9a7a55" strokeWidth={2} fill="none" />
+          <path d={`M${d * 156} 1 L${d * 153} -9 M${d * 144} 1 L${d * 141} -9`} stroke="#6b4422" strokeWidth={3.5} />
+        </g>
+      ))}
+      {/* inside: the dark back wall, a rug, and the middle pole */}
+      <rect x={-96} y={-120} width={192} height={120} fill="#4a3329" />
+      <path d="M-96 -120 L96 -120 L96 -100 Q0 -92 -96 -100 Z" fill="#3a271f" />
+      <rect x={-84} y={-13} width={168} height={13} fill="#b5553f" />
+      <path d={`M-80 -6.5 ${Array.from({ length: 14 }, () => 'l5.7 -4 l5.7 4').join(' ')}`} stroke="#f0d38a" strokeWidth={2} fill="none" />
+      <rect x={-4} y={-150} width={8} height={138} rx={3} fill="#6b4a2e" />
+      {children}
+      {/* the side walls, their door flaps tied back */}
+      {[-1, 1].map((d) => (
+        <g key={d} transform={`scale(${d} 1)`}>
+          <path d="M-136 -84 L-100 -120 Q-88 -84 -72 -58 Q-82 -28 -88 0 L-140 0 Z" fill={shade.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
+          <path d="M-98 -110 Q-87 -82 -75 -60 Q-84 -30 -90 -4" stroke={stripe} strokeWidth={4.5} fill="none" />
+          <path d="M-126 -84 L-130 -3" stroke={darken(cloth, 0.15)} strokeWidth={2} />
+          <path d="M-76 -62 q-7 2 -6 9 q6 0 8 -6" stroke="#c0504d" strokeWidth={2.6} fill="none" strokeLinecap="round" />
+        </g>
+      ))}
+      {/* the roof, high in the middle and sagging between the poles, with woven stripes */}
+      <path d={roof} fill={shade.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
+      <path d="M-130 -94 Q-94 -102 -58 -101 Q-28 -118 0 -118 Q28 -118 58 -101 Q94 -102 130 -94" stroke={stripe} strokeWidth={5} fill="none" strokeLinecap="round" />
+      <path d="M-118 -112 Q-84 -110 -52 -118 Q-24 -138 0 -140 Q24 -138 52 -118 Q84 -110 118 -112" stroke={stripe} strokeWidth={3.5} fill="none" strokeLinecap="round" opacity={0.85} />
+      {[-110, 0, 110].map((px) => <circle key={px} cx={px} cy={px ? -122 : -156} r={4} fill="#6b4422" />)}
+    </g>
+  )
+}
+
+/** The rest of the camp far away: little tents along the horizon at y, `s` big, in turn colors. */
+export function FarCamp({ y, s = 0.3, xs, shift = 0 }: { y: number; s?: number; xs: number[]; shift?: number }) {
+  return (
+    <g>
+      {xs.map((x, i) => {
+        const [cloth, stripe] = TENT_CLOTHS[(i + shift) % TENT_CLOTHS.length]
+        return <CampTent key={x} x={x} y={y + (i % 2) * 4 * s} s={s * (i % 3 === 1 ? 0.9 : 1)} cloth={cloth} stripe={stripe} />
+      })}
+    </g>
+  )
+}
+
+/** A little mud-brick house: flat-roofed, with the ends of its roof poles showing, a dark doorway and a small window. (x, y): the middle of its foot. `door`, `win`: where they are, as a part of its width from the middle. */
+export function MudHouse({ x, y, w = 110, h = 72, door = -0.2, win = 0.25 }: { x: number; y: number; w?: number; h?: number; door?: number; win?: number | null }) {
+  const line = '#a8804a'
+  const dx = door * w, wx = (win ?? 0) * w
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect x={-w / 2} y={-h} width={w} height={h} fill="#dcb880" stroke={line} strokeWidth={2.5} />
+      <path d={`M${-w / 2 + 2} ${-h * 0.35} L${w / 2 - 2} ${-h * 0.35}`} stroke="#cfa86c" strokeWidth={3} opacity={0.6} />
+      {[[-0.3, 0.3], [0.18, 0.55], [-0.12, 0.8], [0.33, 0.18]].map(([bx, by], i) => (
+        <path key={i} d={`M${bx * w - 8} ${-h * by} l16 0 M${bx * w - 2} ${-h * by + 6} l14 0`} stroke="#c39a62" strokeWidth={1.5} strokeLinecap="round" />
+      ))}
+      <rect x={-w / 2 - 4} y={-h - 8} width={w + 8} height={10} rx={2} fill="#c99e66" stroke={line} strokeWidth={2.2} />
+      {Array.from({ length: Math.floor(w / 16) }, (_, i) => <circle key={i} cx={-w / 2 + 9 + i * 16} cy={-h + 7} r={2.6} fill="#8a6040" />)}
+      <path d={`M${dx - 12} 0 L${dx - 12} -32 Q${dx} -43 ${dx + 12} -32 L${dx + 12} 0 Z`} fill="#5a3a24" stroke={line} strokeWidth={2} />
+      {win !== null && <rect x={wx - 8} y={-h + 18} width={16} height={13} rx={2} fill="#5a3a24" stroke={line} strokeWidth={2} />}
+    </g>
+  )
+}
+
+/** A woven sleeping mat, its fringe at the ends. (x, y): its middle; about 210 long at s = 1. */
+export function Mat({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M-100 -8 Q-101 -14 -93 -14 L93 -14 Q101 -14 100 -8 L96 6 Q94 10 87 10 L-87 10 Q-94 10 -96 6 Z" fill="#dcbf86" stroke="#a8803e" strokeWidth={2.5} strokeLinejoin="round" />
+      <path d="M-92 -5 L92 -5 M-94 3 L94 3" stroke="#c49a52" strokeWidth={2} />
+      <path d="M-100 -8 l-7 3 M-98 0 l-8 2 M-96 7 l-7 3 M100 -8 l7 3 M98 0 l8 2 M96 7 l7 3" stroke="#a8803e" strokeWidth={2} strokeLinecap="round" />
+    </g>
+  )
+}
+
+// ---------- Thoughts, dreams, sleep and music ----------
+
+/**
+ * A thought bubble: a puffy cloud at (x, y), w wide and h tall, with little round puffs (`tail`: x, y,
+ * r) leading down to whoever is thinking. `children` are drawn inside it (what they wish for, or worry about).
+ */
+export function ThoughtBubble({ x, y, w, h, tail, children }: { x: number; y: number; w: number; h: number; tail: [number, number, number][]; children?: ReactNode }) {
+  const puffs = Array.from({ length: 10 }, (_, i) => {
+    const a = (i / 10) * Math.PI * 2
+    return [x + Math.cos(a) * w * 0.42, y + Math.sin(a) * h * 0.38, Math.min(w, h) * 0.24]
+  })
+  const line = '#c9b8d8'
+  return (
+    <g className="sc-float">
+      {tail.map(([tx, ty, r], i) => <circle key={i} cx={tx} cy={ty} r={r} fill="#fff" stroke={line} strokeWidth={2.5} />)}
+      {puffs.map(([px, py, r], i) => <circle key={i} cx={px} cy={py} r={r + 2.5} fill={line} />)}
+      <ellipse cx={x} cy={y} rx={w * 0.5 + 2.5} ry={h * 0.44 + 2.5} fill={line} />
+      {puffs.map(([px, py, r], i) => <circle key={`w${i}`} cx={px} cy={py} r={r} fill="#fff" />)}
+      <ellipse cx={x} cy={y} rx={w * 0.5} ry={h * 0.44} fill="#fff" />
+      {children}
+    </g>
+  )
+}
+
+type Pt = [number, number]
+const uidOf = (id: string) => id.replace(/[^a-zA-Z0-9]/g, '')
+
+/**
+ * A dream: a soft white cloud of a bubble, with little puffs trailing down to the dreamer's head, and the
+ * dream drawn inside it (`children`, in scene units, clipped to the bubble). (x, y, w, h): its box (its
+ * bumps reach about 20 beyond it); `from`: the dreamer's head; `to`: where the puffs meet the bubble (its
+ * bottom left, unless said); `sky`: the dream's background.
+ */
+export function Dream({ x, y, w, h, from, to, sky = '#fff7d6', children }: { x: number; y: number; w: number; h: number; from: Pt; to?: Pt; sky?: string; children: ReactNode }) {
+  const uid = uidOf(useId())
+  // A scalloped cloud: bumps all round the box.
+  const pts: Pt[] = []
+  const n = Math.max(2, Math.round(w / 70)), m = Math.max(2, Math.round(h / 70))
+  for (let i = 0; i < n; i++) pts.push([x + (w * i) / n, y])
+  for (let i = 0; i < m; i++) pts.push([x + w, y + (h * i) / m])
+  for (let i = n; i > 0; i--) pts.push([x + (w * i) / n, y + h])
+  for (let i = m; i > 0; i--) pts.push([x, y + (h * i) / m])
+  const d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)} ` + pts.map((p, i) => {
+    const q = pts[(i + 1) % pts.length]
+    const r = (Math.hypot(q[0] - p[0], q[1] - p[1]) * 0.6).toFixed(1)
+    return `A${r} ${r} 0 0 1 ${q[0].toFixed(1)} ${q[1].toFixed(1)}`
+  }).join(' ') + ' Z'
+  const [fx, fy] = from
+  const near: Pt = to ?? [x + Math.min(w * 0.12, 60), y + h + 6]
+  return (
+    <g>
+      {[0.2, 0.48, 0.76].map((t, i) => (
+        <circle key={t} cx={fx + (near[0] - fx) * t} cy={fy + (near[1] - fy) * t} r={5 + i * 4} fill="#fff" stroke="#c9b8e8" strokeWidth={2.5} />
+      ))}
+      <defs><clipPath id={`dr${uid}`}><path d={d} /></clipPath></defs>
+      <path d={d} fill="#fff" stroke="#c9b8e8" strokeWidth={8} strokeLinejoin="round" />
+      <g clipPath={`url(#dr${uid})`}>
+        <rect x={x - 40} y={y - 40} width={w + 80} height={h + 80} fill={sky} />
+        {children}
+      </g>
+      <path d={d} fill="none" stroke="#fff" strokeWidth={3} strokeLinejoin="round" />
+    </g>
+  )
+}
+
+/** Three little Zs drifting up from a sleeper; (x, y) is the first, smallest one. They lean the way `dir` says (1 right, -1 left). */
+export function Zs({ x, y, s = 1, dir = 1, color = '#fffbe6', line = '#5b4f8a' }: { x: number; y: number; s?: number; dir?: number; color?: string; line?: string }) {
+  const z = (cx: number, cy: number, r: number) => `M${cx - r} ${cy - r} L${cx + r} ${cy - r} L${cx - r} ${cy + r} L${cx + r} ${cy + r}`
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      {[[0, 0, 4.5, 0], [dir * 12, -14, 6, 0.7], [dir * 26, -32, 7.5, 1.4]].map(([cx, cy, r, d], i) => (
+        <g key={i} className="sc-float" style={{ animationDelay: `${d}s`, animationDuration: '3.6s' }}>
+          <path d={z(cx, cy, r)} stroke={line} strokeWidth={5.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={z(cx, cy, r)} stroke={color} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+/** A little music note (or two joined notes, `double`), with an outline so it shows on any sky. (x, y) = its middle. */
+export function MusicNote({ x, y, s = 1, color = '#ffe680', double }: { x: number; y: number; s?: number; color?: string; double?: boolean }) {
+  const line = darken(color, 0.45)
+  const stem = double ? 'M-5 10 L-5 -14 L15 -19 L15 5' : 'M3 10 L3 -16 Q12 -12 13 -3'
+  const heads: [number, number][] = double ? [[-10, 11], [10, 6]] : [[-2, 11]]
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d={stem} fill="none" stroke={line} strokeWidth={6.5} strokeLinejoin="round" strokeLinecap="round" />
+      <path d={stem} fill="none" stroke={color} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
+      {heads.map(([hx, hy]) => <ellipse key={hx} cx={hx} cy={hy} rx={6.6} ry={5} transform={`rotate(-20 ${hx} ${hy})`} fill={color} stroke={line} strokeWidth={2} />)}
     </g>
   )
 }

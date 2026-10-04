@@ -4,7 +4,8 @@
 //           <Pharaoh>, which adds his headdress and collar), HEBREWS (God's people: a family, grandma and
 //           grandpa, and more for crowds), Folk (a little person in a crowd far away);
 //   props:  WaterWall, SeaPath, PillarOfCloud, PillarOfFire, FarChariots, Tambourine, Goat, Lamb, Pyramid,
-//           SeaFish, Staff, and Egypt's bricks, columns and throne; backgrounds: Desert, Beach, CalmSea.
+//           SeaFish, Staff, TravelBundle, and Egypt's bricks, columns and throne; backgrounds: Desert, Beach,
+//           CalmSea.
 // God is never drawn as a person: His presence is light (the glow, the pillar of cloud, the pillar of fire).
 import { useId, type ComponentProps, type ReactNode } from 'react'
 import { darken, ink, lighten } from '../kit'
@@ -122,6 +123,17 @@ export const StaffInLeftHand = () => (
   <g>
     <Staff x1={-30} y1={-2} x2={-28} y2={-150} />
     <Grip x={-30} y={-46} skin={MOSES.skin} />
+  </g>
+)
+
+/** A cloth bundle for a long trip, hanging from the left hand (in the Person's own units: the hand is at (-30, -46)). */
+export const TravelBundle = ({ skin = MOSES.skin }: { skin?: string }) => (
+  <g strokeLinejoin="round">
+    <path d="M-30 -44 Q-46 -38 -47 -22 Q-46 -6 -31 -5 Q-15 -6 -14 -22 Q-15 -38 -30 -44 Z" fill="#eadbb8" stroke="#a88a5a" strokeWidth={2.2} />
+    <path d="M-45 -25 Q-31 -19 -16 -25" stroke="#c0504d" strokeWidth={2.8} fill="none" />
+    <path d="M-45 -19 Q-31 -13 -17 -19" stroke="#3f7fd0" strokeWidth={1.6} fill="none" />
+    <path d="M-36 -49 L-30 -42 L-24 -49" stroke="#a88a5a" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+    <Grip x={-30} y={-46} skin={skin} />
   </g>
 )
 

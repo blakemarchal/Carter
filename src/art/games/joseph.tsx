@@ -6,8 +6,9 @@
 // at the cuff. When every stripe is painted, Joseph beams and the coat sparkles.
 import { useId } from 'react'
 import type { At, PaintKit } from '../../activities/games/types'
+import { Head } from '../people'
 import { Glow, Scene, Sheep, Sparkles } from '../scenes/kit'
-import { COAT_COLORS, Head, JOSEPH_PEOPLE, Tent } from '../scenes/joseph'
+import { COAT_COLORS, JOSEPH_PEOPLE, Tent } from '../scenes/joseph'
 
 const INK = '#5a3a24'
 const SKIN = JOSEPH_PEOPLE.josephCoat.skin

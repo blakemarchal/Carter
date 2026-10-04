@@ -18,9 +18,8 @@ import { memo, useId, type ReactNode } from 'react'
 import { ink, lighten } from '../kit'
 import { Person, SKIN, type Look, type Pose } from '../people'
 import { GoldenBoxShape, RamsHorn } from '../items/isl-jericho'
-import { Glow, Palm, Rays, Scene, Sparkles, Tap } from './kit'
+import { CampTent, FarCamp, Glow, Palm, Rays, Scene, Sparkles, Tap } from './kit'
 import { Folk, Goat, Grip, HEBREWS, Heart, Notes, SilverHair } from './moses'
-import { CampTent, FarCamp } from './manna'
 
 const f1 = (n: number) => n.toFixed(1)
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v))

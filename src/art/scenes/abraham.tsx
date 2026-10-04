@@ -1,14 +1,15 @@
 // Abraham's Stars: one picture per story page, both parts in order (see data/abraham.ts for the words).
 // Built from the kit (./kit.tsx) and people (../people.tsx). God is never drawn as a person: His
 // presence is light. New here, for any island to reuse: the people (ABRAHAM, SARAH, VISITORS), a camel
-// (Camel: standing, packed for a trip, resting, or a baby), a nomad's tent (Tent), someone sitting on the
-// ground (Sitting), a laughing face (Laughing + LaughFace), someone gazing up (LookingUp + EyesUp), a big oak
-// (Oak), a thought bubble (ThoughtBubble), and a sky full of stars.
+// (Camel: standing, packed for a trip, resting, or a baby), a big oak (Oak), and a sky full of stars. First
+// made here and shared now: a nomad's tent (Tent) and a thought bubble (ThoughtBubble), in kit.tsx; someone
+// sitting on the ground (Sitting), a laughing face (Laughing + LaughFace), someone gazing up (LookingUp +
+// EyesUp) and SilverHair, in people.tsx.
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, Shine, starPath, useShade } from '../kit'
 import { fluff } from '../items/draw'
-import { Baby, Person, SKIN, type Holding, type Look, type Pose } from '../people'
-import { Bread, Flower, Glow, Palm, Rays, Scene, Sheep, Sparkles, Sun, Tap, sparkle } from './kit'
+import { Baby, EyesUp, LaughFace, Laughing, LookingUp, Person, SilverHair, Sitting, SKIN, type Holding, type Look, type Pose } from '../people'
+import { Bread, CLOTH, Flower, Glow, Palm, Rays, Scene, Sheep, Sparkles, STRIPE, Sun, Tap, Tent, ThoughtBubble, sparkle } from './kit'
 import { usePlayer } from './player'
 
 // ---------- The people ----------
@@ -27,14 +28,6 @@ export const VISITORS: Look[] = [
 export const ISAAC_BLANKET = '#dff0ff'
 
 type Who = { x: number; y: number; s?: number; pose?: Pose; holding?: Holding; facing?: 'left' | 'right'; blinkDelay?: number; children?: ReactNode }
-
-/** Silver hair peeking out from under a head covering (in a Person's own units): she's old. */
-export const SilverHair = ({ color = '#e9e5de' }: { color?: string }) => (
-  <g>
-    <path d="M-24 -112.5 Q-14 -128 0 -127 Q14 -128 24 -112.5 Q14 -122 0 -121 Q-14 -122 -24 -112.5 Z" fill={color} stroke={darken(color, 0.22)} strokeWidth={1.2} strokeLinejoin="round" />
-    <path d="M-15 -121 Q-12 -118 -9 -120.5 M9 -120.5 Q12 -118 15 -121" stroke={darken(color, 0.22)} strokeWidth={1} fill="none" strokeLinecap="round" />
-  </g>
-)
 
 /** Abraham, with his staff when his hand is free (`holding={null}`: empty hands). */
 export function Abraham({ holding, ...p }: Omit<Who, 'holding'> & { holding?: Holding | null }) {
@@ -73,39 +66,6 @@ export function Isaac({ x = 0, y = -62, s = 0.8, awake }: { x?: number; y?: numb
   )
 }
 
-// A laughing face: eyes squeezed shut (the open eyes are hidden: they're the blinking group) and a
-// wide-open laugh, drawn over a Person's face, in their own units. Wrap the Person in <Laughing>.
-const LAUGH_CSS = '.ab-laugh .pa-blink{display:none}'
-export function Laughing({ children }: { children: ReactNode }) {
-  return <g className="ab-laugh"><style>{LAUGH_CSS}</style>{children}</g>
-}
-export const LaughFace = ({ beard }: { beard?: boolean }) => (
-  <g fill="none" stroke="#2b2140" strokeWidth={2.4} strokeLinecap="round">
-    <path d="M-12.5 -113 Q-8 -119 -3.5 -113 M3.5 -113 Q8 -119 12.5 -113" />
-    {beard
-      ? <path d="M-5.5 -100.5 Q0 -91 5.5 -100.5 Q0 -98.5 -5.5 -100.5 Z" fill="#8a2f45" strokeWidth={1.8} strokeLinejoin="round" />
-      : <path d="M-7 -107 Q0 -95 7 -107 Q0 -105 -7 -107 Z" fill="#8a2f45" strokeWidth={1.8} strokeLinejoin="round" />}
-  </g>
-)
-
-// Gazing up at the sky with one hand raised toward it: the eyes turned up (the open eyes are hidden: they're
-// the blinking group), and the raised hand held still rather than waving. Give the Person pose "wave" and
-// <EyesUp /> as a child, and wrap it in <LookingUp>.
-const UP_CSS = '.ab-up .pa-blink{display:none}.ab-up .pa-wing{animation:none!important}'
-export function LookingUp({ children }: { children: ReactNode }) {
-  return <g className="ab-up"><style>{UP_CSS}</style>{children}</g>
-}
-export const EyesUp = () => (
-  <g>
-    {[-8, 8].map((ex) => (
-      <g key={ex}>
-        <ellipse cx={ex} cy={-116.8} rx={3.2} ry={4.2} fill="#2b2140" />
-        <circle cx={ex - 0.6} cy={-119.6} r={1.3} fill="#fff" />
-      </g>
-    ))}
-  </g>
-)
-
 /** Little bursts of happy lines on both sides of a laughing face. (x, y) = the middle of the face. */
 function LaughMarks({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   const lines = 'M36 -10 L50 -17 M38 2 L53 2 M36 14 L50 21'
@@ -119,28 +79,6 @@ function LaughMarks({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
           </g>
         ))}
       </g>
-    </g>
-  )
-}
-
-/**
- * Someone sitting cross-legged on the ground, facing us: the Person from the waist up, on a lap of
- * crossed legs. (x, y) = the ground under them. Pose "hold" rests their hands (and what they hold) in their lap.
- */
-export function Sitting({ x, y, s = 1, look, pose = 'hold', holding, facing, blinkDelay = 0, children }: Who & { look: Look }) {
-  const clip = `ab${useId().replace(/[^a-zA-Z0-9]/g, '')}`
-  const robe = useShade(look.robe, 0.3, 0.2)
-  // (the Person sits 22 lower, so their waist is just above the lap and their hands rest on it)
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <defs>{robe.def}<clipPath id={clip}><rect x={-120} y={-260} width={240} height={244} /></clipPath></defs>
-      <ellipse cx={0} cy={-2} rx={50} ry={6} fill="#000" opacity={0.12} />
-      {/* crossed legs under the robe: knees out to the sides, toes peeking out under them */}
-      <ellipse cx={-30} cy={-5} rx={8} ry={4.5} fill="#7a5233" />
-      <ellipse cx={30} cy={-5} rx={8} ry={4.5} fill="#7a5233" />
-      <path d="M-48 -9 Q-52 -27 -30 -29 Q0 -32 30 -29 Q52 -27 48 -9 Q40 -2 26 -6 Q0 -2 -26 -6 Q-40 -2 -48 -9 Z" fill={robe.fill} stroke={ink(look.robe)} strokeWidth={3} strokeLinejoin="round" />
-      <path d="M-34 -12 Q-14 -22 6 -16" stroke={ink(look.robe)} strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.55} />
-      <g clipPath={`url(#${clip})`}><Person x={0} y={22} look={look} pose={pose} holding={holding} facing={facing} blinkDelay={blinkDelay}>{children}</Person></g>
     </g>
   )
 }
@@ -257,73 +195,6 @@ export function Camel({ x, y, s = 1, facing = 'right', pack, resting, baby, blin
           {folded(70, 1, coat.fill)}
         </g>
       )}
-    </g>
-  )
-}
-
-// ---------- The tent ----------
-
-const CLOTH = '#7d5a45', STRIPE = '#ead3a5'
-
-/**
- * Abraham's tent: a wide, low tent of woven goat hair with cream stripes, held up by poles and pegged out
- * with ropes. Its front is open, with the door flaps tied back: dark inside, or warm with lamplight at
- * night (`lit`). (x, y) = the middle of its front on the ground; at s = 1 it's about 400 wide (with its
- * ropes) and 220 tall, and its doorway fits a grown-up. `children` stand in the doorway, in front of the
- * back wall and behind the door flaps.
- */
-export function Tent({ x, y, s = 1, lit, children }: { x: number; y: number; s?: number; lit?: boolean; children?: ReactNode }) {
-  const cloth = useShade(CLOTH, 0.22, 0.2)
-  const line = ink(CLOTH)
-  const glow = `tg${useId().replace(/[^a-zA-Z0-9]/g, '')}`
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <defs>
-        {cloth.def}
-        <radialGradient id={glow} cx="50%" cy="60%" r="65%">
-          <stop offset="0" stopColor="#fff1c0" /><stop offset="0.6" stopColor="#ffc95e" /><stop offset="1" stopColor="#c9822e" />
-        </radialGradient>
-      </defs>
-      <ellipse cx={0} cy={-2} rx={190} ry={10} fill="#000" opacity={0.1} />
-      {/* ropes out to the pegs */}
-      {[-1, 1].map((d) => (
-        <g key={d} stroke="#9a7a55" strokeWidth={2.2} strokeLinecap="round">
-          <path d={`M${d * 168} -138 L${d * 214} 0 M${d * 120} -176 L${d * 196} 0`} fill="none" />
-          <path d={`M${d * 214} 2 L${d * 210} -14 M${d * 196} 2 L${d * 192} -14`} stroke="#6b4422" strokeWidth={4} />
-        </g>
-      ))}
-      {/* inside: the back wall (dark by day, lamplit at night), a rug, and the middle pole */}
-      <rect x={-134} y={-172} width={268} height={172} fill={lit ? `url(#${glow})` : '#46302a'} />
-      {!lit && <path d="M-134 -172 L134 -172 L134 -150 Q0 -140 -134 -150 Z" fill="#33221c" />}
-      <rect x={-118} y={-18} width={236} height={18} fill="#b5553f" />
-      <path d={`M-114 -9 ${Array.from({ length: 12 }, () => 'l9.8 -5 l9.8 5').join(' ')}`} stroke="#f0d38a" strokeWidth={2.2} fill="none" />
-      <rect x={-5} y={-206} width={10} height={190} rx={3} fill={lit ? '#9a6a3a' : '#6b4a2e'} />
-      {lit && (
-        <g>
-          <path d="M0 -150 L0 -130" stroke="#5a3a20" strokeWidth={2} />
-          <Glow x={0} y={-118} r={60} color="#fff3c0" />
-          <path d="M-9 -130 L9 -130 L6 -112 L-6 -112 Z" fill="#c98448" stroke="#8a5428" strokeWidth={2} />
-          <path d="M0 -127 Q-5 -118 0 -114 Q5 -118 0 -127 Z" fill="#fff7c9" />
-        </g>
-      )}
-      {children}
-      {/* the door flaps, tied back, and the side walls */}
-      {[-1, 1].map((d) => (
-        <g key={d} transform={`scale(${d} 1)`}>
-          <path d="M-182 -132 L-136 -172 Q-122 -120 -104 -86 Q-118 -48 -128 0 L-188 0 Z" fill={cloth.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
-          <path d="M-134 -164 Q-121 -118 -108 -88 Q-120 -50 -130 -4" stroke={STRIPE} strokeWidth={5} fill="none" />
-          <path d="M-170 -128 L-176 -2" stroke={darken(CLOTH, 0.15)} strokeWidth={2} />
-          <path d="M-112 -92 q-6 2 -6 8 q6 1 8 -4" stroke="#c0504d" strokeWidth={3} fill="none" strokeLinecap="round" />
-        </g>
-      ))}
-      {/* the roof, high in the middle and sagging between the poles, with woven stripes */}
-      <path d="M-196 -128 L-150 -178 Q-96 -168 -60 -192 Q0 -226 60 -192 Q96 -168 150 -178 L196 -128 Q148 -142 100 -138 Q50 -160 0 -156 Q-50 -160 -100 -138 Q-148 -142 -196 -128 Z"
-        fill={cloth.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
-      <path d="M-178 -142 Q-144 -152 -104 -150 Q-52 -170 0 -168 Q52 -170 104 -150 Q144 -152 178 -142" stroke={STRIPE} strokeWidth={6} fill="none" strokeLinecap="round" />
-      <path d="M-160 -164 Q-120 -164 -82 -168 Q-40 -192 0 -194 Q40 -192 82 -168 Q120 -164 160 -164" stroke={STRIPE} strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.85} />
-      <path d="M-168 -153 Q-130 -158 -94 -159 Q-46 -181 0 -181 Q46 -181 94 -159 Q130 -158 168 -153" stroke="#c0504d" strokeWidth={2.5} fill="none" strokeLinecap="round" opacity={0.8} />
-      {/* the tops of the poles */}
-      {[-150, 0, 150].map((px) => <circle key={px} cx={px} cy={px ? -178 : -210} r={4} fill="#6b4422" />)}
     </g>
   )
 }
@@ -479,28 +350,6 @@ function BreadPlate({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
       <Bread x={-13} y={-7} s={0.55} />
       <Bread x={13} y={-7} s={0.55} />
       <Bread x={0} y={-15} s={0.55} />
-    </g>
-  )
-}
-
-/**
- * A thought bubble: a puffy cloud at (x, y), w wide and h tall, with little round puffs (`tail`: x, y,
- * r) leading down to whoever is thinking. `children` are drawn inside it (what they wish for, or worry about).
- */
-export function ThoughtBubble({ x, y, w, h, tail, children }: { x: number; y: number; w: number; h: number; tail: [number, number, number][]; children?: ReactNode }) {
-  const puffs = Array.from({ length: 10 }, (_, i) => {
-    const a = (i / 10) * Math.PI * 2
-    return [x + Math.cos(a) * w * 0.42, y + Math.sin(a) * h * 0.38, Math.min(w, h) * 0.24]
-  })
-  const line = '#c9b8d8'
-  return (
-    <g className="sc-float">
-      {tail.map(([tx, ty, r], i) => <circle key={i} cx={tx} cy={ty} r={r} fill="#fff" stroke={line} strokeWidth={2.5} />)}
-      {puffs.map(([px, py, r], i) => <circle key={i} cx={px} cy={py} r={r + 2.5} fill={line} />)}
-      <ellipse cx={x} cy={y} rx={w * 0.5 + 2.5} ry={h * 0.44 + 2.5} fill={line} />
-      {puffs.map(([px, py, r], i) => <circle key={`w${i}`} cx={px} cy={py} r={r} fill="#fff" />)}
-      <ellipse cx={x} cy={y} rx={w * 0.5} ry={h * 0.44} fill="#fff" />
-      {children}
     </g>
   )
 }

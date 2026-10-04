@@ -3,8 +3,8 @@
 // Six lions stand around the den, wide awake (alert, but never scary: their mouths stay shut). Tapping a lion
 // finds it: it lies down gently, closes its eyes, and falls asleep. (activities/games/types.ts, SpotKit.)
 import type { SpotKit, SpotTarget } from '../../activities/games/types'
-import { Person, PEOPLE } from '../people'
-import { DanielKneeling, DenInside, GentleLion, MANES, ShutEyes } from '../scenes/daniel'
+import { Person, PEOPLE, ShutEyes } from '../people'
+import { DanielKneeling, DenInside, GentleLion, MANES } from '../scenes/daniel'
 import { Glow, Scene } from '../scenes/kit'
 
 /** The den, Daniel and the angel, without the lions. */

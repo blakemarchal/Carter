@@ -1,20 +1,19 @@
 // Baby Moses (Exodus 1 and 2:1-10): one picture per story page, both parts in order (see data/baby-moses.ts
 // for the words). Built from the kit (./kit.tsx), the Moses islands' cast and props (./moses.tsx), and
-// Joseph's Figure (./joseph.tsx: Person, with the same body and face, plus feelings, kneeling and more
+// Figure (../people.tsx: Person, with the same body and face, plus feelings, kneeling and more
 // poses). Baby Moses and his basket boat are drawn in art/items/isl-baby-moses.tsx, so the activities and
 // the mini-game show them the same way. God is never drawn as a person: His presence is light.
 //
 // New here, to move into shared files: the looks JOCHEBED, MIRIAM_GIRL, PRINCESS, PRINCESS_HELPERS and
 // MOSES_BOY (with MiriamGirl, Princess, Helper and PharaohFig, which add their hair or headdress), and the
-// river Nile's props: River, Papyrus, Reeds, Egret, SleepyCrocodile, BathingPlace; and MudHouse, HomeRoom
-// and OilLamp for God's people's homes in Egypt.
+// river Nile's props: River, Papyrus, Reeds, Egret, SleepyCrocodile, BathingPlace; and HomeRoom and OilLamp
+// for God's people's homes in Egypt. (MudHouse and Birds, first made here, are in kit.tsx now.)
 import { useId, type ComponentProps, type ComponentType, type ReactNode } from 'react'
 import { darken, ink } from '../kit'
-import { Baby, Person, SKIN } from '../people'
-import { Cloud, Emoji, Glow, Moon, Palm, Rays, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
+import { Baby, Figure, Person, SKIN, type JLook } from '../people'
+import { Birds, Cloud, Dream, Emoji, Glow, Mat, Moon, MudHouse, Palm, Rays, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
 import { usePlayer } from './player'
 import { BrickBasket, BrickStack, Column, DryingBricks, Folk, Grip, HEBREWS, Heart, Jar, MIRIAM, MOSES, PHARAOH, PharaohRegalia, PillarOfCloud, Pyramid, RaisedStaff, SeaFish, SilverHair, Straw } from './moses'
-import { Dream, Figure, Mat, type JLook } from './joseph'
 import { BabyMoses, BasketLid, LilyPad, ReedBasket, WaterLily } from '../items/isl-baby-moses'
 import './baby-moses.css'
 
@@ -305,15 +304,6 @@ export function LeapingFish({ x, y, color = '#ffb347', s = 1 }: { x: number; y: 
   )
 }
 
-/** Little birds flying far away over the river: [x, y, size] each. */
-export const Birds = ({ spots }: { spots: [number, number, number][] }) => (
-  <g className="sc-float">
-    {spots.map(([x, y, k], i) => (
-      <path key={i} d={`M${x - 11 * k} ${y - 3 * k} Q${x - 5 * k} ${y - 8 * k} ${x} ${y} Q${x + 5 * k} ${y - 8 * k} ${x + 11 * k} ${y - 3 * k}`} stroke="#5a6478" strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    ))}
-  </g>
-)
-
 /**
  * The princess's bathing place: wide stone steps coming down into the river, seen from the water, with a
  * square post at each side of the bottom and the top step. (x, y): the middle of the bottom step's front
@@ -387,25 +377,6 @@ function PalaceWall({ x1, x2, y, y2 }: { x1: number; x2: number; y: number; y2: 
 }
 
 // ---------- God's people's homes ----------
-
-/** A little mud-brick house: flat-roofed, with the ends of its roof poles showing, a dark doorway and a small window. (x, y): the middle of its foot. `door`, `win`: where they are, as a part of its width from the middle. */
-export function MudHouse({ x, y, w = 110, h = 72, door = -0.2, win = 0.25 }: { x: number; y: number; w?: number; h?: number; door?: number; win?: number | null }) {
-  const line = '#a8804a'
-  const dx = door * w, wx = (win ?? 0) * w
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      <rect x={-w / 2} y={-h} width={w} height={h} fill="#dcb880" stroke={line} strokeWidth={2.5} />
-      <path d={`M${-w / 2 + 2} ${-h * 0.35} L${w / 2 - 2} ${-h * 0.35}`} stroke="#cfa86c" strokeWidth={3} opacity={0.6} />
-      {[[-0.3, 0.3], [0.18, 0.55], [-0.12, 0.8], [0.33, 0.18]].map(([bx, by], i) => (
-        <path key={i} d={`M${bx * w - 8} ${-h * by} l16 0 M${bx * w - 2} ${-h * by + 6} l14 0`} stroke="#c39a62" strokeWidth={1.5} strokeLinecap="round" />
-      ))}
-      <rect x={-w / 2 - 4} y={-h - 8} width={w + 8} height={10} rx={2} fill="#c99e66" stroke={line} strokeWidth={2.2} />
-      {Array.from({ length: Math.floor(w / 16) }, (_, i) => <circle key={i} cx={-w / 2 + 9 + i * 16} cy={-h + 7} r={2.6} fill="#8a6040" />)}
-      <path d={`M${dx - 12} 0 L${dx - 12} -32 Q${dx} -43 ${dx + 12} -32 L${dx + 12} 0 Z`} fill="#5a3a24" stroke={line} strokeWidth={2} />
-      {win !== null && <rect x={wx - 8} y={-h + 18} width={16} height={13} rx={2} fill="#5a3a24" stroke={line} strokeWidth={2} />}
-    </g>
-  )
-}
 
 /** A little clay oil lamp with its flame, glowing warm. (x, y): its foot. */
 export function OilLamp({ x, y, s = 1 }: { x: number; y: number; s?: number }) {

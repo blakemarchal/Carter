@@ -12,12 +12,9 @@
 //           GoldenLampstand (God's lamp), ClayLamp and LittleCoat.
 import { useId, type ComponentProps, type ComponentType, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Baby, Person, SKIN, type Look, type Pose } from '../people'
-import { Cloud, Flower, Glow, Rays, Scene, Sparkles, Sun, Tap, Tree, sparkle } from './kit'
+import { Baby, Kneel, Person, SittingOnRock, SKIN, type Look, type Pose } from '../people'
+import { Cloud, Flower, Glow, Rays, Scene, Sparkles, Sun, Tap, ThoughtBubble, Tree, sparkle } from './kit'
 import { usePlayer } from './player'
-import { Kneel } from './daniel'
-import { SittingOnRock } from './david'
-import { ThoughtBubble } from './abraham'
 import { COAT_TEAL, ClayLamp, GoldenLampstand, LittleCoat, SAMUEL_BLANKET } from '../items/isl-samuel'
 import './samuel.css'
 

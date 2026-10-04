@@ -7,8 +7,7 @@
 // (The falling barley is seen against the sky: the basket's opening runs along just above the far hills.)
 import { useId } from 'react'
 import type { CatchKit } from '../../activities/games/types'
-import { Figure } from '../scenes/joseph'
-import { EyesUp, LookingUp } from '../scenes/abraham'
+import { EyesUp, Figure, LookingUp } from '../people'
 import { Cloud, Scene, Sparkles, Sun } from '../scenes/kit'
 import { BarleyField, BarleySheaf, Boaz, DarkHair, HARVESTERS, Harvester, RuthWithBasket, Stubble, WaterJar, headBasket } from '../scenes/ruth'
 import { BarleyBunch, BarleyStalk, Bethlehem, OliveTree } from '../items/isl-ruth'

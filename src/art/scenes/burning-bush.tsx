@@ -4,21 +4,18 @@
 // burn up, its glow, its rays and its sparkles).
 // New here, for other islands (and people.tsx) to reuse: JETHRO, ZIPPORAH and her SISTERS in their Midian
 // clothes (Sister, MidianTrim), the grumpy SHEPHERDS; faces (MosesSad, MosesWonder, SadFace, GrumpyFace);
-// BareFeet and KneelingBarefoot (holy ground); props: Well, Trough, PouringBucket, TravelBundle, BurningBush,
+// BareFeet and KneelingBarefoot (holy ground); props: Well, Trough, PouringBucket, BurningBush,
 // MountainOfGod, Sandals, Boulder, Scrub, Clumps, Footprints; animals: a rock Hyrax and a desert Hedgehog;
-// backgrounds: MidianLand.
+// backgrounds: MidianLand. (TravelBundle, first made here, is in moses.tsx now.)
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Person, SKIN, type Look, type Pose } from '../people'
-import { Cloud, Emoji, Glow, Palm, Rays, Scene, Sheep, Sparkles, Sun, Tap } from './kit'
+import { BeardFrown, Brows, Person, SittingOnRock, SKIN, type Look, type Pose } from '../people'
+import { Cloud, Emoji, Glow, Palm, Rays, Rock, Scene, Sheep, Sparkles, Sun, Tap, Tent, ThoughtBubble, WoolSheep } from './kit'
 import { usePlayer } from './player'
 import {
   AARON, BrickBasket, BrickStack, Column, Desert, DryingBricks, flame, Folk, Goat, Grip, Heart, HEBREWS, MOSES,
-  Pharaoh, Pyramid, SKINS, Staff, StaffInLeftHand, Straw, type PersonProps,
+  Pharaoh, Pyramid, SKINS, Staff, StaffInLeftHand, Straw, TravelBundle, type PersonProps,
 } from './moses'
-import { Rock, SittingOnRock, WoolSheep } from './david'
-import { Tent, ThoughtBubble } from './abraham'
-import { BeardFrown, Brows } from './daniel'
 import './burning-bush.css'
 
 const uid = (prefix: string, id: string) => `${prefix}${id.replace(/[^a-zA-Z0-9]/g, '')}`
@@ -156,7 +153,7 @@ export const BareFeet = ({ skin }: { skin: string }) => (
 /**
  * Someone kneeling barefoot, seen from the front (on holy ground): the Person from the knees up, their robe
  * pooled on the ground, and a bare foot peeking out behind them on each side: the sole, and the toes at its
- * tip. (x, y) = their knees on the ground. (Like scenes/daniel.tsx's Kneel, with bare feet.)
+ * tip. (x, y) = their knees on the ground. (Like people.tsx's Kneel, with bare feet.)
  */
 export function KneelingBarefoot({ x, y, s = 1, look, pose = 'pray', facing = 'right', blinkDelay = 0, children }: {
   x: number; y: number; s?: number; look: Look; pose?: Pose; facing?: 'left' | 'right'; blinkDelay?: number; children?: ReactNode
@@ -190,17 +187,6 @@ export function KneelingBarefoot({ x, y, s = 1, look, pose = 'pray', facing = 'r
     </g>
   )
 }
-
-/** A cloth bundle for a long trip, hanging from the left hand (in the Person's own units: the hand is at (-30, -46)). */
-export const TravelBundle = ({ skin = MOSES.skin }: { skin?: string }) => (
-  <g strokeLinejoin="round">
-    <path d="M-30 -44 Q-46 -38 -47 -22 Q-46 -6 -31 -5 Q-15 -6 -14 -22 Q-15 -38 -30 -44 Z" fill="#eadbb8" stroke="#a88a5a" strokeWidth={2.2} />
-    <path d="M-45 -25 Q-31 -19 -16 -25" stroke="#c0504d" strokeWidth={2.8} fill="none" />
-    <path d="M-45 -19 Q-31 -13 -17 -19" stroke="#3f7fd0" strokeWidth={1.6} fill="none" />
-    <path d="M-36 -49 L-30 -42 L-24 -49" stroke="#a88a5a" strokeWidth={2.4} fill="none" strokeLinecap="round" />
-    <Grip x={-30} y={-46} skin={skin} />
-  </g>
-)
 
 /**
  * A wooden bucket tipped up in the right hand (pose "point", the hand at (54, -90)), pouring water out of its

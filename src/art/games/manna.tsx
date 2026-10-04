@@ -6,11 +6,10 @@
 import { useId } from 'react'
 import type { CatchKit } from '../../activities/games/types'
 import { darken, ink, useShade } from '../kit'
-import { Person } from '../people'
-import { Scene, Sparkles, Sun } from '../scenes/kit'
+import { Kneel, Person } from '../people'
+import { CampTent, FarCamp, Scene, Sparkles, Sun } from '../scenes/kit'
 import { Grip, Heart, HEBREWS, SilverHair } from '../scenes/moses'
-import { Kneel } from '../scenes/daniel'
-import { Bowl, CampTent, FarCamp, MannaGround, Mountains, WovenBasket } from '../scenes/manna'
+import { Bowl, MannaGround, Mountains, WovenBasket } from '../scenes/manna'
 import { MANNA, MANNA_LINE, MannaHeap } from '../items/isl-manna'
 
 const GOAL = 10

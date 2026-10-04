@@ -1,6 +1,6 @@
 // Ruth and Naomi: one picture per story page, both parts in order (see data/ruth.ts for the words).
-// Built from the kit (./kit.tsx) and people (../people.tsx), with joseph.tsx's Figure (faces for feelings and
-// hugs), daniel.tsx's Kneel, abraham.tsx's Sitting, faces and thought bubble, and the barley, Bethlehem and
+// Built from the kit (./kit.tsx) and people (../people.tsx), with people.tsx's Figure (faces for feelings and
+// hugs), Kneel, Sitting and faces, the kit's thought bubble, and the barley, Bethlehem and
 // olive trees from ../items/isl-ruth.tsx. God is never drawn as a person: His care is light (Glow, Rays).
 // Kept gentle: Naomi's loss is one sentence, and her picture only shows her sad, with Ruth and Orpah close.
 //
@@ -13,14 +13,9 @@
 // TownGate and Moab's far hills.
 import { useId, type ComponentProps, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Person, PEOPLE, SKIN, type Look } from '../people'
-import { Bread, Cloud, Flower, Glow, Moon, Rays, Scene, Sheep, Sparkles, Sun, Tap, sparkle } from './kit'
-import { Figure } from './joseph'
-import { Kneel } from './daniel'
-import { LaughFace, Laughing, SilverHair, Sitting, ThoughtBubble } from './abraham'
-import { Grip, Tambourine } from './moses'
-import { Birds, MudHouse } from './baby-moses'
-import { TravelBundle } from './burning-bush'
+import { Figure, Kneel, LaughFace, Laughing, Person, PEOPLE, SilverHair, Sitting, SKIN, type Look } from '../people'
+import { Birds, Bread, Cloud, Flower, Glow, Moon, MudHouse, Rays, Scene, Sheep, Sparkles, Sun, Tap, ThoughtBubble, sparkle } from './kit'
+import { Grip, Tambourine, TravelBundle } from './moses'
 import { BARLEY, BARLEY_LINE, AWN, STRAW, STRAW_LINE, BarleyBunch, BarleyEar, BarleyHeap, BarleyStalk, Bethlehem, OBED_BLANKET, OliveTree } from '../items/isl-ruth'
 import { seeded } from '../items/isl-manna'
 

@@ -1,96 +1,30 @@
 // Manna in the Desert: one picture per story page, both parts in order (see data/manna.ts for the words).
 // Built from the kit (./kit.tsx), people (../people.tsx), the Moses islands' cast and props (./moses.tsx),
-// the faces and poses other islands made to share (./daniel.tsx, ./abraham.tsx), and the quail, the manna,
+// the faces and poses other islands made to share (in ../people.tsx too), and the quail, the manna,
 // Aaron's jar and the rock from ../items/isl-manna.tsx. The same family from the Red Sea walks this story
 // too (HEBREWS: dad, mom and the baby, the boy, the girl, grandma and grandpa). God is never drawn as a
 // person: His presence is light (the glowing cloud). Kept gentle and funny: rumbly tummies, a smelly jar,
 // a buzzing fly.
 //
-// New here, for any island to reuse (they can move into moses.tsx or kit.tsx): CampTent (a tent in God's
-// people's camp, in any colors), FarCamp (rows of little tents far away), Mountains, MannaGround (manna like
-// frost on the ground), WovenBasket and Bowl (with manna heaped in them), ClayJar (fresh, or spoiled), Stink,
-// Fly, CookFire, Rumble (a rumbly tummy), Grumble (a grumbly cloud over someone's head), Wonder (a question
-// mark), and faces for a Person: Pout (a pouty mouth) and Yuck (eyes squeezed shut at a bad smell).
+// New here, for any island to reuse (they can move into moses.tsx or kit.tsx): Mountains, MannaGround (manna
+// like frost on the ground), WovenBasket and Bowl (with manna heaped in them), ClayJar (fresh, or spoiled),
+// Stink, Fly, CookFire, Rumble (a rumbly tummy), Grumble (a grumbly cloud over someone's head), Wonder (a
+// question mark), and faces for a Person: Pout (a pouty mouth) and Yuck (eyes squeezed shut at a bad smell).
+// CampTent (a tent in God's people's camp, in any colors) and FarCamp (rows of little tents far away) were
+// first made here too: they're in kit.tsx now.
 import { useId, type ComponentProps, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
-import { Person, SKIN, type Look, type Pose } from '../people'
+import { BeardFrown, Brows, EyesUp, Kneel, LaughFace, Laughing, LookingUp, Person, ShutEyes, Sitting, SKIN, type Look, type Pose } from '../people'
 import { Flake, MannaHeap, MannaJar, MANNA, MANNA_LINE, Quail, RockSpring, seeded } from '../items/isl-manna'
-import { Cloud, Glow, Rays, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
+import { CampTent, Cloud, FarCamp, Glow, Rays, Scene, Sparkles, Sun, Tap, Zs, sparkle } from './kit'
 import { usePlayer } from './player'
 import { AARON, Folk, Goat, Grip, HEBREWS, Heart, MOSES, PillarOfCloud, SilverHair, SKINS, Staff, StaffInLeftHand, flame } from './moses'
-import { BeardFrown, Brows, Kneel, ShutEyes, Zs } from './daniel'
-import { EyesUp, LaughFace, Laughing, LookingUp, Sitting } from './abraham'
 
 const { dad: DAD, mom: MOM, boy: BOY, girl: GIRL, grandma: GRANDMA, grandpa: GRANDPA, man: NEIGHBOR, lass: LASS } = HEBREWS
 /** The neighbor who saved extra manna overnight (page 7): a mustard head cloth and a terracotta robe. */
 export const SAVER: Look = { skin: SKIN.medium, hair: 'covered', hairColor: '#5a3a24', wrap: '#f2d675', beard: 'short', beardColor: '#6b4a2e', robe: '#c77d4f', sash: '#4f9a9a' }
 
 // ---------- The camp in the desert ----------
-
-/** The tents' woven cloth: [cloth, stripe]. The family's own tent is the terracotta one. */
-export const FAMILY_TENT = ['#c2603f', '#f5ddb0'] as const
-export const TENT_CLOTHS: [string, string][] = [['#8a6248', '#ecd6ab'], ['#a9876a', '#f3e5c8'], ['#6f5446', '#dcc39c'], ['#c08a5a', '#f6e6c6'], ['#9a6b52', '#ead6b0'], ['#7d7f5e', '#e8e0c0']]
-
-/**
- * A tent in God's people's camp: woven cloth with stripes, high in the middle and sagging between its
- * poles, its front open with the door flaps tied back, pegged out with ropes. (x, y) = the middle of its
- * front on the ground; at s = 1 it's about 300 wide (with its ropes) and 160 tall, and its doorway (about
- * 140 wide at the bottom, 100 tall) fits someone at about s = 0.6. `children` stand in the doorway, in front
- * of the dark back wall and behind the door flaps.
- */
-export function CampTent({ x, y, s = 1, cloth = FAMILY_TENT[0], stripe = FAMILY_TENT[1], children }: {
-  x: number; y: number; s?: number; cloth?: string; stripe?: string; children?: ReactNode
-}) {
-  const shade = useShade(cloth, 0.22, 0.2)
-  const line = ink(cloth)
-  const roof = 'M-146 -82 L-110 -122 Q-66 -114 -40 -134 Q0 -158 40 -134 Q66 -114 110 -122 L146 -82 Q104 -92 64 -90 Q32 -106 0 -104 Q-32 -106 -64 -90 Q-104 -92 -146 -82 Z'
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <defs>{shade.def}</defs>
-      <ellipse cx={0} cy={-1} rx={150} ry={8} fill="#000" opacity={0.1} />
-      {/* ropes out to the pegs */}
-      {[-1, 1].map((d) => (
-        <g key={d} strokeLinecap="round">
-          <path d={`M${d * 132} -86 L${d * 156} 0 M${d * 96} -118 L${d * 144} 0`} stroke="#9a7a55" strokeWidth={2} fill="none" />
-          <path d={`M${d * 156} 1 L${d * 153} -9 M${d * 144} 1 L${d * 141} -9`} stroke="#6b4422" strokeWidth={3.5} />
-        </g>
-      ))}
-      {/* inside: the dark back wall, a rug, and the middle pole */}
-      <rect x={-96} y={-120} width={192} height={120} fill="#4a3329" />
-      <path d="M-96 -120 L96 -120 L96 -100 Q0 -92 -96 -100 Z" fill="#3a271f" />
-      <rect x={-84} y={-13} width={168} height={13} fill="#b5553f" />
-      <path d={`M-80 -6.5 ${Array.from({ length: 14 }, () => 'l5.7 -4 l5.7 4').join(' ')}`} stroke="#f0d38a" strokeWidth={2} fill="none" />
-      <rect x={-4} y={-150} width={8} height={138} rx={3} fill="#6b4a2e" />
-      {children}
-      {/* the side walls, their door flaps tied back */}
-      {[-1, 1].map((d) => (
-        <g key={d} transform={`scale(${d} 1)`}>
-          <path d="M-136 -84 L-100 -120 Q-88 -84 -72 -58 Q-82 -28 -88 0 L-140 0 Z" fill={shade.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
-          <path d="M-98 -110 Q-87 -82 -75 -60 Q-84 -30 -90 -4" stroke={stripe} strokeWidth={4.5} fill="none" />
-          <path d="M-126 -84 L-130 -3" stroke={darken(cloth, 0.15)} strokeWidth={2} />
-          <path d="M-76 -62 q-7 2 -6 9 q6 0 8 -6" stroke="#c0504d" strokeWidth={2.6} fill="none" strokeLinecap="round" />
-        </g>
-      ))}
-      {/* the roof, high in the middle and sagging between the poles, with woven stripes */}
-      <path d={roof} fill={shade.fill} stroke={line} strokeWidth={3} strokeLinejoin="round" />
-      <path d="M-130 -94 Q-94 -102 -58 -101 Q-28 -118 0 -118 Q28 -118 58 -101 Q94 -102 130 -94" stroke={stripe} strokeWidth={5} fill="none" strokeLinecap="round" />
-      <path d="M-118 -112 Q-84 -110 -52 -118 Q-24 -138 0 -140 Q24 -138 52 -118 Q84 -110 118 -112" stroke={stripe} strokeWidth={3.5} fill="none" strokeLinecap="round" opacity={0.85} />
-      {[-110, 0, 110].map((px) => <circle key={px} cx={px} cy={px ? -122 : -156} r={4} fill="#6b4422" />)}
-    </g>
-  )
-}
-
-/** The rest of the camp far away: little tents along the horizon at y, `s` big, in turn colors. */
-export function FarCamp({ y, s = 0.3, xs, shift = 0 }: { y: number; s?: number; xs: number[]; shift?: number }) {
-  return (
-    <g>
-      {xs.map((x, i) => {
-        const [cloth, stripe] = TENT_CLOTHS[(i + shift) % TENT_CLOTHS.length]
-        return <CampTent key={x} x={x} y={y + (i % 2) * 4 * s} s={s * (i % 3 === 1 ? 0.9 : 1)} cloth={cloth} stripe={stripe} />
-      })}
-    </g>
-  )
-}
 
 /** Rocky mountains far away along the horizon (the mountains of the desert near Sinai): their feet at y. */
 export function Mountains({ y, color = '#d3aec4', k = 1 }: { y: number; color?: string; k?: number }) {
@@ -325,7 +259,7 @@ export const Pout = ({ skin }: { skin: string }) => (
 
 /**
  * In a Person's own units: eyes squeezed shut and a wobbly "yuck" mouth, at a bad smell. Wrap the Person in
- * <Laughing> (from abraham.tsx: it hides the open eyes). `beard`: the beard's color (the mouth is on the
+ * <Laughing> (from people.tsx: it hides the open eyes). `beard`: the beard's color (the mouth is on the
  * beard); else `skin`. `tongue`: sticking out, blech!
  */
 export const Yuck = ({ skin, beard, tongue }: { skin?: string; beard?: string; tongue?: boolean }) => (
@@ -417,7 +351,7 @@ const Hands = ({ skin }: { skin: string }) => (
 /** Grandma, with her silver hair peeking out (as on the Red Sea). */
 const Grandma = ({ children, ...p }: Omit<ComponentProps<typeof Person>, 'look'>) => <Person {...p} look={GRANDMA}><SilverHair />{children}</Person>
 
-/** Someone sitting on the ground (abraham.tsx), with grandma's silver hair when it's her. */
+/** Someone sitting on the ground (people.tsx's Sitting), with grandma's silver hair when it's her. */
 const Sit = ({ look, children, ...p }: { look: Look; x: number; y: number; s?: number; pose?: Pose; holding?: ComponentProps<typeof Person>['holding']; blinkDelay?: number; children?: ReactNode }) => (
   <Sitting look={look} {...p}>{look === GRANDMA && <SilverHair />}{children}</Sitting>
 )

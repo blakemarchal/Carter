@@ -10,9 +10,8 @@
 // is near them when they fall.
 import { memo } from 'react'
 import type { RhythmKit } from '../../activities/games/types'
-import { Cloud, Glow, Palm, Rays, Scene, Sparkles } from '../scenes/kit'
+import { Cloud, Glow, MusicNote, Palm, Rays, Scene, Sparkles } from '../scenes/kit'
 import { FarHills, LAP_BEATS, MARCH_START, MarchingRound, Plain, Tufts } from '../scenes/jericho'
-import { MusicNote } from '../scenes/david'
 import { RamsHornItem } from '../items/isl-jericho'
 
 // The tune: "When the Saints Go Marching In" (a traditional spiritual: a marching song), as Musica Viva

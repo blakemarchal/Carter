@@ -3,14 +3,15 @@
 // Goliath is big and loud but goofy, never scary: no weapons, and when he falls he just sits down, dizzy.
 // Reusable from here: RunningLion and RunningBear (side-on, mid-gallop, to scale with people);
 // ShepherdBag (a bag on a strap, worn by a Person, with stones peeking out); SAMUEL (a look, for
-// people.tsx); Lyre (David's little harp, held in pose "hold"); Rock and SittingOnRock (someone sitting
-// on a rock, facing us); WoolSheep (the kit's sheep grazing, drinking, asleep or carried, with eyes shut
-// or ears and tail moving to music); MusicNote; and Zzz (a sleeper's z's).
+// people.tsx); Lyre (David's little harp, held in pose "hold"); and Zzz (a sleeper's z's). First made here
+// and shared now: Rock, WoolSheep (the kit's sheep grazing, drinking, asleep or carried, with eyes shut or
+// ears and tail moving to music) and MusicNote, in kit.tsx; SittingOnRock (someone sitting on a rock,
+// facing us), in people.tsx.
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, starPath, useShade } from '../kit'
 import { fluff } from '../items/draw'
-import { Person, PEOPLE, SKIN, type Holding, type Look, type Pose } from '../people'
-import { Emoji, Flower, Glow, House, Moon, Rays, Scene, Sheep, Sparkles, Tap, Tree } from './kit'
+import { Person, PEOPLE, SittingOnRock, SKIN, type Look } from '../people'
+import { Emoji, Flower, Glow, House, Moon, MusicNote, Rays, Rock, Scene, Sheep, Sparkles, Tap, Tree, WoolSheep } from './kit'
 
 // ---------- Local characters ----------
 
@@ -104,67 +105,6 @@ export function RunningBear({ x, y, s = 1, facing = 'right' }: { x: number; y: n
       <ellipse cx={67} cy={-47.5} rx={2.2} ry={1.8} fill="#5a3826" />
       <ellipse cx={57} cy={-62} rx={2.8} ry={3.6} fill="#2b2140" />
       <circle cx={56.2} cy={-63.4} r={1.1} fill="#fff" />
-    </g>
-  )
-}
-
-// The kit's sheep (kit.tsx Sheep) in more poses, with the same wool, face and colors.
-const WOOL: [number, number][] = [[-24, -40], [-6, -48], [12, -44], [24, -34], [-26, -26], [0, -28], [20, -24]]
-const SHEEP_FACE = '#4a3a3a', SHEEP_EAR = '#3d2f31'
-/** Where the ear [x, y, turn], the point it turns about, the face [x, y, rx, ry, turn] and the eye are, for each way of holding the head. */
-const SHEEP_HEADS = {
-  up: { ear: [30, -51, -35], hinge: [35, -48], face: [40, -40, 13, 11, 0], eye: [45, -43] },
-  down: { ear: [30, -25, 15], hinge: [37, -23], face: [45, -14, 11, 12.5, -25], eye: [48.5, -18] },
-  rest: { ear: [28, -23, 20], hinge: [33, -21], face: [40, -12, 12.5, 10, 8], eye: [44, -14] },
-} as const
-
-/**
- * A sheep side-on, facing right (or `facing="left"`), drawn like the kit's Sheep. (x, y) = the ground
- * under it. `head`: "up" (as the kit's), "down" (eating grass or drinking), or "rest" (lying down, its
- * legs tucked under it). `sleepy`: eyes shut (always, when resting). For music: `ear` turns the ear
- * (degrees; more is perkier), and `tail` shows a little woolly tail at the back, turned `wag` degrees.
- */
-export function WoolSheep({ x, y, s = 1, facing = 'right', head = 'up', sleepy, ear = 0, tail, wag = 0 }: {
-  x: number; y: number; s?: number; facing?: 'left' | 'right'; head?: 'up' | 'down' | 'rest'; sleepy?: boolean
-  ear?: number; tail?: boolean; wag?: number
-}) {
-  const H = SHEEP_HEADS[head]
-  const rest = head === 'rest'
-  const dy = rest ? 11 : 0 // lying down: the wool sits on the ground
-  const shut = sleepy || rest
-  return (
-    <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -s : s} ${s})`}>
-      {rest ? (
-        // a front hoof peeking out from under the wool
-        <rect x={20} y={-7} width={13} height={7} rx={3.5} fill={SHEEP_FACE} />
-      ) : (
-        <>
-          {[-14, 24].map((lx) => <rect key={lx} x={lx} y={-24} width={7} height={23} rx={3.5} fill="#2f2528" />)}
-          {[-24, 14].map((lx) => <rect key={lx} x={lx} y={-22} width={8} height={22} rx={4} fill={SHEEP_FACE} />)}
-        </>
-      )}
-      <g className="sc-breathe">
-        {tail && (
-          <g transform={`rotate(${wag} -36 ${-36 + dy})`}>
-            <circle cx={-43} cy={-38 + dy} r={6.5} fill="#fffaf2" stroke="#d8cfc2" strokeWidth={2.5} />
-          </g>
-        )}
-        <g fill="#fffaf2" stroke="#d8cfc2" strokeWidth={2.5}>
-          {WOOL.map(([cx, cy], i) => <circle key={i} cx={cx} cy={cy + dy} r={15} />)}
-        </g>
-        <g transform={`rotate(${ear} ${H.hinge[0]} ${H.hinge[1]})`}>
-          <ellipse cx={H.ear[0]} cy={H.ear[1]} rx={8} ry={3.8} fill={SHEEP_EAR} transform={`rotate(${H.ear[2]} ${H.ear[0]} ${H.ear[1]})`} />
-        </g>
-        <ellipse cx={H.face[0]} cy={H.face[1]} rx={H.face[2]} ry={H.face[3]} fill={SHEEP_FACE} transform={`rotate(${H.face[4]} ${H.face[0]} ${H.face[1]})`} />
-        {shut ? (
-          <path d={`M${H.eye[0] - 3.4} ${H.eye[1] - 0.6} q3.4 2.8 6.8 0`} stroke="#fff" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-        ) : (
-          <>
-            <circle cx={H.eye[0]} cy={H.eye[1]} r={2.8} fill="#fff" />
-            <circle cx={H.eye[0] + 0.8} cy={H.eye[1]} r={1.4} fill="#2b2140" />
-          </>
-        )}
-      </g>
     </g>
   )
 }
@@ -361,88 +301,7 @@ function SittingGiant({ x, y, s = 1, children }: { x: number; y: number; s?: num
   )
 }
 
-// ---------- Sitting on a rock, music and sleep ----------
-
-/** How far the seat of a Rock is above the ground, in its own units. */
-const SEAT = 30
-
-/**
- * A big smooth rock to sit on: a flat seat (SEAT·s up) in the middle, and a rounded bump at the back on
- * the left. (x, y) = the ground under the middle of the seat. `night`: in the moonlight.
- */
-export function Rock({ x, y, s = 1, night }: { x: number; y: number; s?: number; night?: boolean }) {
-  const color = night ? '#8d93ab' : '#c2b8a6'
-  const shade = useShade(color, 0.3, 0.2)
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <defs>{shade.def}</defs>
-      <ellipse cx={-6} cy={0} rx={80} ry={6} fill="#000" opacity={0.14} />
-      <path d={`M-78 0 Q-86 -30 -68 -50 Q-52 -66 -36 -56 Q-28 -50 -26 ${-SEAT - 2} Q0 ${-SEAT - 4} 34 ${-SEAT - 1} Q58 ${-SEAT + 1} 64 -14 Q68 -4 62 0 Z`}
-        fill={shade.fill} stroke={ink(color)} strokeWidth={3} strokeLinejoin="round" />
-      <path d="M-66 -40 Q-58 -54 -46 -54" stroke="#fff" strokeWidth={3.5} opacity={0.35} fill="none" strokeLinecap="round" />
-      <path d="M40 -20 l7 6 l-2 9" stroke={ink(color)} strokeWidth={1.8} fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={0.55} />
-      <path d="M-58 -16 l8 4" stroke={ink(color)} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.45} />
-    </g>
-  )
-}
-
-/** How far a sitting Person comes down (figure units): their hips onto the seat. */
-const SIT_DROP = 14
-
-/**
- * Someone sitting on a rock, facing us (draw the Rock first, its seat at their hips): a Person with the
- * same look from the waist up, their knees in front under the robe, then their shins and sandals.
- * (x, y) = their feet on the ground; the seat is about 30 figure units up (times 0.74 for a child, as
- * for Person). `children` are drawn on the Person, in its own units; `front` is drawn over the lap (a
- * harp resting on it), in the same units. `sway` tips the body from the hips, in degrees (swaying to music).
- */
-export function SittingOnRock({ x, y, s = 1, look, pose = 'stand', holding, blinkDelay = 0, sway = 0, children, front }: {
-  x: number; y: number; s?: number; look: Look; pose?: Pose; holding?: Holding; blinkDelay?: number; sway?: number
-  children?: ReactNode; front?: ReactNode
-}) {
-  const b = look.build === 'child' ? 0.74 : look.build === 'giant' ? 1.55 : 1
-  const robe = useShade(look.robe, 0.3, 0.2)
-  const clip = `sit${useId().replace(/[^a-zA-Z0-9]/g, '')}`
-  const tip = `rotate(${sway} 0 -30)`
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s * b})`}>
-      <defs>{robe.def}<clipPath id={clip}><rect x={-120} y={-260} width={240} height={234} /></clipPath></defs>
-      {/* shins and sandals, a little apart */}
-      {[-1, 1].map((d) => (
-        <g key={d}>
-          <path d={`M${d * 13} -18 L${d * 14} -7`} stroke={ink(look.skin)} strokeWidth={12} strokeLinecap="round" />
-          <path d={`M${d * 13} -18 L${d * 14} -7`} stroke={look.skin} strokeWidth={9} strokeLinecap="round" />
-          <ellipse cx={d * 15} cy={-4} rx={10} ry={5} fill="#7a5233" />
-        </g>
-      ))}
-      <g transform={tip}>
-        <g clipPath={`url(#${clip})`}>
-          <Person x={0} y={SIT_DROP} s={1 / b} look={look} pose={pose} holding={holding} blinkDelay={blinkDelay}>{children}</Person>
-        </g>
-      </g>
-      {/* the lap: the robe over the knees (just under the sash), hanging to the middle of the shins */}
-      <path d="M-28 -31 Q0 -24 28 -31 Q34 -28 34 -22 Q34 -17 31 -15 Q23 -12 15 -14 Q7 -16 0 -13 Q-7 -16 -15 -14 Q-23 -12 -31 -15 Q-34 -17 -34 -22 Q-34 -28 -28 -31 Z"
-        fill={robe.fill} stroke={ink(look.robe)} strokeWidth={3} strokeLinejoin="round" />
-      {[-1, 1].map((d) => <ellipse key={d} cx={d * 17} cy={-24} rx={9} ry={4.5} fill="#fff" opacity={0.16} />)}
-      <path d="M0 -26 Q-1 -20 0 -14" stroke={ink(look.robe)} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.55} />
-      {front && <g transform={tip}><g transform={`translate(0 ${SIT_DROP})`}>{front}</g></g>}
-    </g>
-  )
-}
-
-/** A little music note (or two joined notes, `double`), with an outline so it shows on any sky. (x, y) = its middle. */
-export function MusicNote({ x, y, s = 1, color = '#ffe680', double }: { x: number; y: number; s?: number; color?: string; double?: boolean }) {
-  const line = darken(color, 0.45)
-  const stem = double ? 'M-5 10 L-5 -14 L15 -19 L15 5' : 'M3 10 L3 -16 Q12 -12 13 -3'
-  const heads: [number, number][] = double ? [[-10, 11], [10, 6]] : [[-2, 11]]
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <path d={stem} fill="none" stroke={line} strokeWidth={6.5} strokeLinejoin="round" strokeLinecap="round" />
-      <path d={stem} fill="none" stroke={color} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
-      {heads.map(([hx, hy]) => <ellipse key={hx} cx={hx} cy={hy} rx={6.6} ry={5} transform={`rotate(-20 ${hx} ${hy})`} fill={color} stroke={line} strokeWidth={2} />)}
-    </g>
-  )
-}
+// ---------- Sleep ----------
 
 /** Sleepy z's floating up from a sleeper, getting bigger as they go. (x, y) = the first, smallest z. */
 export const Zzz = ({ x, y, s = 1, color = '#e8f0ff' }: { x: number; y: number; s?: number; color?: string }) => (
