@@ -71,9 +71,27 @@ if ((await phase()) === 'start') {
   await page.tap(Math.round(b[0]), Math.round(b[1]))
   await page.waitFor(`document.querySelector('.rhythm-layer')?.dataset.phase === 'count'`, 5000)
 }
-const info = await page.eval(`({ start: window.__rhythm.start, beat: window.__rhythm.beat, notes: window.__rhythm.notes, sound: window.__rhythm.sound })`)
+const info = await page.eval(`({ start: window.__rhythm.start, beat: window.__rhythm.beat, notes: window.__rhythm.notes, sound: window.__rhythm.sound, early: window.__rhythm.early, late: window.__rhythm.late })`)
 console.log(`sound: ${info.sound}, ${info.notes.length} notes, a beat is ${info.beat.toFixed(3)} s`)
 const at = (b) => info.start + b * info.beat
+// Where on the song's clock each touch really landed (a busy machine can send a tap late), to check the
+// game against: every touch in time plays a note, and nothing else does.
+await page.eval(`(() => { window.__touches = []; document.querySelector('.rhythm-layer').addEventListener('pointerdown', (e) => {
+  window.__touches.push(window.__rhythm.now() - Math.max(0, performance.now() - e.timeStamp) / 1000) }, true) })()`)
+/** How many notes these touches play by the game's rule (the nearest note not yet played, from `early` before it to `late` after), with the window widened by `slack` beats. */
+const playedBy = (touches, slack) => {
+  const played = info.notes.map(() => false)
+  let n = 0
+  for (const t of touches) {
+    let best = -1, bestD = Infinity
+    info.notes.forEach(([nb], i) => {
+      const d = (t - at(nb)) / info.beat
+      if (!played[i] && d >= -info.early - slack && d <= info.late + slack && Math.abs(d) < bestD) (bestD = Math.abs(d)), (best = i)
+    })
+    if (best >= 0) (played[best] = true), n++
+  }
+  return n
+}
 const wait = async (b) => { const now = await page.eval(`window.__rhythm.now()`); const ms = (at(b) - now) * 1000; if (ms > 0) await sleep(ms) }
 await wait(-3.4)
 await snap('count-in-one')
@@ -105,7 +123,12 @@ for (let i = 0; i < info.notes.length; i++) {
 }
 await page.waitFor(`['end', 'ask'].includes(document.querySelector('.rhythm-layer')?.dataset.phase)`, 20000)
 const hits = await page.eval(`+document.querySelector('.rhythm-layer').dataset.hits`)
-check(hits === expected, `hits: ${hits} of ${info.notes.length} (tapped ${expected} in time)`)
+{
+  // (A touch within a few hundredths of a beat of the window's edge may go either way.)
+  const touches = await page.eval(`window.__touches`)
+  const lo = playedBy(touches, -0.03), hi = playedBy(touches, 0.03)
+  check(hits >= lo && hits <= hi, `hits: ${hits} of ${info.notes.length} (${expected} tapped, ${lo === hi ? lo : `${lo} to ${hi}`} landed in time)`)
+}
 await sleep(500)
 await snap('the-end-fanfare')
 await page.waitFor(`document.querySelector('.rhythm-layer')?.dataset.phase === 'ask'`, 30000)
