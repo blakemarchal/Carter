@@ -11,10 +11,10 @@ import { wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 import Pic from '../components/Pic'
 
-function Loose({ emoji, onIn, onTap }: { emoji: string; onIn: () => boolean; onTap: (el: HTMLElement) => void }) {
+function Loose({ emoji, art, onIn, onTap }: { emoji: string; art?: string; onIn: () => boolean; onTap: (el: HTMLElement) => void }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: 'in', onStart: sfx.lift, onDrop: (t) => t === 'basket' && onIn(), onTap: () => ref.current && onTap(ref.current) })
-  return <button ref={ref} className="count-thing" {...drag}><Pic e={emoji} /></button>
+  return <button ref={ref} className="count-thing" {...drag}><Pic e={emoji} art={art} /></button>
 }
 
 /** Where the i-th thing sits in the basket (% of the basket box): the bottom row first, piling up. */
@@ -22,12 +22,12 @@ const SLOTS: [number, number][] = [
   [50, 40], [37, 41], [63, 41], [44, 33], [56, 33], [31, 35], [69, 35], [50, 26], [38, 27], [62, 27], [44, 19], [56, 19], [50, 12],
 ]
 
-function Inside({ emoji, i, onOut, onTap }: { emoji: string; i: number; onOut: () => boolean; onTap: (el: HTMLElement) => void }) {
+function Inside({ emoji, art, i, onOut, onTap }: { emoji: string; art?: string; i: number; onOut: () => boolean; onTap: (el: HTMLElement) => void }) {
   const ref = useRef<HTMLSpanElement>(null)
   const drag = useDrag({ data: 'out', onStart: sfx.lift, onDrop: (t) => t === 'loose' && onOut(), onTap: () => ref.current && onTap(ref.current) })
   const [x, y] = SLOTS[Math.min(i, SLOTS.length - 1)]
   // (The basket is drawn over them, so they sit in it with their tops peeking out.)
-  return <span ref={ref} style={{ left: `${x}%`, top: `${y}%` }} {...drag}><Pic e={emoji} /></span>
+  return <span ref={ref} style={{ left: `${x}%`, top: `${y}%` }} {...drag}><Pic e={emoji} art={art} /></span>
 }
 
 /** `basket`: the container's emoji (drawn with Pic); `done`: a line from the story, said after the last round. */
@@ -144,10 +144,10 @@ export default function CountBasket({ title, intro, item, plural, basket, basket
       </div>
       <div className="count-play">
         <div className="count-pile" ref={pileRef}>
-          {st.pile.map((id) => <Loose key={`${round}-${id}`} emoji={item.emoji} onIn={() => putIn(id)} onTap={(el) => tapIn(id, el)} />)}
+          {st.pile.map((id) => <Loose key={`${round}-${id}`} emoji={item.emoji} art={item.art} onIn={() => putIn(id)} onTap={(el) => tapIn(id, el)} />)}
         </div>
         <button ref={binRef} className="count-bin" aria-label={`${into}: drag things in`}>
-          <span className="count-in">{st.inside.map((id, i) => <Inside key={`${round}-${id}`} i={i} emoji={item.emoji} onOut={() => takeOut(id)} onTap={(el) => tapOut(id, el)} />)}</span>
+          <span className="count-in">{st.inside.map((id, i) => <Inside key={`${round}-${id}`} i={i} emoji={item.emoji} art={item.art} onOut={() => takeOut(id)} onTap={(el) => tapOut(id, el)} />)}</span>
           <span className="count-bowl"><Pic e={basket} art={basketArt} /></span>
           <span className="count-n" key={n}>{n}</span>
         </button>
