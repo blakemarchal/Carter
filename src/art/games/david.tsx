@@ -56,18 +56,27 @@ const SPARKS: [number, number, number][] = [
   [262, 150, 8], [424, 250, 7], [216, 122, 6], [320, 112, 9], [96, 214, 7],
 ]
 
+/**
+ * The beat after the tune's last note: from then on David and his sheep are still. (The game stops
+ * counting beats a little after the end, part of the way through a beat, and keeps showing that moment
+ * while it asks "again, or go on?": without this the lamb would hang in the air, mid-hop, and David
+ * would stay leaning. Each movement has come to rest by the end of a beat, so they settle without a jump.)
+ */
+const TUNE_OVER = DAVID_TUNE[DAVID_TUNE.length - 1][0] + 1
+
 /** David at evening on his rock, his sheep round him, all moving to the music. */
 function HarpBackdrop({ beat, hits }: { beat: number; hits: number }) {
   const b = Math.max(0, beat) // (0 until the music starts)
+  const moving = b > 0 && b < TUNE_OVER
   const f = b - Math.floor(b) // how far through this beat
-  const flash = b > 0 ? (1 - f) ** 2 : 0 // bright right on each beat, fading by the next
+  const flash = moving ? (1 - f) ** 2 : 0 // bright right on each beat, fading by the next
   const odd = Math.floor(b) % 2 === 1
-  const sway = 3 * Math.sin(Math.PI * b) // leaning one way, then the other, a beat each
-  const wag = 18 * Math.sin(2 * Math.PI * b)
+  const sway = moving ? 3 * Math.sin(Math.PI * b) : 0 // leaning one way, then the other, a beat each
+  const wag = moving ? 18 * Math.sin(2 * Math.PI * b) : 0
   const h = Math.max(0, Math.min(hits, 12))
   const notes = 1 + Math.min(Math.max(hits, 0), 7)
   // the lamb: from the third note in time, a hop on every beat (landing on the beat), higher as she plays
-  const hop = hits >= 3 ? Math.min(26, 8 + 2 * (hits - 3)) * Math.sin(Math.PI * f) : 0
+  const hop = moving && hits >= 3 ? Math.min(26, 8 + 2 * (hits - 3)) * Math.sin(Math.PI * f) : 0
   return (
     <Scene sky="dawn" ground="none" clouds={false}>
       <EveningSky />
