@@ -1,9 +1,9 @@
-// Peep → Fluffy → Sunbeam: a round, fluffy yellow chick facing you, just hatched: one soft ball (head and body all one,
+// Peep → Fluffy → Sunrise: a round, fluffy yellow chick facing you, just hatched: one soft ball (head and body all one,
 // its edge a little fluffy), with big eyes, rosy cheeks and a tiny orange beak, a little tuft of three feathers on top
 // of its head, two little wings at its sides and two thin orange legs with three toes on each foot on the ground. Peep
 // has the broken bottom half of its eggshell on the ground by its feet (and a little bit of shell on the other side).
 // Fluffy is fluffier all over, with a soft pale fluffy chest, a fuller tuft and a little pink flower tucked in beside
-// its tuft. Sunbeam keeps its flower; a warm sunrise glows behind it, soft rays fanning out over the top of it, with
+// its tuft. Sunrise keeps its flower; a warm sunrise glows behind it, soft rays fanning out over the top of it, with
 // sparkles, and it wears a crown (its tuft tucked under it).
 // Grumpy: a pale, dusty yellow, its feathers all fluffed up (bigger, its edge bumpy, its tuft sticking up every which
 // way), its wings held down, with a cross frown.
@@ -18,7 +18,7 @@ const MIRROR = 'translate(200 0) scale(-1 1)'
 const ring = (cx: number, cy: number, rx: number, ry = rx, n = 48) =>
   Array.from({ length: n }, (_, i) => pt(cx + Math.cos((i / n) * Math.PI * 2) * rx, cy + Math.sin((i / n) * Math.PI * 2) * ry)).join(' ')
 
-/** Sunbeam's sunrise: soft rays fanning out from behind it, over the top from one side to the other (thin wedges from
+/** Sunrise's sunrise: soft rays fanning out from behind it, over the top from one side to the other (thin wedges from
  *  its middle, behind it; one polygon, for the coloring page). */
 const rays = (cx: number, cy: number, r: number, n = 11, from = 165, to = 375, half = 5.5) =>
   Array.from({ length: n }, (_, i) => {
@@ -123,7 +123,7 @@ export default function Chick({ stage, mood }: BodyProps) {
         </radialGradient>
       </defs>
 
-      {/* Sunbeam's sunrise: a warm glow behind it, soft rays fanning out over the top of it */}
+      {/* Sunrise's sunrise: a warm glow behind it, soft rays fanning out over the top of it */}
       {st >= 2 && !g && (
         <>
           <polygon points={rays(CX, 118, 90)} fill={`url(#${rayId})`} />
@@ -134,7 +134,7 @@ export default function Chick({ stage, mood }: BodyProps) {
       {/* Its soft shadow on the ground */}
       <polygon points={ring(CX, 180, 44, 5.5)} fill="#2b2140" opacity={0.12} />
 
-      {/* The tuft on top of its head (behind it, so it grows out of it; under Sunbeam's crown) */}
+      {/* The tuft on top of its head (behind it, so it grows out of it; under Sunrise's crown) */}
       {st < 2 && tuft.map(([a, l, w]) => (
         <path key={a} d={tuftFeather(l, w)} transform={`translate(${pt(...TUFT_ROOT)}) rotate(${a})`} fill={body.fill} stroke={line} strokeWidth={2.4} strokeLinejoin="round" />
       ))}
@@ -170,7 +170,7 @@ export default function Chick({ stage, mood }: BodyProps) {
       <polyline points="96 115.4 100 116.6 104 115.4" fill="none" stroke={ink(BEAK)} strokeWidth={1.3} strokeLinecap="round" opacity={0.7} />
       {g && <path d="M94 128 Q100 124 106 128" stroke="#2b2140" strokeWidth={2.6} fill="none" strokeLinecap="round" />}
 
-      {/* Fluffy's and Sunbeam's little flower, tucked in beside its tuft */}
+      {/* Fluffy's and Sunrise's little flower, tucked in beside its tuft */}
       {fluffy && <Flower x={121} y={77} s={0.95} petal={PETAL} mid={MID} />}
 
       {/* Peep's broken eggshell on the ground by its feet, and a little bit of shell on the other side */}

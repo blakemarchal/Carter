@@ -425,14 +425,14 @@ export const PALS: PalDef[] = [
   },
   // Easter Morning
   {
-    id: 'swirly', species: 'snail', fruit: 'Faithfulness',
-    stages: [{ name: 'Swirly', xp: 0 }, { name: 'Shellbright', xp: 100 }, { name: 'Morningshell', xp: 300 }],
-    moves: { basic: { name: 'Shell Spin', fx: 'roll', icon: '🐚' }, brave: { name: 'Dewdrop Splash', fx: 'bubbles', icon: '💧' }, super: { name: 'Sunrise Shine', fx: 'stars', icon: '🌅' } },
+    id: 'twirl', species: 'snail', fruit: 'Faithfulness',
+    stages: [{ name: 'Twirl', xp: 0 }, { name: 'Shellbright', xp: 100 }, { name: 'Morningshell', xp: 300 }],
+    moves: { basic: { name: 'Shell Twirl', fx: 'roll', icon: '🐚' }, brave: { name: 'Dewdrop Splash', fx: 'bubbles', icon: '💧' }, super: { name: 'Sunrise Shine', fx: 'stars', icon: '🌅' } },
     intro: 'is a Faithfulness Pal! {name} used to hide away in its shell, sad and alone, but now {name} comes out to share the good news: Jesus is alive!',
   },
   {
     id: 'peep', species: 'chick', fruit: 'Love',
-    stages: [{ name: 'Peep', xp: 0 }, { name: 'Fluffy', xp: 100 }, { name: 'Sunbeam', xp: 300 }],
+    stages: [{ name: 'Peep', xp: 0 }, { name: 'Fluffy', xp: 100 }, { name: 'Sunrise', xp: 300 }],
     moves: { basic: { name: 'Cheep Cheep', fx: 'spark', icon: '🎵' }, brave: { name: 'Fluff Puff', fx: 'wind', icon: '🪶' }, super: { name: 'Easter Joy', fx: 'hearts', icon: '💛' } },
     intro: 'is a Love Pal! {name} hatched one bright spring morning, and loves to cheep the happy news: Jesus is alive, and He loves you!',
   },

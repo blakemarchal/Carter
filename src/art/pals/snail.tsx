@@ -1,4 +1,4 @@
-// Swirly → Shellbright → Morningshell: a little snail with a soft cream body lying along the ground, its swirly pink
+// Twirl → Shellbright → Morningshell: a little snail with a soft cream body lying along the ground, its swirly pink
 // shell on its back and its round head turned to smile at you. Two eye stalks with round bobbles on their tips rise
 // from the top of its head (its eyes are the big ones on its face), and a soft shadow lies under it.
 // Shellbright's shell swirls with the colours of sunrise: gold in the middle, then orange, then pink. Morningshell has

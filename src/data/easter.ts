@@ -102,7 +102,7 @@ export const EASTER_STEPS: Step[] = [
       { emoji: '🌸', say: 'Jesus saying, Mary!', art: 'story:easter:10' },
     ],
   },
-  { kind: 'battle', foe: 'swirly', intro: "Oh! A little snail named Swirly is hiding in its shell, all grumpy and sad. Swirly hasn't heard the happy news yet! Swirly just needs a friend." },
+  { kind: 'battle', foe: 'twirl', intro: "Oh! A little snail named Twirl is hiding in its shell, all grumpy and sad. Twirl hasn't heard the happy news yet! Twirl just needs a friend." },
   { kind: 'song', song: 'song-easter', intro: "Early in the morning, the stone was rolled away, and Jesus is alive! Let's sing about it, with lots of alleluias. You can sing it on your Ark any time, too." },
   // (The reward says "You also earned a happy Easter sticker!": the drawing is the empty tomb in the garden at sunrise.)
   { kind: 'reward', pal: 'peep', sticker: 'empty-tomb', stickerName: 'happy Easter' },
