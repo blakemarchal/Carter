@@ -35,6 +35,7 @@ An island is played over three visits of about 8 to 10 minutes each, split by `p
 ## The story pictures
 
 - Each page is an 800 x 450 `<Scene>` (see `src/art/scenes/kit.tsx`), built from the kit's props and from `Person` (`src/art/people.tsx`). **Reuse before you draw.** When you need something new (a prop, an animal), add it to the kit so the next island gets it too.
+- **Shared drawing lives in shared files:** poses and faces (`Figure`, `Kneel`, `Sitting`, `Brows`…) in `src/art/people.tsx`, props (`ThoughtBubble`, `Tent`, `Rock`…) in `src/art/scenes/kit.tsx`, the Moses cast in `src/art/scenes/moses.tsx`. **Never import from another island's scene file:** each island is its own download, and that import drags the other island along. Move what's shared into the shared files instead.
 - **People** come from presets in `PEOPLE`. A character looks the same on every page and every island: the same clothes, hair and colors. The player and their family come from `usePlayer()`.
 - **Things in pictures** that already have a drawn item (`#gallery/items`) can be placed with `<Emoji e="🐑" x y size />`, and the drawing is used.
 - **Every page must match its words.** If the text says "five loaves", draw five. If it says "the dove came back with an olive leaf", draw the leaf. Anything named in the text should be visible.
@@ -70,6 +71,8 @@ All the step kinds are in `src/data/islands.ts`: `pairs`, `practice`, `sequence`
 - **Story cards.** To retell the story (put in order, story questions), use the story's own pictures: `art: 'story:<id>:<page>'`, counting pages from 1 across both parts.
 - **Spoken text** follows the same rules as the story: no emoji or symbols. The tests check this.
 - Every island should teach something. Mix reading and numbers, and pick a number practice's `theme` emoji from the story (raindrops, stars, fish).
+- **Things no emoji names** (manna, a mud brick, the basket boat) get a drawing in `isl-<id>.tsx` with no emoji, used by its id: `art` on an activity picture, the `count` item's `art`, or a sticker named by the drawing's id. Only give a drawing an emoji when it is what that emoji means everywhere: a drawing of baby Moses that claimed 👶 once turned every baby in the game into his basket. (A practice's `theme` is still emoji only.)
+- **Words the voice can misread:** a few words are spelled the same but said two ways. "Bow" is read as a ribbon unless it's "bow down"; watch "read", "live", "wind", "tear" and "lead" too, and listen to the line on the review page.
 
 ## Memory verse
 
