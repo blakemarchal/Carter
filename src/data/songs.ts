@@ -53,6 +53,9 @@ const BUILT_IN: { id: string; title: string; emoji: string; color: string; islan
   { id: 'song-baby-moses', title: 'Baby in a Basket', emoji: '👶', color: '#7ec8e3', island: 'baby-moses' },
   { id: 'song-burning-bush', title: 'Moses and the Bush', emoji: '🔥', color: '#ff9b4a', island: 'burning-bush' },
   { id: 'song-manna', title: 'Bread from Heaven', emoji: '🍯', color: '#e8c25a', island: 'manna' },
+  { id: 'song-jericho', title: 'Round and Round Jericho', emoji: '🎺', color: '#e0904f', island: 'jericho' },
+  { id: 'song-ruth', title: 'Where You Go, I Will Go', emoji: '🌾', color: '#d4b44a', island: 'ruth' },
+  { id: 'song-samuel', title: 'Speak, Lord, I Am Listening', emoji: '🪔', color: '#8f8ae0', island: 'samuel' },
 ]
 
 /** Every built-in song's id, made yet or not (an island's song step names one). */

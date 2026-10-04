@@ -43,6 +43,7 @@ export interface PalDef {
     | 'donkey' | 'crab' | 'lamb' | 'snow' | 'cupcake' | 'balloon'
     | 'camel' | 'star' | 'peacock' | 'chameleon' | 'wind' | 'tambourine' | 'cub' | 'owl'
     | 'crocodile' | 'lily' | 'hedgehog' | 'hyrax' | 'tortoise' | 'quail'
+    | 'ram' | 'trumpet' | 'grasshopper' | 'hare' | 'bat' | 'fennec'
   fruit: Fruit
   stages: PalStage[]
   moves: Record<MoveKind, Move>
@@ -261,6 +262,45 @@ export const PALS: PalDef[] = [
     stages: [{ name: 'Quilly', xp: 0 }, { name: 'Quailbell', xp: 100 }, { name: 'Morningwing', xp: 300 }],
     moves: { basic: { name: 'Morning Peep', fx: 'spark', icon: '🐦' }, brave: { name: 'Feather Flurry', fx: 'wind', icon: '🪶' }, super: { name: 'Daily Bread', fx: 'hearts', icon: '🍞' } },
     intro: 'is a Love Pal! {name} remembers the desert mornings, when God sent bread from heaven for His people.',
+  },
+  // The Walls of Jericho
+  {
+    id: 'stomper', species: 'ram', fruit: 'Peace',
+    stages: [{ name: 'Stomper', xp: 0 }, { name: 'Woolhorn', xp: 100 }, { name: 'Jubileeram', xp: 300 }],
+    moves: { basic: { name: 'Soft Stomp', fx: 'rock', icon: '🦶' }, brave: { name: 'Woolly Bounce', fx: 'roll', icon: '☁️' }, super: { name: 'Peace Parade', fx: 'stars', icon: '✨' } },
+    intro: "is a Peace Pal! {name} used to stomp and bump into everyone, but now {name} marches along in peace, like God's people around Jericho.",
+  },
+  {
+    id: 'toot', species: 'trumpet', fruit: 'Faithfulness',
+    stages: [{ name: 'Toot', xp: 0 }, { name: 'Fanfare', xp: 100 }, { name: 'Jubileehorn', xp: 300 }],
+    moves: { basic: { name: 'Toot Toot', fx: 'wind', icon: '📯' }, brave: { name: 'Marching Beat', fx: 'spark', icon: '👣' }, super: { name: 'Tumbling Walls', fx: 'rock', icon: '🧱' } },
+    intro: 'is a Faithfulness Pal! {name} called out faithfully for seven whole days, just as God said, until the walls of Jericho came tumbling down.',
+  },
+  // Ruth and Naomi
+  {
+    id: 'hopper', species: 'grasshopper', fruit: 'Kindness',
+    stages: [{ name: 'Hopper', xp: 0 }, { name: 'Leapsong', xp: 100 }, { name: 'Meadowking', xp: 300 }],
+    moves: { basic: { name: 'Hop Along', fx: 'roll', icon: '🦗' }, brave: { name: 'Meadow Song', fx: 'leaf', icon: '🎶' }, super: { name: 'Sharing Harvest', fx: 'hearts', icon: '🌾' } },
+    intro: 'is a Kindness Pal! {name} used to gobble up all the grain, but now {name} leaves plenty to share, like kind Boaz in his fields.',
+  },
+  {
+    id: 'barley', species: 'hare', fruit: 'Goodness',
+    stages: [{ name: 'Barley', xp: 0 }, { name: 'Sheafhop', xp: 100 }, { name: 'Harvestglow', xp: 300 }],
+    moves: { basic: { name: 'Barley Hop', fx: 'leaf', icon: '🌾' }, brave: { name: 'Burrow Dash', fx: 'wind', icon: '💨' }, super: { name: 'Golden Field', fx: 'stars', icon: '🌟' } },
+    intro: 'is a Goodness Pal! {name} hops through the golden barley fields of Bethlehem, where God took care of Ruth and Naomi.',
+  },
+  // Samuel Listens
+  {
+    id: 'squeaky', species: 'bat', fruit: 'Self-Control',
+    stages: [{ name: 'Squeaky', xp: 0 }, { name: 'Hushwing', xp: 100 }, { name: 'Moonglider', xp: 300 }],
+    moves: { basic: { name: 'Quiet Flap', fx: 'wind', icon: '🦇' }, brave: { name: 'Moon Swoop', fx: 'stars', icon: '🌙' }, super: { name: 'Hush Hug', fx: 'hearts', icon: '🤫' } },
+    intro: 'is a Self-Control Pal! {name} used to squeak and squeak all night long, but now {name} can be still and quiet, and listen, like Samuel.',
+  },
+  {
+    id: 'echo', species: 'fennec', fruit: 'Faithfulness',
+    stages: [{ name: 'Echo', xp: 0 }, { name: 'Bigears', xp: 100 }, { name: 'Dawnlistener', xp: 300 }],
+    moves: { basic: { name: 'Listening Ears', fx: 'spark', icon: '👂' }, brave: { name: 'Sand Skip', fx: 'roll', icon: '🌀' }, super: { name: 'Lamp Light', fx: 'flame', icon: '🪔' } },
+    intro: 'is a Faithfulness Pal! {name} has great big ears for listening, just like Samuel, who listened when God called his name.',
   },
 ]
 

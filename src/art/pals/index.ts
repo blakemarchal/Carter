@@ -34,6 +34,12 @@ import Hedgehog from './hedgehog'
 import Hyrax from './hyrax'
 import Tortoise from './tortoise'
 import Quail from './quail'
+import Ram from './ram'
+import Trumpet from './trumpet'
+import Grasshopper from './grasshopper'
+import Hare from './hare'
+import Bat from './bat'
+import Fennec from './fennec'
 
 export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   mouse: Mouse,
@@ -68,4 +74,10 @@ export const SPECIES: Record<PalDef['species'], ComponentType<BodyProps>> = {
   hyrax: Hyrax,
   tortoise: Tortoise,
   quail: Quail,
+  ram: Ram,
+  trumpet: Trumpet,
+  grasshopper: Grasshopper,
+  hare: Hare,
+  bat: Bat,
+  fennec: Fennec,
 }
