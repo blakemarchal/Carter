@@ -362,8 +362,8 @@ function Sinks() {
 }
 
 export const ISL_BABY_MOSES: Item[] = [
-  // (The island's sticker, and the landmark on the map: 👶 is the baby, here safe in his basket.)
-  { id: 'moses-basket', name: 'baby Moses in his basket boat', emoji: ['👶'], Draw: MosesBasket },
+  // (The island's sticker, and its landmark on the map. No emoji names it: 👶 is every baby, like baby Jesus.)
+  { id: 'moses-basket', name: 'baby Moses in his basket boat', Draw: MosesBasket },
   { id: 'water-lily', name: 'water lily', emoji: ['🪷'], Draw: WaterLilyItem },
   // (The two groups for "Float or Sink?": no emoji, as nothing means just these.)
   { id: 'it-floats', name: 'it floats', emoji: [], Draw: Floats },

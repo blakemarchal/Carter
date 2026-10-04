@@ -90,7 +90,6 @@ export const BABY_MOSES_STEPS: Step[] = [
   },
   { kind: 'battle', foe: 'snappy', intro: 'Oh no! A grumpy little crocodile named Snappy is going snap, snap, snap at everybody by the river! Snappy just needs a friend.' },
   { kind: 'song', song: 'song-baby-moses', intro: 'Let\'s sing about baby Moses in his basket! You can sing it on your Ark any time, too.' },
-  // (The basket boat, with baby Moses peeking out: a sticker is named by its emoji, and the drawing for 👶 is
-  // baby Moses safe in his basket, art/items/isl-baby-moses.tsx.)
-  { kind: 'reward', pal: 'lily', sticker: '👶', stickerName: 'basket boat' },
+  // (The basket boat, with baby Moses peeking out: art/items/isl-baby-moses.tsx.)
+  { kind: 'reward', pal: 'lily', sticker: 'moses-basket', stickerName: 'basket boat' },
 ]

@@ -317,8 +317,7 @@ export function RockSpring({ x, y, s = 1, dry, pool = 124 }: { x: number; y: num
 
 /**
  * Aaron's golden jar, heaped with manna, shining: kept so everyone would remember how God fed them. The
- * island's reward sticker. Its emoji is 🏺, the ancient jar with two handles (🍯 is honey, 🫙 an empty
- * glass jar): a sticker is named by its emoji.
+ * island's reward sticker. No emoji names it (🏺 is any old jar, like the ones in Joseph's Egypt).
  */
 function MannaJarItem() {
   const id = `mj${uid(useId())}`
@@ -418,7 +417,7 @@ function SpoiledManna() {
 }
 
 export const ISL_MANNA: Item[] = [
-  { id: 'manna-jar', name: 'jar of manna', emoji: ['🏺'], Draw: MannaJarItem },
+  { id: 'manna-jar', name: 'jar of manna', Draw: MannaJarItem },
   { id: 'quail', name: 'quail', Draw: QuailItem },
   { id: 'manna-wafers', name: 'manna, like crackers made with honey', Draw: MannaWafers },
   { id: 'rock-water', name: 'water pouring out of a rock', Draw: RockWaterItem },

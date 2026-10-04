@@ -79,7 +79,7 @@ function IslandShape({ isl, state, pressed, stars, resting, fresh }: { isl: MapI
       <Palm x={54} y={4} s={0.8} flip />
       {/* The landmark: its drawing, or else the emoji. It was 54px emoji text on the baseline y = -12,
           which centres the picture about 19 units higher; Emoji centres on (x, y). */}
-      <g className="map-landmark"><Emoji e={isl.emoji} x={4} y={-31} size={54} /></g>
+      <g className="map-landmark"><Emoji e={isl.emoji} art={isl.landmark} x={4} y={-31} size={54} /></g>
       {state === 'done' && (
         <g transform="translate(36 -64)">
           <line x1={0} y1={0} x2={0} y2={40} stroke="#7a5a3a" strokeWidth={4} />

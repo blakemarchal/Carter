@@ -98,7 +98,6 @@ export const MANNA_STEPS: Step[] = [
   },
   { kind: 'battle', foe: 'shelly', intro: 'Oh no! A grumpy little tortoise named Shelly is grumbling that dinner is much too slow! Shelly just needs a friend.' },
   { kind: 'song', song: 'song-manna', intro: "Let's sing about the bread from heaven that God gave His people every morning! You can sing it on your Ark any time, too." },
-  // (Aaron's jar of manna, from the end of the story: a sticker is named by its emoji, and the drawing for 🏺,
-  // the ancient jar with two handles, is his golden jar heaped with manna, art/items/isl-manna.tsx.)
-  { kind: 'reward', pal: 'quilly', sticker: '🏺', stickerName: 'jar of manna' },
+  // (Aaron's golden jar of manna, from the end of the story: art/items/isl-manna.tsx.)
+  { kind: 'reward', pal: 'quilly', sticker: 'manna-jar', stickerName: 'jar of manna' },
 ]

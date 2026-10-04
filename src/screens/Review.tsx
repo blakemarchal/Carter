@@ -123,7 +123,7 @@ function StepView({ s, n }: { s: Step; n: number }) {
     case 'pause':
       return <section>{head('End of the visit ("To be continued")')}<p>&ldquo;{s.line}&rdquo;</p></section>
     case 'reward':
-      return <section>{head(`Reward: ${palById(s.pal)?.stages[0].name ?? `${s.pal} (not a Pal yet)`}`)}<div className="rv-row">sticker {say({ emoji: s.sticker, say: s.stickerName })}</div></section>
+      return <section>{head(`Reward: ${palById(s.pal)?.stages[0].name ?? `${s.pal} (not a Pal yet)`}`)}<div className="rv-row">sticker {say({ emoji: s.sticker, art: s.sticker, say: s.stickerName })}</div></section>
   }
 }
 

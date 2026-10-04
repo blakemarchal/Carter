@@ -24,7 +24,7 @@ it('every activity picture is drawn', async () => {
     if (s.kind === 'count') { thing(at, s.item); check(`${at} container`, s.basket, s.basketArt) }
     if (s.kind === 'maze') { thing(at, s.hero); thing(at, s.goal) }
     if (s.kind === 'practice' && s.theme) check(at, s.theme)
-    if (s.kind === 'reward') check(at, s.sticker)
+    if (s.kind === 'reward') check(at, s.sticker, s.sticker) // (an emoji, or a drawing's id)
   }
   for (const r of RECIPES) {
     check(`recipe ${r.id}`, r.emoji)

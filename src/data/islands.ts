@@ -77,7 +77,10 @@ export type Step =
   | { kind: 'battle'; foe: string; intro: string }
   /** The end of a visit (an island has up to three): a little cliffhanger, then back to the map. */
   | { kind: 'pause'; line: string }
-  /** The island's reward: a new Pal and a sticker. Always the last step. */
+  /**
+   * The island's reward: a new Pal and a sticker. Always the last step. The sticker is an emoji, or the id
+   * of a drawing (art/items) for a thing no emoji names, like baby Moses' basket.
+   */
   | { kind: 'reward'; pal: string; sticker: string; stickerName: string }
 
 /** A built island, as the map knows it. Where it sits on the voyage (which sea, in what order) is in seas.ts. */
