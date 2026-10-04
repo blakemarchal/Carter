@@ -44,50 +44,74 @@ function Tosser({ x, y, s = 0.66, i, cheer, facing = 'right', blinkDelay = 0 }: 
   )
 }
 
+/** A color part of the way (`t`, 0 to 1) from one #rrggbb color to another. */
+const mix = (a: string, b: string, t: number) => {
+  const ch = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16))
+  const [pa, pb] = [ch(a), ch(b)]
+  return `#${pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, '0')).join('')}`
+}
+
+/**
+ * The sky as the basket fills, [top, middle, low]: a clear blue day, a soft lavender afternoon, then a golden evening
+ * (blue at the top, peach, then gold). It's always one solid sky, worked out step by step: never a see-through warm
+ * layer over the blue, which mixes to grey.
+ */
+const SKIES: { at: number; c: [string, string, string] }[] = [
+  { at: 0, c: ['#8fd3ff', '#c4e9ff', '#e2f6ff'] },
+  { at: 0.5, c: ['#8ccaf6', '#dcd6f6', '#fff0d2'] },
+  { at: 1, c: ['#8fbaec', '#ffc6b0', '#ffe29c'] },
+]
+function skyAt(p: number): [string, string, string] {
+  const j = p >= SKIES[1].at ? 1 : 0
+  const a = SKIES[j], b = SKIES[j + 1]
+  const t = Math.max(0, Math.min(1, (p - a.at) / (b.at - a.at)))
+  return [mix(a.c[0], b.c[0], t), mix(a.c[1], b.c[1], t), mix(a.c[2], b.c[2], t)]
+}
+
 function Backdrop({ caught }: { caught: number }) {
   const id = `rg${useId().replace(/[^a-zA-Z0-9]/g, '')}`
   const p = Math.max(0, Math.min(1, caught / GOAL))
   const done = caught >= GOAL
+  const [top, middle, low] = skyAt(p)
   return (
     <Scene sky="day" ground="none" clouds={false}>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffb38a" stopOpacity={0.05} /><stop offset="0.5" stopColor="#ffbf8a" stopOpacity={0.6} /><stop offset="1" stopColor="#ffd98a" stopOpacity={1} />
+          <stop offset="0" stopColor={top} /><stop offset="0.55" stopColor={middle} /><stop offset="1" stopColor={low} />
         </linearGradient>
       </defs>
       {/* the day goes on toward evening as the basket fills: the sun goes over, and the sky turns golden */}
-      <rect width={800} height={300} fill={`url(#${id})`} opacity={0.85 * p} />
+      <rect width={800} height={300} fill={`url(#${id})`} />
       <Sun x={150 + 470 * p} y={74 + 50 * p * p} s={0.62} />
       <Cloud x={300} y={60} s={0.55} slow />
       <Cloud x={620} y={92} s={0.45} />
       <path d="M-10 262 Q120 236 260 252 Q420 232 560 248 Q690 232 810 246 L810 460 L-10 460 Z" fill="#c9d79a" />
-      <Bethlehem x={536} y={278} s={0.5} fields="gold" />
+      <Bethlehem x={604} y={276} s={0.44} fields="gold" />
       <path d="M-10 270 Q200 260 420 268 T810 264 L810 460 L-10 460 Z" fill="#d6cf8a" />
-      {/* the standing barley, with harvesters cutting it */}
+      {/* the standing barley, with harvesters cutting it (either side of the town, clear of where Ruth starts) */}
       {done ? (
         <g>
-          <Figure x={420} y={292} s={0.56} look={HARVESTERS[0]} pose="arms-up" mood="joy" blinkDelay={0.3} />
-          <Figure x={724} y={296} s={0.56} look={HARVESTERS[2]} pose="arms-up" mood="joy" facing="left" blinkDelay={1.1} />
+          <Figure x={500} y={292} s={0.56} look={HARVESTERS[0]} pose="arms-up" mood="joy" blinkDelay={0.3} />
+          <Figure x={764} y={296} s={0.56} look={HARVESTERS[2]} pose="arms-up" mood="joy" facing="left" blinkDelay={1.1} />
         </g>
       ) : (
         <g>
-          <Harvester x={420} y={292} s={0.56} i={0} blinkDelay={0.3} />
-          <Harvester x={724} y={296} s={0.56} i={2} blinkDelay={1.1} facing="left" />
+          <Harvester x={500} y={292} s={0.56} i={0} blinkDelay={0.3} />
+          <Harvester x={764} y={296} s={0.56} i={2} blinkDelay={1.1} facing="left" />
         </g>
       )}
       <BarleyField x0={300} x1={810} y={268} depth={40} k={0.52} seed={51} />
       <Stubble y0={302} y1={460} />
       <path d="M-10 300 L300 300 Q300 284 312 276 L-10 276 Z" fill="#d6cf8a" />
-      <BarleySheaf x={250} y={330} s={0.56} />
-      <BarleySheaf x={520} y={334} s={0.58} lean={-5} />
-      <BarleySheaf x={760} y={338} s={0.6} lean={4} />
+      <BarleySheaf x={206} y={330} s={0.56} />
+      <BarleySheaf x={586} y={334} s={0.58} lean={-5} />
       {/* Boaz in the shade of an olive tree, by the water jar */}
       <OliveTree x={74} y={330} s={1.7} />
       <WaterJar x={160} y={346} s={0.6} />
       <Boaz x={112} y={352} s={0.7} pose={done ? 'arms-up' : caught >= 3 ? 'wave' : 'stand'} mood={done ? 'joy' : 'happy'} blinkDelay={0.8} />
-      {/* his kind workers, tossing extra barley up for Ruth */}
-      <Tosser x={350} y={350} i={3} cheer={done} blinkDelay={0.5} />
-      <Tosser x={652} y={354} i={4} cheer={done} facing="left" blinkDelay={1.4} />
+      {/* his kind workers, tossing extra barley up for Ruth (well clear of her basket where she starts, at 400) */}
+      <Tosser x={270} y={350} i={3} cheer={done} blinkDelay={0.5} />
+      <Tosser x={684} y={354} i={4} cheer={done} blinkDelay={1.4} />
       {done && <Sparkles spots={[[200, 200, 9], [400, 168, 10], [560, 196, 9], [720, 176, 8]]} color="#fff3a8" />}
     </Scene>
   )

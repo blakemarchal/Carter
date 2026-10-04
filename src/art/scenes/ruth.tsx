@@ -72,9 +72,15 @@ type FigProps = Omit<ComponentProps<typeof Figure>, 'look'>
 /** Dark hair peeking out under a scarf (in a Person's own units): she's young. */
 export const DarkHair = () => <SilverHair color="#3b2a20" />
 
-/** Naomi, with her silver hair. */
-export function Naomi({ children, ...p }: FigProps) {
-  return <Figure {...p} look={NAOMI}><SilverHair />{children}</Figure>
+/**
+ * The color of Naomi's hair peeking out under her head cloth as the years go by: dark when the family leaves
+ * Bethlehem (page 1), greying ten years on in Moab (page 2), and silver from then on.
+ */
+export const NAOMI_HAIR = { young: '#4a3a2e', greying: '#a59c94', silver: '#e9e5de' }
+
+/** Naomi, with her silver hair (or `hair`: an earlier color, NAOMI_HAIR). */
+export function Naomi({ hair = NAOMI_HAIR.silver, children, ...p }: FigProps & { hair?: string }) {
+  return <Figure {...p} look={NAOMI}><SilverHair color={hair} />{children}</Figure>
 }
 /** Ruth, with her dark hair under her rose scarf. */
 export function Ruth({ children, ...p }: FigProps) {
@@ -92,6 +98,22 @@ export function Boaz(p: FigProps) {
 /** Where a figure at (fx, fy), `fs` big, facing `facing`, must reach to touch (tx, ty) in the picture: in its own units. */
 const reach = (fx: number, fy: number, fs: number, tx: number, ty: number, facing: 'left' | 'right' = 'right'): Pt =>
   [((tx - fx) / fs) * (facing === 'left' ? -1 : 1), (ty - fy) / fs]
+
+/**
+ * A forearm bent up from the elbow to the hand, drawn over a Person's face (in their own units: give it as a
+ * child, with that arm's hand reaching to the elbow): a hand at the lips, blowing a kiss.
+ */
+const Forearm = ({ from, to, look }: { from: Pt; to: Pt; look: Look }) => {
+  const d = `M${from[0]} ${from[1]} L${to[0]} ${to[1]}`
+  return (
+    <g>
+      <path d={d} stroke={ink(look.robe)} strokeWidth={17} strokeLinecap="round" />
+      <path d={d} stroke={look.robe} strokeWidth={14} strokeLinecap="round" />
+      <path d={d} stroke={lighten(look.robe, 0.15)} strokeWidth={8} strokeLinecap="round" />
+      <Grip x={to[0]} y={to[1]} skin={look.skin} />
+    </g>
+  )
+}
 
 /** A hand drawn again on top of someone else (a hug's hand on a shoulder), in picture units. */
 const HandOn = ({ x, y, s = 1, look }: { x: number; y: number; s?: number; look: Look }) => (
@@ -234,10 +256,13 @@ export const Sickle = ({ x, y }: { x: number; y: number }) => (
 /** A harvester in the standing barley (draw the barley after, so it hides their legs): sickle up in one hand, a bunch of barley in the other. */
 export function Harvester({ x, y, s = 1, i = 0, cheer, blinkDelay = 0, facing = 'right' }: { x: number; y: number; s?: number; i?: number; cheer?: boolean; blinkDelay?: number; facing?: 'left' | 'right' }) {
   const look = HARVESTERS[i % HARVESTERS.length]
+  // (the women's dark hair peeks out under their head cloths, as everywhere)
+  const hair = look.beard === undefined ? <DarkHair /> : null
   return cheer
-    ? <Figure x={x} y={y} s={s} look={look} pose="arms-up" mood="joy" facing={facing} blinkDelay={blinkDelay} />
+    ? <Figure x={x} y={y} s={s} look={look} pose="arms-up" mood="joy" facing={facing} blinkDelay={blinkDelay}>{hair}</Figure>
     : (
       <Figure x={x} y={y} s={s} look={look} pose="wave" facing={facing} blinkDelay={blinkDelay}>
+        {hair}
         <Sickle x={42} y={-128} />
         <BarleyBunch x={-30} y={-48} s={0.5} />
         <Grip x={-30} y={-46} skin={look.skin} />
@@ -524,15 +549,20 @@ function Grasshopper({ x, y, s = 1, facing = 'right' }: { x: number; y: number; 
   const g = '#7cc04a', line = '#3f7a2a'
   return (
     <g transform={`translate(${x} ${y}) scale(${facing === 'left' ? -s : s} ${s})`}>
-      {/* the big back leg folded up like a Z, then the front legs */}
-      <path d="M-10 -9 L-4 -22 L-16 -2" stroke={line} strokeWidth={3.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M-10 -9 L-4 -22 L-16 -2" stroke={g} strokeWidth={1.8} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      {/* the little front legs (their tops hidden under the body), then the body and head */}
       <path d="M4 -7 L2 0 M10 -7 L12 0" stroke={line} strokeWidth={1.8} strokeLinecap="round" />
       <path d="M-20 -9 Q-14 -17 2 -15 Q14 -14 15 -8 Q12 -3 0 -4 Q-14 -3 -20 -9 Z" fill={g} stroke={line} strokeWidth={1.6} strokeLinejoin="round" />
       <path d="M-16 -11 Q-6 -15 6 -13" stroke="#5aa03a" strokeWidth={1.3} fill="none" />
       <circle cx={14} cy={-12} r={5.5} fill={g} stroke={line} strokeWidth={1.6} />
       <circle cx={16} cy={-13} r={1.7} fill="#2b2140" />
       <path d="M14 -17 Q20 -30 30 -32 M12 -17 Q14 -30 22 -36" stroke={line} strokeWidth={1.2} fill="none" strokeLinecap="round" />
+      {/* the big jumping leg on its side, folded the way a grasshopper rests (like Hopper's): the shin from the knee
+          back down to a foot on the ground, then the plump thigh from mid-body up to the knee above the tail */}
+      <path d="M-18 -21 L-10.5 -1" stroke={line} strokeWidth={3.2} strokeLinecap="round" />
+      <path d="M-18 -21 L-10.5 -1" stroke={g} strokeWidth={1.5} strokeLinecap="round" />
+      <ellipse cx={-9.5} cy={-0.8} rx={3.2} ry={1.6} fill={g} stroke={line} strokeWidth={1.2} />
+      <path d="M-0.3 -12.5 Q-7.5 -19.5 -17.1 -22.3 Q-19.8 -21.6 -18.9 -19.7 Q-10 -14 -3.7 -7.5 Q-1.4 -8.6 -0.3 -12.5 Z" fill={g} stroke={line} strokeWidth={1.5} strokeLinejoin="round" />
+      <path d="M-6 -14 L-9 -13.4 M-10.5 -16.6 L-13 -16" stroke="#5aa03a" strokeWidth={1.1} strokeLinecap="round" />
     </g>
   )
 }
@@ -572,7 +602,7 @@ const Page1 = () => {
       <Person x={470} y={424} s={0.94} look={MAHLON_BOY} pose="wave" blinkDelay={0.6} />
     </Tap>
     <Tap say="Goodbye, Bethlehem. We will miss you!" sfx="pop">
-      <Naomi x={380} y={418} s={0.94} blinkDelay={0.3}><TravelBundle skin={NAOMI.skin} /></Naomi>
+      <Naomi x={380} y={418} s={0.94} hair={NAOMI_HAIR.young} blinkDelay={0.3}><TravelBundle skin={NAOMI.skin} /></Naomi>
     </Tap>
     <Tap say="Come along! We are going to the land of Moab." sfx="ding">
       {/* (the bundle on his back goes behind him, so it peeks out over his shoulder) */}
@@ -601,15 +631,16 @@ const Page2 = () => {
       <path d="M-10 380 Q240 362 480 382 T810 372 L810 460 L-10 460 Z" fill="#8cc66e" />
       <OliveTree x={736} y={330} s={1.5} flip />
       <MudHouse x={96} y={330} w={130} h={80} door={0.18} win={-0.22} />
-      <Sheep x={560} y={298} s={0.42} />
-      <Sheep x={618} y={302} s={0.38} facing="left" />
+      {/* (up the hill, clear of Chilion and of the olive tree) */}
+      <Sheep x={626} y={274} s={0.36} />
+      <Sheep x={668} y={278} s={0.34} facing="left" />
       {[[180, 404, '#ff8cc0'], [610, 410, '#ffd34d'], [740, 420, '#ffffff'], [60, 428, '#ffd34d']].map(([fx, fy, c]) => <Flower key={fx} x={fx as number} y={fy as number} color={c as string} />)}
       <Tap say="We are Naomi's boys, all grown up!" sfx="pop">
         <Person x={226} y={y + 2} s={s} look={MAHLON} pose="wave" blinkDelay={0.8} />
         <Person x={574} y={y + 2} s={s} look={CHILION} pose="wave" facing="left" blinkDelay={1.7} />
       </Tap>
       <Tap say="I love you both so much!" sfx="pop">
-        <Naomi x={nx} y={y} s={s} pose="hug" mood="joy" reach={[reach(nx, y, s, rx - 19, y - 84 * s), reach(nx, y, s, ox + 19, y - 84 * s)]} />
+        <Naomi x={nx} y={y} s={s} pose="hug" mood="joy" hair={NAOMI_HAIR.greying} reach={[reach(nx, y, s, rx - 19, y - 84 * s), reach(nx, y, s, ox + 19, y - 84 * s)]} />
       </Tap>
       <Tap say="Hello! My name is Ruth." sfx="pop">
         <Ruth x={rx} y={y} s={s} pose="hug-right" reach={[null, reach(rx, y, s, nx - 24, y - 60 * s)]} blinkDelay={0.4} />
@@ -695,10 +726,16 @@ const Page4 = () => {
       <path d="M-10 318 Q220 304 430 316 T810 312 L810 460 L-10 460 Z" fill="#cfd69a" />
       <Road pts={[[-40, 330, 16], [80, 336, 22], [220, 360, 34], [380, 394, 48], [560, 420, 60], [740, 412, 56], [860, 396, 50]]} />
       {[[300, 310], [690, 330], [40, 420], [760, 440]].map(([fx, fy]) => <Flower key={fx} x={fx} y={fy} s={0.9} color={fx % 3 ? '#ff8cc0' : '#ffd34d'} />)}
+      {/* Orpah blows Naomi a goodbye kiss, her hand at her lips, and little hearts drift from it over to Naomi */}
       <Tap say="Goodbye, Naomi! I love you." sfx="pop">
-        <Orpah x={200} y={392} s={0.9} pose="wave" facing="left" blinkDelay={0.7}><TravelBundle skin={ORPAH.skin} /></Orpah>
-        <Heart x={262} y={262} s={0.7} />
-        <Heart x={306} y={236} s={0.5} d={0.8} />
+        <Orpah x={200} y={392} s={0.9} pose="hug-right" reach={[null, [28, -62]]} blinkDelay={0.7}>
+          <TravelBundle skin={ORPAH.skin} />
+          <Forearm from={[28, -62]} to={[9, -101]} look={ORPAH} />
+        </Orpah>
+        <Heart x={230} y={292} s={0.34} />
+        <Heart x={268} y={280} s={0.46} d={0.4} />
+        <Heart x={312} y={274} s={0.58} d={0.8} />
+        <Heart x={358} y={282} s={0.68} d={1.2} />
       </Tap>
       <Tap say="Go home, my dear. God bless you, Orpah!" sfx="pop">
         <Naomi x={nx} y={y} s={s} pose="wave" facing="left" blinkDelay={0.3}><TravelBundle skin={NAOMI.skin} /></Naomi>
@@ -713,7 +750,7 @@ const Page4 = () => {
 }
 
 // 5. "But Ruth hugged Naomi tight. 'Where you go, I will go,' said Ruth. 'Your people will be my people, and your God
-// will be my God.'"
+// my God.'" (the memory verse's own words, Ruth 1:16)
 // Up close on the road, in a warm glow: Ruth hugs Naomi tight, her arm round Naomi's shoulders, and Naomi cries happy
 // tears. Hearts float up; the road runs on to Bethlehem, far away on its hill.
 /** (px, py) turned `a` degrees round (cx, cy). */
@@ -839,7 +876,7 @@ const Page7 = () => (
     <BarleySheaf x={300} y={360} s={0.62} />
     <BarleySheaf x={410} y={366} s={0.64} lean={-6} />
     <BarleySheaf x={720} y={370} s={0.66} lean={5} />
-    <Figure x={570} y={380} s={0.7} look={HARVESTERS[3]} pose="hold" blinkDelay={1.6} item={<BarleySheaf x={0} y={-30} s={0.5} />} />
+    <Figure x={570} y={380} s={0.7} look={HARVESTERS[3]} pose="hold" blinkDelay={1.6} item={<BarleySheaf x={0} y={-30} s={0.5} />}><DarkHair /></Figure>
     <Tap say="God be with you, my workers!" sfx="ding">
       <Boaz x={110} y={410} s={0.92} pose="wave" blinkDelay={0.5} />
     </Tap>
@@ -854,9 +891,13 @@ const Page7 = () => (
       </Kneel>
       <GleanBasket x={556} y={404} w={62} k={0.25} />
     </Tap>
+    {/* stalks left behind, to count (each with a bigger, see-through spot round it, for little fingers) */}
     {([[250, 430, -60], [330, 444, 70], [620, 438, -75], [690, 428, 65], [390, 420, 80]] as const).map(([sx, sy, a]) => (
       <Tap key={sx} count="stalks" sfx="pop">
-        <g transform={`translate(${sx} ${sy}) rotate(${a})`}><BarleyStalk x={0} y={14} h={34} nod={8} s={0.8} /></g>
+        <g transform={`translate(${sx} ${sy}) rotate(${a})`}>
+          <circle cx={0} cy={-20} r={27} fill="transparent" />
+          <BarleyStalk x={0} y={14} h={34} nod={8} s={0.8} />
+        </g>
       </Tap>
     ))}
   </Scene>
@@ -933,7 +974,7 @@ const Page8 = () => (
     <Tap say="Cool water! Glug, glug, glug." sfx="plop">
       <WaterJar x={60} y={430} s={0.95} />
     </Tap>
-    <Sitting x={150} y={436} s={0.86} look={HARVESTERS[1]} holding="bread" blinkDelay={0.8} />
+    <Sitting x={150} y={436} s={0.86} look={HARVESTERS[1]} holding="bread" blinkDelay={0.8}><DarkHair /></Sitting>
     <Sitting x={250} y={440} s={0.86} look={HARVESTERS[2]} holding="bread" blinkDelay={1.5} />
     <Bread x={200} y={426} s={0.6} />
     <Tap say="Thank you, Boaz! You are so kind to me." sfx="pop">

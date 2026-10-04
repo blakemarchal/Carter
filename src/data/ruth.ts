@@ -14,7 +14,7 @@ export const RUTH_STORY_1: StoryPage[] = [
   { scene: '👩🏽💛👩🏽', bg: 'linear-gradient(#bfe6ff,#c9f2d0)', text: 'In Moab, the boys grew up. They married two kind women named Ruth and Orpah. Naomi loved Ruth and Orpah, and they loved her, too.' },
   { scene: '😢🌅', bg: 'linear-gradient(#ffd0dc,#ffe9c9)', text: 'Then Naomi\'s husband and her two sons died, and she was very sad. One day, Naomi heard good news. God had given His people food in Bethlehem again! "I will go home," she said.' },
   { scene: '👋💋', bg: 'linear-gradient(#bfe6ff,#e6f0c4)', text: 'So Naomi set off for home, and Ruth and Orpah went with her. On the way, Naomi said, "Go back home to your mothers, my dears." Orpah kissed Naomi goodbye, and she went back home.' },
-  { scene: '🤗💛', bg: 'linear-gradient(#ffd0dc,#fff3c9)', text: 'But Ruth hugged Naomi tight. "Where you go, I will go," said Ruth. "Your people will be my people, and your God will be my God."' },
+  { scene: '🤗💛', bg: 'linear-gradient(#ffd0dc,#fff3c9)', text: 'But Ruth hugged Naomi tight. "Where you go, I will go," said Ruth. "Your people will be my people, and your God my God."' },
   { scene: '🏘️🌾', bg: 'linear-gradient(#bfe6ff,#fff3c9)', text: 'Ruth and Naomi walked together, all the way to Bethlehem. When they got there, the barley in the fields was golden and ready to harvest!' },
 ]
 
