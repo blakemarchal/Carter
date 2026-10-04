@@ -109,6 +109,15 @@ export function Bird({ x, y, s = 1, color = '#5ba8f0', breast = '#ffbd8c', facin
   )
 }
 
+/** The kit's meadow (Scene ground="meadow"), with its flowers where the page wants them (clear of anyone's feet). */
+const Meadow = ({ flowers }: { flowers: [number, number, string][] }) => (
+  <g>
+    <path d="M0 330 Q200 290 400 320 T800 310 L800 450 L0 450 Z" fill="#8fd18a" />
+    <path d="M0 370 Q220 340 430 372 T800 360 L800 450 L0 450 Z" fill="#6cc46a" />
+    {flowers.map(([x, y, c]) => <Flower key={`${x}${y}`} x={x} y={y} color={c} />)}
+  </g>
+)
+
 /** A tree at night: the kit Tree's shape as a dark silhouette. */
 const NightTree = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <g transform={`translate(${x} ${y}) scale(${s})`} fill="#2a2763" stroke="#3d3888" strokeWidth={3}>
@@ -227,14 +236,15 @@ const stand = (x: number, feet: number, size: number) => ({ x, y: feet - 0.42 * 
 /** Eden's river, winding down from the far hills to the front of the picture. */
 const RIVER = 'M597 266 C580 280 566 290 569 304 C572 320 560 330 566 344 C574 364 596 376 606 394 C620 418 638 432 640 450 L796 450 C778 428 736 410 704 390 C676 372 642 360 634 342 C626 324 614 314 611 302 C608 288 612 276 613 266 Z'
 
-/** The garden's land: far hills with little trees, the meadow, and the sparkling river. */
-function GardenLand() {
+/** The little trees on Eden's far hills: [x, y (the foot of the trunk), size]. */
+const FAR_TREES: [number, number, number][] = [[60, 290, 0.42], [200, 276, 0.36], [330, 268, 0.4], [470, 264, 0.34], [700, 262, 0.38], [770, 270, 0.34]]
+
+/** The garden's land: far hills with little trees (`farTrees`), the meadow, and the sparkling river. */
+function GardenLand({ farTrees = FAR_TREES }: { farTrees?: [number, number, number][] }) {
   return (
     <g>
       <path d="M0 296 Q120 246 260 272 Q400 236 540 264 Q680 238 800 262 L800 450 L0 450 Z" fill="#a8d8a0" />
-      {[[60, 290, 0.42], [200, 276, 0.36], [330, 268, 0.4], [470, 264, 0.34], [700, 262, 0.38], [770, 270, 0.34]].map(([tx, ty, ts], i) => (
-        <Tree key={i} x={tx} y={ty} s={ts} />
-      ))}
+      {farTrees.map(([tx, ty, ts]) => <Tree key={tx} x={tx} y={ty} s={ts} />)}
       <path d="M0 330 Q160 300 340 318 Q480 330 560 312 Q680 292 800 306 L800 450 L0 450 Z" fill="#8fd18a" />
       <path d={RIVER} fill="#6cc0f2" stroke="#4f9fd8" strokeWidth={3} strokeLinejoin="round" />
       <path d="M603 282 C590 300 586 320 594 340 C604 362 630 380 660 404" stroke="#a6dcff" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.8} />
@@ -392,7 +402,8 @@ const Page7 = () => (
 const Page8 = () => (
   <Scene sky="day" ground="none" sun>
     <Rays x={400} y={-60} r={560} n={16} color="#fff6c0" opacity={0.2} />
-    <GardenLand />
+    {/* (without the far trees that would peek out round the fruit trees, like lumps on them) */}
+    <GardenLand farTrees={FAR_TREES.filter(([tx]) => tx !== 60 && tx !== 200 && tx !== 700)} />
     <FruitTree x={724} y={344} s={0.78} fruit="#ffa63d" />
     <Tap say="Splish, splash!" sfx="plop">
       <Sparkles spots={[[592, 300, 7], [612, 352, 9], [668, 398, 8], [720, 432, 10]]} color="#ffffff" />
@@ -413,13 +424,14 @@ const Page8 = () => (
 )
 
 // 9. "God brought the animals to Adam, and Adam gave each one a name. Zebra! Monkey! Bear! What a fun job!"
-// The animals wait their turn in a line, the zebra first; Adam points to it. (Eve isn't in this picture:
-// in Genesis, Adam named the animals before Eve was made.)
+// The animals wait their turn in a line, the zebra first, and the giraffe last, on the far bank of the
+// river (its feet clear of the water); Adam points to the zebra. (Eve isn't in this picture: in Genesis,
+// Adam named the animals before Eve was made.)
 const Page9 = () => (
   <Scene sky="day" ground="none" sun>
     <Rays x={400} y={-60} r={560} n={16} color="#fff6c0" opacity={0.16} />
     <GardenLand />
-    <Emoji e="🦒" {...stand(686, 384, 220)} />
+    <Emoji e="🦒" {...stand(700, 358, 204)} />
     <Glow x={420} y={250} r={150} />
     <Tap say="You are a zebra!" sfx="good">
       <Person x={146} y={414} s={1.12} look={ADAM} pose="point" />
@@ -458,15 +470,23 @@ const Page10 = () => (
   </Scene>
 )
 
-/** Little lines either side of two hands meeting: a clap. (0, y) is where the hands meet, in figure units. */
-const ClapLines = ({ y = -60 }: { y?: number }) => (
-  <g className="pa-twinkle" stroke="#ffb020" strokeWidth={2.6} strokeLinecap="round">
-    {[-1, 1].flatMap((side) => [-38, 0, 38].map((a) => {
-      const dx = Math.cos((a * Math.PI) / 180) * side, dy = Math.sin((a * Math.PI) / 180)
-      return <path key={`${side}${a}`} d={`M${dx * 17} ${y + dy * 17} L${dx * 24} ${y + dy * 24}`} />
-    }))}
-  </g>
-)
+/**
+ * Little lines either side of two hands meeting: a clap. (0, y) is where the hands meet, in figure units.
+ * They lie over the child's clothes, which are their favorite color, so each line has a white edge: it
+ * shows on an orange or yellow robe as well as on a blue one.
+ */
+const ClapLines = ({ y = -60 }: { y?: number }) => {
+  const d = [-1, 1].flatMap((side) => [-44, -8, 28].map((a) => {
+    const dx = Math.cos((a * Math.PI) / 180) * side, dy = Math.sin((a * Math.PI) / 180)
+    return `M${dx * 18} ${y + dy * 18} L${dx * 28} ${y + dy * 28}`
+  })).join(' ')
+  return (
+    <g className="pa-twinkle" fill="none" strokeLinecap="round">
+      <path d={d} stroke="#ffffff" strokeWidth={6} />
+      <path d={d} stroke="#ff9a1f" strokeWidth={2.8} />
+    </g>
+  )
+}
 
 // 11. "Yes, you! God made your eyes to see, your ears to hear, and your hands to clap. You are wonderfully
 // made, and God loves you so much!" The child playing, clapping in God's light: a butterfly to see, a
@@ -474,7 +494,9 @@ const ClapLines = ({ y = -60 }: { y?: number }) => (
 function Page11() {
   const p = usePlayer()
   return (
-    <Scene sky="day" ground="meadow" clouds={false}>
+    <Scene sky="day" ground="none" clouds={false}>
+      {/* (the meadow's flowers kept clear of the child's feet and the bunny) */}
+      <Meadow flowers={[[90, 400, '#ff8cc0'], [210, 420, '#ffd34d'], [300, 436, '#ffffff'], [500, 434, '#ffd34d'], [622, 430, '#ffffff'], [700, 395, '#ff8cc0']]} />
       <Rays x={400} y={-30} r={620} n={18} color="#fff6c0" opacity={0.3} />
       <Glow x={400} y={250} r={200} />
       <Tree x={660} y={340} s={1.15} />

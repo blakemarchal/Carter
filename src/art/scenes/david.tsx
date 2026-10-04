@@ -486,7 +486,8 @@ const Shepherd = () => (
 // 2. "Every day, David led his father's sheep to green grass and cool water. When a little lamb got tired, David carried it in his arms."
 // The flock eats the grass and drinks at a still pond; the tired lamb dozes in David's arms.
 const POND = 'M452 404 C452 382 522 370 602 370 C690 370 752 384 752 404 C752 424 690 436 602 436 C516 436 452 426 452 404 Z'
-const TUFTS: [number, number][] = [[30, 392], [92, 438], [168, 376], [236, 442], [300, 410], [340, 446], [470, 446], [764, 444], [512, 352], [660, 348], [770, 362]]
+// (none just behind a sheep's head, where it would look like a plume)
+const TUFTS: [number, number][] = [[30, 392], [92, 438], [168, 376], [236, 442], [300, 410], [340, 446], [470, 446], [764, 444], [446, 354], [616, 350], [770, 362]]
 const FLOWERS: [number, number, string][] = [[52, 424, '#ff8cc0'], [126, 400, '#ffffff'], [214, 436, '#ffd34d'], [276, 424, '#ff8cc0'], [24, 446, '#ffd34d']]
 
 const GreenGrass = () => (
@@ -610,9 +611,10 @@ const BigBrothers = () => (
   <Scene sky="day" ground="hills" sun>
     {/* the way to the army camp */}
     <path d="M196 450 C268 418 410 388 606 344 L618 346 C456 396 352 426 300 450 Z" fill="#ead6a4" />
-    <Tent x={566} y={326} w={56} />
-    <Tent x={648} y={314} w={72} />
-    <Tent x={736} y={306} w={64} />
+    {/* (tall enough for the soldiers in front of them to sleep in; the farthest first) */}
+    <Tent x={742} y={310} w={96} />
+    <Tent x={652} y={318} w={104} />
+    <Tent x={560} y={328} w={100} />
     <Tap say="We are soldiers in King Saul's army!" sfx="pop">
       <Person x={606} y={344} s={0.44} look={BROTHER} blinkDelay={0.9} />
       <Person x={768} y={336} s={0.43} look={BROTHER2} blinkDelay={1.7} />
