@@ -361,6 +361,33 @@ function Sinks() {
   )
 }
 
+/** A brass key (🔑), lying slanted: a round bow with a hole, a collar, a long shaft and its notched bit. */
+function BrassKey() {
+  const id = uidOf(useId())
+  const line = '#9a6e16'
+  const fill = `url(#${id}g)`
+  return (
+    <g strokeLinejoin="round">
+      <defs>
+        <linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffe08a" />
+          <stop offset="0.55" stopColor="#e8b94a" />
+          <stop offset="1" stopColor="#c9952e" />
+        </linearGradient>
+      </defs>
+      <ellipse cx={52} cy={89} rx={36} ry={4.5} fill="#000" opacity={0.12} />
+      <g transform="rotate(-32 50 54)">
+        <path d="M34 49 L86 49 Q89 49 89 52 L89 56 Q89 59 86 59 L34 59 Z" fill={fill} stroke={line} strokeWidth={2.6} />
+        <path d="M68 58 L68 72 L74 72 L74 66 L79 66 L79 74 L86 74 L86 58 Z" fill={fill} stroke={line} strokeWidth={2.6} />
+        <rect x={40} y={45} width={7} height={18} rx={2.5} fill={fill} stroke={line} strokeWidth={2.4} />
+        <path fillRule="evenodd" d="M7 54 a17 17 0 1 0 34 0 a17 17 0 1 0 -34 0 Z M17 54 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0 Z" fill={fill} stroke={line} strokeWidth={2.6} />
+        <path d="M50 51.6 L84 51.6" stroke="#fff3c4" strokeWidth={2} strokeLinecap="round" opacity={0.8} />
+        <Shine x={17} y={45} rx={6} ry={3} rot={-20} />
+      </g>
+    </g>
+  )
+}
+
 export const ISL_BABY_MOSES: Item[] = [
   // (The island's sticker, and its landmark on the map. No emoji names it: 👶 is every baby, like baby Jesus.)
   { id: 'moses-basket', name: 'baby Moses in his basket boat', Draw: MosesBasket },
@@ -368,4 +395,6 @@ export const ISL_BABY_MOSES: Item[] = [
   // (The two groups for "Float or Sink?": no emoji, as nothing means just these.)
   { id: 'it-floats', name: 'it floats', emoji: [], Draw: Floats },
   { id: 'it-sinks', name: 'it sinks', emoji: [], Draw: Sinks },
+  // (Something that sinks, for "Float or Sink?", that nobody argues about.)
+  { id: 'brass-key', name: 'key', emoji: ['🔑'], Draw: BrassKey },
 ]

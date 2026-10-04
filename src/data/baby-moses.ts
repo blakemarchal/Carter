@@ -64,7 +64,8 @@ export const BABY_MOSES_STEPS: Step[] = [
       { emoji: '🍃', say: 'the leaf', group: 'float' },
       { emoji: '🚢', say: 'Noah\'s big boat', art: 'ark', group: 'float' },
       { emoji: '🪨', say: 'the stone', group: 'sink' },
-      { emoji: '🐚', say: 'the seashell', group: 'sink' },
+      // (a metal key, not a seashell: a cupped shell can float, and nobody argues about a key)
+      { emoji: '🔑', say: 'the key', art: 'brass-key', group: 'sink' },
       { emoji: '👑', say: 'the gold crown', group: 'sink' },
       { emoji: '🚲', say: 'the bike', group: 'sink' },
     ],
@@ -82,7 +83,7 @@ export const BABY_MOSES_STEPS: Step[] = [
     items: [
       { emoji: '🧱', say: 'God\'s people making bricks', art: 'story:baby-moses:2' },
       { emoji: '🌙', say: 'his mom keeping the baby safe at home', art: 'story:baby-moses:4' },
-      { emoji: '🧺', say: 'his mom making the basket', art: 'story:baby-moses:5' },
+      { emoji: '🧺', say: 'his mom tucking him into the basket', art: 'story:baby-moses:5' },
       { emoji: '🌿', say: 'the basket in the tall reeds', art: 'story:baby-moses:6' },
       { emoji: '👸', say: 'the princess finding the baby', art: 'story:baby-moses:8' },
       { emoji: '💛', say: 'the princess naming him Moses', art: 'story:baby-moses:11' },

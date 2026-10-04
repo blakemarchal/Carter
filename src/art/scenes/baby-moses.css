@@ -16,8 +16,8 @@
 .pa-anim .bm-cry { animation: bmcry .45s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 80%; }
 @keyframes bmcry { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 
-/* Zzz floating up from someone fast asleep. */
+/* Zzz bobbing gently above someone fast asleep (never fading away, so they can always be read). */
 .pa-anim .bm-z { animation: bmz 3s ease-in-out infinite; }
-@keyframes bmz { 0% { transform: translate(0, 3px); opacity: .2; } 40%, 70% { opacity: 1; } 100% { transform: translate(5px, -10px); opacity: .2; } }
+@keyframes bmz { 0%, 100% { transform: translate(0, 2px); opacity: .7; } 50% { transform: translate(3px, -5px); opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) { .pa-anim [class*="bm-"] { animation: none !important; } }

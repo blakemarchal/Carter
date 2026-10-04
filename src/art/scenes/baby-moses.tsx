@@ -275,9 +275,19 @@ export function SleepyCrocodile({ x, y, s = 1, facing = 'right' }: { x: number; 
         <path d="M-17 -4 L-20 1 M15 -4 L12 1" stroke={line} strokeWidth={7.6} strokeLinecap="round" />
         <path d="M-17 -4 L-20 1 M15 -4 L12 1" stroke={g} strokeWidth={5} strokeLinecap="round" />
       </g>
-      <g className="bm-z">
-        <path d={`M${x + 22 * s} ${y - 34 * s} l7 0 l-7 7 l7 0 M${x + 33 * s} ${y - 46 * s} l5 0 l-5 5 l5 0`} stroke="#ffffff" strokeWidth={2.2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
+      {/* z z Z, rising from above its head and growing; a readable size however small the crocodile is */}
+      {(() => {
+        const dir = facing === 'left' ? -1 : 1
+        const bx = x + dir * 34 * s, by = y - 26 * s
+        const zs: [number, number, number][] = [[0, 0, 6], [dir * 10, -12, 8], [dir * 23, -27, 10]]
+        const d = zs.map(([dx, dy, k]) => `M${(bx + dx - k / 2).toFixed(1)} ${(by + dy - k).toFixed(1)} l${k} 0 l${-k} ${k} l${k} 0`).join(' ')
+        return (
+          <g className="bm-z">
+            <path d={d} stroke="#ffffff" strokeWidth={4.6} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={d} stroke="#4f5d94" strokeWidth={2.2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+        )
+      })()}
     </g>
   )
 }
@@ -615,26 +625,33 @@ const Page2 = () => (
     </Tap>
     <ellipse cx={204} cy={434} rx={52} ry={13} fill="#8a5a36" stroke="#6a4224" strokeWidth={2} />
     <path d="M172 432 l10 -3 M204 438 l12 -2 M226 430 l8 3" stroke="#e8c45a" strokeWidth={2} strokeLinecap="round" />
+    {/* (tired faces and drops of sweat: they work so hard) */}
     <Tap say="Squish, squish! Mud and straw make bricks." sfx="pop">
-      <Figure x={100} y={444} s={1.08} look={HEBREWS.man} kneel pose="hold" item={<BrickMold x={0} y={-58} />} blinkDelay={1.5} />
+      <Figure x={100} y={444} s={1.08} look={HEBREWS.man} kneel pose="hold" mood="sad" item={<BrickMold x={0} y={-58} />} blinkDelay={1.5}>
+        <OnHead kneel><SweatDrop x={-31} y={-134} /></OnHead>
+      </Figure>
     </Tap>
     <Tap say="Phew! These bricks are so heavy." sfx="plop">
-      <Figure x={300} y={444} s={1.0} look={HEBREWS.dad} blinkDelay={0.6}>
+      <Figure x={300} y={444} s={1.0} look={HEBREWS.dad} mood="sad" blinkDelay={0.6}>
         <BrickBasket x={-30} y={-46} />
         <BrickBasket x={30} y={-46} />
         <Grip x={-30} y={-46} skin={HEBREWS.dad.skin} />
         <Grip x={30} y={-46} skin={HEBREWS.dad.skin} />
+        <SweatDrop x={31} y={-134} />
       </Figure>
     </Tap>
-    <Figure x={398} y={442} s={0.98} look={HEBREWS.mom} pose="hold" item={<Straw x={0} y={-64} />} blinkDelay={2.2} />
+    <Figure x={398} y={442} s={0.98} look={HEBREWS.mom} pose="hold" mood="sad" item={<Straw x={0} y={-64} />} blinkDelay={2.2}>
+      <SweatDrop x={31} y={-132} />
+    </Figure>
     <Figure x={482} y={446} s={0.98} look={HEBREWS.boy} pose="hold" item={<Jar x={0} y={-62} />} blinkDelay={1.1} />
   </Scene>
 )
 
 // 3. "Then Pharaoh made an unkind rule, and baby boys were not safe anymore. But God was watching over
 // His people. And God had a plan!"
-// Kept gentle: in his palace, Pharaoh holds up his rule on a scroll. At their house a family holds their
-// baby close, and God's warm light shines down over them.
+// Kept gentle: in his palace, Pharaoh holds up his rule on a scroll. At their house, Moses' own family (his
+// mom, holding him close, and his big sister Miriam, praying) and God's people beyond them are in God's warm
+// light. (The same mom, sister and baby as on page 4, so nobody seems to change.)
 const Page3 = () => (
   <Scene sky="dawn" ground="none" clouds={false}>
     <Cloud x={330} y={64} s={0.5} slow />
@@ -661,13 +678,17 @@ const Page3 = () => (
     <MudHouse x={566} y={334} w={260} h={120} door={0.36} win={-0.32} />
     <Heart x={560} y={176} s={0.8} />
     <Heart x={618} y={196} s={0.5} color="#ffcf3f" />
+    {/* more of God's people, further off by their homes */}
+    {[[704, 346, 3, false], [736, 352, 8, true], [766, 344, 6, false]].map(([fx, fy, i, child]) => (
+      <Folk key={fx as number} x={fx as number} y={fy as number} s={0.62} i={i as number} child={child as boolean} />
+    ))}
     <Tap say="Dear God, please keep the babies safe." sfx="good">
-      <Figure x={402} y={440} s={1.0} look={HEBREWS.girl} pose="pray" blinkDelay={0.5} />
-      <Figure x={706} y={442} s={0.98} look={HEBREWS.grandma} pose="pray" blinkDelay={2.0}><SilverHair /></Figure>
+      <MiriamGirl x={436} y={440} s={1.14} pose="pray" blinkDelay={0.5} />
     </Tap>
     <Tap say="Shh, little one. God is watching over us." sfx="pop">
-      <Figure x={510} y={438} s={1.04} look={HEBREWS.mom} pose="hold" blinkDelay={1.4}><Baby x={0} y={-62} s={0.8} /></Figure>
-      <Figure x={610} y={440} s={1.06} look={HEBREWS.dad} pose="hug-right" facing="left" reach={[null, [70, -85]]} blinkDelay={2.4} />
+      <Figure x={560} y={438} s={1.08} look={JOCHEBED} pose="hold" blinkDelay={1.4}>
+        <BabyMoses x={0} y={-62} s={0.86} mood="asleep" />
+      </Figure>
     </Tap>
   </Scene>
 )
@@ -792,8 +813,9 @@ function BathingPlace({ children }: { children?: ReactNode }) {
       <Palm x={134} y={226} s={0.32} />
       <River y={234} n={12} />
       {[[30, 242, 34], [210, 242, 30], [400, 242, 34]].map(([px, py, ph], i) => <Papyrus key={px} x={px} y={py} h={ph} n={4} delay={-i * 0.7} />)}
+      {/* a palm in the garden behind the wall, clear of everyone's heads on the steps */}
+      <Palm x={588} y={186} s={0.6} />
       <PalaceWall x1={470} x2={810} y={150} y2={238} />
-      <Palm x={770} y={164} s={0.7} />
       <Column x={526} y={238} h={150} w={28} />
       <Column x={786} y={238} h={150} w={28} />
       <rect x={498} y={32} width={320} height={16} fill="#f3e4c4" stroke="#bf9a62" strokeWidth={2.5} />
@@ -842,8 +864,8 @@ const Page7 = () => (
 
 // 8. "The princess opened the basket. There was a baby boy, and he was crying! Waah! The princess felt so
 // kind and loving toward him."
-// Close up on the steps: the basket, its lid lifted off by a helper, and the baby crying in it. The
-// princess kneels and reaches in to him, full of love; hearts float up.
+// Close up on the steps: the basket, its lid lifted off and set down on the step, and the baby crying in it.
+// The princess kneels and reaches in to him, full of love; hearts float up. Miriam watches from the reeds.
 const Page8 = () => {
   const y = 446, rise = 26, tread = 18
   return (
@@ -860,21 +882,21 @@ const Page8 = () => {
         <ReedBasket x={330} y={stepAt(y, 1, rise, tread) - 40 * 1.15} s={1.15} lid="off" baby="crying" />
       </Tap>
       <Tap say="Oh, little one, don't cry. I will take care of you." sfx="good">
-        <Princess x={454} y={stepAt(y, 1, rise, tread)} s={1.05} facing="left" kneel reach={[null, [70, -79]]} blinkDelay={0.6} />
+        <Princess x={454} y={stepAt(y, 1, rise, tread)} s={1.05} facing="left" kneel reach={[null, [70, -70]]} blinkDelay={0.6} />
       </Tap>
       {/* the basket's lid, just lifted off and set down on the step */}
       <BasketLid x={228} y={stepAt(y, 1, rise, tread) - 4} s={0.62} tilt={-10} />
       <Tap say="Look, a baby boy!" sfx="ding">
         <Helper i={0} x={190} y={stepAt(y, 2, rise, tread)} s={1.0} mood="wow" pose="open" blinkDelay={1.1} />
       </Tap>
-      <Tap say="The princess loves the baby." sfx="sparkle">
-        <Heart x={400} y={226} s={0.8} />
-        <Heart x={460} y={190} s={0.6} color="#ff9fc4" />
-        <Heart x={344} y={200} s={0.5} color="#ffcf3f" />
-      </Tap>
+      <Heart x={400} y={226} s={0.8} />
+      <Heart x={460} y={190} s={0.6} color="#ff9fc4" />
+      <Heart x={344} y={200} s={0.5} color="#ffcf3f" />
       {/* Miriam, still watching from the reeds by the water */}
       <path d="M-10 330 Q60 318 140 330 L150 460 L-10 460 Z" fill="#cfae74" />
-      <MiriamGirl x={74} y={372} s={0.86} mood="wow" blinkDelay={0.9} />
+      <Tap say="The princess found my baby brother!" sfx="pop">
+        <MiriamGirl x={74} y={372} s={0.86} mood="wow" blinkDelay={0.9} />
+      </Tap>
       <Reeds x={44} y={380} h={60} />
       <Reeds x={112} y={382} h={54} flip />
     </Scene>
@@ -890,10 +912,10 @@ const Page9 = () => (
     <Cloud x={160} y={70} s={0.6} />
     <Cloud x={420} y={46} s={0.46} slow />
     <BathingPlace>
-      <ReedBasket x={520} y={stepAt(STEPS.y, 0) - 40 * 0.72} s={0.72} lid="off" baby="none" />
+      <ReedBasket x={548} y={stepAt(STEPS.y, 0) - 40 * 0.72} s={0.72} lid="off" baby="none" />
       <Helper i={1} x={760} y={stepAt(STEPS.y, 3)} s={0.86} facing="left" mood="joy" blinkDelay={2.1} />
       <Helper i={0} x={704} y={stepAt(STEPS.y, 2)} s={0.88} facing="left" pose="hold" blinkDelay={1.4} />
-      <Tap say="Yes, go!" sfx="pop">
+      <Tap say="Oh, good! Come here, please." sfx="pop">
         <Princess x={612} y={stepAt(STEPS.y, 1)} s={0.98} facing="left" pose="hold" blinkDelay={0.9}>
           <Tap say="Coo!" sfx="pop">
             <BabyMoses x={0} y={-58} s={0.84} mood="awake" />
@@ -907,7 +929,7 @@ const Page9 = () => (
       <Tap say="My baby! Thank You, God!" sfx="good">
         <Figure x={296} y={432} s={1.0} look={JOCHEBED} pose="open" mood="joy" reach={[null, [46, -40]]} blinkDelay={1.2} />
       </Tap>
-      <Tap say="Shall I find someone to take care of the baby for you?" sfx="ding">
+      <Tap say="I found someone to take care of the baby!" sfx="ding">
         <MiriamGirl x={368} y={434} s={1.0} pose="open" mood="joy" reach={[[-40, -56], null]} blinkDelay={0.5} />
       </Tap>
     </BathingPlace>
@@ -999,8 +1021,9 @@ const Page12 = () => (
     <Rays x={250} y={216} r={620} n={18} color="#fff6d8" opacity={0.22} />
     <Sun x={250} y={222} s={0.8} />
     <path d="M0 204 Q200 196 400 204 T800 200 L800 222 L0 222 Z" fill="#f0cf98" />
-    <Pyramid x={560} y={210} w={90} h={52} />
-    <Pyramid x={630} y={212} w={56} h={32} />
+    {/* (the pyramids far away on the left, clear of the dream bubble on the right) */}
+    <Pyramid x={104} y={210} w={90} h={52} />
+    <Pyramid x={166} y={212} w={56} h={32} />
     <River y={216} n={12} />
     <path d="M232 226 L268 226 L310 330 L190 330 Z" fill="#ffe7a0" opacity={0.3} />
     <Papyrus x={52} y={430} h={210} n={6} delay={-0.4} />
