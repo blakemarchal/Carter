@@ -1,0 +1,33 @@
+/* Samuel Listens (art/scenes/samuel.tsx, art/games/samuel.tsx, art/items/isl-samuel.tsx): motion its pictures
+   and its mini-game need that styles.css doesn't have. Like the pa-* classes, these only run inside an svg with
+   class "pa-anim" (story pictures and the game board both have it). Never on an element with a transform. */
+
+/* A lamp's flame: a gentle flicker, stretching and squeezing from its foot. */
+.pa-anim .sm-flicker { animation: smflicker 1.1s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes smflicker {
+  0% { transform: scale(1, 1) rotate(0deg); }
+  40% { transform: scale(.94, 1.06) rotate(-3deg); }
+  100% { transform: scale(1.05, .95) rotate(2deg); }
+}
+
+/* Samuel running to Eli: a quick bob and a lean forward, pivoting at his feet. */
+.pa-anim .sm-run { animation: smrun .36s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes smrun {
+  0%, 100% { transform: translateY(0) rotate(5deg); }
+  50% { transform: translateY(-7px) rotate(8deg); }
+}
+
+/* Someone whose eyes are gently closed (asleep, or praying): their blink, held shut. */
+.pa-anim .sm-shut .pa-blink { animation: none !important; transform: scaleY(.14) !important; transform-box: fill-box; transform-origin: center; }
+/* Sleepy eyes, half open. */
+.pa-anim .sm-sleepy .pa-blink { animation: none !important; transform: scaleY(.42) !important; transform-box: fill-box; transform-origin: center; }
+
+/* Someone calling "Samuel!" in the night: arcs of sound by his ear, coming and going one after another. */
+.pa-anim .sm-pulse { animation: smpulse 1.8s ease-in-out infinite; }
+@keyframes smpulse { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+
+/* A big yawn: the mouth opens and closes slowly. */
+.pa-anim .sm-yawn { animation: smyawn 3s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 0%; }
+@keyframes smyawn { 0%, 15%, 100% { transform: scaleY(.35); } 45%, 70% { transform: scaleY(1); } }
+
+@media (prefers-reduced-motion: reduce) { .pa-anim [class*="sm-"] { animation: none !important; } }

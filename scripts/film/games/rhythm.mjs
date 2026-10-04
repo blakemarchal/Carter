@@ -149,7 +149,7 @@ const before = (await said()).length
 await wait(9.5)
 await snap('no-taps-hand-again')
 check((await said()).slice(before).some((l) => /reaches the circle/.test(l)), 'no taps for a while: "Tap when a note reaches the circle!"')
-await page.waitFor(`document.querySelector('.rhythm-layer')?.dataset.phase === 'ask'`, 40000)
+await page.waitFor(`document.querySelector('.rhythm-layer')?.dataset.phase === 'ask'`, 90000) // (a long tune takes a while)
 check((await page.eval(`+document.querySelector('.rhythm-layer').dataset.hits`)) === 0, 'no taps, no hits, and it still finished')
 // After the song the circle plays the tune, a note a tap.
 for (let k = 0; k < 3; k++) { await page.tap(circle[0], circle[1]); await sleep(250) }

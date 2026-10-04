@@ -21,6 +21,9 @@ import { ISL_DANIEL } from './isl-daniel'
 import { ISL_BABY_MOSES } from './isl-baby-moses'
 import { ISL_BURNING_BUSH } from './isl-burning-bush'
 import { ISL_MANNA } from './isl-manna'
+import { ISL_JERICHO } from './isl-jericho'
+import { ISL_RUTH } from './isl-ruth'
+import { ISL_SAMUEL } from './isl-samuel'
 
 export type { Item } from './types'
 export const ITEM_GROUPS: Record<string, Item[]> = {
@@ -39,6 +42,9 @@ export const ITEM_GROUPS: Record<string, Item[]> = {
   'baby-moses': ISL_BABY_MOSES,
   'burning-bush': ISL_BURNING_BUSH,
   'manna': ISL_MANNA,
+  'jericho': ISL_JERICHO,
+  'ruth': ISL_RUTH,
+  'samuel': ISL_SAMUEL,
 }
 export const ITEMS: Item[] = Object.values(ITEM_GROUPS).flat()
 

@@ -32,6 +32,8 @@ SAY = {
     "fam-'ly": '/ˈfæmli/',  # two syllables, as it's sung ("family" alone is often said with three)
     "li-ons'": 'lions',
     'des-ert': '/ˈdɛzərt/',  # the dry land, not "to desert"
+    'sam-uel': '/ˈsæmjəl/',  # two syllables, as it's sung
+    'bo-az': '/ˈboʊæz/',
 }
 
 JESUS_LOVES_ME = dict(
@@ -436,7 +438,112 @@ MANNA_SONG = dict(
     chords='G:2 D7:2 ' + 'G:4 Am:2 D7:2 G:4 Am:1 D7:1 G:2 ' * 5 + 'G:2',
 )
 
+
+# "When Johnny Comes Marching Home" (Patrick Gilmore, 1863; the tune of "The Ants Go Marching"), as Paul
+# Hardy's Session Tunebook (pghardy.net, K:C, A minor) and Erich Rickheit's ABC from the Digital Tradition
+# on abcnotation.com, which agree note for note. 6/8: the dotted quarter is the beat.
+def _johnny(a, b, c, d, last=False):
+    return [
+        # "When John-ny comes march-ing home a-gain, hur-rah! hur-rah! We'll"
+        (a, 'E4:.5 E4:.25 A4:.25 A4:.5 A4:.5 B4:.5 C5:.5 B4:.5 C5:.5 A4:.5 G4:1.5 E4:.5 G4:1.5 A4:.5'),
+        # "give him a heart-y wel-come then, hur-rah! hur-rah! The"
+        (b, 'E4:.25 A4:.25 A4:.5 A4:.5 B4:.5 C5:.5 B4:.5 C5:.5 D5:.5 E5:1.5 C5:.5 E5:1.5 C5:.5'),
+        # "men will cheer and the boys will shout, the la-dies they will all turn out, and we'll all"
+        (c, 'E5:.5 E5:.5 E5:.25 D5:.25 C5:.5 D5:.5 D5:.5 D5:.5 B4:.5 C5:.5 C5:.5 C5:.25 B4:.25 A4:.5 '
+            'B4:.5 B4:.5 B4:.25 C5:.25 D5:.5'),
+        # "feel gay when John-ny comes march-ing home."
+        (d, 'E5:1 D5:1 C5:1 B4:.5 E4:.5 E4:.25 A4:.25 A4:.5 A4:.5 G4:.5 ' + ('A4:3' if last else 'A4:1.5')),
+    ]
+
+
+JERICHO_SONG = dict(
+    id='song-jericho', title='Round and Round Jericho', style='party', meter=2, tempo=96, swing=2 / 3,
+    transpose=-2, start=3.5,  # (the first "God's" is a pickup: the last eighth before the first bar)
+    lines=_johnny("God's peo-ple went march-ing 'round the town, toot, toot! Toot, toot! Just",
+                  'one time a day for six whole days, toot, toot! Toot, toot! The',
+                  'priests would blow and the peo-ple walked, the gold-en box went a-round and round, and they',
+                  'kept so qui-et, not a sin-gle peep or sound!')
+    + _johnny('Then day num-ber sev-en came a-round, toot, toot! Toot, toot! They',
+              'marched a-round sev-en times that day, toot, toot! Toot, toot! The',
+              'trum-pets blew and the peo-ple shout-ed, and the big walls came tum-bling down, yes, they',
+              'all came tum-bling, tum-bling, tum-bling, down, down, down!')
+    + _johnny("And Ra-hab's fam-'ly was safe and sound, hur-rah! Hur-rah! For",
+              'God al-ways keeps His prom-is-es, hur-rah! Hur-rah! So',
+              'march with me, and we\'ll toot our horns and sing to God a-bove! God is so good! He',
+              'loves us all the way up to the sky, hur-rah!', last=True),
+    chords='Am:2 E7:2 ' + 'Am:4 C:4 Am:4 C:2 E:2 Am:2 G:2 Am:2 Em:2 Am:1 G:1 F:1 E:1 Am:4 ' * 3 + 'Am:2',
+)
+
+
+# "Did You Ever See a Lassie?" (the tune of "The More We Get Together"), as "The Everyday Song Book" (1927,
+# John Chambers' transcription on abcnotation.com, K:G) and R. L. Walker's ABC (K:D), which agree note for
+# note. 3/4, with a two-eighth pickup.
+def _lassie(a, b, c, d, last=False):
+    return [
+        (a, 'G4:.5 B4:.5 D5:1.5 E5:.5 D5:.5 C5:.5 B4:1 G4:1 G4:1 A4:1 D4:1 D4:1 B4:1 G4:1'),  # "Did you ev-er see a las-sie, a las-sie, a las-sie?"
+        (b, 'G4:.5 B4:.5 D5:1.5 E5:.5 D5:.5 C5:.5 B4:1 G4:1 G4:1 A4:1 D4:1 D4:1 G4:1 r:1'),  # "Did you ev-er see a las-sie do this way and that?"
+        (c, 'G4:1 A4:1 D4:1 D4:1 B4:1 G4:1 G4:1 A4:1 D4:1 D4:1 B4:1 G4:1'),  # "Do this way and that way, and this way and that way;"
+        (d, 'G4:.5 B4:.5 D5:1.5 E5:.5 D5:.5 C5:.5 B4:1 G4:1 G4:1 A4:1 D4:1 D4:1 ' + ('G4:3' if last else 'G4:2')),
+    ]
+
+
+RUTH_SONG = dict(
+    id='song-ruth', title='Where You Go, I Will Go', style='waltz', meter=3, tempo=104, transpose=-2,
+    start=5,  # (the pickup "Ruth said" is the last beat before the first bar)
+    lines=_lassie("Ruth said, \"I'll go where you go, dear Na-o-mi, Na-o-mi,",
+                  'and your peo-ple will be mine, and your God will be mine!"',
+                  'And they walked to-geth-er, to-geth-er, to-geth-er,',
+                  "all the way to Beth-le-hem, Na-o-mi's own home town.")
+    + _lassie('In the fields of gold-en bar-ley, the bar-ley, the bar-ley,',
+              'Ruth would gath-er up the grain that the help-ers had dropped.',
+              'And kind Bo-az told them, "Leave some ex-tra for her!"',
+              'Then she car-ried home a bas-ket full for Na-o-mi.')
+    + _lassie('Ruth and Bo-az had a ba-by, a ba-by, a ba-by,',
+              'and his name was lit-tle O-bed, and Na-o-mi smiled.',
+              'And O-bed grew up to be grand-pa of Da-vid,',
+              'the brave boy who fought Go-li-ath with one lit-tle stone!')
+    + _lassie('God took care of Ruth and Na-o-mi, God took such good care,',
+              'and He takes good care of you and of me, ev-\'ry day!',
+              "So where you go, I'll go, and where you stay, I'll stay,",
+              'and your peo-ple are my peo-ple, your God is my God!', last=True),
+    chords='G:3 D7:3 ' + 'G:6 D7:3 G:9 D7:3 G:3 D7:3 G:3 D7:3 G:9 D7:3 G:3 ' * 4 + 'G:3',
+)
+
+
+# "All Through the Night" ("Ar Hyd y Nos", a Welsh air first printed in 1784), as the BBC's "Singing
+# Together" (1969, the North Atlantic Tune List's ABC on abcnotation.com, K:G) and Erich Rickheit's ABC (K:F):
+# every pitch agrees. Where they differ in rhythm (two bars: dotted or even quarters), this is the BBC's.
+_NIGHT_A = 'G4:1.5 F#4:.5 E4:1 G4:1 A4:1.5 G4:.5 F#4:1 D4:1 E4:2 F#4:1.5 F#4:.5 '
+
+
+def _night(a, b, c, d, last=False):
+    return [
+        (a, _NIGHT_A + 'G4:3 r:1'),  # "Sleep, my child, and peace at-tend thee, all through the night;"
+        (b, _NIGHT_A + 'G4:3 r:1'),
+        (c, 'C5:1 B4:1 C5:1 D5:1 E5:1.5 D5:.5 C5:1 B4:1 C5:1 B4:1 A4:1 G4:1 B4:1.5 A4:.5 G4:1 F#4:1'),
+        (d, _NIGHT_A + ('G4:4' if last else 'G4:3 r:1')),
+    ]
+
+
+SAMUEL_SONG = dict(
+    id='song-samuel', title='Speak, Lord, I Am Listening', style='lullaby', meter=4, tempo=80, transpose=-2,
+    start=4,
+    lines=_night("Sam-uel slept in God's house soft-ly, in the still night,",
+                 'by the lamp so warm and glow-ing, in the still night.',
+                 'Then he heard a voice say, "Sam-uel!" Up he jumped and ran to E-li:',
+                 '"Here I am! You called me, E-li!" in the still night.')
+    + _night('E-li said, "I did not call you. Back to your bed."',
+             'Three times Sam-uel heard God call-ing in the still night.',
+             'E-li said, "It\'s God who\'s call-ing! When He calls you, an-swer Him, child:',
+             'Say, \'Speak, Lord, I\'m lis-ten-ing now,\'" all through the night.')
+    + _night('God called, "Sam-uel! Sam-uel!" soft-ly, in the still night.',
+             'Sam-uel said, "Speak, Lord, I hear You," in the still night.',
+             'Sam-uel grew up lis-ten-ing to God, and God was with him al-ways.',
+             "God speaks to us, so let's lis-ten, all day and night!", last=True),
+    chords='G:2 D7:2 ' + ('G:4 D7:4 C:2 D7:2 G:4 ' * 2 + 'C:4 C:2 G:2 Am:2 D7:2 G:2 D7:2 ' + 'G:4 D7:4 C:2 D7:2 G:4 ') * 3,
+)
+
 ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG,
-                BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG]
+                BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG, JERICHO_SONG, RUTH_SONG, SAMUEL_SONG]
 
 SONGS = [JESUS_LOVES_ME, THIS_LITTLE_LIGHT, AWAY_IN_A_MANGER, TWINKLE, HAPPY_BIRTHDAY, NOAH] + ISLAND_SONGS

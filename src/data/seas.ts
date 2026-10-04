@@ -40,7 +40,7 @@ export const SEAS: Sea[] = [
   {
     id: 'promised-land', name: 'The Promised Land', color: '#5ab8c8',
     islands: [
-      { id: 'jericho', name: 'The Walls of Jericho', emoji: '🎺' },
+      { id: 'jericho', name: 'The Walls of Jericho', emoji: '🎺', landmark: 'rams-horn' },
       { id: 'ruth', name: 'Ruth and Naomi', emoji: '🌾' },
       { id: 'samuel', name: 'Samuel Listens', emoji: '🪔' },
       { id: 'david', name: 'David & Goliath', emoji: '🪨' },
