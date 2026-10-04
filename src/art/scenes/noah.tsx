@@ -926,7 +926,8 @@ const Page9 = () => {
       <FoodShelf x={286} y={238} w={226} />
       <HayBed x={128} y={420} w={200} />
       <Tap say="Munch, munch! Thank you for the hay, Noah!" sfx="chomp">
-        <Elephant x={84} y={404} s={1.04} />
+        {/* the one behind stands further back, so its head and back show over the one in front */}
+        <Elephant x={110} y={378} s={1} />
         <Elephant x={150} y={420} s={1.15} />
         <Person x={noah.x} y={noah.y} s={noah.s} look={PEOPLE.noah} pose="hold">
           <HayBundle x={0} y={-62} s={0.78} />

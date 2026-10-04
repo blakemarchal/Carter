@@ -30,9 +30,9 @@ function Backdrop() {
       <path d={`M${HOOK.x} 0 L${HOOK.x} ${HOOK.y - 10}`} stroke="#5a3a20" strokeWidth={3} />
       <path d={`M${HOOK.x} ${HOOK.y - 12} L${HOOK.x} ${HOOK.y - 2} Q${HOOK.x} ${HOOK.y + 6} ${HOOK.x - 7} ${HOOK.y + 5} Q${HOOK.x - 13} ${HOOK.y + 3} ${HOOK.x - 12} ${HOOK.y - 3}`}
         stroke="#7d7d8c" strokeWidth={3.5} fill="none" strokeLinecap="round" />
-      {/* Mary and Joseph, waiting for a cozy place to rest */}
-      <Person x={672} y={430} s={1.05} look={PEOPLE.mary} pose="hold" facing="left" blinkDelay={0.4} />
-      <Person x={754} y={428} s={1.05} look={PEOPLE.joseph} holding="stick" facing="left" blinkDelay={1.5} />
+      {/* Mary and Joseph, waiting for a cozy place to rest (Joseph's hand clear of the board's edge) */}
+      <Person x={658} y={430} s={1.05} look={PEOPLE.mary} pose="hold" facing="left" blinkDelay={0.4} />
+      <Person x={740} y={428} s={1.05} look={PEOPLE.joseph} holding="stick" facing="left" blinkDelay={1.5} />
     </Scene>
   )
 }
@@ -177,12 +177,14 @@ function Finished() {
 
 export const CHRISTMAS_GAME: BuildKit = {
   Backdrop,
-  // (the cozy mat first, then the manger and what goes in it, then the light: the lamp and the star)
+  // (the cozy mat first, then the manger and what goes in it, then the light: the lamp and the star.
+  // The blanket names the manger too: tried first, it hears "First the manger and the soft hay!" while
+  // the manger lights up in the tray, so the words and the light agree.)
   parts: [
     { id: 'mat', say: 'the cozy mat', Draw: Mat, at: [190, 410], size: [212, 36] },
     { id: 'manger', say: 'the manger', Draw: Manger, at: [400, 385], size: [176, 72] },
     { id: 'hay', say: 'the soft hay', Draw: Hay, at: [400, 341], size: [170, 60], after: ['manger'] },
-    { id: 'blanket', say: 'the warm blanket', Draw: Blanket, at: [400, 339], size: [120, 56], after: ['hay'] },
+    { id: 'blanket', say: 'the warm blanket', Draw: Blanket, at: [400, 339], size: [120, 56], after: ['manger', 'hay'] },
     { id: 'lamp', say: 'the lamp', Draw: Lamp, at: [HOOK.x, HOOK.y + 32], size: [56, 84] },
     { id: 'star', say: 'the bright star', Draw: Star, at: [STAR.x, STAR.y], size: [52, 52] },
   ],

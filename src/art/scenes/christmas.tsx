@@ -818,8 +818,13 @@ const PageFound = () => (
 )
 
 // 11. "Later, wise men from far away followed a bright star all the way to Jesus. They brought Him wonderful
-// gifts. Jesus is God's best gift, for the whole wide world!" The star shines over the house where Jesus is,
-// in Mary's arms in the doorway; the wise men bring their gifts, and their camel rests after the long trip.
+// gifts. Jesus is God's best gift, for the whole wide world!" The star shines over the house where Jesus is
+// (Matthew 2:11: "the young child with Mary, his mother"): a little boy now, not the newborn in the manger,
+// so the picture says "later" too. He waves to the wise men from the doorstep, with Mary in the doorway;
+// they bring their gifts, and their camel rests after the long trip.
+/** Jesus as a little boy, a while after He was born (page 11), in the colors He wears grown up (PEOPLE.jesus). */
+const LITTLE_JESUS: Look = { ...PEOPLE.jesus, hair: 'short', beard: undefined, build: 'child' }
+
 const PageWiseMen = () => (
   <Scene sky="night" ground="none">
     <Tap say="The star showed the wise men the way to Jesus!" sfx="sparkle">
@@ -831,7 +836,9 @@ const PageWiseMen = () => (
     <path d="M0 384 Q240 364 480 386 T800 376 L800 450 L0 450 Z" fill="#5a5088" />
     <StarHouse x={650} y={412}>
       <Tap say="Come in! This is Jesus." sfx="sparkle">
-        <Person x={650} y={410} s={0.92} look={PEOPLE.mary} pose="hold" holding="baby" facing="left" blinkDelay={0.8} />
+        <Person x={656} y={410} s={0.92} look={PEOPLE.mary} pose="hold" facing="left" blinkDelay={0.8} />
+        {/* little Jesus, on the doorstep in front of Mary, waving to the wise men */}
+        <Person x={622} y={414} s={0.72} look={LITTLE_JESUS} pose="wave" facing="left" blinkDelay={2.6} />
       </Tap>
     </StarHouse>
     <Tap say="Phew! What a long, long trip!" sfx="wobble"><Camel x={110} y={418} s={0.74} blinkDelay={1.6} /></Tap>
