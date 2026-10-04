@@ -33,10 +33,12 @@ const LIONS: { at: [number, number]; facing: 'left' | 'right'; pose: 'stand' | '
   { at: [712, 396], facing: 'right', pose: 'stand', s: 1.04 },
 ]
 
+// Each lion's reach is as big as it can be without touching its neighbor's (the closest two are 126 apart),
+// so a tap on its tail or its mane finds it too.
 const targets: SpotTarget[] = LIONS.map(({ at, facing, pose, s }, i) => ({
   id: `lion-${i + 1}`,
   at,
-  r: 56,
+  r: 60,
   Draw: ({ found }: { found: boolean }) => (
     <GentleLion x={0} y={45 * s} s={s} facing={facing} pose={found ? 'sleep' : pose} mane={MANES[i]} blinkDelay={i * 0.7} />
   ),

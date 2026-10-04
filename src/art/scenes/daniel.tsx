@@ -15,6 +15,7 @@ import { CuteFace, darken, ink, lighten, Shine, useShade } from '../kit'
 import { fluff } from '../items/draw'
 import { Person, PEOPLE, SKIN, type Holding, type Look, type Pose } from '../people'
 import { Emoji, Glow, Moon, Scene, Sparkles, Sun, Tap, sparkle } from './kit'
+import { ThoughtBubble } from './abraham'
 import { usePlayer } from './player'
 
 const uid = (prefix: string, id: string) => `${prefix}${id.replace(/[^a-zA-Z0-9]/g, '')}`
@@ -950,7 +951,7 @@ const Page5 = () => (
     <Tap say="Oh no. I love Daniel. What can I do?" sfx="wobble">
       <KingDarius x={400} y={420} s={1.1} pose="hold" mood="sad" />
     </Tap>
-    <Tap say="The rule can not be changed!" sfx="pop">
+    <Tap say="The rule cannot be changed!" sfx="pop">
       <Official n={0} x={168} y={426} s={1.02} pose="point" />
       <Official n={2} x={70} y={430} s={0.98} blinkDelay={1.4} />
     </Tap>
@@ -985,13 +986,49 @@ const Page6 = () => (
   </Scene>
 )
 
+/**
+ * What the king thinks of, awake all night (page 7): Daniel in the den, kneeling to pray in the moonlight,
+ * with a lion fast asleep beside him. A little picture of the den in a thought bubble at (x, y), its puffs
+ * trailing down to `tail` (Abraham's ThoughtBubble).
+ */
+function DenThought({ x, y, tail }: { x: number; y: number; tail: [number, number, number][] }) {
+  const id = uid('dt', useId())
+  const w = 250, h = 156
+  const rx = w * 0.45, ry = h * 0.39
+  const c = DEN_COLORS.night
+  const shades = [c.wall, lighten(c.wall, 0.07), darken(c.wall, 0.07), lighten(c.wall, 0.13)]
+  const floor = y + 18
+  return (
+    <ThoughtBubble x={x} y={y} w={w} h={h} tail={tail}>
+      <defs><clipPath id={id}><ellipse cx={x} cy={y} rx={rx} ry={ry} /></clipPath></defs>
+      <g clipPath={`url(#${id})`}>
+        <rect x={x - rx} y={y - ry} width={rx * 2} height={ry * 2} fill={c.wall} />
+        {stoneRows(x - rx - 30, y - ry - 4, x + rx + 30, floor, 23, 52).map(([cx, cy, sw, sh, k], i) => (
+          <rect key={i} x={cx - sw / 2} y={cy - sh / 2} width={sw} height={sh} rx={9} fill={shades[k]} stroke={c.line} strokeWidth={2} />
+        ))}
+        <path d={`M${x - rx} ${floor} Q${x} ${floor - 5} ${x + rx} ${floor} V${y + ry} H${x - rx} Z`} fill={c.floor} />
+        {/* moonlight from the opening in the roof, falling on Daniel */}
+        <path d={`M${x + 18} ${y - ry} L${x + 62} ${y - ry} L${x + 96} ${y + ry} L${x - 8} ${y + ry} Z`} fill={c.light} opacity={0.2} />
+        <GentleLion x={x - 42} y={floor + 22} s={0.62} pose="sleep" mane={MANES[2]} />
+        <g className="dn-shut"><DanielKneeling x={x + 50} y={floor + 24} s={0.52} /></g>
+      </g>
+      <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="none" stroke={c.line} strokeWidth={3} />
+    </ThoughtBubble>
+  )
+}
+
 // 7. "That night, Daniel was in the lions' den. Back at the palace, the king could not sleep. He did not want to eat.
-// He was so worried about Daniel." His bed not slept in, his supper not eaten, the moon in the window.
+// He was so worried about Daniel." His bed not slept in, his supper not eaten, the moon in the window, and in his
+// thoughts, Daniel in the den.
 const Page7 = () => (
   <Scene sky="night" ground="none" clouds={false}>
+    <ShutEyes />
     <KingsBedroom />
     <Tap say="Oh, Daniel. I hope you are safe." sfx="wobble">
       <KingDarius x={460} y={424} s={1.12} pose="hold" mood="sad" />
+    </Tap>
+    <Tap say="Daniel is in the lions' den. But God is with him!" sfx="sparkle">
+      <DenThought x={356} y={136} tail={[[452, 232, 4.5], [442, 218, 6.5], [430, 204, 9]]} />
     </Tap>
     <Tap say="No supper tonight. The king is too worried." sfx="pop"><rect x={250} y={260} width={130} height={70} fill="transparent" /></Tap>
     <Tap say="The moon is up all night long." sfx="sparkle"><rect x={86} y={86} width={128} height={176} fill="transparent" /></Tap>

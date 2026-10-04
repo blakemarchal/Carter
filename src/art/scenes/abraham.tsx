@@ -2,7 +2,8 @@
 // Built from the kit (./kit.tsx) and people (../people.tsx). God is never drawn as a person: His
 // presence is light. New here, for any island to reuse: the people (ABRAHAM, SARAH, VISITORS), a camel
 // (Camel: standing, packed for a trip, resting, or a baby), a nomad's tent (Tent), someone sitting on the
-// ground (Sitting), a laughing face (Laughing + LaughFace), a big oak (Oak), and a sky full of stars.
+// ground (Sitting), a laughing face (Laughing + LaughFace), someone gazing up (LookingUp + EyesUp), a big oak
+// (Oak), a thought bubble (ThoughtBubble), and a sky full of stars.
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, Shine, starPath, useShade } from '../kit'
 import { fluff } from '../items/draw'
@@ -84,6 +85,24 @@ export const LaughFace = ({ beard }: { beard?: boolean }) => (
     {beard
       ? <path d="M-5.5 -100.5 Q0 -91 5.5 -100.5 Q0 -98.5 -5.5 -100.5 Z" fill="#8a2f45" strokeWidth={1.8} strokeLinejoin="round" />
       : <path d="M-7 -107 Q0 -95 7 -107 Q0 -105 -7 -107 Z" fill="#8a2f45" strokeWidth={1.8} strokeLinejoin="round" />}
+  </g>
+)
+
+// Gazing up at the sky with one hand raised toward it: the eyes turned up (the open eyes are hidden: they're
+// the blinking group), and the raised hand held still rather than waving. Give the Person pose "wave" and
+// <EyesUp /> as a child, and wrap it in <LookingUp>.
+const UP_CSS = '.ab-up .pa-blink{display:none}.ab-up .pa-wing{animation:none!important}'
+export function LookingUp({ children }: { children: ReactNode }) {
+  return <g className="ab-up"><style>{UP_CSS}</style>{children}</g>
+}
+export const EyesUp = () => (
+  <g>
+    {[-8, 8].map((ex) => (
+      <g key={ex}>
+        <ellipse cx={ex} cy={-116.8} rx={3.2} ry={4.2} fill="#2b2140" />
+        <circle cx={ex - 0.6} cy={-119.6} r={1.3} fill="#fff" />
+      </g>
+    ))}
   </g>
 )
 
@@ -466,9 +485,9 @@ function BreadPlate({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 
 /**
  * A thought bubble: a puffy cloud at (x, y), w wide and h tall, with little round puffs (`tail`: x, y,
- * r) leading down to whoever is thinking. `children` are drawn inside it (what they wish for).
+ * r) leading down to whoever is thinking. `children` are drawn inside it (what they wish for, or worry about).
  */
-function ThoughtBubble({ x, y, w, h, tail, children }: { x: number; y: number; w: number; h: number; tail: [number, number, number][]; children?: ReactNode }) {
+export function ThoughtBubble({ x, y, w, h, tail, children }: { x: number; y: number; w: number; h: number; tail: [number, number, number][]; children?: ReactNode }) {
   const puffs = Array.from({ length: 10 }, (_, i) => {
     const a = (i / 10) * Math.PI * 2
     return [x + Math.cos(a) * w * 0.42, y + Math.sin(a) * h * 0.38, Math.min(w, h) * 0.24]
@@ -619,7 +638,7 @@ const Page2 = () => (
     <FarTown x={110} y={304} s={0.9} />
     <path d="M0 382 Q240 352 480 380 T800 372 L800 450 L0 450 Z" fill="#e8bf7a" />
     {/* the way ahead, winding off to the new land */}
-    <path d="M330 450 C380 404 520 384 556 354 C592 326 618 314 644 304 L660 304 C646 318 634 332 604 358 C566 390 476 414 474 450 Z" fill="#fbe6bd" opacity={0.9} />
+    <path d="M330 450 C380 404 520 384 556 354 C590 328 616 314 652 301 C642 315 632 332 604 358 C566 390 476 414 474 450 Z" fill="#fbe6bd" opacity={0.9} />
     <Tap say="God will show Abraham the way!" sfx="sparkle">
       <Glow x={600} y={80} r={150} color="#fff6c0" />
       <Sparkles spots={[[560, 120, 9], [650, 64, 7], [610, 150, 6]]} />
@@ -672,7 +691,7 @@ const Page4 = () => (
     <Tap say="Our new home!" sfx="pop">
       <Tent x={250} y={372} s={0.7} />
     </Tap>
-    <Tap say="God gave them this land!" sfx="sparkle">
+    <Tap say="God promised this land to their family!" sfx="sparkle">
       <Sparkles spots={[[400, 60, 10], [300, 120, 7], [520, 110, 8], [640, 60, 6]]} />
     </Tap>
     <Sheep x={64} y={416} s={0.62} />
@@ -741,22 +760,24 @@ const Page6 = () => (
 )
 
 // 7. "Abraham and Sarah waited and waited, for years and years. Every night, Abraham looked up at the
-// stars and remembered God's promise of a great big family." At dusk, on a rug outside their tent.
+// stars and remembered God's promise of a great big family." At dusk, on a rug outside their tent, they
+// look up at the stars, Abraham's hand raised toward the brightest one.
 const Page7 = () => (
   <Scene sky="dusk" ground="none" moon>
-    <StarrySky seed={5} bottom={230} thin={3} avoid={[[560, 0, 760, 170], [240, 50, 360, 170]]} />
+    <StarrySky seed={5} bottom={230} thin={3} avoid={[[560, 0, 760, 170], [286, 90, 406, 210]]} />
     <path d="M0 312 Q200 280 420 306 Q620 276 800 300 L800 450 L0 450 Z" fill="#8a7cb6" />
     <path d="M0 372 Q240 344 470 370 T800 362 L800 450 L0 450 Z" fill="#6f639e" />
     <Tent x={590} y={372} s={0.68} lit />
     <Rug x0={150} x1={400} y0={398} y1={428} />
+    {/* (where his raised arm points) */}
     <Tap say="Twinkle, twinkle! Remember God's promise?" sfx="sparkle">
-      <BrightStar x={300} y={110} r={18} />
+      <BrightStar x={346} y={150} r={19} />
     </Tap>
     <Tap say="God promised me a great big family." sfx="good">
-      <Sitting x={226} y={418} s={0.95} look={ABRAHAM} pose="pray" />
+      <LookingUp><Sitting x={226} y={418} s={0.95} look={ABRAHAM} pose="wave"><EyesUp /></Sitting></LookingUp>
     </Tap>
     <Tap say="We will keep waiting for God." sfx="pop">
-      <Sitting x={326} y={420} s={0.9} look={SARAH} blinkDelay={1.5}><SilverHair /></Sitting>
+      <LookingUp><Sitting x={326} y={420} s={0.9} look={SARAH}><SilverHair /><EyesUp /></Sitting></LookingUp>
     </Tap>
   </Scene>
 )
@@ -777,6 +798,17 @@ const Heat = ({ x, y }: { x: number; y: number }) => (
     ))}
   </g>
 )
+/** Puffs of sand and quick lines behind someone running (on the left of x when `dir` is -1). (x, y) = the ground behind their feet. */
+const Running = ({ x, y, dir = -1 }: { x: number; y: number; dir?: number }) => (
+  <g>
+    {[[0, 0, 10], [dir * 19, -5, 7.5], [dir * 34, -1, 5.5]].map(([dx, dy, r], i) => (
+      <circle key={i} cx={x + dx} cy={y + dy} r={r} fill="#f8f1da" stroke="#cbb77c" strokeWidth={2} />
+    ))}
+    {[[-78, 0], [-54, 10], [-30, 4]].map(([dy, dx], i) => (
+      <path key={i} d={`M${x + dir * dx} ${y + dy} h${dir * 26}`} stroke="#ffffff" strokeWidth={4.5} strokeLinecap="round" opacity={0.85} />
+    ))}
+  </g>
+)
 const Page8 = () => (
   <Scene sky="day" ground="none" clouds={false}>
     <Tap say="Phew! It is a hot, hot day!" sfx="wobble">
@@ -788,6 +820,8 @@ const Page8 = () => (
     <Tent x={126} y={380} s={0.56}>
       <Tap say="Visitors are here!" sfx="pop"><Sarah x={-60} y={0} s={1} blinkDelay={0.4} /></Tap>
     </Tent>
+    {/* (he ran to meet them) */}
+    <Running x={392} y={418} />
     <Tap say="Welcome! Come and rest in the shade!" sfx="good">
       <Person x={430} y={420} s={1} look={ABRAHAM} pose="wave" />
     </Tap>
