@@ -69,10 +69,10 @@ export const PAL_FACES: Record<Species, PalFace> = {
   butterfly: face(83, 0.82, [100, 57]),
   gecko: face(90, 0.95, [100, 67], { y: 107.5, rx: 8, ry: 7.5 }),
   sparrow: face(89, 0.84, [100, 60], { y: 101.5, rx: 5.5, ry: 5.5 }),
-  pelican: face(100, 0.9, [100, 58]),
+  pelican: face(70, 0.8, [102, 48], { y: 91, rx: 6, ry: 6.5 }),
   fish: face(97, 1, [88, 64, -12]),
-  seagull: face(100, 0.9, [100, 58]),
-  kingfisher: face(100, 0.9, [100, 58]),
+  seagull: face(68, 0.82, [100, 49], { y: 85.5, rx: 5.5, ry: 6.5 }),
+  kingfisher: face(86.9, 0.92, [97.8, 67.4], { y: 104.7, rx: 6, ry: 6.5 }), // (drawn 1.08 times bigger about the bottom of its stone)
   mole: face(89, 0.8, [100, 57], { y: 114.5, rx: 5, ry: 4.5 }),
   puppy: face(80, 0.86, [100, 52], { y: 105, rx: 5.5, ry: 5 }),
 }
