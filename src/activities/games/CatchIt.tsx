@@ -136,8 +136,8 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
   const mid = (lo + hi) / 2
   const pieces = useMemo(() => (kit.falling.length ? kit.falling : [Dot]), [kit])
   const lines = useMemo(() => ({
-    start: `Catch the falling ${plural}!`,
-    idle: [`Slide under the ${plural} to catch them!`, `Catch the falling ${plural}!`],
+    start: `Catch the ${plural}!`,
+    idle: [`Slide under the ${plural} to catch them!`, `Catch the ${plural}!`],
   }), [plural])
 
   // Everything the game loop changes lives here; React only hears about what's drawn differently.

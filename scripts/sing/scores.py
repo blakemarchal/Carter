@@ -644,7 +644,7 @@ FISHERS_SONG = dict(
     + _bear('"Come fol-low me now," said Je-sus, "I\'ll make you fish-ers of peo-ple!" They left their boats and they '
             'fol-lowed, they fol-lowed Him with joy!')
     + _bear("So let's all go fol-low Je-sus, so let's all go fol-low Je-sus, so let's all go fol-low Je-sus, "
-            'and tell them God is love!', last=True),
+            'and share that God is love!', last=True),
     chords='G:2 D7:2 ' + 'G:2 C:1 G:1 D7:2 G:2 G:2 C:2 G:1 D7:1 G:2 ' * 5 + 'G:2',
 )
 

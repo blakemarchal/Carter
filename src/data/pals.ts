@@ -348,7 +348,7 @@ export const PALS: PalDef[] = [
     id: 'gulp', species: 'pelican', fruit: 'Goodness',
     stages: [{ name: 'Gulp', xp: 0 }, { name: 'Pouchbill', xp: 100 }, { name: 'Netkeeper', xp: 300 }],
     moves: { basic: { name: 'Pouch Scoop', fx: 'bubbles', icon: '🫧' }, brave: { name: 'Wing Flap', fx: 'wind', icon: '🪶' }, super: { name: 'Good Gift', fx: 'hearts', icon: '🎁' } },
-    intro: 'is a Goodness Pal! {name} used to gobble up all the fish, but now {name} shares with friends, like Peter shared his big catch.',
+    intro: 'is a Goodness Pal! {name} used to grab all the fish and never share, but now {name} shares with friends, like Peter shared his big catch.',
   },
   {
     id: 'splash', species: 'fish', fruit: 'Joy',
