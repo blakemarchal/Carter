@@ -201,7 +201,7 @@ export const PALS: PalDef[] = [
     id: 'gusty', species: 'wind', fruit: 'Self-Control',
     stages: [{ name: 'Gusty', xp: 0 }, { name: 'Breezy', xp: 100 }, { name: 'Windsong', xp: 300 }],
     moves: { basic: { name: 'Gentle Breeze', fx: 'wind', icon: '🌬️' }, brave: { name: 'Whirl Twirl', fx: 'roll', icon: '🌀' }, super: { name: 'Wind Song', fx: 'leaf', icon: '🍃' } },
-    intro: 'is a Self-Control Pal! {name} used to huff and puff, but now {name} blows soft and gentle, like the wind God sent across the sea.',
+    intro: 'is a Self-Control Pal! {name} used to huff and puff at everyone, but now {name} only blows when it helps, like the wind God sent to make a path through the sea.',
   },
   {
     id: 'jingle', species: 'tambourine', fruit: 'Joy',

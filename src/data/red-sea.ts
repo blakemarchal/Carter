@@ -81,10 +81,10 @@ export const RED_SEA_STEPS: Step[] = [
     // The story's own pictures (pages counted from one across both parts).
     items: [
       { emoji: '👑', say: 'Moses talking to the king', art: 'story:red-sea:2' },
-      { emoji: '🔥', say: 'The cloud and the fire leading the way', art: 'story:red-sea:3' },
+      { emoji: '🔥', say: 'the cloud and the fire leading the way', art: 'story:red-sea:3' },
       { emoji: '🌬️', say: 'Moses holding out his staff over the sea', art: 'story:red-sea:5' },
-      { emoji: '🌊', say: 'Walking through the sea on dry ground', art: 'story:red-sea:6' },
-      { emoji: '💦', say: 'The water coming back together', art: 'story:red-sea:8' },
+      { emoji: '🌊', say: 'walking through the sea on dry ground', art: 'story:red-sea:6' },
+      { emoji: '💦', say: 'the water coming back together', art: 'story:red-sea:8' },
       { emoji: '🎵', say: 'Miriam\'s happy song', art: 'story:red-sea:10' },
     ],
   },

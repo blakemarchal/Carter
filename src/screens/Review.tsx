@@ -100,7 +100,7 @@ function StepView({ s, n }: { s: Step; n: number }) {
         </section>
       )
     case 'count':
-      return <section>{head(`Count: ${s.title}`)}<p>&ldquo;{s.intro}&rdquo;</p><div className="rv-row">{say(s.item)} into <span className="rv-pic"><Pic e={s.basket} /></span> ({s.into ?? 'the basket'}), rounds {s.rounds.join(', ')}</div>{s.done && <p>Then: &ldquo;{s.done}&rdquo;</p>}</section>
+      return <section>{head(`Count: ${s.title}`)}<p>&ldquo;{s.intro}&rdquo;</p><div className="rv-row">{say(s.item)} into <span className="rv-pic"><Pic e={s.basket} art={s.basketArt} /></span> ({s.into ?? 'the basket'}), rounds {s.rounds.join(', ')}</div>{s.done && <p>Then: &ldquo;{s.done}&rdquo;</p>}</section>
     case 'trace':
       return <section>{head(`Trace: ${s.title}`)}<p>&ldquo;{s.intro}&rdquo; Letters: {s.letters.join(' ')}</p></section>
     case 'maze':

@@ -21,7 +21,7 @@ export const JOSEPH_STORY_2: StoryPage[] = [
   { scene: '😴🐄🐄', bg: 'linear-gradient(#18163f,#3b3486)', text: 'One night, Pharaoh, the king of Egypt, had a strange dream. Seven fat cows came up out of the river. Then seven skinny cows came up, too!' },
   { scene: '👑🖼️✨', bg: 'linear-gradient(#fff6c9,#ffe9b5)', text: 'God helped Joseph explain the dream to Pharaoh. First there would be lots of food, like the fat cows. Then there would be no food, like the skinny cows.' },
   { scene: '🌾🏛️💪', bg: 'linear-gradient(#bfe6ff,#ffe9b5)', text: 'So Pharaoh put Joseph in charge of all the food. Joseph saved up lots and lots of grain in big storehouses.' },
-  { scene: '🙇🏽🙇🏽🌾', bg: 'linear-gradient(#ffe9b5,#f2d39a)', text: "Soon there was no food anywhere. Joseph's hungry brothers came to Egypt to buy food. They bowed down low, just like in Joseph's dream! But they did not know it was Joseph." },
+  { scene: '🙇🏽🙇🏽🌾', bg: 'linear-gradient(#ffe9b5,#f2d39a)', text: "Soon there was no food anywhere, except in Joseph's storehouses! Joseph's hungry brothers came to Egypt to buy food. They bowed down low, just like in Joseph's dream! But they did not know it was Joseph." },
   { scene: '🤗😭💛', bg: 'linear-gradient(#ffd6e0,#fff3c9)', text: 'Joseph said, "I am Joseph, your brother!" He forgave his brothers, and they hugged and cried happy tears. God turned something bad into something good!' },
 ]
 
