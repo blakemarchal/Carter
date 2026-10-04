@@ -1,0 +1,28 @@
+/* Palm Sunday (art/scenes/palm-sunday.tsx and art/games/palm-sunday.tsx): motion its pictures need that styles.css
+   doesn't have. Like the pa-* classes, these only run inside an svg with class "pa-anim" (story pictures and the game
+   board both have it). Never on an element with a transform attribute: wrap it in a <g>. */
+
+/* A palm branch waving from the hand that holds it, side to side (drawn upright, it turns about its foot). */
+.pa-anim .ps-wave { animation: pswave 1.3s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+.pa-anim .ps-wave.b { animation-delay: -.65s; }
+.pa-anim .ps-wave.c { animation-duration: 1.05s; animation-delay: -.3s; }
+.pa-anim .ps-wave.d { animation-duration: 1.5s; animation-delay: -1s; }
+@keyframes pswave { from { transform: rotate(-15deg); } to { transform: rotate(15deg); } }
+
+/* A donkey's legs while it walks: each pair swings from the hip, the other pair the other way. */
+.pa-anim .ps-leg { animation: psleg .6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 0%; }
+.pa-anim .ps-leg.b { animation-delay: -.6s; }
+@keyframes psleg { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+
+/* Walking along (the donkey and whoever rides it): a little bob with every step. */
+.pa-anim .ps-bob { animation: psbob .6s ease-in-out infinite alternate; }
+@keyframes psbob { from { transform: translateY(0); } to { transform: translateY(-2.5px); } }
+
+/* A child jumping for joy. */
+.pa-anim .ps-hop { animation: pshop .8s ease-in-out infinite; }
+.pa-anim .ps-hop.b { animation-delay: -.4s; }
+@keyframes pshop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-11px); } 60% { transform: translateY(-11px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-anim .ps-wave, .pa-anim .ps-leg, .pa-anim .ps-bob, .pa-anim .ps-hop { animation: none !important; }
+}
