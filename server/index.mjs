@@ -7,6 +7,9 @@
 //   CARTER_SESSION_SECRET  random secret for signing the sign-in cookies
 //   XAI_API_KEY            optional: enables Grok's "Ara" narration voice (npm run set-voice-key)
 //   TTS_DAILY_CHARS        optional: cap on new narration generated per day (default 200000, about $3)
+//   RESEND_API_KEY         optional: sends sign-in links and invitations by email (npm run set-email-key)
+//   EMAIL_FROM             with it: who emails are from, e.g. "Ark Pals <hello@spiritflow.church>"
+//   SITE_URL               optional: this site's address for links in emails (default: the address asked for)
 //   CACHE_DIRECTORY        set by systemd (CacheDirectory=carter); where narration clips are kept
 //   STATE_DIRECTORY        set by systemd (StateDirectory=carter); where progress backups are kept
 import { createServer } from 'node:http'
@@ -20,7 +23,8 @@ import { createBackups } from './backup.mjs'
 import { createStats } from './stats.mjs'
 import { createRecordings } from './recordings.mjs'
 import { createSongs } from './songs.mjs'
-import { openFamilies, ROLES } from './families.mjs'
+import { cleanEmail, cleanName, openFamilies, ROLES } from './families.mjs'
+import { createMailer, inviteEmail, signInEmail } from './email.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 const PORT = Number(process.env.PORT ?? 3004)
@@ -47,6 +51,19 @@ if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. 
 const STATE = process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups')
 mkdirSync(STATE, { recursive: true })
 const families = openFamilies(join(STATE, 'arkpals.db'))
+const mailer = createMailer({ apiKey: process.env.RESEND_API_KEY, from: process.env.EMAIL_FROM, outbox: process.env.EMAIL_OUTBOX })
+if (!mailer) console.log('RESEND_API_KEY not set: grown-ups share their links by hand. Run: npm run set-email-key')
+/** This site's address, for links in emails. */
+const siteUrl = (req) => (process.env.SITE_URL || `${secure(req) ? 'https' : 'http'}://${req.headers.host}`).replace(/\/$/, '')
+// Emails: at most 3 sign-in links an hour to one address, and 10 emails an hour from one place or person.
+const sentAt = new Map()
+function mayEmail(key, max) {
+  const now = Date.now()
+  const times = (sentAt.get(key) ?? []).filter((t) => now - t < 3600_000)
+  if (times.length >= max) return false
+  sentAt.set(key, [...times, now])
+  return true
+}
 const stats = createStats(join(STATE, 'stats')) // (play totals only, never anyone's data: shared)
 
 /**
@@ -328,6 +345,9 @@ form.alt{padding:22px 28px}.alt p{margin-bottom:12px;color:#6a5a7a}.alt input{fo
 ${msg ? `<div class="err">${msg}</div>` : ''}
 <input type="password" name="password" autocomplete="current-password" aria-label="Family password" required>
 <button>Open the Ark</button></form>
+${mailer ? `<form method="post" action="/login/email" class="alt"><p><b>Signed in before?</b> Get a sign-in link by email:</p>
+<input type="email" name="email" autocomplete="email" aria-label="Your email" placeholder="Your email" required>
+<button>Email me a link</button></form>` : ''}
 <form method="post" action="/login/link" class="alt"><p><b>Got a link from your family?</b> Open it, or paste it here:</p>
 <input name="link" autocomplete="off" aria-label="Your link" placeholder="Paste your link" required>
 <button>Use my link</button>
@@ -356,7 +376,7 @@ async function handleFamily(req, res, url, s) {
   const [, , what, id] = url.pathname.split('/')
   try {
     if (!what && req.method === 'GET') {
-      return json(res, 200, { me: { member: s.member.id, device: s.device.id, role: s.member.role }, ...families.view(fam, s.device.id) })
+      return json(res, 200, { me: { member: s.member.id, device: s.device.id, role: s.member.role, email: s.member.email ?? null }, emailOn: !!mailer, ...families.view(fam, s.device.id) })
     }
     if (!what && req.method === 'PUT') {
       if (!parent) return json(res, 403)
@@ -365,15 +385,24 @@ async function handleFamily(req, res, url, s) {
     }
     if (what === 'me' && req.method === 'PUT') {
       const b = await readJson(req)
-      families.updateMember(fam, s.member.id, { name: b.name, look: b.look })
+      families.updateMember(fam, s.member.id, { name: b.name, look: b.look, email: b.email })
       return json(res, 204)
     }
     if (what === 'invite' && req.method === 'POST') {
       if (!parent) return json(res, 403)
       const b = await readJson(req)
       if (!ROLES.includes(b.role)) return json(res, 400)
-      const l = families.makeLink({ kind: 'member', familyId: fam, name: b.name, role: b.role, madeBy: s.member.id })
-      return json(res, 200, { id: l.id, link: `/join/${l.token}`, expires: l.expires })
+      const email = cleanEmail(b.email)
+      const l = families.makeLink({ kind: 'member', familyId: fam, name: b.name, role: b.role, madeBy: s.member.id, email })
+      // (sent by email too, when there's an address; the link is still shown, to share another way)
+      let emailed = false
+      if (email && mailer && mayEmail(`from:${s.member.id}`, 10)) {
+        try {
+          await mailer.send({ to: email, ...inviteEmail({ link: `${siteUrl(req)}/join/${l.token}`, name: cleanName(b.name), family: s.family.name, from: s.member.name }) })
+          emailed = true
+        } catch (e) { console.error(e.message) }
+      }
+      return json(res, 200, { id: l.id, link: `/join/${l.token}`, expires: l.expires, emailed })
     }
     if (what === 'device-link' && req.method === 'POST') {
       const l = families.makeLink({ kind: 'device', familyId: fam, memberId: s.member.id, madeBy: s.member.id })
@@ -468,23 +497,26 @@ async function handleStart(req, res, url, ip) {
     fail(ip)
     return sendPage(res, 404, 'Ark Pals', deadLink(req))
   }
-  const form = (msg = '', family = '', you = '') => `<form method="post"><h1>🌈 Ark Pals</h1>
+  const form = (msg = '', family = '', you = '', email = '') => `<form method="post"><h1>🌈 Ark Pals</h1>
 <p>Welcome! Start your family's Ark. You can invite more grown-ups, like grandparents, once you're in.</p>
 ${msg ? `<div class="err">${esc(msg)}</div>` : ''}
 <label for="family">Your family's name</label><input id="family" name="family" maxlength="40" placeholder="The Smith family" value="${esc(family)}" required autofocus>
 <label for="you">Your name (what the family calls you)</label><input id="you" name="you" maxlength="40" placeholder="Mom" value="${esc(you)}" required>
+${mailer ? `<label for="email">Your email (for sign-in links on a new device; optional)</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" value="${esc(email)}">` : ''}
 <button>Start our family</button></form>`
   if (req.method === 'POST') {
     const f = new URLSearchParams((await readBody(req, 2000)).toString('utf8'))
     try {
       const was = currentSession(req)
-      const dev = families.useLink(token, { label: was?.device.label ?? deviceLabel(req), familyName: f.get('family'), yourName: f.get('you') })
+      const dev = families.useLink(token, { label: was?.device.label ?? deviceLabel(req), familyName: f.get('family'), yourName: f.get('you'), yourEmail: f.get('email') })
       if (!dev) return sendPage(res, 404, 'Ark Pals', deadLink(req))
       if (was) families.removeDevice(was.family.id, was.device.id)
       res.writeHead(303, { 'Set-Cookie': [deviceCookie(req, dev), clearOldCookie], Location: '/' })
       return res.end()
-    } catch {
-      return sendPage(res, 400, 'Start your family', form('Please give both names (up to 40 letters each).', f.get('family') ?? '', f.get('you') ?? ''))
+    } catch (e) {
+      const msg = e.status === 409 ? 'That email is already used by another grown-up. Leave it out, or use another.'
+        : 'Please give both names (up to 40 letters each), and an email that works, or none.'
+      return sendPage(res, 400, 'Start your family', form(msg, f.get('family') ?? '', f.get('you') ?? '', f.get('email') ?? ''))
     }
   }
   return sendPage(res, 200, 'Start your family', form())
@@ -550,6 +582,17 @@ createServer(async (req, res) => {
       fail(ip)
       res.writeHead(401, { 'Content-Type': 'text/html; charset=utf-8' })
       return res.end(LOGIN_PAGE('That password didn’t work.'))
+    }
+    // An emailed sign-in link (30 minutes, once) for a grown-up with that address.
+    if (url.pathname === '/login/email' && req.method === 'POST') {
+      const asked = new URLSearchParams((await readBody(req, 2000)).toString('utf8')).get('email') ?? ''
+      const who = mailer && mayEmail(`ip:${ip}`, 10) ? families.memberByEmail(asked) : null
+      if (who && mayEmail(`to:${who.member.id}`, 3)) {
+        const l = families.makeLink({ kind: 'device', familyId: who.family.id, memberId: who.member.id, madeBy: who.member.id, minutes: 30 })
+        mailer.send({ to: cleanEmail(asked), ...signInEmail({ link: `${siteUrl(req)}/join/${l.token}`, name: who.member.name, family: who.family.name }) })
+          .catch((e) => console.error(e.message))
+      }
+      return sendPage(res, 200, 'Ark Pals', `<div class="card"><h1>🌈 Ark Pals</h1><p>If that email belongs to a grown-up in a family here, a sign-in link is on its way. It works once, for 30 minutes.</p><p class="small">Nothing there? Check the spam folder, or ask your family for a link.</p><p><a href="/">Back</a></p></div>`)
     }
     // A pasted link: go to its page (/join/… or /start/…), just as opening it would.
     if (url.pathname === '/login/link' && req.method === 'POST') {

@@ -11,6 +11,7 @@
     "start": "node server/index.mjs",
     "set-password": "node server/set-password.mjs",
     "set-voice-key": "node server/set-voice-key.mjs",
+    "set-email-key": "node server/set-email-key.mjs",
     "new-family-link": "node server/new-family-link.mjs",
     "test": "vitest run",
     "new-island": "node scripts/new-island.mjs",

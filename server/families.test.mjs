@@ -127,6 +127,34 @@ describe('families', () => {
     expect(fams.removeMember(otherFam, parent)).toBe(false)
   })
 
+  it('a grown-up can keep an email for sign-in links: one grown-up per address', () => {
+    const { fams } = fresh()
+    const fam = fams.firstFamily()
+    const dad = fams.session(fams.passwordDevice('iPad')).member.id
+    fams.updateMember(fam, dad, { email: '  Dad@Example.com ' })
+    expect(fams.memberByEmail('dad@example.com')).toMatchObject({ member: { id: dad }, family: { id: fam } })
+    expect(fams.memberByEmail('nobody@example.com')).toBeNull()
+    expect(fams.memberByEmail('not an email')).toBeNull()
+    const other = fams.useLink(fams.makeLink({ kind: 'family' }).token, { label: 'iPad', familyName: 'Others', yourName: 'Sam' })
+    const s = fams.session(other)
+    expect(() => fams.updateMember(s.family.id, s.member.id, { email: 'DAD@example.com' })).toThrow(expect.objectContaining({ status: 409 }))
+    expect(() => fams.updateMember(fam, dad, { email: 'nope' })).toThrow(expect.objectContaining({ status: 400 }))
+    fams.updateMember(fam, dad, { email: '' })
+    expect(fams.memberByEmail('dad@example.com')).toBeNull()
+  })
+
+  it("an emailed invitation's address becomes the new grown-up's, and a sign-in link can be short", () => {
+    const { fams, later } = fresh()
+    const fam = fams.firstFamily()
+    const nana = fams.useLink(fams.makeLink({ kind: 'member', familyId: fam, name: 'Nana', role: 'grownup', email: 'nana@example.com' }).token, { label: 'iPhone' })
+    expect(fams.session(nana).member.email).toBe('nana@example.com')
+    const start = fams.useLink(fams.makeLink({ kind: 'family' }).token, { label: 'iPad', familyName: 'The Smiths', yourName: 'Jo', yourEmail: 'jo@example.com' })
+    expect(fams.session(start).member.email).toBe('jo@example.com')
+    const quick = fams.makeLink({ kind: 'device', familyId: fam, memberId: fams.session(nana).member.id, minutes: 30 })
+    later(31 * 60_000)
+    expect(fams.peekLink(quick.token)).toBeNull()
+  })
+
   it('cleans names and looks', () => {
     expect(cleanName('  Paw   Paw ')).toBe('Paw Paw')
     expect(() => cleanName('')).toThrow()

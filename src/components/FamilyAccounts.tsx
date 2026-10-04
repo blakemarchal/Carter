@@ -71,6 +71,25 @@ function AvatarEditor({ start, onSave }: { start: GrownupAvatar; onSave: (a: Gro
   )
 }
 
+/** My email, so I can get a sign-in link on a new device (only when the server sends email). */
+function MyEmail({ view, reload }: { view: FamilyView; reload: () => void }) {
+  const [email, setEmail] = useState(view.me.email ?? '')
+  const [note, setNote] = useState('')
+  const save = () => {
+    const v = email.trim()
+    if (v === (view.me.email ?? '')) return
+    familyApi.updateMe({ email: v }).then(() => { setNote(v ? '✓ Saved' : '✓ Removed'); reload() }).catch((e: { status?: number }) =>
+      setNote(e.status === 409 ? 'Another grown-up already uses that email.' : e.status === 400 ? "That doesn't look like an email address." : 'That didn’t save. Check the internet and try again.'))
+  }
+  return (
+    <form className="player-row my-email" onSubmit={(e) => { e.preventDefault(); save() }}>
+      <span>My email, for a sign-in link on a new device</span>
+      <input type="email" value={email} maxLength={254} placeholder="you@example.com" aria-label="My email" onChange={(e) => { setEmail(e.target.value); setNote('') }} onBlur={save} />
+      {note && <span className="muted">{note}</span>}
+    </form>
+  )
+}
+
 function Members({ view, reload }: { view: FamilyView; reload: () => void }) {
   const [editing, setEditing] = useState(false)
   const parent = view.me.role === 'parent'
@@ -109,8 +128,9 @@ const alertFail = () => alert('That didn’t work. Check the internet and try ag
 
 function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [role, setRole] = useState<Role>('grownup')
-  const [made, setMade] = useState<{ link: string; who: string } | null>(null)
+  const [made, setMade] = useState<{ link: string; who: string; sentTo?: string } | null>(null)
   return (
     <>
       <h4>Invite a grown-up</h4>
@@ -119,7 +139,9 @@ function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
         e.preventDefault()
         const who = name.trim()
         if (!who) return
-        familyApi.invite(who, role).then((r) => { setMade({ link: r.link, who }); setName(''); reload() }).catch(() => alertFail())
+        const to = email.trim()
+        familyApi.invite(who, role, to || undefined).then((r) => { setMade({ link: r.link, who, sentTo: r.emailed ? to : undefined }); setName(''); setEmail(''); reload() })
+          .catch((e: { status?: number }) => (e.status === 400 && to ? alert("That email doesn't look right. Check it, or leave it empty and share the link yourself.") : alertFail()))
       }}>
         <Avatar look={avatarLook(guessAvatar(name))} size={44} />
         <input value={name} maxLength={40} placeholder="What you call them: Nana" onChange={(e) => setName(e.target.value)} aria-label="Their name" />
@@ -127,8 +149,10 @@ function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
           <option value="grownup">Grandparent or other grown-up</option>
           <option value="parent">Parent</option>
         </select>
-        <button type="submit">Make their link</button>
+        {view.emailOn && <input type="email" value={email} maxLength={254} placeholder="Their email (optional)" onChange={(e) => setEmail(e.target.value)} aria-label="Their email" />}
+        <button type="submit">{view.emailOn && email.trim() ? 'Send their link' : 'Make their link'}</button>
       </form>
+      {made?.sentTo && <p className="muted">✉️ Sent to {made.sentTo}. You can share the same link another way too:</p>}
       {made && <LinkCard link={made.link} who={made.who} note="It works once, for 7 days. They open it on their phone or tablet and tap Join, and they're in. (Want it on an iPhone or iPad Home Screen? The link's page says how.)" />}
       {view.invites.length > 0 && (
         <div className="family-invites">
@@ -191,6 +215,7 @@ export default function FamilyAccounts() {
           : <b>{view.family.name}</b>}
       </div>
       <Members view={view} reload={reload} />
+      {view.emailOn && <MyEmail key={view.me.email ?? ''} view={view} reload={reload} />}
       {parent && <Invite view={view} reload={reload} />}
       <Devices view={view} reload={reload} />
     </section>

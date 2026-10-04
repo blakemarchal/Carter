@@ -5,7 +5,9 @@ import { useCallback, useEffect, useState } from 'react'
 export type Role = 'parent' | 'grownup'
 
 export interface FamilyView {
-  me: { member: string; device: string; role: Role }
+  me: { member: string; device: string; role: Role; email: string | null }
+  /** Whether the server can send email (sign-in links, invitations). */
+  emailOn: boolean
   family: { id: string; name: string }
   members: { id: string; name: string; role: Role; look: unknown }[]
   devices: { id: string; label: string; seen: number; member: string; mine: boolean }[]
@@ -28,9 +30,11 @@ const withSite = <T extends { link: string }>(r: T): T => ({ ...r, link: new URL
 export const familyApi = {
   get: () => call<FamilyView>('GET', '/family'),
   rename: (name: string) => call<void>('PUT', '/family', { name }),
-  updateMe: (changes: { name?: string; look?: unknown }) => call<void>('PUT', '/family/me', changes),
-  /** A one-time link (7 days) that brings a new grown-up into the family. */
-  invite: (name: string, role: Role) => call<{ id: string; link: string; expires: number }>('POST', '/family/invite', { name, role }).then(withSite),
+  /** `email`: where a sign-in link can be sent ('' for none). */
+  updateMe: (changes: { name?: string; look?: unknown; email?: string }) => call<void>('PUT', '/family/me', changes),
+  /** A one-time link (7 days) that brings a new grown-up into the family; with an email, it's sent there too. */
+  invite: (name: string, role: Role, email?: string) =>
+    call<{ id: string; link: string; expires: number; emailed: boolean }>('POST', '/family/invite', { name, role, email }).then(withSite),
   cancelInvite: (id: string) => call<void>('DELETE', `/family/invite/${id}`),
   /** A one-time link (1 day) that signs another device in as me. */
   deviceLink: () => call<{ link: string; expires: number }>('POST', '/family/device-link').then(withSite),

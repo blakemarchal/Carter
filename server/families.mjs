@@ -4,6 +4,7 @@
 // the Parent Corner ("Invite a grown-up"), or "sign in another device" for yourself. New families start
 // from a link the site owner makes (server/new-family-link.mjs). The first family on a server is the one
 // that used to share a single family password; that password still signs its devices in, as its parents.
+// A grown-up can also keep an email address here, to be sent a sign-in link on a new device.
 // Kept in SQLite (node:sqlite: no dependencies), next to the families' files.
 import { createHash, randomBytes } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
@@ -23,6 +24,15 @@ export function cleanName(v) {
   if (!s || s.length > 40) throw Object.assign(new Error('bad name'), { status: 400 })
   return s
 }
+
+/** An email address, lowercased; empty means none (null). One grown-up per address. */
+export function cleanEmail(v) {
+  const s = String(v ?? '').trim().toLowerCase()
+  if (!s) return null
+  if (s.length > 254 || !/^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-z]{2,}$/.test(s)) throw Object.assign(new Error('bad email'), { status: 400 })
+  return s
+}
+const emailTaken = (e) => /UNIQUE/.test(String(e?.message)) ? Object.assign(new Error('email taken'), { status: 409 }) : e
 
 /** An avatar look ({ base, skin, hairColor, color }): kept as JSON, checked loosely, small. */
 export function cleanLook(v) {
@@ -53,6 +63,11 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
       name TEXT, role TEXT, made_by TEXT, created INTEGER NOT NULL, expires INTEGER NOT NULL, used INTEGER);
   `)
   const q = (sql) => db.prepare(sql)
+  // (added later: a grown-up's email for sign-in links, and the email an invitation was sent to)
+  const hasColumn = (table, col) => !!q(`SELECT 1 FROM pragma_table_info('${table}') WHERE name = ?`).get(col)
+  if (!hasColumn('members', 'email')) db.exec('ALTER TABLE members ADD COLUMN email TEXT')
+  if (!hasColumn('links', 'email')) db.exec('ALTER TABLE links ADD COLUMN email TEXT')
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS members_email ON members(email) WHERE email IS NOT NULL')
   const meta = (key) => q('SELECT value FROM meta WHERE key = ?').get(key)?.value
   const setMeta = (key, value) => q('INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value)
   const tx = (fn) => {
@@ -121,13 +136,13 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
 
     /** Who a device is: { device, member, family }, or null if it's unknown (or was signed out). */
     session(deviceId) {
-      const r = q(`SELECT d.id AS device_id, d.label, d.seen, m.id AS member_id, m.name AS member_name, m.role, m.look,
+      const r = q(`SELECT d.id AS device_id, d.label, d.seen, m.id AS member_id, m.name AS member_name, m.role, m.look, m.email,
                     f.id AS family_id, f.name AS family_name
                    FROM devices d JOIN members m ON m.id = d.member_id JOIN families f ON f.id = d.family_id WHERE d.id = ?`).get(String(deviceId))
       if (!r) return null
       return {
         device: { id: r.device_id, label: r.label, seen: r.seen },
-        member: { id: r.member_id, name: r.member_name, role: r.role, look: r.look ? JSON.parse(r.look) : null },
+        member: { id: r.member_id, name: r.member_name, role: r.role, look: r.look ? JSON.parse(r.look) : null, email: r.email },
         family: { id: r.family_id, name: r.family_name },
       }
     },
@@ -141,9 +156,11 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
     /**
      * A one-time link. kind 'member': invites a new grown-up (name, role) into a family; 'device': signs
      * another device in as an existing member; 'family': starts a new family (made by the site owner).
-     * Returns the secret token (only its hash is kept) and when it stops working.
+     * Returns the secret token (only its hash is kept) and when it stops working. `minutes` makes it stop
+     * sooner (a sign-in link sent by email); `email` is where an invitation was sent, which becomes the new
+     * grown-up's email when they join.
      */
-    makeLink({ kind, familyId = null, memberId = null, name = null, role = null, madeBy = null }) {
+    makeLink({ kind, familyId = null, memberId = null, name = null, role = null, madeBy = null, minutes = null, email = null }) {
       if (!(kind in LINK_DAYS)) throw Object.assign(new Error('bad kind'), { status: 400 })
       if (kind === 'member') {
         name = cleanName(name)
@@ -151,9 +168,9 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
       }
       const token = randomBytes(24).toString('base64url')
       const id = newId('lnk')
-      const expires = clock() + LINK_DAYS[kind] * DAY
-      q(`INSERT INTO links (id, token_hash, kind, family_id, member_id, name, role, made_by, created, expires)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, hashToken(token), kind, familyId, memberId, name, role, madeBy, clock(), expires)
+      const expires = clock() + Math.min(LINK_DAYS[kind] * DAY, minutes ? minutes * 60_000 : Infinity)
+      q(`INSERT INTO links (id, token_hash, kind, family_id, member_id, name, role, made_by, created, expires, email)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, hashToken(token), kind, familyId, memberId, name, role, madeBy, clock(), expires, cleanEmail(email))
       return { id, token, expires }
     },
 
@@ -171,7 +188,7 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
      * Opens a link on a device: it's used up, and the device is signed in. For a 'family' link, `familyName`
      * and `yourName` start the family. Returns the new device's id, or null if the link doesn't work.
      */
-    useLink(token, { label, familyName, yourName } = {}) {
+    useLink(token, { label, familyName, yourName, yourEmail } = {}) {
       return tx(() => {
         const l = q('SELECT * FROM links WHERE token_hash = ?').get(hashToken(String(token)))
         if (!l || l.used || l.expires < clock()) return null
@@ -179,8 +196,12 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
         if (l.kind === 'family') {
           familyId = addFamily(familyName)
           memberId = addMember(familyId, yourName, 'parent')
+          const email = cleanEmail(yourEmail)
+          if (email) try { q('UPDATE members SET email = ? WHERE id = ?').run(email, memberId) } catch (e) { throw emailTaken(e) }
         } else if (l.kind === 'member') {
           memberId = addMember(familyId, l.name, l.role)
+          // (the address the invitation went to, unless someone else already signs in with it)
+          if (l.email && !q('SELECT 1 FROM members WHERE email = ?').get(l.email)) q('UPDATE members SET email = ? WHERE id = ?').run(l.email, memberId)
         }
         q('UPDATE links SET used = ? WHERE id = ?').run(clock(), l.id)
         return addDevice(familyId, memberId, label)
@@ -204,9 +225,19 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
     renameFamily(familyId, name) {
       q('UPDATE families SET name = ? WHERE id = ?').run(cleanName(name), familyId)
     },
-    updateMember(familyId, memberId, { name, look } = {}) {
+    updateMember(familyId, memberId, { name, look, email } = {}) {
       if (name !== undefined) q('UPDATE members SET name = ? WHERE id = ? AND family_id = ?').run(cleanName(name), memberId, familyId)
       if (look !== undefined) q('UPDATE members SET look = ? WHERE id = ? AND family_id = ?').run(cleanLook(look), memberId, familyId)
+      if (email !== undefined) {
+        try { q('UPDATE members SET email = ? WHERE id = ? AND family_id = ?').run(cleanEmail(email), memberId, familyId) } catch (e) { throw emailTaken(e) }
+      }
+    },
+    /** The grown-up who signs in with this email, and their family, or null. */
+    memberByEmail(email) {
+      let e
+      try { e = cleanEmail(email) } catch { return null }
+      const r = e && q('SELECT m.id, m.name, m.role, f.id AS family_id, f.name AS family_name FROM members m JOIN families f ON f.id = m.family_id WHERE m.email = ?').get(e)
+      return r ? { member: { id: r.id, name: r.name, role: r.role }, family: { id: r.family_id, name: r.family_name } } : null
     },
     /** Removes a grown-up and signs out all their devices. A family always keeps at least one parent. */
     removeMember(familyId, memberId) {

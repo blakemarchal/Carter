@@ -167,6 +167,28 @@ those parents.
   `/var/lib/carter`; other families' are in `/var/lib/carter/families/<id>/`. Back the folder up before a
   risky deploy: `tar czf /root/carter-state-$(date +%F).tgz -C /var/lib carter`.
 
+## Email: sign-in links and invitations (optional)
+
+With email set up, a grown-up who added their email in the Parent Corner can tap **Email me a link** on
+the sign-in page of a new device, and parents can send an invitation straight to someone's inbox. Without
+it, everything works as before: links are shared by hand. Emails are sent through Resend, and replies to
+`hello@spiritflow.church` are forwarded by ImprovMX to a Gmail inbox. spiritflow.church's DNS is at
+Namecheap (Domain List → spiritflow.church → Advanced DNS; "Mail Settings" must be **Custom MX**).
+
+1. **Resend (sending):** in Resend → Domains, add `spiritflow.church` (the free plan allows one domain:
+   remove an old one first). Add the records it lists at Namecheap: a TXT at `resend._domainkey` (DKIM),
+   and an MX and a TXT (SPF) at `send`. Then press **Verify** in Resend.
+2. **ImprovMX (receiving):** add `spiritflow.church` with an alias `hello` → your Gmail address. At
+   Namecheap, add MX `@` → `mx1.improvmx.com` (priority 10) and `mx2.improvmx.com` (priority 20), and a
+   TXT at `@`: `v=spf1 include:spf.improvmx.com ~all`.
+3. **The key:** in Resend → API Keys, create a key with **Sending access** for spiritflow.church. Then:
+   ```bash
+   ssh root@68.183.130.3
+   cd /opt/Carter && npm run set-email-key     # paste the key (it isn't shown), keep the From address, send a test
+   systemctl restart carter-web
+   ```
+   `npm run set-email-key -- --check` sends another test; `-- --remove` turns email off again.
+
 ## If something goes wrong
 
 ```bash
