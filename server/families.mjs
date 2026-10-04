@@ -255,6 +255,21 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
     relabelDevice(familyId, deviceId, label) {
       q('UPDATE devices SET label = ? WHERE id = ? AND family_id = ?').run(cleanName(label), deviceId, familyId)
     },
+    /** Everything kept about a family's grown-ups and devices (for the family's own download). */
+    exportFamily(familyId) {
+      return {
+        family: { ...q('SELECT id, name, created FROM families WHERE id = ?').get(familyId) },
+        members: q('SELECT name, role, email, look, created FROM members WHERE family_id = ? ORDER BY created').all(familyId)
+          .map((m) => ({ ...m, look: m.look ? JSON.parse(m.look) : null })),
+        devices: q(`SELECT d.label, m.name AS member, d.created, d.seen FROM devices d JOIN members m ON m.id = d.member_id
+                    WHERE d.family_id = ? ORDER BY d.created`).all(familyId).map((d) => ({ ...d })),
+      }
+    },
+    /** Deletes a family, with its grown-ups, devices and invitations. The first family can't be deleted. */
+    deleteFamily(familyId) {
+      if (familyId === meta('first_family')) throw Object.assign(new Error('the first family stays'), { status: 409 })
+      return q('DELETE FROM families WHERE id = ?').run(familyId).changes > 0
+    },
     /** Signs a device out (it will need a new link to come back). */
     removeDevice(familyId, deviceId) {
       return q('DELETE FROM devices WHERE id = ? AND family_id = ?').run(deviceId, familyId).changes > 0

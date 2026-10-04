@@ -3,7 +3,7 @@
 // signs their device in when they open it. Nobody needs a password. Each grown-up has an avatar.
 import { useState } from 'react'
 import Avatar from './Avatar'
-import { familyApi, useFamilyAccount, type FamilyView, type Role } from '../lib/family'
+import { familyApi, useFamilyAccount, type FamilyUsage, type FamilyView, type Role } from '../lib/family'
 import {
   AVATAR_PRESETS, avatarLook, GROWNUP_COLORS, GROWNUP_HAIR_COLORS, GROWNUP_HAIRS, guessAvatar, readAvatar, type GrownupAvatar,
 } from '../lib/avatars'
@@ -108,6 +108,11 @@ function Members({ view, reload }: { view: FamilyView; reload: () => void }) {
                 : <b className="fm-name">{m.name}</b>}
               <span className="tag">{m.role === 'parent' ? 'parent' : 'grown-up'}{me ? ' · you' : ''}</span>
               {me && <button className={editing ? 'on' : ''} onClick={() => setEditing(!editing)}>My avatar</button>}
+              {me && !parent && (
+                <button className="danger" onClick={() => {
+                  if (confirm(`Leave ${view.family.name}? This device will be signed out.`)) familyApi.removeMember(m.id).then(() => location.assign('/')).catch(() => alertFail())
+                }}>Leave</button>
+              )}
               {parent && !me && (
                 <button className="danger" onClick={() => {
                   if (confirm(`Remove ${m.name}? Their devices will be signed out.`)) familyApi.removeMember(m.id).then(reload).catch(() => alertFail())
@@ -193,6 +198,48 @@ function Devices({ view, reload }: { view: FamilyView; reload: () => void }) {
   )
 }
 
+const mb = (b: number) => `${Math.max(0.1, Math.round(b / 104857.6) / 10)} MB`
+const room = (u: { count: number; bytes: number; maxBytes: number }) =>
+  (u.count ? `${u.count}, using ${mb(u.bytes)} of the family's ${mb(u.maxBytes)}` : `none yet (room for ${mb(u.maxBytes)})`)
+
+/** Parents: how much the family keeps here, a download of all of it, and deleting the family's account. */
+function FamilyData({ view }: { view: FamilyView }) {
+  const [usage, setUsage] = useState<FamilyUsage | null>(null)
+  const [open, setOpen] = useState(false)
+  const show = () => { setOpen(!open); if (!usage) familyApi.usage().then(setUsage).catch(() => {}) }
+  const remove = () => {
+    const typed = prompt(`This deletes ${view.family.name} for good: every grown-up's sign-in, every device, and all the family's backups, recordings and songs on the server. Players' progress on each device stays there.\n\nTo be sure, type the family's name: ${view.family.name}`)
+    if (typed === null) return
+    familyApi.deleteFamily(typed).then(() => location.assign('/')).catch((e: { status?: number }) =>
+      alert(e.status === 400 ? "That's not the family's name, so nothing was deleted." : 'That didn’t work. Check the internet and try again.'))
+  }
+  return (
+    <>
+      <h4>Your family's data</h4>
+      <div className="level-row">
+        <button className={open ? 'on' : ''} onClick={show}>🗂️ What's kept here</button>
+        <a className="button-link" href="/family/export" download>⬇️ Download everything</a>
+      </div>
+      {open && (
+        <div className="family-usage">
+          <p className="muted">
+            Kept on the server for your family: grown-ups' names and emails, signed-in devices, progress backups,
+            family voice recordings and songs. Download everything as one file any time.
+          </p>
+          {usage ? (
+            <ul>
+              <li>Voice recordings: {room(usage.recordings)}</li>
+              <li>Songs: {room(usage.songs)}</li>
+              <li>Progress backups: {usage.backups.count} (the newest {usage.backups.maxFiles} are kept)</li>
+            </ul>
+          ) : <p className="muted">Counting…</p>}
+          {view.deletable && <button className="danger" onClick={remove}>Delete our family's account</button>}
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function FamilyAccounts() {
   const { view, reload } = useFamilyAccount()
   if (!view) {
@@ -218,6 +265,7 @@ export default function FamilyAccounts() {
       {view.emailOn && <MyEmail key={view.me.email ?? ''} view={view} reload={reload} />}
       {parent && <Invite view={view} reload={reload} />}
       <Devices view={view} reload={reload} />
+      {parent && <FamilyData view={view} />}
     </section>
   )
 }

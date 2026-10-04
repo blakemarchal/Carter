@@ -68,6 +68,7 @@ export function stopRecording(): Promise<Blob | null> {
 export async function saveRecording(text: string, blob: Blob) {
   const id = await lineId(text)
   const r = await fetch(`/recording/${id}`, { method: 'PUT', headers: { 'Content-Type': blob.type }, body: blob })
+  if (r.status === 507) throw new Error("Your family's recordings are full. Delete some old ones to make room.")
   if (!r.ok) throw new Error(`save failed (${r.status})`)
   audio.delete(id)
   await loadRecordings()

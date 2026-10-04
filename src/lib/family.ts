@@ -8,10 +8,19 @@ export interface FamilyView {
   me: { member: string; device: string; role: Role; email: string | null }
   /** Whether the server can send email (sign-in links, invitations). */
   emailOn: boolean
+  /** Whether the family can delete its account here (not the site's own family). */
+  deletable: boolean
   family: { id: string; name: string }
   members: { id: string; name: string; role: Role; look: unknown }[]
   devices: { id: string; label: string; seen: number; member: string; mine: boolean }[]
   invites: { id: string; name: string; role: Role; expires: number }[]
+}
+
+/** How much the family keeps on the server, and how much it can. */
+export interface FamilyUsage {
+  recordings: { count: number; bytes: number; maxCount: number; maxBytes: number }
+  songs: { count: number; bytes: number; maxCount: number; maxBytes: number }
+  backups: { count: number; maxFiles: number }
 }
 
 async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
@@ -41,6 +50,9 @@ export const familyApi = {
   /** This device's name in the list of signed-in devices. */
   relabel: (label: string) => call<void>('PUT', '/family/device', { label }),
   removeMember: (id: string) => call<void>('DELETE', `/family/member/${id}`),
+  usage: () => call<FamilyUsage>('GET', '/family/usage'),
+  /** Deletes the whole family: everyone, every device, every backup, recording and song. */
+  deleteFamily: (confirm: string) => call<void>('DELETE', '/family', { confirm }),
   removeDevice: (id: string) => call<void>('DELETE', `/family/device/${id}`),
 }
 

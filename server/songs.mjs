@@ -1,14 +1,15 @@
 // Sing-along songs: the audio a parent adds (any recording they own, or one made with a music
 // tool), plus each song's details (title, words for added songs, when each line starts).
 // Kept in STATE_DIRECTORY/songs as <id>.json and <id>.<audio ext>.
-import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const ID = /^[a-z0-9-]{1,40}$/
 const MAX_AUDIO = 20 * 1024 * 1024
 const TYPES = { 'audio/mpeg': 'mp3', 'audio/mp3': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/aac': 'aac', 'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/webm': 'webm', 'audio/ogg': 'ogg' }
 
-export function createSongs(dir) {
+/** `maxBytes`, `maxCount`: how much one family can keep (a new song's audio past that is refused, 507). */
+export function createSongs(dir, { maxBytes = 400 * 1024 * 1024, maxCount = 60 } = {}) {
   const ready = mkdir(dir, { recursive: true })
   ready.catch((e) => console.error(`Songs folder ${dir} unavailable: ${e.message}`))
   const files = async () => { await ready; return readdir(dir) }
@@ -19,7 +20,16 @@ export function createSongs(dir) {
     try { return JSON.parse(await readFile(join(dir, `${id}.json`), 'utf8')) } catch { return { id } }
   }
 
+  const sizeOf = async (f) => (await stat(join(dir, f)).catch(() => ({ size: 0 }))).size
+  async function usage() {
+    const all = (await files()).filter((f) => ID.test(f.split('.')[0]))
+    let bytes = 0
+    for (const f of all) bytes += await sizeOf(f)
+    return { count: new Set(all.map((f) => f.split('.')[0])).size, bytes, maxCount, maxBytes }
+  }
+
   return {
+    usage,
     /** Every song the server knows about, with `audio` (a version stamp) when it has a recording. */
     async list() {
       const all = await files()
@@ -46,6 +56,9 @@ export function createSongs(dir) {
       if (!ext) throw bad(415, 'unsupported audio type')
       if (body.length > MAX_AUDIO) throw bad(413, 'too large')
       const old = await audioFile(id)
+      const u = await usage()
+      const known = (await files()).some((f) => f.startsWith(`${id}.`))
+      if (u.count + (known ? 0 : 1) > maxCount || u.bytes - (old ? await sizeOf(old) : 0) + body.length > maxBytes) throw bad(507, 'the family songs are full')
       if (old) await unlink(join(dir, old)).catch(() => {})
       await writeFile(join(dir, `${id}.${ext}`), body)
       const meta = await readMeta(id)

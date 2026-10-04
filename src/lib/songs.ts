@@ -191,6 +191,7 @@ const slug = (title: string) =>
   `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'song'}-${Math.random().toString(36).slice(2, 7)}`
 
 async function ok(r: Response) {
+  if (r.status === 507) throw new Error("Your family's songs are full. Delete one to make room.")
   if (!r.ok) throw new Error((await r.text().catch(() => '')) || `HTTP ${r.status}`)
 }
 

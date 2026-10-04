@@ -155,6 +155,20 @@ describe('families', () => {
     expect(fams.peekLink(quick.token)).toBeNull()
   })
 
+  it("a family's export has its grown-ups and devices; a family can be deleted, but never the first", () => {
+    const { fams } = fresh()
+    const dev = fams.useLink(fams.makeLink({ kind: 'family' }).token, { label: 'iPad', familyName: 'The Smiths', yourName: 'Jo', yourEmail: 'jo@example.com' })
+    const fam = fams.session(dev).family.id
+    const out = fams.exportFamily(fam)
+    expect(out.family.name).toBe('The Smiths')
+    expect(out.members).toEqual([expect.objectContaining({ name: 'Jo', role: 'parent', email: 'jo@example.com' })])
+    expect(out.devices).toEqual([expect.objectContaining({ label: 'iPad', member: 'Jo' })])
+    expect(fams.deleteFamily(fam)).toBe(true)
+    expect(fams.session(dev)).toBeNull()
+    expect(fams.memberByEmail('jo@example.com')).toBeNull()
+    expect(() => fams.deleteFamily(fams.firstFamily())).toThrow(expect.objectContaining({ status: 409 }))
+  })
+
   it('cleans names and looks', () => {
     expect(cleanName('  Paw   Paw ')).toBe('Paw Paw')
     expect(() => cleanName('')).toThrow()

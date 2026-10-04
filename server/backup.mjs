@@ -25,7 +25,8 @@ function summarize(data) {
   })
 }
 
-export function createBackups(dir) {
+/** `maxFiles`: how many backups one family keeps in all (the oldest go first). */
+export function createBackups(dir, { maxFiles = 60 } = {}) {
   const ready = mkdir(dir, { recursive: true })
   ready.catch((e) => console.error(`Backup folder ${dir} unavailable: ${e.message}`))
 
@@ -47,6 +48,8 @@ export function createBackups(dir) {
       await rename(join(dir, `${name}.json.tmp`), join(dir, `${name}.json`))
       const mine = (await names()).filter((n) => n.endsWith(`-${device}`)).sort()
       for (const old of mine.slice(0, -KEEP)) await unlink(join(dir, `${old}.json`)).catch(() => {})
+      const all = (await names()).sort((a, b) => Number(a.split('-')[1]) - Number(b.split('-')[1]))
+      for (const old of all.slice(0, -maxFiles)) if (old !== name) await unlink(join(dir, `${old}.json`)).catch(() => {})
       return name
     },
     /** Every backup, newest first, each with a summary of who is in it. */
@@ -59,6 +62,10 @@ export function createBackups(dir) {
         } catch { /* unreadable file: skip */ }
       }
       return out
+    },
+    /** How many backups there are. */
+    async usage() {
+      return { count: (await names()).length, maxFiles }
     },
     /** One backup's JSON text by id, or the newest overall when no id is given. */
     async get(id) {
