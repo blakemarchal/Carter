@@ -38,6 +38,7 @@ SAY = {
     'mor-de-cai': '/ˈmɔːrdəkaɪ/',
     "ev-'ry-bod-y": 'everybody',
     'lamb-y': '/ˈlæmi/',
+    'zac-chae-us': '/zæˈkiːəs/',
 }
 
 JESUS_LOVES_ME = dict(
@@ -699,8 +700,75 @@ LOST_SHEEP_SONG = dict(
     chords='C:2 G7:2 ' + 'C:4 G7:2 C:6 F:1 G7:1 C:2 ' * 5 + 'C:2',
 )
 
+
+# "Tramp! Tramp! Tramp!" (George F. Root, 1864), the tune of "Jesus Loves the Little Children": its chorus, as
+# John Chambers' ABC of "God Save Ireland" (set to Root's melody; trillian.mit.edu, K:G) gives it. 2/4.
+def _tramp(a, b, c, d, e, last=False):
+    return [
+        (a, 'B4:1 B4:1 B4:.75 A4:.25 G4:.75 E4:.25 D4:2 G4:2'),                  # "Je-sus loves the lit-tle chil-dren,"
+        (b, 'A4:1 A4:1 B4:.75 A4:.25 G4:.75 B4:.25 A4:3'),                      # "all the chil-dren of the world;"
+        (c, 'D4:.75 C4:.25 B3:.75 D4:.25 G4:.75 A4:.25 G4:1'),                  # "red and yel-low, black and white,"
+        (d, 'G4:.75 F#4:.25 E4:.75 F#4:.25 G4:.75 E4:.25 D4:1'),                # "they are pre-cious in His sight,"
+        (e, 'B4:.75 A4:.25 G4:.75 F#4:.25 G4:.75 E4:.25 F#4:.75 D4:.25 F#4:.75 A4:.25 '
+            + ('G4:4' if last else 'G4:3 r:1')),                                # "Je-sus loves the lit-tle chil-dren of the world."
+    ]
+
+
+SAMARITAN_SONG = dict(
+    id='song-samaritan', title='Love Your Neighbor', style='gospel', meter=2, tempo=100, transpose=3, start=4,
+    lines=_tramp('Once a man was on a jour-ney,', 'Walk-ing down to Jer-i-cho;', 'Rob-bers took his things a-way,',
+                 'Left him hurt and sad that day.', 'Who will stop and help the poor man on the road?')
+    + _tramp('Then a priest came walk-ing by him,', 'But he did not stop to help;', 'Then a tem-ple help-er passed,',
+             'He went by him, oh so fast!', 'Who will stop and help the poor man on the road?')
+    + _tramp('Then a kind man came a-rid-ing', 'From Sa-mar-i-a he came;', 'He was sad to see him there,',
+             'So he stopped to help and care.', 'Yes, he stopped to help the poor man on the road!')
+    + _tramp('Ban-daged up his cuts and bruis-es,', 'Let him ride his don-key, too,', 'To an inn to rest and stay,',
+             'And he paid for it, hoo-ray!', 'He was kind and loved the poor man on the road!')
+    + _tramp('Je-sus says to love our neigh-bors,', "Ev-'ry-one we meet each day;", 'Friends and strang-ers, big and small,',
+             'God wants us to love them all!', "Let's be kind like the Sa-mar-i-tan each day!", last=True),
+    chords='G:2 D7:2 ' + 'G:8 D:2 A7:2 D:2 D7:2 G:4 C:2 G:2 Em:2 D:2 G:4 ' * 5 + 'G:2',
+)
+
+
+# "Yankee Doodle" (an old English tune, 1755), as "The Everyday Song Book" (1927, John Chambers' transcription on
+# trillian.mit.edu, K:A) gives it, pickups and all; sung here in G and straight, as children sing it today.
+# 2/4. Each verse starts with a pickup: the last eighth before its first bar.
+def _doodle(a, b, c, d, e, last=False):
+    return [
+        (a, 'D4:.5 G4:.5 G4:.5 A4:.5 B4:.5 G4:.5 B4:.5 A4:.5 D4:.5 G4:.5 G4:.5 A4:.5 B4:.5 G4:1 F#4:.5'),  # "(And) Yan-kee Doo-dle went to town, a-rid-ing on a po-ny,"
+        (b, 'D4:.5 G4:.5 G4:.5 A4:.5 B4:.5 C5:.5 B4:.5 A4:.5 G4:.5 F#4:.5 D4:.5 E4:.5 F#4:.5 G4:1 G4:.5 r:.5'),  # "(he) stuck a fea-ther in his cap and called it mac-a-ro-ni."
+        (c, 'E4:.75 F#4:.25 E4:.5 D4:.5 E4:.5 F#4:.5 G4:.5 r:.5'),            # "Yan-kee Doo-dle, keep it up,"
+        (d, 'D4:.75 E4:.25 D4:.5 C4:.5 B3:.75 +C4:.25 D4:.5 r:.5'),          # "Yan-kee Doo-dle dan-dy;"
+        (e, 'E4:.75 F#4:.25 E4:.5 D4:.5 E4:.5 F#4:.5 G4:.5 E4:.5 D4:.5 G4:.5 F#4:.5 A4:.5 '
+            + ('G4:1 G4:2' if last else 'G4:1 G4:.5')),                      # "Mind the mu-sic and the step, and with the girls be han-dy."
+    ]
+
+
+ZACCHAEUS_SONG = dict(
+    id='song-zacchaeus', title='Hurry Down, Zacchaeus!', style='bouncy', meter=2, tempo=112, transpose=2,
+    start=3.5,  # (each verse starts with a pickup: the last eighth before its first bar)
+    lines=_doodle('Zac-chae-us was a lit-tle man, a rich man, but so lone-ly;',
+                  'He took more mon-ey, more and more, and folks were cross and grump-y.',
+                  'Then one day the news came round:', 'Je-sus, here He comes now!',
+                  "Ev-'ry-bod-y crowd-ed round; Zac-chae-us could-n't see Him!")
+    + _doodle('So up he climbed a syc-a-more, up in the leaves and branch-es,',
+              'And there he sat and watched and watched, to see if Je-sus passed by.',
+              'Je-sus stopped be-neath the tree,', 'Look-ing up, He called out:',
+              '"Hur-ry down, Zac-chae-us, come! I\'m stay-ing at your house now!"')
+    + _doodle('Zac-chae-us hur-ried down so fast, he was so glad and hap-py!',
+              'But some folks grum-bled, grum-ble, grum! "Why vis-it such a bad man?"',
+              'Then Zac-chae-us stood up tall:', '"I will give and share now!',
+              'If I took too much from you, I\'ll pay back four times o-ver!"')
+    + _doodle('So Je-sus smiled and said, "Hoo-ray! To-day God\'s love has found you!',
+              'For I have come to find the lost and bring them home so hap-py!"',
+              'Big or lit-tle, short or tall,', 'Je-sus loves us, each one!',
+              'Je-sus wants to stay with you and be your friend for-ev-er!', last=True),
+    chords='G:2 D7:2 ' + 'G:2 D:2 G:2 D:2 G:2 C:2 D:2 G:2 C:2 G:2 D:2 G:2 C:2 G:2 D7:2 G:2 ' * 4 + 'G:1',
+)
+
 ISLAND_SONGS = [CREATION_SONG, ABRAHAM_SONG, JOSEPH_SONG, RED_SEA_SONG, DAVID_SONG, DANIEL_SONG, JONAH_SONG, LOAVES_SONG,
                 BABY_MOSES_SONG, BURNING_BUSH_SONG, MANNA_SONG, JERICHO_SONG, RUTH_SONG, SAMUEL_SONG,
-                ELIJAH_SONG, ESTHER_SONG, BOY_JESUS_SONG, FISHERS_SONG, STORM_SONG, LOST_SHEEP_SONG]
+                ELIJAH_SONG, ESTHER_SONG, BOY_JESUS_SONG, FISHERS_SONG, STORM_SONG, LOST_SHEEP_SONG,
+                SAMARITAN_SONG, ZACCHAEUS_SONG]
 
 SONGS = [JESUS_LOVES_ME, THIS_LITTLE_LIGHT, AWAY_IN_A_MANGER, TWINKLE, HAPPY_BIRTHDAY, NOAH] + ISLAND_SONGS
