@@ -20,7 +20,9 @@ function Animal({ id, a, picked, boarded, onMatch, onTap }: {
   return <button ref={target} data-card={id} className={`pair-card ${picked ? 'picked' : ''} ${boarded ? 'boarded' : ''}`} {...drag}><Pic e={a} /></button>
 }
 
-export default function TwoByTwo({ animals, names, onDone }: { animals: string[]; names: Record<string, string>; onDone: () => void }) {
+export default function TwoByTwo({ animals, names, done = 'All the animals are safe in the ark!', onDone }: {
+  animals: string[]; names: Record<string, string>; done?: string; onDone: () => void
+}) {
   const cards = useMemo(() => shuffle([...animals, ...animals]).map((a, id) => ({ a, id })), [animals])
   const [picked, setPicked] = useState<number[]>([])
   const [boarded, setBoarded] = useState<string[]>([])
@@ -68,7 +70,7 @@ export default function TwoByTwo({ animals, names, onDone }: { animals: string[]
       await wait(250)
     }
     if (!alive.current) return
-    await speak('All the animals are safe in the ark!')
+    await speak(done)
     if (alive.current) onDone()
   }
 

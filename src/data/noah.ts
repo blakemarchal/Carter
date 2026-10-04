@@ -45,8 +45,9 @@ export const NOAH_STEPS: Step[] = [
   {
     kind: 'pairs', animals: NOAH_PAIRS,
     names: { '🦁': 'lions', '🐘': 'elephants', '🦒': 'giraffes', '🐧': 'penguins', '🦓': 'zebras', '🐒': 'monkeys' },
+    // (Visit 1 ends before God says "Go into the ark" on page six, so the animals are only ready here.)
+    done: 'Two by two, all the animals are ready! When God says it is time, they will go into the ark.',
   },
-  // (The pairs game ends "All the animals are safe in the ark!", so this line leaves the animals be.)
   { kind: 'pause', line: "Noah's big ark is ready! But big gray clouds are rolling in. What will happen? Let's find out next time!" },
   // Visit 2: the adventure
   { kind: 'story', title: 'Safe in the Ark', pages: NOAH_STORY_2, first: NOAH_STORY_1.length },

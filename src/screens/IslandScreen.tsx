@@ -132,7 +132,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       break
     }
     case 'pairs':
-      body = <TwoByTwo animals={current.animals} names={current.names} onDone={next} />
+      body = <TwoByTwo animals={current.animals} names={current.names} done={current.done} onDone={next} />
       break
     case 'practice':
       body = <Practice skill={current.skill} title={current.title} decor={current.decor} theme={current.theme} intro={current.intro} onDone={next} />

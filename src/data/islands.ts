@@ -32,8 +32,11 @@ export type Step =
    * later part says where its pages start in them: `first` (0 for the first part, the default).
    */
   | { kind: 'story'; title: string; pages: StoryPage[]; first?: number }
-  /** Memory match: find pairs, then count them by twos. `names` are plural ("lions"). */
-  | { kind: 'pairs'; animals: string[]; names: Record<string, string> }
+  /**
+   * Memory match: find pairs, then count them by twos. `names` are plural ("lions"). `done` is said at the
+   * end (default "All the animals are safe in the ark!"), so it can fit where the game sits in the story.
+   */
+  | { kind: 'pairs'; animals: string[]; names: Record<string, string>; done?: string }
   /** A run of adaptive reading or number questions; `theme` is what number questions count. */
   | { kind: 'practice'; skill: Skill; title: string; decor: string; intro: string; theme?: string }
   /** Tap the pictures in the right order (story events, days of creation, 1-2-3). */
