@@ -24,9 +24,10 @@ export const JONAH_STORY_2: StoryPage[] = [
   { scene: '🧒💛🙌', bg: 'linear-gradient(#fff1c2,#ffd6ee)', text: 'And God gives second chances to you and me, too! When we say sorry, He forgives us. God loves us so much!' },
 ]
 
-// World English Bible (public domain).
+// World English Bible (public domain). The reference is written "First John", because it's read aloud
+// too, and the narrator would say "1 John" as "one John".
 export const JONAH_VERSE = {
-  ref: '1 John 4:8',
+  ref: 'First John 4:8',
   chunks: ['God', 'is', 'love.'],
 }
 

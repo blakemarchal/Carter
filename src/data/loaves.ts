@@ -39,7 +39,8 @@ export const LOAVES_STEPS: Step[] = [
   {
     kind: 'share', title: 'Share the Bread',
     intro: "Jesus' friends passed out the bread to everyone. Let's help them!",
-    done: 'Thank you for helping! Jesus made sure there was plenty for everybody.',
+    // (Not "there was plenty for everybody" yet: whether there will be enough is this visit's cliffhanger.)
+    done: "Thank you for helping Jesus' friends pass out the bread!",
     kit: LOAVES_SHARE,
   },
   {
@@ -63,7 +64,8 @@ export const LOAVES_STEPS: Step[] = [
     questions: [
       {
         say: "What was in the boy's lunch?",
-        choices: [{ emoji: '🍕', say: 'Pizza' }, { emoji: '🧺', say: 'Bread and fish', art: 'basket-food' }, { emoji: '🍦', say: 'Ice cream' }],
+        // (The boy's own lunch, five loaves and two fish: the next question asks how many fish.)
+        choices: [{ emoji: '🍕', say: 'Pizza' }, { emoji: '🧺', say: 'Bread and fish', art: 'boys-lunch' }, { emoji: '🍦', say: 'Ice cream' }],
         answer: 1,
       },
       {
@@ -90,12 +92,13 @@ export const LOAVES_STEPS: Step[] = [
   {
     kind: 'sequence', title: 'Tell the Story',
     intro: 'Can you tell the story? Put the pictures in order, from the first to the last.',
+    // (Each line names a picture, as the narrator also says it in a sentence: "That's the boy with his lunch.")
     items: [
-      { emoji: '👥', say: 'The crowd came to see Jesus', art: 'story:loaves:1' },
-      { emoji: '🧺', say: 'A boy came with his lunch', art: 'story:loaves:4' },
-      { emoji: '🙏', say: 'Jesus thanked God for the food', art: 'story:loaves:6' },
-      { emoji: '🧺', say: 'Twelve baskets of leftovers', art: 'story:loaves:9' },
-      { emoji: '🏠', say: 'The boy ran home to tell his family', art: 'story:loaves:10' },
+      { emoji: '👥', say: 'the crowd coming to see Jesus', art: 'story:loaves:1' },
+      { emoji: '🧺', say: 'the boy with his lunch', art: 'story:loaves:4' },
+      { emoji: '🙏', say: 'Jesus thanking God for the food', art: 'story:loaves:6' },
+      { emoji: '🧺', say: 'twelve baskets of leftovers', art: 'story:loaves:9' },
+      { emoji: '🏠', say: 'the boy running home to tell his family', art: 'story:loaves:10' },
     ],
   },
   { kind: 'battle', foe: 'crabby', intro: 'Oh no! A grumpy crab named Crabby is not sharing the picnic snacks! Crabby just needs a friend.' },
