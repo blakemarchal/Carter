@@ -13,7 +13,7 @@
 import { useId, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { darken, ink, lighten, useShade } from '../kit'
 import { Figure, Head, PEOPLE, type JHolding, type JLook, type JPose, type Mood } from '../people'
-import { Cloud, Flower, Glow, Rays, Scene, Sparkles, Sun, Tap, Zs } from './kit'
+import { Cloud, Flower, Glow, Scene, Sparkles, Sun, Tap, Zs } from './kit'
 
 const uidOf = (id: string) => id.replace(/[^a-zA-Z0-9]/g, '')
 type Pt = [number, number]
@@ -193,11 +193,9 @@ export function FishingBoat({ x, y, s = 1, tilt = 0, facing = 'right', sail = 'f
         <path d="M-244 -70 Q-10 -28 240 -86" stroke={lighten(C.inside, 0.12)} strokeWidth={4} fill="none" />
       </g>
       <path d={BOAT.farRim} stroke={C.rim} strokeWidth={6} fill="none" strokeLinecap="round" />
-      {/* the mast, its stay to the prow, the flag, the yard and the sail */}
+      {/* the mast, its stay to the prow, the yard and the sail, then the flag (in front, so a limp flag hangs over the rolled-up sail) */}
       <path d={`M${MAST_X} -300 L240 -90`} stroke="#8a6a4a" strokeWidth={2} />
       <path d={`M${MAST_X} -20 L${MAST_X} -312`} stroke={C.mast} strokeWidth={9} strokeLinecap="round" />
-      <path d={`M${MAST_X} -311 Q${MAST_X + fl * 0.5} ${-312 + droop * 0.3} ${MAST_X + fl * 0.95} ${-302 + droop} Q${MAST_X + fl * 0.45} ${-299 + droop * 0.6} ${MAST_X} -293 Z`}
-        fill={C.flag} stroke={ink(C.flag)} strokeWidth={2} strokeLinejoin="round" />
       <path d="M-96 -270 L154 -285" stroke={C.mast} strokeWidth={7} strokeLinecap="round" />
       {sail === 'full' ? (
         <g>
@@ -214,6 +212,8 @@ export function FishingBoat({ x, y, s = 1, tilt = 0, facing = 'right', sail = 'f
           {[-60, -10, 40, 90, 136].map((tx) => <path key={tx} d={`M${tx} ${-290 + (tx + 90) * -0.02} l-3 22`} stroke="#a0703f" strokeWidth={3} strokeLinecap="round" />)}
         </g>
       )}
+      <path d={`M${MAST_X} -311 Q${MAST_X + fl * 0.5} ${-312 + droop * 0.3} ${MAST_X + fl * 0.95} ${-302 + droop} Q${MAST_X + fl * 0.45} ${-299 + droop * 0.6} ${MAST_X} -293 Z`}
+        fill={C.flag} stroke={ink(C.flag)} strokeWidth={2} strokeLinejoin="round" />
       {inside && <g clipPath={`url(#in${uid})`}>{inside}</g>}
       {crew}
       {stern}
@@ -256,6 +256,26 @@ const Shh = ({ skin }: { skin: string }) => (
   <g strokeLinecap="round">
     <path d="M4.5 -96 L2.5 -105.5" stroke={ink(skin)} strokeWidth={6.4} />
     <path d="M4.5 -96 L2.5 -105.5" stroke={skin} strokeWidth={3.8} />
+  </g>
+)
+
+/** A finger pointing from a hand at (x, y) along (dx, dy), drawn over a Figure in its own units. */
+function Finger({ x, y, dx, dy, skin }: { x: number; y: number; dx: number; dy: number; skin: string }) {
+  const l = Math.hypot(dx, dy), ux = dx / l, uy = dy / l
+  const d = `M${(x + ux * 4).toFixed(1)} ${(y + uy * 4).toFixed(1)} L${(x + ux * 13).toFixed(1)} ${(y + uy * 13).toFixed(1)}`
+  return (
+    <g strokeLinecap="round">
+      <path d={d} stroke={ink(skin)} strokeWidth={6.4} />
+      <path d={d} stroke={skin} strokeWidth={3.8} />
+    </g>
+  )
+}
+
+/** A calm, kind mouth over a bearded Figure's smile (its own units): the smile hidden under the beard, and a gentle, nearly level line. */
+const CalmMouth = ({ beard }: { beard: string }) => (
+  <g>
+    <ellipse cx={0} cy={-98.2} rx={5.8} ry={2.5} fill={beard} />
+    <path d="M-3.4 -98.6 Q0 -97.7 3.4 -98.6" stroke="#c46876" strokeWidth={2} fill="none" strokeLinecap="round" />
   </g>
 )
 
@@ -302,7 +322,7 @@ export function Asleep({ x, y, s = 1, look, mood = 'asleep' }: { x: number; y: n
 // ---------- Weather, water and birds ----------
 
 /** Puffs of a storm cloud: [x, y, r]. */
-const PUFFS: [number, number, number][] = [[-104, 8, 38], [-56, -16, 50], [4, -30, 58], [64, -14, 48], [112, 8, 36], [-24, 14, 46], [48, 18, 40], [-84, 22, 30], [90, 24, 28]]
+const PUFFS: [number, number, number][] = [[-104, 8, 38], [-56, -16, 50], [4, -30, 58], [64, -14, 48], [112, 8, 36], [-24, 14, 46], [48, 18, 40], [-84, 22, 30], [90, 24, 28], [14, 30, 18]]
 
 /** A big storm cloud, puffed up and rolling along: (x, y) is its middle; about 290 wide at s = 1. */
 export function StormCloud({ x, y, s = 1, color = '#4a5578', slow }: { x: number; y: number; s?: number; color?: string; slow?: boolean }) {
@@ -564,7 +584,7 @@ const Page1 = () => (
     <FishingBoat x={572} y={398} s={0.76} sail="furled"
       crew={<>
         <Tap say="This is my fishing boat!"><Aboard x={-176} look={PETER} blinkDelay={1.4} /></Tap>
-        <Tap say="God loves every one of you!" sfx="sparkle"><Aboard x={-54} look={JESUS} s={1.04} pose="open" low={4} /></Tap>
+        <Tap say="God loves every one of you!" sfx="sparkle"><Aboard x={-54} look={JESUS} s={1.04} pose="open" low={16} /></Tap>
         <Aboard x={150} look={ANDREW} blinkDelay={0.6} />
       </>}
     />
@@ -646,15 +666,15 @@ const Page4 = () => (
     <Lake tone="dusk" h={262} />
     <FishingBoat x={400} y={392} s={1.04} sail="full"
       crew={<>
-        <Tap say="Shh! Jesus is sleeping."><Aboard x={-74} look={JOHN} reach={[null, [5, -94]]} blinkDelay={0.9}><Shh skin={JOHN.skin} /></Aboard></Tap>
+        <Tap say="Shh! Jesus is sleeping."><Aboard x={-64} look={JOHN} reach={[null, [5, -94]]} blinkDelay={0.9}><Shh skin={JOHN.skin} /></Aboard></Tap>
         <Tap say="What a long, busy day!"><Aboard x={-14} look={PETER} reach={[null, reachTo(-14, 0.9, 30, -86)]} blinkDelay={1.8} /></Tap>
         <Aboard x={110} look={ANDREW} blinkDelay={0.2} />
         <Aboard x={176} look={JAMES} blinkDelay={2.4} />
       </>}
       stern={
         <Tap say="Jesus is fast asleep.">
-          <Asleep x={-206} y={-58} s={0.84} look={JESUS} />
-          <Zs x={-200} y={-122} s={1.3} dir={-1} />
+          <Asleep x={-216} y={-58} s={0.84} look={JESUS} />
+          <Zs x={-210} y={-122} s={1.3} dir={-1} />
         </Tap>
       }
     />
@@ -689,8 +709,8 @@ const Page5 = () => (
       </>}
       stern={
         <Tap say="Jesus is still asleep.">
-          <Asleep x={-206} y={-58} s={0.84} look={JESUS} />
-          <Zs x={-200} y={-122} s={1.3} dir={-1} />
+          <Asleep x={-216} y={-58} s={0.84} look={JESUS} />
+          <Zs x={-210} y={-122} s={1.3} dir={-1} />
         </Tap>
       }
     />
@@ -731,8 +751,8 @@ const Page6 = () => (
       </>}
       stern={
         <Tap say="Jesus is still asleep!">
-          <Asleep x={-206} y={-58} s={0.84} look={JESUS} />
-          <Zs x={-200} y={-122} s={1.3} dir={-1} />
+          <Asleep x={-216} y={-58} s={0.84} look={JESUS} />
+          <Zs x={-210} y={-122} s={1.3} dir={-1} />
         </Tap>
       }
       front={<Tap say="Splash! Splash!" sfx="plop">
@@ -759,7 +779,7 @@ const Page7 = () => (
         <Tap say="Teacher, wake up! Help us!" sfx="wobble">
           <Aboard x={-104} look={PETER} mood="sad" facing="left" reach={[null, reachTo(-104, 0.9, -156, -88, 'left')]} blinkDelay={1.2} />
         </Tap>
-        <Tap say="Look at all the water!" sfx="plop"><Aboard x={-30} look={JOHN} mood="sad" facing="left" reach={[null, [40, -50]]} blinkDelay={0.5} /></Tap>
+        <Tap say="Look at all the water!" sfx="plop"><Aboard x={-30} look={JOHN} mood="sad" facing="left" reach={[null, [52, -58]]} blinkDelay={0.5}><Finger x={52} y={-58} dx={32} dy={28} skin={JOHN.skin} /></Aboard></Tap>
         <Aboard x={96} look={ANDREW} mood="sad" holding="jar" blinkDelay={0.3} />
         <Aboard x={180} look={JAMES} mood="sad" reach={[null, reachTo(180, 0.9, 236, -84)]} blinkDelay={2} />
       </>}
@@ -779,39 +799,55 @@ const Page7 = () => (
 )
 
 // 8. "Jesus stood up. He said to the wind and the waves, "Peace! Be still!""
-// Jesus stands tall at the back of the boat, His arms held out over the wind and the waves. Right over Him the clouds
-// open, and soft light shines down.
-const Page8 = () => (
-  <Scene sky="storm" ground="none" clouds={false}>
-    <Sky tone="storm" h={244} />
-    {/* where the clouds are opening: the evening sky, and light */}
-    <ellipse cx={250} cy={96} rx={160} ry={92} fill="#7d6ab8" />
-    <ellipse cx={250} cy={112} rx={116} ry={62} fill="#b493cf" />
-    <Rays x={250} y={104} r={400} n={14} color="#fff3c0" opacity={0.35} />
-    <Glow x={250} y={112} r={150} color="#fff3c0" />
-    <Sparkles spots={[[200, 70, 6], [290, 58, 5], [320, 100, 4]]} />
-    <StormCloud x={0} y={86} s={1.2} color="#3e4868" />
-    <StormCloud x={560} y={62} s={1.4} color="#46506f" slow />
-    <StormCloud x={760} y={120} s={1.1} color="#3e4868" />
-    <StormCloud x={250} y={-34} s={1.2} color="#424c6c" />
-    <FarHills tone="storm" h={244} />
-    <Lake tone="storm" h={244} waves="choppy" />
-    <Swells y={306} amp={32} len={200} color="#467aa8" shift={30} slow />
-    <Swells y={360} amp={44} len={250} color="#3a6d9e" shift={-30} />
-    <FishingBoat x={440} y={376} s={0.98} sail="furled" tilt={-2} flag={1.2}
-      crew={<>
-        <Tap say="Peace! Be still!" sfx="sparkle">
-          <Aboard x={-150} look={JESUS} s={1} low={-22} reach={[[-60, -100], [62, -108]]} />
-        </Tap>
-        <Tap say="Wow! Look at Jesus!" sfx="ding"><Aboard x={-40} look={JOHN} mood="wow" facing="left" blinkDelay={0.5} /></Tap>
-        <Aboard x={70} look={PETER} mood="wow" facing="left" reach={[reachTo(70, 0.9, 34, -110, 'left'), null]} blinkDelay={1.2} />
-        <Aboard x={140} look={ANDREW} mood="wow" facing="left" blinkDelay={0.3} />
-        <Aboard x={200} look={JAMES} mood="wow" facing="left" blinkDelay={2} />
-      </>}
-    />
-    <Swells y={448} amp={50} len={280} color="#2d5f92" shift={-90} slow />
-  </Scene>
-)
+// Jesus stands tall at the back of the boat, calm and kind, His arms held out level over the wind and the waves. Right
+// over Him the clouds open, and a few soft beams of light fall down onto Him and the boat.
+function Page8() {
+  const id = uidOf(useId())
+  const x = 293 // (where Jesus stands, on the board)
+  // the beams: [top left, top right, bottom left, bottom right], from x
+  const beams: [number, number, number, number][] = [[-22, 22, -64, 64], [-50, -36, -158, -118], [36, 50, 118, 158]]
+  return (
+    <Scene sky="storm" ground="none" clouds={false}>
+      <Sky tone="storm" h={244} />
+      <defs>
+        {/* (each beam fades in out of the glow, and away to nothing at the boat) */}
+        <linearGradient id={`bm${id}`} gradientUnits="userSpaceOnUse" x1="0" y1="104" x2="0" y2="384">
+          <stop offset="0" stopColor="#fff3c0" stopOpacity={0} />
+          <stop offset="0.2" stopColor="#fff3c0" stopOpacity={0.6} />
+          <stop offset="1" stopColor="#fff3c0" stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      {/* where the clouds are opening, right over Him: the evening sky, and light */}
+      <ellipse cx={x} cy={90} rx={128} ry={80} fill="#7d6ab8" />
+      <ellipse cx={x} cy={104} rx={92} ry={54} fill="#b493cf" />
+      <Glow x={x} y={104} r={120} color="#fff3c0" />
+      <Sparkles spots={[[x - 50, 72, 6], [x + 30, 60, 5], [x + 54, 98, 4]]} />
+      <StormCloud x={40} y={86} s={1.2} color="#3e4868" />
+      <StormCloud x={590} y={62} s={1.4} color="#46506f" slow />
+      <StormCloud x={790} y={130} s={1.1} color="#3e4868" />
+      <StormCloud x={x} y={-40} s={1.2} color="#424c6c" />
+      <FarHills tone="storm" h={244} />
+      <Lake tone="storm" h={244} waves="choppy" />
+      <Swells y={306} amp={32} len={200} color="#467aa8" shift={30} slow />
+      {/* soft beams falling from the opening down onto Him and the boat */}
+      {beams.map(([a, b, c, d], i) => <path key={i} d={`M${x + a} 104 L${x + b} 104 L${x + d} 384 L${x + c} 384 Z`} fill={`url(#bm${id})`} />)}
+      <Glow x={x} y={292} r={96} color="#fff3c0" />
+      <Swells y={360} amp={44} len={250} color="#3a6d9e" shift={-30} />
+      <FishingBoat x={440} y={376} s={0.98} sail="furled" tilt={-2} flag={1.2}
+        crew={<>
+          <Tap say="Peace! Be still!" sfx="sparkle">
+            <Aboard x={-150} look={JESUS} s={1} low={-22} reach={[[-66, -88], [66, -88]]}><CalmMouth beard={JESUS.hairColor} /></Aboard>
+          </Tap>
+          <Tap say="Wow! Look at Jesus!" sfx="ding"><Aboard x={-40} look={JOHN} mood="wow" facing="left" blinkDelay={0.5} /></Tap>
+          <Aboard x={70} look={PETER} mood="wow" facing="left" reach={[reachTo(70, 0.9, 34, -110, 'left'), null]} blinkDelay={1.2} />
+          <Aboard x={140} look={ANDREW} mood="wow" facing="left" blinkDelay={0.3} />
+          <Aboard x={200} look={JAMES} mood="wow" facing="left" blinkDelay={2} />
+        </>}
+      />
+      <Swells y={448} amp={50} len={280} color="#2d5f92" shift={-90} slow />
+    </Scene>
+  )
+}
 
 /** Things shining in still water: `children` turned upside down about the waterline at y. */
 const Mirrored = ({ y, opacity = 0.3, children }: { y: number; opacity?: number; children: ReactNode }) => (
@@ -891,11 +927,10 @@ const Page11 = () => (
     <path d="M300 450 Q360 372 470 344 Q600 318 800 316 L800 450 Z" fill="#d9c08a" />
     <path d="M470 346 Q600 290 800 260 L800 318 Q600 318 470 346 Z" fill={TONES.night.land} />
     <path d="M330 420 Q380 372 470 348" stroke="#fff6dc" strokeWidth={3} fill="none" opacity={0.4} strokeLinecap="round" />
-    {/* pebbles and a shell on the sand, and footprints up from the water */}
+    {/* pebbles on the sand, and footprints up from the water */}
     {[[560, 440, 7], [584, 446, 5], [770, 436, 6], [452, 434, 5], [690, 352, 4]].map(([x, y, r], i) => (
       <ellipse key={i} cx={x} cy={y} rx={r} ry={r * 0.62} fill="#b8a48a" stroke="#8f7c64" strokeWidth={1.5} />
     ))}
-    <path d="M748 452 q0 -16 10 -18 q10 2 10 18 Z" fill="#f6d6d0" stroke="#c99a90" strokeWidth={1.5} />
     {[[452, 404], [472, 392], [478, 418], [500, 408]].map(([x, y], i) => (
       <ellipse key={i} cx={x} cy={y} rx={5} ry={3} fill="#c4a874" opacity={0.7} transform={`rotate(-22 ${x} ${y})`} />
     ))}

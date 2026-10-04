@@ -41,7 +41,7 @@ export const STORM_STEPS: Step[] = [
   {
     kind: 'paint', title: 'Paint the Boat', kit: STORM_PAINT,
     // (The two taps in the order they're made: a paint pot, then the parts with its number.)
-    intro: "Before the clouds came, the evening sun made the lake glow. Let's paint Jesus and His friends sailing in their boat! Tap a paint pot, then tap the parts with the same number.",
+    intro: "Before the clouds came, the sun was going down over the lake. Let's paint the boat Jesus and His friends are sailing in! Tap a paint pot, then tap the parts with the same number.",
     done: 'What a beautiful picture! The little boat sailed on across the lake, and Jesus was with His friends all the way.',
   },
   // (The intro fits every level: counting, what comes next, adding.)

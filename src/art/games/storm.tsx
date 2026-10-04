@@ -9,7 +9,7 @@
 //   5 blue: the sky up high, and the lake, near and far;
 //   6 brown: the boat's wooden hull.
 // The people, the mast, the blue band along the boat's side (as in the story) and the little boats far off are drawn
-// already. When every part is painted, the sun glows and the water sparkles.
+// already. When every part is painted, the sun glows, its golden path shines on the lake, and the water sparkles.
 import { useId } from 'react'
 import type { At, PaintKit } from '../../activities/games/types'
 import { Figure, PEOPLE } from '../people'
@@ -98,6 +98,16 @@ function BoatPicture({ fills }: { fills: Record<string, string> }) {
           <path key={i} d={`M${x} ${y} q16 -7 32 0`} stroke="#ffffff" strokeWidth={3.5} fill="none" strokeLinecap="round" opacity={0.8} />
         ))}
       </g>
+      {/* all painted: the setting sun's golden path shines on the lake */}
+      {done && (
+        <g pointerEvents="none" className="sc-wave slow">
+          {/* (close under the hills, where the boat's prow doesn't hide it) */}
+          {[0, 1, 2, 3, 4].map((i) => {
+            const y = 245 + i * 8 + i * i * 1.4, w = 34 + i * 16
+            return <path key={i} d={`M${664 - w / 2 + (i % 2 ? 8 : -4)} ${y} l${w} 0`} stroke="#ffd77a" strokeWidth={3.6 + i * 0.5} strokeLinecap="round" opacity={0.95 - i * 0.07} />
+          })}
+        </g>
+      )}
       {/* the boat: its mast, flag and yard; the sail to paint; Jesus and His friends; then its hull to paint */}
       <g transform={inBoat}>
         <g pointerEvents="none">
