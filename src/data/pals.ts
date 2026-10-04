@@ -267,7 +267,7 @@ export const PALS: PalDef[] = [
   {
     id: 'stomper', species: 'ram', fruit: 'Peace',
     stages: [{ name: 'Stomper', xp: 0 }, { name: 'Woolhorn', xp: 100 }, { name: 'Jubileeram', xp: 300 }],
-    moves: { basic: { name: 'Soft Stomp', fx: 'rock', icon: '🦶' }, brave: { name: 'Woolly Bounce', fx: 'roll', icon: '☁️' }, super: { name: 'Peace Parade', fx: 'stars', icon: '✨' } },
+    moves: { basic: { name: 'Soft Stomp', fx: 'rock', icon: '🦶' }, brave: { name: 'Woolly Bounce', fx: 'roll', icon: '🧶' }, super: { name: 'Peace Parade', fx: 'stars', icon: '✨' } },
     intro: "is a Peace Pal! {name} used to stomp and bump into everyone, but now {name} marches along in peace, like God's people around Jericho.",
   },
   {
@@ -286,7 +286,7 @@ export const PALS: PalDef[] = [
   {
     id: 'barley', species: 'hare', fruit: 'Goodness',
     stages: [{ name: 'Barley', xp: 0 }, { name: 'Sheafhop', xp: 100 }, { name: 'Harvestglow', xp: 300 }],
-    moves: { basic: { name: 'Barley Hop', fx: 'leaf', icon: '🌾' }, brave: { name: 'Burrow Dash', fx: 'wind', icon: '💨' }, super: { name: 'Golden Field', fx: 'stars', icon: '🌟' } },
+    moves: { basic: { name: 'Barley Hop', fx: 'leaf', icon: '🐇' }, brave: { name: 'Burrow Dash', fx: 'wind', icon: '💨' }, super: { name: 'Golden Field', fx: 'stars', icon: '🌾' } },
     intro: 'is a Goodness Pal! {name} hops through the golden barley fields of Bethlehem, where God took care of Ruth and Naomi.',
   },
   // Samuel Listens
@@ -299,7 +299,7 @@ export const PALS: PalDef[] = [
   {
     id: 'echo', species: 'fennec', fruit: 'Faithfulness',
     stages: [{ name: 'Echo', xp: 0 }, { name: 'Bigears', xp: 100 }, { name: 'Dawnlistener', xp: 300 }],
-    moves: { basic: { name: 'Listening Ears', fx: 'spark', icon: '👂' }, brave: { name: 'Sand Skip', fx: 'roll', icon: '🌀' }, super: { name: 'Lamp Light', fx: 'flame', icon: '🪔' } },
+    moves: { basic: { name: 'Listening Ears', fx: 'spark', icon: '👂' }, brave: { name: 'Sand Skip', fx: 'roll', icon: '🏜️' }, super: { name: 'Lamp Light', fx: 'flame', icon: '🪔' } },
     intro: 'is a Faithfulness Pal! {name} has great big ears for listening, just like Samuel, who listened when God called his name.',
   },
 ]
