@@ -19,8 +19,11 @@ export const SHEM: Look = { skin: SKIN.medium, hair: 'short', hairColor: '#3b2a2
 export const HAM: Look = { skin: SKIN.tan, hair: 'curly', hairColor: '#2b1d14', beard: 'short', robe: '#c8743f', sash: '#f2dca0' }
 export const JAPHETH: Look = { skin: SKIN.medium, hair: 'short', hairColor: '#6a4428', robe: '#3f8f9a', sash: '#f2d38a' }
 
-/** Hands holding something in front (pose "hold"), drawn again over what they hold. In figure units. */
-const Hands = ({ look }: { look: Look }) => <>{[-8, 8].map((hx) => <circle key={hx} cx={hx} cy={-60} r={7} fill={look.skin} stroke={ink(look.skin)} strokeWidth={2} />)}</>
+/** Hands holding something in front (pose "hold"), drawn again over what they hold. In figure units.
+ * `apart`: how far each hand is from the middle, for something held round its sides (a sack). */
+const Hands = ({ look, apart = 8, y = -60 }: { look: Look; apart?: number; y?: number }) => (
+  <>{[-apart, apart].map((hx) => <circle key={hx} cx={hx} cy={y} r={7} fill={look.skin} stroke={ink(look.skin)} strokeWidth={2} />)}</>
+)
 
 // ---------- The animals, side-on ----------
 
@@ -647,7 +650,8 @@ const Page4 = () => {
         </Person>
         <Person x={sx} y={sy} s={0.54} look={SHEM} pose="hold" blinkDelay={2.1}>
           <GrainSack x={0} y={-36} s={0.95} />
-          <Hands look={SHEM} />
+          {/* (hugging it at its sides: two hands on the front of the sack looked like a face) */}
+          <Hands look={SHEM} apart={21} y={-56} />
         </Person>
       </Tap>
       <Tap say="Hay, and grain, and fruit. So much food!" sfx="swish">
@@ -659,7 +663,8 @@ const Page4 = () => {
       <Tap say="Yummy apples and grapes!" sfx="pop">
         <Person x={302} y={428} s={0.62} look={PEOPLE.noahsWife} pose="hold" blinkDelay={1.4}>
           <FruitBasket x={0} y={-49} s={1.05} />
-          <Hands look={PEOPLE.noahsWife} />
+          {/* (holding it by its sides, like Shem's sack) */}
+          <Hands look={PEOPLE.noahsWife} apart={24} y={-62} />
         </Person>
       </Tap>
       <Tap say="Thank You, God, for all this food!" sfx="good">
@@ -926,7 +931,8 @@ const Page9 = () => {
       <FoodShelf x={286} y={238} w={226} />
       <HayBed x={128} y={420} w={200} />
       <Tap say="Munch, munch! Thank you for the hay, Noah!" sfx="chomp">
-        <Elephant x={84} y={404} s={1.04} />
+        {/* the one behind stands further back, so its head and back show over the one in front */}
+        <Elephant x={110} y={378} s={1} />
         <Elephant x={150} y={420} s={1.15} />
         <Person x={noah.x} y={noah.y} s={noah.s} look={PEOPLE.noah} pose="hold">
           <HayBundle x={0} y={-62} s={0.78} />
