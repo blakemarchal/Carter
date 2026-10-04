@@ -6,8 +6,8 @@
 //   - a bunny behind the big rock, only its ears over the top: found, it hops out beside the rock.
 //   - a little mole under his molehill, only his nose and paws poking out: found, he pops up and says hello.
 //   - a butterfly on the flowers, its wings shut (it looks like one more flower): found, it opens its wings.
-//   - the little lamb, hidden best: stuck in a bush on the far side of the hill, only an ear and its woolly topknot
-//     peeking out. Found, its head pops out of the bush ("Baa!"), a little stuck, as on page seven.
+//   - the little lamb, hidden best: in a bush on the far side of the hill, only an ear and its woolly topknot peeking
+//     out. Found, its head pops up out of the bush ("Baa!"), its shoulders still caught in the leaves.
 // A hiding place (the leaves, the rock, the bush) is drawn in the Picture and drawn again, the same, over what hides
 // behind it (in its target's Draw), so a found thing can come out in front of it. Pieces are drawn in board units in a
 // layer of their own, so they only use the pa-* and ls-* animations (art/scenes/lost-sheep.css).
@@ -16,7 +16,7 @@ import type { At, SpotKit, SpotTarget } from '../../activities/games/types'
 import { CuteFace, darken, ink, Shine, useShade } from '../kit'
 import { fluff } from '../items/draw'
 import { LambFace } from '../items/isl-lost-sheep'
-import { Boulder, Bramble, Hills, LambInBramble, ShepherdLooking, Tufts } from '../scenes/lost-sheep'
+import { Boulder, Bramble, Hills, ShepherdLooking, Tufts } from '../scenes/lost-sheep'
 import { Emoji, Flower, Glow, Moon, Scene, Sparkles } from '../scenes/kit'
 
 /** Where each thing is (its tap circle's middle). */
@@ -334,21 +334,44 @@ function Butterfly({ found }: { found: boolean }) {
   )
 }
 
-/** The little lamb in the bush: only an ear and its topknot peeking out; then its head pops out of the bush ("Baa!"). */
+/**
+ * Where the little lamb's head is, in the bush, and its size: about the shepherd's size on the path (as on page 8, where
+ * he carries it), just under the top of the bush at its left end.
+ */
+const LAMB_HEAD = { x: 690, y: 289.5, s: 0.66 }
+
+/**
+ * The little lamb in the bush. Hidden, only its left ear (out at the side of the bush) and its woolly topknot (just over
+ * the top) peek out, drawn over the bush so no twig crosses them. Found, its head pops up out of the top of the bush,
+ * its woolly shoulders caught in the leaves ("Baa!"). (On the shelf of finds, only the lamb: the glow and the bush
+ * are left out, ls-nothumb.)
+ */
 function Lamb({ found }: { found: boolean }) {
+  const { x, y, s } = LAMB_HEAD
+  const wool = useShade('#fffaf2', 0.5, 0.12)
+  const leaf = useShade('#5a9258', 0.3, 0.2)
   return (
     <Board at={SPOTS.lamb}>
       {found ? (
-        <g>
-          <Glow x={680} y={300} r={50} color="#fff3c0" />
-          <Bramble x={BUSH.x} y={BUSH.y} s={BUSH.s} dusk />
-          <LambInBramble x={BUSH.x} y={BUSH.y} s={BUSH.s} dusk mood="happy" />
-          <Word x={672} y={250} text="Baa!" />
+        <g strokeLinejoin="round">
+          <defs>{wool.def}{leaf.def}</defs>
+          <g className="ls-nothumb">
+            <Glow x={x} y={y + 2} r={38} color="#fff3c0" />
+            <Bramble x={BUSH.x} y={BUSH.y} s={BUSH.s} dusk />
+          </g>
+          {/* its woolly shoulders, caught in the leaves at the top of the bush */}
+          <path d={fluff(x + 3, y + 12, 11, 7.5, 8)} fill={wool.fill} stroke="#cbbfb4" strokeWidth={1.6} />
+          <path d={fluff(x + 9, y + 18, 9, 5.5, 5, 0.6)} fill={leaf.fill} stroke={ink('#5a9258')} strokeWidth={1.8} />
+          <path d={`M${x - 8} ${y + 17} Q${x - 2} ${y + 13} ${x + 4} ${y + 16}`} stroke="#6b4a2e" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+          <LambFace x={x} y={y} s={s} mood="happy" />
+          <Word x={x - 4} y={y - 24} text="Baa!" />
         </g>
       ) : (
         <g>
-          <LambFace x={680} y={302} s={0.82} mood="scared" />
+          {/* (its head is behind the top of the bush: only a little of its forehead shows over the leaves) */}
+          <LambFace x={x} y={y} s={s} mood="scared" />
           <Bramble x={BUSH.x} y={BUSH.y} s={BUSH.s} dusk />
+          <LambFace x={x} y={y} s={s} peek />
         </g>
       )}
     </Board>

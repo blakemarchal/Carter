@@ -144,32 +144,36 @@ function BrambleMarks({ dark }: { dark: string }) {
 }
 
 /**
- * The little lamb stuck in a bramble (page 7, and the mini-game): its head and chest poke out of the front of the bush,
- * with twigs and leaves over its wool, and its front legs stand in the grass. Bramble units: draw it at the
- * Bramble's (x, y, s). `mood` is the lamb's.
+ * The little lamb stuck in a bramble (page 7): its head and chest poke out of the front of the bush, with leaves and a
+ * twig caught over its wool, and its front legs stand in the grass. Draw it over a Bramble at the same (x, y, s): it
+ * pokes out of the bush's front on the left. `lamb` is the lamb's own size (its face is LambFace at that size, as on
+ * the other pages), so it stays a little lamb whatever the bush's size. `mood` is the lamb's.
  */
-export function LambInBramble({ x, y, s = 1, night, dusk, mood = 'scared' }: { x: number; y: number; s?: number; night?: boolean; dusk?: boolean; mood?: 'scared' | 'happy' }) {
+export function LambInBramble({ x, y, s = 1, lamb = s, night, dusk, mood = 'scared' }: {
+  x: number; y: number; s?: number; lamb?: number; night?: boolean; dusk?: boolean; mood?: 'scared' | 'happy'
+}) {
   const green = night ? '#4f7f5a' : dusk ? '#5a9258' : '#5fa65a'
   const leaf = useShade(green, 0.3, 0.2)
   const wool = useShade('#fffaf2', 0.5, 0.12)
+  // (in the lamb's own units, from its front hooves on the ground, at the bush's front on the left)
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} strokeLinejoin="round">
+    <g transform={`translate(${x - 24 * s} ${y}) scale(${lamb})`} strokeLinejoin="round">
       <defs>{leaf.def}{wool.def}</defs>
       {/* the front legs, standing in the grass in front of the bush */}
-      {[-30, -18].map((lx) => (
+      {[-5.2, 5.2].map((lx) => (
         <g key={lx} strokeLinecap="round">
-          <path d={`M${lx} -26 L${lx - 1} -3`} stroke={ink('#7a6670')} strokeWidth={7.6} />
-          <path d={`M${lx} -26 L${lx - 1} -3`} stroke="#7a6670" strokeWidth={5.4} />
+          <path d={`M${lx} -22.6 L${lx - 0.9} -2.6`} stroke={ink('#7a6670')} strokeWidth={6.6} />
+          <path d={`M${lx} -22.6 L${lx - 0.9} -2.6`} stroke="#7a6670" strokeWidth={4.7} />
         </g>
       ))}
       {/* its woolly chest, poking out of the bush */}
-      <path d={fluff(-22, -36, 19, 14, 9)} fill={wool.fill} stroke="#cbbfb4" strokeWidth={2} />
-      {/* leaves and twigs over the back of its wool: it's caught in the bush */}
-      <path d={fluff(2, -44, 15, 16, 6, 0.6)} fill={leaf.fill} stroke={ink(green)} strokeWidth={2.2} />
-      <path d={fluff(-8, -16, 13, 9, 5, 0.6)} fill={leaf.fill} stroke={ink(green)} strokeWidth={2.2} />
-      <path d="M-8 -58 Q-18 -50 -30 -52 M-2 -28 Q-12 -30 -20 -24" stroke="#6b4a2e" strokeWidth={2.4} fill="none" strokeLinecap="round" />
-      <circle cx={-4} cy={-46} r={3} fill="#c0504d" stroke="#8a2a2a" strokeWidth={1} />
-      <LambFace x={-34} y={-58} s={1.15} mood={mood} />
+      <path d={fluff(1.7, -31.3, 16.5, 12.2, 9)} fill={wool.fill} stroke="#cbbfb4" strokeWidth={1.8} />
+      {/* leaves and a twig over the back of its wool: it's caught in the bush */}
+      <path d={fluff(22.6, -38.3, 13, 13.9, 6, 0.6)} fill={leaf.fill} stroke={ink(green)} strokeWidth={1.9} />
+      <path d={fluff(13.9, -13.9, 11.3, 7.8, 5, 0.6)} fill={leaf.fill} stroke={ink(green)} strokeWidth={1.9} />
+      <path d="M13.9 -50.4 Q5.2 -43.5 -5.2 -45.2 M19.1 -24.3 Q10.4 -26.1 3.5 -20.9" stroke="#6b4a2e" strokeWidth={2.1} fill="none" strokeLinecap="round" />
+      <circle cx={17.4} cy={-40} r={2.6} fill="#c0504d" stroke="#8a2a2a" strokeWidth={0.9} />
+      <LambFace x={-8.7} y={-50.4} mood={mood} />
     </g>
   )
 }
@@ -514,7 +518,7 @@ function Page4() {
         <Figure x={600} y={428} s={1.06} look={SHEPHERD} pose="point" mood="wow" holding="staff" heldHand={0} facing="left" blinkDelay={0.5} />
       </Tap>
       <Tap say="Oh no! The littlest lamb is missing!" sfx="ding">
-        <ThoughtBubble x={690} y={128} w={150} h={112} tail={[[628, 268, 7], [648, 236, 10]]}>
+        <ThoughtBubble x={690} y={128} w={150} h={112} tail={[[650, 262, 7], [666, 232, 10]]}>
           <LambFace x={672} y={134} s={1.55} mood="happy" />
           <text x={728} y={146} fontSize={46} fontWeight={800} textAnchor="middle" fill="#8a4fc4" stroke="#fff" strokeWidth={4} paintOrder="stroke"
             fontFamily="'Baloo 2', 'Chalkboard SE', system-ui, sans-serif">?</text>
@@ -594,19 +598,24 @@ function Page6() {
 
 // 7. 'Then he heard a little voice: "Baa! Baa!" There was the little lamb, stuck in a bush! It was a little bit
 // scared, but it was not hurt.' In the light of his lantern, the little lamb's head and front poke out of a tangly
-// bush, twigs caught in its wool. The shepherd has laid down his staff to reach out to it, smiling.
+// bush, twigs caught in its wool. The shepherd has laid down his staff to reach out to it, smiling. (The lamb is the
+// size it is on page 8, on his shoulders: about half as tall as he is.)
 function Page7() {
+  const bush = { x: 500, y: 438, s: 1.15 }
   return (
     <Scene sky="night" ground="none">
-      <Moon x={110} y={80} s={0.8} />
+      <Moon x={672} y={78} s={0.8} />
       <Hills time="night" />
-      <Glow x={480} y={330} r={210} color="#ffe9a8" />
-      <Bramble x={560} y={436} s={1.75} night />
+      <Boulder x={712} y={392} w={92} h={50} night flip />
+      <Bramble x={600} y={352} s={0.5} night />
+      <Tufts spots={[[630, 446], [742, 440], [96, 446], [560, 440]]} color="#2f4f6a" />
+      <Glow x={410} y={350} r={190} color="#ffe9a8" />
+      <Bramble {...bush} night />
       <Tap say="Baa! Baa! I'm stuck!" sfx="wobble">
-        <LambInBramble x={560} y={436} s={1.75} night />
+        <LambInBramble {...bush} lamb={1.16} night />
       </Tap>
       <Tap say="Baa!" sfx="pop">
-        <Calling x={436} y={318} s={1.1} dir={-1} />
+        <Calling x={426} y={382} s={1} dir={-1} />
       </Tap>
       <StaffOnGround x={196} y={440} s={0.95} />
       <Tap say="There you are, little lamb! Don't be scared. I'm here." sfx="good">

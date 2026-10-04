@@ -21,8 +21,8 @@
   72% { opacity: 1; }
   100% { transform: translateY(-12px) scale(1); opacity: 0; }
 }
-/* (On the shelf of finds, each little picture is just the thing.) */
-.spot-thumb .ls-word { display: none; }
+/* (On the shelf of finds, each little picture is just the thing: no word, and no glow or hiding place round it.) */
+.spot-thumb .ls-word, .spot-thumb .ls-nothumb { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .pa-anim .ls-call path, .pa-anim .ls-shake { animation: none !important; }

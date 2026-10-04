@@ -20,12 +20,25 @@ export type LambMood = 'happy' | 'scared' | 'joy' | 'sleepy'
 
 /**
  * The little lamb's head, turned to us: a creamy face, peach ears out to the sides and a woolly topknot.
- * (x, y) is the middle of its face; at s = 1 it's about 44 wide (with its ears) and 30 tall.
+ * (x, y) is the middle of its face; at s = 1 it's about 44 wide (with its ears) and 30 tall. `peek`: only its left
+ * ear and its topknot, where they'd be (drawn over the bush it's hiding in, the rest of it hidden behind).
  */
-export function LambFace({ x = 0, y = 0, s = 1, mood = 'happy', blinkDelay = 0 }: { x?: number; y?: number; s?: number; mood?: LambMood; blinkDelay?: number }) {
+export function LambFace({ x = 0, y = 0, s = 1, mood = 'happy', blinkDelay = 0, peek }: { x?: number; y?: number; s?: number; mood?: LambMood; blinkDelay?: number; peek?: boolean }) {
   const face = useShade(LAMB.face, 0.4, 0.1)
   const wool = useShade(LAMB.wool, 0.5, 0.12)
   const shut = mood === 'joy' || mood === 'sleepy'
+  if (peek) {
+    return (
+      <g transform={`translate(${x} ${y}) scale(${s})`}>
+        <defs>{wool.def}</defs>
+        <g transform="scale(-1 1)">
+          <ellipse cx={14.5} cy={-5} rx={8.5} ry={4.4} fill={LAMB.ear} stroke={ink(LAMB.ear)} strokeWidth={1.6} transform="rotate(18 14.5 -5)" />
+          <ellipse cx={15.5} cy={-4.6} rx={5} ry={2.1} fill="#ffb3c2" transform="rotate(18 15.5 -4.6)" />
+        </g>
+        <path d={fluff(0, -11.5, 8.5, 4.2, 6)} fill={wool.fill} stroke={LAMB.line} strokeWidth={1.6} strokeLinejoin="round" />
+      </g>
+    )
+  }
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
       <defs>{face.def}{wool.def}</defs>
@@ -249,12 +262,110 @@ export function StoneFold({ cx, cy, rx, ry, h, gate, closed, inside, w = 2.2, gr
 /** The fold in the item pictures: a 100 x 100 box. */
 const ITEM_FOLD = { cx: 50, cy: 76, rx: 44, ry: 14, h: 22, gate: [64, 79] as [number, number] }
 
+/** The front wall's top and foot, across the box at x (from x = 3 to x = 97): lowest in the middle, nearest us. */
+const wallTop = (x: number) => { const t = (x - 3) / 94; return 11 + 12 * t * (1 - t) }
+const wallFoot = (x: number) => { const t = (x - 3) / 94; return 84 + 40 * t * (1 - t) }
+/** The gateway in the front wall, from x = 60 to x = 76. */
+const GATE: [number, number] = [60, 76]
+
 /**
- * The empty sheepfold, for counting the sheep into: taller, and seen from a little higher, with its open top high in
- * the box, so the sheep that the counting game piles into the top of it stand just inside its back wall.
+ * The sheepfold for counting the sheep into: only its front wall of stones, tall, with a wooden gate shut in its
+ * gateway, and nothing drawn behind it. The counting game draws the fold over the sheep put in it, so they show over
+ * the wall as standing inside (as the loaves pile into the basket). The top of the wall is in the top fifth of the box
+ * (11 to 14 down), measured in the game: the sheep put in first peek over it, the ones behind them show
+ * down to their legs.
  */
 function Sheepfold() {
-  return <StoneFold cx={50} cy={64} rx={45} ry={16} h={32} gate={[60, 77]} grass="#7fb06e" />
+  const stone = useShade(STONE, 0.3, 0.18)
+  const line = ink(STONE)
+  const clip = `ff${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  const pieces: [number, number][] = [[3, GATE[0]], [GATE[1], 97]]
+  /** A wall piece from x = a to x = b, its top `up` higher (for its capstones). */
+  const face = (a: number, b: number, up = 0) => {
+    const xs = Array.from({ length: 13 }, (_, i) => a + ((b - a) * i) / 12)
+    return `M${xs.map((x) => `${f1(x)} ${f1(wallTop(x) - up)}`).join(' L')} L${[...xs].reverse().map((x) => `${f1(x)} ${f1(wallFoot(x))}`).join(' L')} Z`
+  }
+  // the stones: five courses, each a half stone along from the one below
+  const stones = pieces.flatMap(([a, b], p) => [0, 1, 2, 3, 4].flatMap((k) => {
+    const out: [number, number, number][] = []
+    for (let u = a + (k % 2 ? 0 : 7.5), i = 0; u < b + 8; u += 15, i++) {
+      out.push([u, wallTop(u) + ((wallFoot(u) - wallTop(u)) * (k + 0.5)) / 5, (i * 7 + k * 3 + p) % 3])
+    }
+    return out
+  }))
+  const tones = [STONE, lighten(STONE, 0.1), darken(STONE, 0.07)]
+  return (
+    <g strokeLinejoin="round">
+      <defs>{stone.def}<clipPath id={clip}>{pieces.map(([a, b]) => <path key={a} d={face(a, b)} />)}</clipPath></defs>
+      <ellipse {...groundShadow(50, 95, 47)} />
+      {pieces.map(([a, b]) => <path key={a} d={face(a, b)} fill={stone.fill} />)}
+      <g clipPath={`url(#${clip})`}>
+        {stones.map(([sx, sy, t], i) => <ellipse key={i} cx={f1(sx)} cy={f1(sy)} rx={8.4} ry={8.6} fill={tones[t]} stroke={darken(STONE, 0.3)} strokeWidth={1.3} />)}
+      </g>
+      {pieces.map(([a, b]) => <path key={a} d={face(a, b)} fill="none" stroke={line} strokeWidth={2.2} />)}
+      {/* the capstones along the top */}
+      {pieces.map(([a, b]) => {
+        const xs = Array.from({ length: 13 }, (_, i) => a + ((b - a) * i) / 12)
+        const d = `M${xs.map((x) => `${f1(x)} ${f1(wallTop(x))}`).join(' L')}`
+        return (
+          <g key={a}>
+            <path d={d} stroke={line} strokeWidth={5.4} fill="none" strokeLinecap="round" />
+            <path d={d} stroke={lighten(STONE, 0.25)} strokeWidth={3.2} fill="none" strokeLinecap="round" />
+          </g>
+        )
+      })}
+      {/* the gate, shut: wooden planks between the gateposts, with two battens and a brace */}
+      <path d={`M${GATE[0]} ${f1(wallTop(GATE[0]) + 4)} L${GATE[1]} ${f1(wallTop(GATE[1]) + 4)} L${GATE[1]} ${f1(wallFoot(GATE[1]) - 1)} L${GATE[0]} ${f1(wallFoot(GATE[0]) - 1)} Z`}
+        fill="#b9844e" stroke="#6b4422" strokeWidth={1.6} />
+      {[64, 68, 72].map((px) => <path key={px} d={`M${px} ${f1(wallTop(px) + 4.5)} L${px} ${f1(wallFoot(px) - 1.5)}`} stroke="#8a5a2e" strokeWidth={1.2} />)}
+      {[0.22, 0.72].map((k) => {
+        const y0 = wallTop(GATE[0]) + 4 + (wallFoot(GATE[0]) - wallTop(GATE[0]) - 5) * k
+        const y1 = wallTop(GATE[1]) + 4 + (wallFoot(GATE[1]) - wallTop(GATE[1]) - 5) * k
+        return <path key={k} d={`M${GATE[0] + 0.5} ${f1(y0)} L${GATE[1] - 0.5} ${f1(y1)}`} stroke="#7a4a24" strokeWidth={3.4} strokeLinecap="round" />
+      })}
+      <path d={`M${GATE[0] + 1.5} ${f1(wallFoot(GATE[0]) - 21)} L${GATE[1] - 1.5} ${f1(wallTop(GATE[1]) + 25)}`} stroke="#7a4a24" strokeWidth={2.6} strokeLinecap="round" />
+      {[GATE[0], GATE[1]].map((gx) => (
+        <rect key={gx} x={gx - 2.4} y={f1(wallTop(gx) - 2)} width={4.8} height={f1(wallFoot(gx) - wallTop(gx) + 2)} rx={1.6} fill="#a0703f" stroke="#6b4422" strokeWidth={1.4} />
+      ))}
+      <Shine x={18} y={44} rx={4} ry={10} rot={-6} />
+    </g>
+  )
+}
+
+/**
+ * A sheep from the shepherd's flock, facing us: white wool and a dark face with dark ears, like the flock in the story
+ * pictures (not the little lamb, whose face is creamy). Standing, its hooves at the very bottom of the box, so that
+ * counted into the fold it shows over the wall from the shoulders up. No emoji: the 🐑 drawing is the farm sheep.
+ */
+function FlockSheep() {
+  const wool = useShade(LAMB.wool, 0.5, 0.12)
+  const face = useShade('#4a3a3a', 0.25, 0.15)
+  return (
+    <g strokeLinejoin="round">
+      <defs>{wool.def}{face.def}</defs>
+      <ellipse {...groundShadow(50, 96, 26)} />
+      {/* (drawn a quarter bigger, from its hooves, so it fills its box) */}
+      <g transform="translate(50 96) scale(1.25) translate(-50 -96)">
+      {/* legs: the two in front, and the back two peeking out between them */}
+      {[[45, '#2f2528'], [55, '#2f2528'], [40, '#4a3a3a'], [60, '#4a3a3a']].map(([lx, c]) => (
+        <rect key={lx} x={Number(lx) - 3.6} y={76} width={7.2} height={20} rx={3.6} fill={String(c)} />
+      ))}
+      <path d={fluff(50, 64, 20, 17, 10)} fill={wool.fill} stroke="#d8cfc2" strokeWidth={2.2} />
+      <Shine x={38} y={58} rx={5} ry={3} />
+      {/* the dark face, its ears out to the sides, and a woolly topknot */}
+      {[-1, 1].map((d) => <ellipse key={d} cx={50 + d * 13} cy={37} rx={7.5} ry={3.8} fill="#3d2f31" transform={`rotate(${d * 22} ${50 + d * 13} 37)`} />)}
+      <ellipse cx={50} cy={43} rx={10} ry={13} fill={face.fill} />
+      <path d={fluff(50, 30.5, 8.5, 4.5, 6)} fill={wool.fill} stroke="#d8cfc2" strokeWidth={1.8} />
+      {[-4.6, 4.6].map((ex) => (
+        <g key={ex}>
+          <circle cx={50 + ex} cy={40} r={2.9} fill="#fff" />
+          <circle cx={50 + ex * 1.08} cy={40.4} r={1.5} fill="#2b2140" />
+        </g>
+      ))}
+      <ellipse cx={50} cy={51} rx={3.4} ry={2.2} fill="#7a5a60" />
+      </g>
+    </g>
+  )
 }
 
 /** Sheep's woolly backs and dark faces peeking over the fold's front wall: the sheep safe at home. */
@@ -289,6 +400,7 @@ function ShepherdAndLamb() {
 
 export const ISL_LOST_SHEEP: Item[] = [
   { id: 'sheepfold', name: 'sheepfold', emoji: [], Draw: Sheepfold },
+  { id: 'flock-sheep', name: 'sheep', emoji: [], Draw: FlockSheep },
   { id: 'sheepfold-home', name: 'sheepfold with the sheep safe inside', emoji: [], Draw: SheepfoldHome },
   { id: 'shepherd-carrying-lamb', name: 'the shepherd carrying the lamb home', emoji: [], Draw: ShepherdAndLamb },
 ]

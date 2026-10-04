@@ -49,10 +49,11 @@ export const LOST_SHEEP_STEPS: Step[] = [
     done: 'Hooray! You found everyone on the hill, and the little lamb, too! Listen. Baa, baa! The little lamb is calling for the shepherd.',
   },
   {
-    // (Counting sheep into the fold, as the shepherd does every evening: page four. The fold is drawn empty.)
+    // (Counting sheep into the fold, as the shepherd does every evening: page four. The sheep are the flock's, dark-faced,
+    // not the little lamb; the fold is its front wall, so the sheep counted in show over it, standing inside.)
     kind: 'count', title: 'Count the Sheep',
     intro: 'Every evening, the shepherd counts his sheep into the sheepfold. Can you help him count?',
-    item: { emoji: '🐑', say: 'sheep' }, plural: 'sheep', basket: '🐑', basketArt: 'sheepfold', into: 'the sheepfold', rounds: [4, 7],
+    item: { emoji: '🐑', say: 'sheep', art: 'flock-sheep' }, plural: 'sheep', basket: '🐑', basketArt: 'sheepfold', into: 'the sheepfold', rounds: [4, 7],
     done: 'All safe in the sheepfold! The shepherd counts his sheep every evening, because he loves every one of them.',
   },
   { kind: 'pause', line: "The little lamb is calling, baa, baa! Will the shepherd hear it? Let's find out next time!" },
