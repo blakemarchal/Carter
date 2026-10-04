@@ -10,6 +10,7 @@ import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../
 import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
 import FamilySongs from '../components/FamilySongs'
+import FamilyAccounts from '../components/FamilyAccounts'
 import { FamilyCastEditor, PlayerDetails } from '../components/FamilyEditor'
 import { birthdayLabel, daysUntil } from '../lib/birthday'
 import { isGrownup } from '../lib/party'
@@ -276,6 +277,7 @@ export default function ParentScreen({ onBack, onParty }: { onBack: () => void; 
     <div className="screen parent">
       <header><BackButton onClick={onBack} /><h2>Parent Corner</h2><span /></header>
       <Players />
+      <FamilyAccounts />
       <Family />
       <Party onParty={onParty} />
       <section>
