@@ -14,7 +14,8 @@ describe.each(['reading', 'numbers'] as Skill[])('%s questions', (skill) => {
         expect(q.choices.length).toBeGreaterThanOrEqual(2)
         expect(new Set(q.choices.map((c) => c.label)).size).toBe(q.choices.length)
         if (skill === 'numbers') {
-          for (const c of q.choices) expect(Number(c.label)).toBeGreaterThan(0)
+          // (Number answers are never zero or negative; pictures and words like "three o'clock" aren't numbers.)
+          for (const c of q.choices) if (/^\d+$/.test(c.label)) expect(Number(c.label)).toBeGreaterThan(0)
           const right = Number(q.choices[q.answer].label)
           if (q.visual.kind === 'sum') expect(right).toBe(q.visual.op === '+' ? q.visual.a + q.visual.b : q.visual.a - q.visual.b)
           if (q.visual.kind === 'sequence') expect(right).toBe((q.visual.nums[2] as number) + 1)

@@ -37,6 +37,7 @@ import { ISL_EASTER } from './isl-easter'
 import { ISL_PENTECOST } from './isl-pentecost'
 import { LEARN_BUILDERS } from './learn-builders'
 import { LEARN_READING } from './learn-reading'
+import { LEARN_NUMBERS } from './learn-numbers'
 
 export type { Item } from './types'
 export const ITEM_GROUPS: Record<string, Item[]> = {
@@ -71,6 +72,7 @@ export const ITEM_GROUPS: Record<string, Item[]> = {
   'pentecost': ISL_PENTECOST,
   'learn-builders': LEARN_BUILDERS,
   'learn-reading': LEARN_READING,
+  'learn-numbers': LEARN_NUMBERS,
 }
 export const ITEMS: Item[] = Object.values(ITEM_GROUPS).flat()
 
