@@ -35,6 +35,7 @@ import { ISL_ZACCHAEUS } from './isl-zacchaeus'
 import { ISL_PALM_SUNDAY } from './isl-palm-sunday'
 import { ISL_EASTER } from './isl-easter'
 import { ISL_PENTECOST } from './isl-pentecost'
+import { LEARN_READING } from './learn-reading'
 
 export type { Item } from './types'
 export const ITEM_GROUPS: Record<string, Item[]> = {
@@ -67,6 +68,7 @@ export const ITEM_GROUPS: Record<string, Item[]> = {
   'palm-sunday': ISL_PALM_SUNDAY,
   'easter': ISL_EASTER,
   'pentecost': ISL_PENTECOST,
+  'learn-reading': LEARN_READING,
 }
 export const ITEMS: Item[] = Object.values(ITEM_GROUPS).flat()
 
