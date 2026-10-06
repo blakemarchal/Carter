@@ -89,3 +89,7 @@
   .nm-big { font-size: 96px; }
   .nm-hop-btn { width: 130px; height: 100px; }
 }
+/* In portrait the line is narrower: bigger numbers so they stay easy to read. */
+@media (orientation: portrait) {
+  .nm-tick text { font-size: 33px; }
+}

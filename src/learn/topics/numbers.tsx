@@ -61,9 +61,10 @@ export function countTo20Q(theme?: string): Question {
 /** Level 3. More or fewer: two groups, "Which has more?" / "Which has fewer?". She taps a group. */
 export function moreFewerQ(theme?: string): Question {
   const thing = theme ?? pick(ANIMALS)
+  // (At least two apart: one more or one fewer is too close to see at a glance for a four-year-old.)
   const x = randInt(2, 10)
   let y = randInt(2, 10)
-  while (y === x) y = randInt(2, 10)
+  while (Math.abs(y - x) < 2) y = randInt(2, 10)
   const more = Math.random() < 0.5
   const [right, wrong] = (more ? x > y : x < y) ? [x, y] : [y, x]
   const word = more ? 'more' : 'fewer'

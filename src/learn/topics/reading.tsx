@@ -111,7 +111,7 @@ export const READ_AND_ANSWER: ReadAsk[] = [
 ]
 
 export const TINY_STORIES: ReadAsk[] = [
-  { lines: ['Pip got a red hat.', 'Pip put it on.', 'Pip is glad.'], ask: 'What did Pip get?', pal: 'dove',
+  { lines: ['Pip got a new hat.', 'Pip put it on.', 'Pip is glad.'], ask: 'What did Pip get?', pal: 'dove',
     answers: [p('top-hat', 'a hat'), p('ball', 'a ball'), p('cup', 'a cup')] },
   { lines: ['Zippy ran to the pond.', 'Zippy saw a frog.', 'The frog went hop!'], ask: 'What did Zippy see?', pal: 'mouse',
     answers: [p('frog', 'a frog'), p('fish', 'a fish'), p('duck', 'a duck')] },

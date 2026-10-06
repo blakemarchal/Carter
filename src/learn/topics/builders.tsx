@@ -48,6 +48,13 @@ export const FAMILIES: string[][] = [
 /** Spare letters: easy-to-tell consonants, and vowels. A spare is never a letter in the word. */
 const SPARES = 'bcdfghklmnprstw'
 const VOWELS = 'aeiou'
+/** Letters that make the same sound: a spare is never one of these for a letter in the word (no k for cat). */
+const SAME_SOUND: Record<string, string> = { c: 'k', k: 'c' }
+/** The letters of `set` that are not in any of `words`, nor sound like one that is. */
+const sparesFrom = (set: string, ...words: string[]) => {
+  const taken = words.join('')
+  return [...set].filter((l) => !taken.includes(l) && !(SAME_SOUND[l] && taken.includes(SAME_SOUND[l])))
+}
 
 /** The blend read when a word is built: "f, o, x: fox!" (each letter's sound). */
 export const blend = (word: string) => `${[...word].map(letterSound).join(', ')}: ${word}!`
@@ -72,7 +79,7 @@ export function wordBuildEx(level: number): Exercise | null {
     const [from, to] = shuffle(pick(FAMILIES))
     const spell = spellOf(to)
     if (!spell) return null
-    const others = shuffle([...SPARES].filter((l) => !to.includes(l) && !from.includes(l)))
+    const others = shuffle(sparesFrom(SPARES, to, from))
     const ex: WordBuildEx = {
       kind: 'wordbuild', skill: 'reading', key: `family:${from}:${to}`,
       say: `This says ${from}. Make ${to}!`,
@@ -81,9 +88,8 @@ export function wordBuildEx(level: number): Exercise | null {
     return ex
   }
   const w = pick(SPELL_WORDS)
-  const notIn = (set: string) => [...set].filter((l) => !w.word.includes(l))
   // Level 3: one spare. Level 4: two, one of them a vowel, so she listens for the middle sound too.
-  const extra = level >= 4 ? [pick(notIn(SPARES)), pick(notIn(VOWELS))] : [pick(notIn(SPARES))]
+  const extra = level >= 4 ? [pick(sparesFrom(SPARES, w.word)), pick(sparesFrom(VOWELS, w.word))] : [pick(sparesFrom(SPARES, w.word))]
   const ex: WordBuildEx = {
     kind: 'wordbuild', skill: 'reading', key: `spell:${w.word}`,
     say: `Spell ${w.word}!`, word: w.word, art: w.art, tiles: shuffle([...w.word, ...extra]),

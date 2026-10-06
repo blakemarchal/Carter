@@ -49,7 +49,7 @@ describe('numbers topic', () => {
       expect(q.choices.length).toBe(2)
       const [r, w] = [right(q), q.choices[1 - q.answer]].map((c) => graphemes(c.label))
       if (theme) expect([...r, ...w].every((e) => e === theme)).toBe(true)
-      expect(r.length).not.toBe(w.length)
+      expect(Math.abs(r.length - w.length), 'groups at least two apart').toBeGreaterThanOrEqual(2)
       if (q.say.includes('more')) expect(r.length).toBeGreaterThan(w.length)
       else expect(r.length).toBeLessThan(w.length)
     })

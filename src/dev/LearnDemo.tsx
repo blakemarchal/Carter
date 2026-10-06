@@ -25,7 +25,7 @@ export default function LearnDemo({ skill = 'reading', level = '1', mode }: { sk
   const [task, setTask] = useState(() => fresh(s, lvl, mode))
   const another = () => { setTask(fresh(s, lvl, mode)); setN(n + 1) }
   return (
-    <div className="activity practice learn-demo" data-kind={task.type === 'exercise' ? task.ex.kind : 'question'}>
+    <div className="activity practice learn-demo" style={{ minHeight: 'calc(100vh - 40px)' }} data-kind={task.type === 'exercise' ? task.ex.kind : 'question'}>
       <div className="practice-head">
         <h2>{s} {lvl}: {LEVELS[s][lvl - 1].label}</h2>
         <button className="learn-demo-next" onClick={another}>Another</button>

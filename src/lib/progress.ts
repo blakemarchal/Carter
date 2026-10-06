@@ -155,7 +155,12 @@ function write(key: string, value: unknown) {
   }
 }
 
-const loadProgress = (id: string): Progress => upgradeSkills({ ...fresh(), ...read<Partial<Progress>>(keyFor(id)) })
+/** A player's saved progress (a save without `skillsVersion` is from before the ten levels, and is upgraded). */
+function loadProgress(id: string): Progress {
+  const saved = read<Partial<Progress>>(keyFor(id))
+  if (!saved) return fresh()
+  return upgradeSkills({ ...fresh(), ...saved, skillsVersion: saved.skillsVersion })
+}
 
 /** A save from before the ten-level backbone: its levels move to where the same questions are now. */
 export function upgradeSkills(p: Progress): Progress {

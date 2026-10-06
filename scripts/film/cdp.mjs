@@ -176,7 +176,7 @@ export function fixture({ starter = 'zippy', battler = 'pip', today }) {
     islandsDone: ['noah', 'creation', 'david'], islandStep: {}, mapAt: 'creation', battlesWon: 2,
     movesSeen: [], openAll: true, outfits: { pip: 'bow' }, fed: { day: '', counts: {} },
     egg: { warmth: 2, day: '' }, colors: {}, stickerSpots: [{ s: '🌈', x: 30, y: 40 }], cooked: {},
-    familyVoices: false, log: {}, skills: { reading: 2, numbers: 2 }, streak: { reading: 0, numbers: 0 },
+    familyVoices: false, log: {}, skills: { reading: 2, numbers: 2 }, skillsVersion: 2, streak: { reading: 0, numbers: 0 },
     stickers: ['🌈', '⭐', '🐑'], playDate: today, playSeconds: 0, speechRate: 1, narrator: 'device', music: false, sfx: true,
   }
 }

@@ -89,3 +89,10 @@
   .q-card:has(.tm-measure-long) .q-choice { width: 236px; }
   .q-card:has(.tm-measure-long) .q-choice .pic { width: 220px; height: 220px; }
 }
+
+/* ---------- In a battle (less room under the arena) ---------- */
+.battle-q .tm-measure-long { width: min(360px, 60vw); }
+.battle-q .tm-measure-tall { height: min(230px, 30vh); }
+.battle-q .q-card:has(.tm-measure-tall) .q-choice { height: 150px; min-width: 150px; font-size: 134px; }
+.battle-q .q-card:has(.tm-clock-ask) .q-choice { height: 170px; min-width: 170px; font-size: 148px; }
+.battle-q .tm-ask { font-size: 60px; }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { LEVELS, SKILLS_MIGRATION, levelFor } from '../learn/levels'
 import { EXERCISES, VIEWS } from '../learn/registry'
 import { makeTask } from '../learn/tasks'
@@ -79,6 +79,27 @@ describe('saved levels from before the backbone', () => {
     const p = upgradeSkills(old(3, 2))
     expect(p.skillsVersion).toBe(2)
     expect(upgradeSkills(p).skills).toEqual(p.skills)
+  })
+
+  it('a save on the device from before the backbone is upgraded when it loads', async () => {
+    const store = new Map<string, string>([
+      ['ark-pals:profiles', JSON.stringify({ active: 'kid', list: [{ id: 'kid', name: 'Kid', emoji: '🌈' }] })],
+      ['ark-pals:v1:kid', JSON.stringify({ version: 1, skills: { reading: 5, numbers: 3 }, streak: { reading: 0, numbers: 0 } })],
+    ])
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k), key: (i: number) => [...store.keys()][i] ?? null,
+      get length() { return store.size },
+    })
+    vi.resetModules()
+    try {
+      const fresh = await import('../lib/progress')
+      expect(fresh.getProgress().skills).toEqual({ reading: 6, numbers: 3 })
+      expect(fresh.getProgress().skillsVersion).toBe(2)
+    } finally {
+      vi.unstubAllGlobals()
+      vi.resetModules()
+    }
   })
 
   it('every old level has somewhere to go', () => {

@@ -34,6 +34,8 @@ describe('word builder', () => {
         for (const l of ex.word) left.splice(left.indexOf(l), 1)
         expect(left.length).toBe(n - 3)
         for (const l of left) expect(ex.word.includes(l)).toBe(false)
+        // (and never a letter that sounds the same as one of its letters: no k to spell cat)
+        if (/[ck]/.test(ex.word)) expect(left.some((l) => 'ck'.includes(l))).toBe(false)
       }
     })
   }
@@ -48,6 +50,7 @@ describe('word builder', () => {
       expect(new Set(ex.tiles).size).toBe(3)
       expect(ex.tiles).toContain(ex.word[0])
       for (const t of ex.tiles.filter((t) => t !== ex.word[0])) expect(ex.from! + ex.word).not.toContain(t)
+      if (/[ck]/.test(ex.from! + ex.word)) expect(ex.tiles.filter((t) => t !== ex.word[0]).some((t) => 'ck'.includes(t))).toBe(false)
       expect(EMOJI.test(ex.say)).toBe(false)
     }
   })
