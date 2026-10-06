@@ -7,6 +7,7 @@
 //   #gallery/items[/<group>]   every drawn item (art/items), large and at activity sizes
 //   #gallery/game/<kind>[/<island>]   a mini-game mechanic, playable, with its demo kit or an island's
 //   #gallery/kit/<island>      every piece of an island's mini-game kit, drawn in place
+//   #gallery/learn/<skill>/<level>[/question|exercise]   one practice turn at that level, playable
 import { STORY_ART } from '../art/scenes'
 import { ISLANDS } from '../data/islands'
 import { useAllIslands } from '../lib/useIsland'
@@ -22,6 +23,7 @@ import GameDemo from './GameDemo'
 import DressedPal from '../components/DressedPal'
 import { atStage, PAL_FACES, stageScale } from '../art/pals/faces'
 import KitPreview from './KitPreview'
+import LearnDemo from './LearnDemo'
 
 const LOOK: KidLook = { skin: 'tan', hair: 'pigtails', hairColor: '#2b1d14', color: '#8d7cff' }
 const SAMPLE: PlayerArt = {
@@ -39,6 +41,7 @@ export default function Gallery({ route }: { route: string }) {
   const [, kind, which, variant] = route.split('/')
   if (kind === 'game') return <GameDemo kind={which} island={variant} />
   if (kind === 'kit') return <KitPreview island={which} />
+  if (kind === 'learn') return <LearnDemo skill={which} level={variant} mode={route.split('/')[4]} />
   if (kind === 'hats') {
     return (
       <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto', alignContent: 'flex-start' }}>

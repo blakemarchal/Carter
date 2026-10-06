@@ -1,3 +1,4 @@
+import { LEVELS } from '../learn/levels'
 import { useState } from 'react'
 import { BackButton } from '../components/ui'
 import {
@@ -21,9 +22,10 @@ import { DAILY_VISIT_CHOICES } from '../lib/voyage'
 import { flushStats, setStatsOn, statsOn } from '../lib/stats'
 import type { Progress } from '../lib/progress'
 
+// (What each level practices: src/learn/levels.ts)
 const SKILL_LABEL: Record<Skill, string[]> = {
-  reading: ['Beginning sounds', 'Read 3-letter words (3 choices)', 'Read 3-letter words (4 choices)', 'Sight words', 'Find any word'],
-  numbers: ['Count to 10', 'What comes next? (to 40)', 'What comes next? (to 100, decades)', 'Decades + adding', 'Add/subtract to 10, past 100'],
+  reading: LEVELS.reading.map((l) => l.label),
+  numbers: LEVELS.numbers.map((l) => l.label),
 }
 
 const NARRATORS: { id: Narrator; label: string }[] = [

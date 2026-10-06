@@ -1,6 +1,7 @@
 // All progress lives on the device (and in the family's backups on the server).
 // Each player profile has its own saved progress and settings; the family cast is shared.
 // No child is written into the code: names, birthdays and looks all come from the profiles.
+import { SKILLS_MIGRATION } from '../learn/levels'
 import { useSyncExternalStore } from 'react'
 import { isValidBirthday, type Birthday } from './birthday'
 import { FAMILY_KEY, migrateStorage, PROFILES_KEY, progressKey } from './storageKeys'
@@ -31,6 +32,8 @@ export interface Progress {
   familyVoices: boolean // play Mom/Dad recordings instead of the narrator when there is one
   log: Record<string, { secs: number; right: number; tries: number }> // per day, for the weekly summary
   skills: Record<Skill, number> // level 1..N
+  /** 2 once `skills` counts the learning backbone's ten levels (older saves had five; see loadProgress). */
+  skillsVersion?: 2
   streak: Record<Skill, number> // +correct in a row / -misses in a row
   stickers: string[]
   playDate: string
@@ -116,6 +119,7 @@ const fresh = (): Progress => ({
   familyVoices: true,
   log: {},
   skills: { reading: 1, numbers: 1 },
+  skillsVersion: 2,
   streak: { reading: 0, numbers: 0 },
   stickers: [],
   playDate: today(),
@@ -151,7 +155,15 @@ function write(key: string, value: unknown) {
   }
 }
 
-const loadProgress = (id: string): Progress => ({ ...fresh(), ...read<Partial<Progress>>(keyFor(id)) })
+const loadProgress = (id: string): Progress => upgradeSkills({ ...fresh(), ...read<Partial<Progress>>(keyFor(id)) })
+
+/** A save from before the ten-level backbone: its levels move to where the same questions are now. */
+export function upgradeSkills(p: Progress): Progress {
+  if (p.skillsVersion === 2) return p
+  const skills = { ...p.skills }
+  for (const s of Object.keys(SKILLS_MIGRATION) as Skill[]) skills[s] = SKILLS_MIGRATION[s][skills[s]] ?? skills[s]
+  return { ...p, skills, skillsVersion: 2 }
+}
 
 // Saves from before the game was called Ark Pals move over first.
 try {
@@ -277,7 +289,8 @@ export function resetProgress() {
 
 // ---------- Learning ----------
 
-export const MAX_LEVEL: Record<Skill, number> = { reading: 5, numbers: 5 }
+/** Levels per skill: the learning backbone's ten (src/learn/levels.ts). */
+export const MAX_LEVEL: Record<Skill, number> = { reading: 10, numbers: 10 }
 
 /** Adds to today's entry in the daily log (kept for two weeks), for the Parent Corner summary. */
 function logged(p: Progress, add: { secs?: number; right?: number; tries?: number }): Progress['log'] {
