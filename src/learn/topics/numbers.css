@@ -1,0 +1,91 @@
+/* The number lessons (./numbers.tsx). Everything here starts with nm-, or is scoped by one of its views. */
+
+/* Counting to twenty: eleven or more things to count sit in rows of ten, with a gap after each five. */
+.q-emoji:has(> span:nth-child(11)) {
+  display: grid; grid-template-columns: repeat(10, auto); justify-content: center; gap: 8px 4px;
+  font-size: min(64px, 6.6vw); max-width: none;
+}
+.q-emoji:has(> span:nth-child(11)) > span { line-height: 1; display: flex; }
+.q-emoji:has(> span:nth-child(11)) > span:nth-child(5n):not(:nth-child(10n)) { margin-right: .45em; }
+
+/* A word card for the question ("triangle", "more"). */
+.nm-word {
+  font-size: 84px; font-weight: 800; line-height: 1; color: #6d3fd1; background: #fff; border-radius: 26px;
+  padding: 12px 40px 20px; box-shadow: 0 6px 0 rgba(0,0,0,.08); animation: pop .4s backwards;
+}
+.nm-word:active, .nm-big:active { background: var(--yellow); }
+.q-card:has(.nm-word:not(.nm-mf)) .q-choice .pic, .q-card:has(.nm-pattern) .q-choice .pic { width: 1.35em; height: 1.35em; }
+
+/* More or fewer: the choices are the two groups, in rows of five. */
+.q-card:has(.nm-mf) .q-choices { gap: 28px; flex-wrap: nowrap; }
+.q-card:has(.nm-mf) .q-choice {
+  height: auto; min-height: 150px; width: min(44vw, 420px); padding: 24px 18px; font-size: min(72px, 7vw);
+  display: flex; align-items: center; justify-content: center;
+}
+.q-card:has(.nm-mf) .q-choice .pic-row { flex-wrap: wrap; width: 4.4em; justify-content: flex-start; gap: .08em .04em; }
+.q-card:has(.nm-mf) .q-choice .pic-emoji { display: inline-block; width: 5.2em; word-break: break-all; line-height: 1.05; text-align: left; }
+
+/* A big number ("Which one shows 34?"), and its tens-and-ones choices drawn large. */
+.nm-big {
+  font-size: 120px; font-weight: 800; line-height: 1; color: #6d3fd1; background: #fff; border-radius: 30px;
+  padding: 10px 44px 18px; box-shadow: 0 6px 0 rgba(0,0,0,.08); animation: pop .4s backwards;
+}
+.q-card:has(.nm-big) .q-choice { height: auto; padding: 12px; }
+.q-card:has(.nm-big) .q-choice .pic { width: min(230px, 27vw); height: min(230px, 27vw); }
+
+/* Patterns. */
+.nm-pattern { width: min(calc(100% - 170px), 940px); height: auto; max-height: 160px; overflow: visible; }
+.nm-pat-cell { animation: pop .4s backwards; transform-box: fill-box; transform-origin: center; cursor: pointer; }
+.nm-pattern rect { filter: drop-shadow(0 4px 0 rgba(0,0,0,.08)); }
+.nm-pat-gap { animation: nm-pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes nm-pulse { 50% { scale: 1.06; } }
+
+/* Ten-frames. */
+.nm-frames-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.nm-frames { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; }
+.nm-frame {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; background: #6d3fd1; padding: 5px; border-radius: 16px;
+  box-shadow: 0 6px 0 rgba(0,0,0,.1); font-size: min(46px, 4.6vw);
+}
+.nm-cell {
+  width: 1.45em; height: 1.45em; margin: 2px; background: #fff; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; position: relative;
+}
+.nm-cell.full { animation: pop .35s backwards; }
+.nm-cell.second { background: #fff3c4; }
+.nm-cell.gone > * { opacity: .3; }
+.nm-cell.gone::after {
+  content: ''; position: absolute; inset: 18%;
+  background: linear-gradient(45deg, transparent 44%, #e2468f 44%, #e2468f 56%, transparent 56%),
+              linear-gradient(-45deg, transparent 44%, #e2468f 44%, #e2468f 56%, transparent 56%);
+}
+.nm-eq { font-size: 64px; font-weight: 800; color: #6d3fd1; line-height: 1; }
+.nm-eq b { color: var(--pink-deep); }
+
+/* Tens and ones. */
+.nm-tens { height: min(300px, 34vh); width: auto; max-width: 92vw; cursor: pointer; }
+
+/* The number line hop. */
+.nm-line { width: min(100%, 1080px); display: flex; flex-direction: column; align-items: center; gap: 18px; touch-action: none; }
+.nm-line-svg { width: 100%; height: auto; overflow: visible; display: block; }
+.nm-pal { transition: transform .34s cubic-bezier(.4,0,.4,1); cursor: grab; }
+.nm-pal.dragging { transition: none; cursor: grabbing; }
+.nm-hop { animation: nm-hop .34s ease-out; }
+@keyframes nm-hop { 45% { transform: translateY(-44px) scale(1.04, .96); } 80% { transform: translateY(0) scale(1.06, .9); } }
+.nm-count { animation: pop .3s; transform-box: fill-box; transform-origin: center; }
+.nm-arc { stroke-dasharray: 120; animation: nm-draw .34s ease-out backwards; }
+@keyframes nm-draw { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+.nm-hops { display: flex; gap: 60px; justify-content: center; }
+.nm-hop-btn {
+  width: 150px; height: 110px; border-radius: 32px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 0 rgba(0,0,0,.14);
+}
+.nm-hop-btn.fwd { background: #3fbf6a; }
+.nm-hop-btn.back { background: #ff8a3c; }
+.nm-hop-btn:active { transform: translateY(5px); box-shadow: 0 3px 0 rgba(0,0,0,.14); }
+.nm-arrow { width: 96px; height: 64px; }
+@media (max-width: 900px), (max-height: 700px) {
+  .nm-word { font-size: 64px; }
+  .nm-big { font-size: 96px; }
+  .nm-hop-btn { width: 130px; height: 100px; }
+}
