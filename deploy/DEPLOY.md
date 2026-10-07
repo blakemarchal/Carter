@@ -175,12 +175,17 @@ it, everything works as before: links are shared by hand. Emails are sent throug
 `hello@spiritflow.church` are forwarded by ImprovMX to a Gmail inbox. spiritflow.church's DNS is at
 Namecheap (Domain List → spiritflow.church → Advanced DNS; "Mail Settings" must be **Custom MX**).
 
-1. **Resend (sending):** in Resend → Domains, add `spiritflow.church` (the free plan allows one domain:
-   remove an old one first). Add the records it lists at Namecheap: a TXT at `resend._domainkey` (DKIM),
-   and an MX and a TXT (SPF) at `send`. Then press **Verify** in Resend.
+1. **Resend (sending):** in Resend → Domains, add `spiritflow.church` (the free plan allows one domain per
+   account, so Ark Pals has its own Resend account; RegKnot's `mail.regknots.com` lives in another). Add
+   the records it lists at Namecheap: in Oct 2026 that was a TXT at `resend._domainkey` (DKIM), and CNAMEs
+   at `send` and `rsend` (→ `send.forge.rmta.net`, `rsend.forge.rmta.net`). Skip its "Enable Receiving"
+   records: ImprovMX receives. Then press **Verify DNS Records** in Resend. Leave tracking off, so sign-in
+   links aren't rewritten. *(Done Oct 6, 2026: verified.)*
 2. **ImprovMX (receiving):** add `spiritflow.church` with an alias `hello` → your Gmail address. At
    Namecheap, add MX `@` → `mx1.improvmx.com` (priority 10) and `mx2.improvmx.com` (priority 20), and a
-   TXT at `@`: `v=spf1 include:spf.improvmx.com ~all`.
+   TXT at `@`: `v=spf1 include:spf.improvmx.com ~all`. *(Done Oct 6, 2026: active, with a catch-all too.)*
+   - The `resend._domainkey.mail` and `send.mail` records at Namecheap are left over from an earlier
+     `mail.spiritflow.church` setup that no Resend account holds now. Nothing uses them, so they can be removed.
 3. **The key:** in Resend → API Keys, create a key with **Sending access** for spiritflow.church. Then:
    ```bash
    ssh root@68.183.130.3
