@@ -351,7 +351,7 @@ interface BoardProps {
   say: (text: string) => void
   /** Read when every slot is filled; then `onDone`. */
   finale: string
-  onDone: (firstTry: boolean) => void
+  onDone: (firstTry: boolean, waited?: boolean) => void
   /** 'letters' (big square tiles) or 'words'. */
   look: 'letters' | 'words'
 }
@@ -393,7 +393,8 @@ function TileBoard({ want, given, placeholder, tiles, say, finale, onDone, look 
   const filledRef = useRef(filled)
   const usedRef = useRef(used)
   const misses = useRef(0) // misses since the last right move
-  const helped = useRef(false) // any miss or hint: not first try
+  const missed = useRef(false) // any wrong move: not first try
+  const waited = useRef(false) // a hint after a quiet while: not first try, but not a miss either
   const over = useRef(false)
   const tileEls = useRef<(HTMLButtonElement | null)[]>([])
   const root = useRef<HTMLDivElement>(null)
@@ -408,11 +409,11 @@ function TileBoard({ want, given, placeholder, tiles, say, finale, onDone, look 
     const tile = tiles.findIndex((t, k) => !usedRef.current[k] && t === want[slot])
     return tile < 0 ? null : { tile, slot }
   }
-  const showNext = () => {
+  const showNext = (quiet = false) => {
     if (over.current) return
     const m = nextMove()
     if (!m) return
-    helped.current = true
+    if (quiet) waited.current = true
     setHint(m)
     const from = tileEls.current[m.tile]
     const to = root.current?.querySelector(`[data-slot="${m.slot}"]`)
@@ -422,7 +423,7 @@ function TileBoard({ want, given, placeholder, tiles, say, finale, onDone, look 
   // After a quiet while, show the next move (and again after another, until she makes one).
   useEffect(() => {
     if (finished) return
-    const t = window.setTimeout(() => { if (alive.current) { showNext(); setPoke((n) => n + 1) } }, IDLE_MS)
+    const t = window.setTimeout(() => { if (alive.current) { showNext(true); setPoke((n) => n + 1) } }, IDLE_MS)
     return () => clearTimeout(t)
   }, [poke, finished])
 
@@ -434,11 +435,11 @@ function TileBoard({ want, given, placeholder, tiles, say, finale, onDone, look 
     if (tiles[k] !== want[i]) {
       // The wrong spot: it floats home with a wiggle. After two, the next right move lights up.
       sfx.oops()
-      helped.current = true
+      missed.current = true
       misses.current++
       setWrong(k)
       later(() => setWrong((w) => (w === k ? null : w)), 600)
-      if (misses.current >= 2) later(showNext, 400)
+      if (misses.current >= 2) later(() => showNext(), 400)
       return false
     }
     sfx.plop()
@@ -457,7 +458,7 @@ function TileBoard({ want, given, placeholder, tiles, say, finale, onDone, look 
       setFinished(true)
       ;(async () => {
         await speak(finale)
-        if (alive.current) onDone(!helped.current)
+        if (alive.current) onDone(!missed.current && !waited.current, !missed.current && waited.current)
       })()
     } else {
       say(tiles[k])

@@ -91,15 +91,18 @@ const ClockAsk: LearnView = ({ data, onSay }) => {
 
 // ---------- Clock exercise ----------
 
-/** Moments of the day, for setting the clock: what's said, and a picture of it. */
+/**
+ * Moments of the day, for setting the clock: what's said, and a picture of it. Each at its own hour,
+ * so a time never means two things (breakfast and bedtime both at 8 would muddle a four-year-old).
+ */
 const MOMENTS: { id: string; h: number; line: string; pic: string }[] = [
-  { id: 'wake', h: 7, line: 'The sun is up! Wake up time is at 7 o\'clock.', pic: '☀️' },
-  { id: 'breakfast', h: 8, line: 'Breakfast is at 8 o\'clock. Pancakes!', pic: '🥞' },
+  { id: 'wake', h: 6, line: 'The sun is up! Wake up time is at 6 o\'clock.', pic: '☀️' },
+  { id: 'breakfast', h: 7, line: 'Breakfast is at 7 o\'clock. Pancakes!', pic: '🥞' },
   { id: 'singing', h: 10, line: 'Singing time is at 10 o\'clock.', pic: '🎵' },
   { id: 'lunch', h: 12, line: 'Lunch is at 12 o\'clock.', pic: '🥪' },
   { id: 'play', h: 3, line: 'Playtime is at 3 o\'clock.', pic: '⚽' },
   { id: 'snack', h: 4, line: 'Snack time is at 4 o\'clock.', pic: '🍎' },
-  { id: 'dinner', h: 6, line: 'Dinner is at 6 o\'clock.', pic: '🍲' },
+  { id: 'dinner', h: 5, line: 'Dinner is at 5 o\'clock.', pic: '🍲' },
   { id: 'bed', h: 8, line: 'Bedtime is at 8 o\'clock.', pic: '🛏️' },
 ]
 
@@ -124,7 +127,7 @@ const hourAt = (deg: number) => {
   return n === 0 ? 12 : n
 }
 
-function ClockPlayer({ ex, onResult }: { ex: ClockEx; onResult: (firstTry: boolean) => void }) {
+function ClockPlayer({ ex, onResult }: { ex: ClockEx; onResult: (firstTry: boolean, waited?: boolean) => void }) {
   const alive = useAlive()
   const svg = useRef<SVGSVGElement>(null)
   const rot = useRef(hourAngle(ex.start))
@@ -177,7 +180,7 @@ function ClockPlayer({ ex, onResult }: { ex: ClockEx; onResult: (firstTry: boole
       done.current = true
       setSolved(true)
       await speak(`${cap(oclock(h))}!`)
-      if (alive.current) onResult(missCount.current === 0 && !hinted.current)
+      if (alive.current) onResult(missCount.current === 0 && !hinted.current, missCount.current === 0 && hinted.current)
       return
     }
     busy.current = true
@@ -365,7 +368,7 @@ function PurseCoin({ kind, glow, disabled, onDrop, onTap }: {
   )
 }
 
-function CoinsPlayer({ ex, onResult }: { ex: CoinsEx; onResult: (firstTry: boolean) => void }) {
+function CoinsPlayer({ ex, onResult }: { ex: CoinsEx; onResult: (firstTry: boolean, waited?: boolean) => void }) {
   const alive = useAlive()
   const pal = PALS.find((p) => p.id === ex.pal) ?? PALS[0]
   const [coins, setCoins] = useState<{ id: number; kind: CoinKind }[]>([])
@@ -416,7 +419,7 @@ function CoinsPlayer({ ex, onResult }: { ex: CoinsEx; onResult: (firstTry: boole
       setSolved(true)
       ;(async () => {
         await speak(`${cents(now)}. That's just right. Thank you!`)
-        if (alive.current) onResult(missCount.current === 0 && !hinted.current)
+        if (alive.current) onResult(missCount.current === 0 && !hinted.current, missCount.current === 0 && hinted.current)
       })()
     } else {
       // Too much: the Pal gently hands that coin back.
@@ -582,7 +585,7 @@ function Slot({ i, filled, glow, children }: { i: number; filled: boolean; glow:
   return <div ref={ref} className={`tm-slot ${filled ? 'filled' : ''} ${glow ? 'tm-glow' : ''}`} data-slot={i}>{children}</div>
 }
 
-function MeasurePlayer({ ex, onResult }: { ex: MeasureEx; onResult: (firstTry: boolean) => void }) {
+function MeasurePlayer({ ex, onResult }: { ex: MeasureEx; onResult: (firstTry: boolean, waited?: boolean) => void }) {
   const alive = useAlive()
   const order = [...ex.items.keys()].sort((a, b) => ex.items[a].len - ex.items[b].len) // the thing for each slot
   const [placed, setPlaced] = useState<(number | null)[]>([null, null, null])
@@ -636,7 +639,7 @@ function MeasurePlayer({ ex, onResult }: { ex: MeasureEx; onResult: (firstTry: b
       ;(async () => {
         await wait(300)
         await speak(ex.thing === 'pencil' ? 'Short, longer, longest!' : 'Short, taller, tallest!')
-        if (alive.current) onResult(missCount.current === 0 && !hinted.current)
+        if (alive.current) onResult(missCount.current === 0 && !hinted.current, missCount.current === 0 && hinted.current)
       })()
     }
     return true

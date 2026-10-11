@@ -20,10 +20,11 @@ export default function ExerciseCard({ ex, onSolved }: { ex: Exercise; onSolved:
     else speak(ex.say)
   }, [ex])
 
-  const onResult = async (firstTry: boolean) => {
+  const onResult = async (firstTry: boolean, waited = false) => {
     score?.(firstTry)
     sfx.good()
-    recordAnswer(ex.skill, firstTry)
+    // (Help after a quiet while, with no wrong moves, neither raises nor lowers her level.)
+    if (!waited) recordAnswer(ex.skill, firstTry)
     await speak(praise())
     if (alive.current) onSolved(firstTry)
   }

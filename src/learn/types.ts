@@ -21,12 +21,14 @@ export interface Exercise {
 }
 
 /**
- * Plays one exercise. Calls `onResult(firstTry)` exactly once, when the child has got it right
+ * Plays one exercise. Calls `onResult(firstTry, waited)` exactly once, when the child has got it right
  * (whether first time or after help). `firstTry` is false if she needed any retries or hints.
+ * `waited` is true when the only help was a hint shown after a quiet while (no wrong moves): a slow,
+ * careful thinker isn't marked down for it, so it doesn't move her level either way.
  * No failure: a wrong move wiggles and is undone, and after two misses the next right move is shown.
  * The card around it (./ExerciseCard) says the prompt, scores it, praises, and moves on.
  */
-export type ExerciseView<E extends Exercise = Exercise> = ComponentType<{ ex: E; onResult: (firstTry: boolean) => void }>
+export type ExerciseView<E extends Exercise = Exercise> = ComponentType<{ ex: E; onResult: (firstTry: boolean, waited?: boolean) => void }>
 
 /** One thing in a practice round. */
 export type Task = { type: 'choice'; q: Question } | { type: 'exercise'; ex: Exercise }

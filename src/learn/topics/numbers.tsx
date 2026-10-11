@@ -354,18 +354,20 @@ function NumberLinePlayer({ ex, onResult }: { ex: NumberLineExercise; onResult: 
     else busy.current = false
   }
 
-  /** Back to `to`, one gentle hop at a time, counting the numbers on the way. */
-  const hopBack = async (from: number, to: number) => {
+  /** Back to `to`, one gentle hop at a time, counting the hops on the way. True if it got there. */
+  const hopBack = async (from: number, to: number): Promise<boolean> => {
     busy.current = true
     await speak(dir * (from - goal) > 0 ? "Oops, too far! Let's count back." : dir > 0 ? "Oops! We're adding, so we hop forward." : "Oops! We're taking away, so we hop back.")
     for (const n of range(from, to).slice(1)) {
-      if (!alive.current) return
+      if (!alive.current) return false
       moveTo(n)
       setHopId((h) => h + 1)
-      speak(String(n))
+      // (Counting down the hops, as the bubble over the Pal shows them: the numbers she counted on the way out.)
+      if (n !== start) speak(String(Math.abs(n - start)))
       await wait(HOP_MS + 260)
     }
     if (alive.current) busy.current = false
+    return alive.current
   }
 
   // Dragging the Pal along the line: it snaps to each number it passes, counting the hops.
@@ -417,7 +419,10 @@ function NumberLinePlayer({ ex, onResult }: { ex: NumberLineExercise; onResult: 
       if (onTheWay) return // fine so far: keep hopping from here
       sfx.oops()
       miss()
-      hopBack(n, from)
+      // Too far: count the extra hops back to the answer ("ten, nine… You landed on 9!"), keeping the
+      // hops she got right. The wrong way: back to where this drag began.
+      if (dir * (n - goal) > 0) hopBack(n, goal).then((ok) => { if (ok) finish() })
+      else hopBack(n, from)
     }
     const off = () => {
       window.removeEventListener('pointermove', move)
