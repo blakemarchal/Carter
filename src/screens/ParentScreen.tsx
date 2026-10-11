@@ -200,7 +200,7 @@ The current progress is saved to the server first, so you can undo this.`)) retu
   return (
     <section>
       <h3>Backup</h3>
-      <p>Every player&rsquo;s progress is copied to the family server when she starts playing and after each island. This {deviceLabel()}&rsquo;s last copy: {when(last)}.</p>
+      <p>Every player&rsquo;s progress is copied to the family server when they start playing and after each island. This {deviceLabel()}&rsquo;s last copy: {when(last)}.</p>
       <div className="level-row">
         <button onClick={async () => {
           setStatus('Saving…')
@@ -270,7 +270,7 @@ function AppVersion() {
   return (
     <section>
       <h3>App version</h3>
-      <p>This iPad has the version from {buildLabel()}.</p>
+      <p>This {deviceLabel()} has the version from {buildLabel()}.</p>
       <div className="level-row">
         {update
           ? <button className="on" onClick={applyUpdate}>✨ Update now</button>
