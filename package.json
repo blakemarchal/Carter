@@ -13,6 +13,8 @@
     "set-voice-key": "node server/set-voice-key.mjs",
     "set-email-key": "node server/set-email-key.mjs",
     "new-family-link": "node server/new-family-link.mjs",
+    "set-stripe-key": "node server/set-stripe-key.mjs",
+    "stripe-setup": "node server/stripe-setup.mjs",
     "test": "vitest run",
     "new-island": "node scripts/new-island.mjs",
     "preview:art": "rolldown scripts/preview-pals.tsx --platform node --format esm -o preview/render.mjs && node preview/render.mjs",
@@ -24,7 +26,8 @@
   "dependencies": {
     "@fontsource/baloo-2": "^5.3.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "stripe": "22.6.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",

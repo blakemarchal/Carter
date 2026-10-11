@@ -8,6 +8,8 @@ import IslandView from './screens/IslandView'
 import Bedtime from './screens/Bedtime'
 import SingAlong from './screens/SingAlong'
 import Placement from './screens/Placement'
+import Resting from './screens/Resting'
+import { useAccess } from './lib/billing'
 import { placementDue } from './learn/placement'
 import BirthdayParty, { type PartyMode } from './screens/BirthdayParty'
 import PlayerArtProvider from './components/PlayerArt'
@@ -40,6 +42,7 @@ export default function App() {
   const [party, setParty] = useState<{ mode: PartyMode; age?: number; back: Screen }>({ mode: 'day', back: 'map' })
   const [evolved, setEvolved] = useState<{ id: string; from: number; to: number } | null>(null)
   const [sleepy, setSleepy] = useState(false)
+  const { access, recheck } = useAccess()
   const stages = useRef<{ profile: string; byPal: Record<string, number> }>({ profile: active, byPal: {} })
 
   // Each player has their own voice and sound settings.
@@ -145,6 +148,12 @@ export default function App() {
       const id = shown.slice('island:'.length)
       view = islandById(id) ? <IslandView key={id} id={id} onExit={() => go('map')} /> : null
     }
+  }
+
+  // The family's plan (lib/billing.ts): only ever closes the game when the server enforces plans. The title
+  // and the Parent Corner stay open, so a grown-up can choose a plan.
+  if (!access.allowed && shown !== 'title' && shown !== 'parent') {
+    view = <Resting why={access.why} onParent={() => go('parent')} onBack={() => go('title')} onRetry={recheck} />
   }
 
   const evolvedPal = evolved && PALS.find((x) => x.id === evolved.id)!

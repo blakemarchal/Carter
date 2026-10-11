@@ -12,6 +12,7 @@ import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, 
 import FamilyVoices from '../components/FamilyVoices'
 import FamilySongs from '../components/FamilySongs'
 import FamilyAccounts from '../components/FamilyAccounts'
+import FamilyPlan from '../components/FamilyPlan'
 import StickerFace from '../components/StickerFace'
 import { FamilyCastEditor, PlayerDetails } from '../components/FamilyEditor'
 import { birthdayLabel, daysUntil } from '../lib/birthday'
@@ -302,6 +303,7 @@ export default function ParentScreen({ onBack, onParty, onPlacement }: { onBack:
       <header><BackButton onClick={onBack} /><h2>Parent Corner</h2><span /></header>
       <Players />
       <FamilyAccounts />
+      <FamilyPlan />
       <Family />
       <Party onParty={onParty} />
       <section>

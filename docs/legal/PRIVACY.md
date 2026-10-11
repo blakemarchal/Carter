@@ -77,7 +77,12 @@ We use a few service providers, only to run the game:
 - **Resend** sends our emails (sign-in links and invitations) when a grown-up asks for one; it receives
   that email address and the email.
 - **ImprovMX** forwards email sent to hello@spiritflow.church to us.
-- [At launch: **Stripe** handles payments; we never see full card numbers.]
+- **Stripe** handles payments when a family chooses a plan. It receives the email of the parent who starts
+  the plan, what they enter on Stripe's own checkout page (card and billing address), and our id for the
+  family, and nothing about the children. We never see full card numbers. We keep the family's Stripe
+  customer id, plan, status and paid-through date; they're in the family's download, and deleting the
+  family deletes its Stripe customer too, which ends the plan (Stripe keeps its own record of past payments,
+  as the law requires). [Billing is in Stripe's test mode until launch.]
 
 We don't sell, rent or trade information, and we share it with no one else, except if required by law.
 
