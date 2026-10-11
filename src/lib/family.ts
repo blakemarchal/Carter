@@ -10,6 +10,8 @@ export interface FamilyView {
   emailOn: boolean
   /** Whether the family can delete its account here (not the site's own family). */
   deletable: boolean
+  /** Whether this grown-up is the site's owner (a parent in its own family): sees the sums of play totals. */
+  owner?: boolean
   family: { id: string; name: string }
   members: { id: string; name: string; role: Role; look: unknown }[]
   devices: { id: string; label: string; seen: number; member: string; mine: boolean }[]

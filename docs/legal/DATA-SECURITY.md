@@ -15,9 +15,9 @@ the owner today), and handles requests and incidents (hello@spiritflow.church).
 |---|---|---|
 | Family, grown-ups (names, roles, avatars, emails), devices, links | `/var/lib/carter/arkpals.db` (SQLite) | until the family deletes it; used and expired links [purge after 30 days] |
 | Progress backups | `/var/lib/carter` (first family), `/var/lib/carter/families/<id>/backups` | the newest 60 per family |
+| Play totals (opt-in per device by a parent; per-day counts of starts, finishes, replays and wrong first tries per island, visit and activity kind; no names, players, devices or times) | `play-totals.json` in the family's folder (`/var/lib/carter` for the first family) | 400 days, then each day is dropped; in the family's download, deleted with the family or by a parent; the owner's page (`/stats`) shows only sums across families |
 | Family voice recordings, family songs | `…/recordings`, `…/songs` beside them | until deleted by the family; limited to 300 MB and 400 MB |
 | Narration audio (by line text) | `/var/cache/carter` | until cleared; [stop sending names to the voice service, then clear the clips that contain names] |
-| Play totals (opt-in, counts only, all families together) | `/var/lib/carter/stats` | [keep 13 months] |
 | Snapshots of `/var/lib/carter` before updates | `/root/carter-state-*.tgz` | [delete after 30 days: add a daily cleanup] |
 
 A deleted family is removed from the database and its folder at once.

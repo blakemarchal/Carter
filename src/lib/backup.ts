@@ -3,7 +3,7 @@
 // between named copies, never "whatever was saved last". Restoring first saves the current state.
 // Backups happen when she starts playing (at most every few hours) and after each island.
 
-import { BACKUP_DEVICE, BACKUP_LAST, NS, OLD_NS } from './storageKeys'
+import { BACKUP_DEVICE, BACKUP_LAST, NS, OLD_NS, TOTALS_PREFIX } from './storageKeys'
 
 const PREFIX = NS
 const LAST = BACKUP_LAST // when this device last backed up (not part of the backup)
@@ -46,7 +46,7 @@ function collect() {
   const keys: Record<string, string> = {}
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i)!
-    if (k.startsWith(PREFIX) && k !== LAST && k !== DEVICE) keys[k] = localStorage.getItem(k)!
+    if (k.startsWith(PREFIX) && k !== LAST && k !== DEVICE && !k.startsWith(TOTALS_PREFIX)) keys[k] = localStorage.getItem(k)!
   }
   return { savedAt: new Date().toISOString(), device: deviceId(), label: deviceLabel(), keys }
 }
@@ -106,8 +106,9 @@ export async function fetchBackup(id: string): Promise<{ savedAt: string; keys: 
  * called Ark Pals has the old names; they're moved over when the game starts again.)
  */
 export function restore(b: { keys: Record<string, string> }) {
-  const ours = (k: string) => (k.startsWith(PREFIX) || k.startsWith(OLD_NS)) && k !== LAST && k !== DEVICE && !k.startsWith(`${OLD_NS}-backup`)
+  // (this device's play-totals switch stays as it is: it's never part of a backup)
+  const ours = (k: string) => (k.startsWith(PREFIX) || k.startsWith(OLD_NS)) && k !== LAST && k !== DEVICE && !k.startsWith(`${OLD_NS}-backup`) && !k.startsWith(TOTALS_PREFIX)
   for (const k of Object.keys(localStorage)) if (ours(k)) localStorage.removeItem(k)
-  for (const [k, v] of Object.entries(b.keys)) localStorage.setItem(k, v)
+  for (const [k, v] of Object.entries(b.keys)) if (!k.startsWith(TOTALS_PREFIX)) localStorage.setItem(k, v)
   location.reload()
 }
