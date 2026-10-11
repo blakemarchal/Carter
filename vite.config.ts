@@ -34,8 +34,8 @@ export default defineConfig({
         // Sing-along songs are big: each is kept the first time it's played (below), not up front.
         globIgnores: ['**/music/**'],
         // These pages come from the server, not the installed app: /login (the sign-in form, when a device is
-        // signed out), and the pages a family's link opens (/join/…, /start/…).
-        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//],
+        // signed out), the pages a family's link opens (/join/…, /start/…), and the owner's play totals (/stats).
+        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//, /^\/stats/],
         // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
         runtimeCaching: [{
           urlPattern: ({ url }) => url.pathname === '/tts',
@@ -58,4 +58,6 @@ export default defineConfig({
       },
     }),
   ],
+  // (The playthroughs write their pictures and traces here: not part of the app, so no reloads.)
+  server: { watch: { ignored: ['**/e2e-results/**'] } },
 })

@@ -8,3 +8,4 @@ dist
 node_modules
 preview/
 scripts/film/out/
+e2e-results/

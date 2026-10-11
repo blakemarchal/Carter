@@ -69,3 +69,77 @@ Blake greenlit this on Oct 11, 2026. The cloud thread does the building and chec
 ## Later (not now)
 
 Church licenses, and turning on `BILLING_ENFORCED` and `STRIPE_TAX`: Blake decides these closer to launch.
+
+---
+
+## Hand-back from the cloud thread (Oct 11, 2026)
+
+Everything is on **`blake/wave8`** (made from `blake/wave7`, pushed after each item). `npx tsc -b` is clean and `npx vitest run` passes (475 tests). `npm run e2e:chromium` passes 36 of 36 on the final branch.
+
+### What changed
+1. **Integrated.** The learning backbone is merged, and `docs/legal/` (PRIVACY, TERMS, DATA-SECURITY) is copied from `blake/email-signin`.
+2. **Learning backbone reviewed and fixed.** A fresh reviewer played every exercise at every level, inside islands (Elijah, Pentecost, Zacchaeus) and in a battle. Fixes:
+   - An idle hint no longer lowers her level.
+   - The number line counts back in the numbers its bubble shows.
+   - Each clock moment has its own hour.
+   - A battle doesn't repeat a question.
+   - Numbers levels 4 and 5 now say in the Parent Corner that they also count on past 100.
+3. **Placement game.** It's for new players only, right after they choose a Pal. It's a treasure hunt with no right or wrong, plus a "Not sure" button, and it sets both levels in 4–10 questions. It's skipped for anyone with progress, and the Parent Corner has a "Find my levels again" button. (`src/learn/placement.ts`, `src/screens/Placement.tsx`.)
+4. **Automated playthroughs.**
+   - `npm run e2e` runs in WebKit and `npm run e2e:chromium` in Chromium.
+   - `.github/workflows/e2e.yml` runs on pushes to `blake/*`, with screenshots in the artifact.
+   - In the cloud only Chromium could run, because the WebKit download is blocked. The first GitHub run is the first WebKit run.
+   - `vite.config.ts` ignores `e2e-results/`.
+5. **Play stats, reworked.**
+   - Opt-in per device by a parent.
+   - Counts per day only: starts, finishes, replays and wrong first tries per island, visit and activity kind. Names are checked strictly on the device and on the server.
+   - Kept in the family's own `play-totals.json` for 400 days, included in the family's download, and deleted with the family or by a parent (`DELETE /stats`).
+   - `GET /stats` is an owner-only page. It shows sums across families, and nothing until at least five families share.
+   - `/family` now says `owner`, and the privacy and data-security drafts describe all of this.
+6. **Also:**
+   - `npm run learning-lines` writes `preview/learning-lines.json`: every line the learning questions and the placement game send to the narrator (1,356 today, older question lines included), ready for the warm-up.
+   - A Parent Corner typo is fixed ("This This device").
+
+### New spoken lines
+- **Learning questions and exercise prompts:** run `npm run learning-lines` and warm `preview/learning-lines.json` with `scripts/warm-narration.mjs`. Lines already made are skipped.
+- **Lines spoken inside the exercises as they're played** are fixed strings in `src/learn/topics/*.tsx` and aren't in that list. Mom's script needs them too. They're built from:
+  - letter sounds and "f, o, x: fox!";
+  - "Put the words in order to tell the picture!";
+  - "That says 5 o'clock. Try again!";
+  - "Oops, too far! Let's count back.";
+  - "You landed on 13!";
+  - "We're adding, so hop forward!" and "We're taking away, so hop back!";
+  - "Oops, that's too much! Here is your dime back.";
+  - "That's just right. Thank you!";
+  - "Short, longer, longest!";
+  - the market lines in `MARKET` and the clock moments in `MOMENTS`.
+- **Clock moments changed:** wake up at 6, breakfast at 7, dinner at 5, bedtime at 8.
+- **Placement game:**
+  - "<Pal> wants to go on a treasure hunt with you, <name>! Every puzzle you try finds a treasure. Tap Let's go!"
+  - "First, some word puzzles!"
+  - "Now, some number puzzles!"
+  - the six praise lines (`PLACEMENT_PRAISE`)
+  - "That's OK! Here's a treasure anyway. Let's try another one."
+  - "What a treasure hunt! <Pal> had so much fun with you, <name>. Let's sail!"
+- **Play stats:** none.
+
+### For the local thread
+- **Before deploying:** if Blake wants a copy of the old pooled play totals, `tar` `/var/lib/carter/stats` first. On its first start the new server deletes those day files (they mixed every family together, with the old names) and logs "Removed the old pooled play totals (N days)".
+- **Families who opted in before must opt in again.** The old switch is cleared on the device, since the new totals count different things.
+- **Warm the new lines** (above), and add the exercise and placement lines to Mom's voice script.
+- **Nothing in `.env` or `deploy/` changed.** New server files are made when a family first sends totals.
+- **After deploying:**
+  - Check `/stats` as the owner (it should say fewer than five families).
+  - Turn sharing on in the Parent Corner and play a visit.
+  - Check the family download includes `playTotals`.
+  - Play the placement game with a brand-new test player.
+
+### For Blake to decide
+1. **Numbers level 10 is easier than level 9.** It's mostly measuring. Recommended: move longer/shorter to level 3 (next to more/fewer) and make level 10 half hours plus setting the clock as review.
+2. **Pictures:** the "bug" is a caterpillar (a ladybug would be clearer), and the "rat" looks like a mouse (redraw it, or drop it from the word lists).
+3. **WebKit as a required check:** keep the playthroughs as a required check once a WebKit run passes on GitHub.
+4. **Content to look over:**
+   - the 19 built sentences;
+   - the reading sentences and stories, including "We sing a song to God." and "We fold our hands. We thank God for our food.";
+   - the market prices (2 to 20 cents);
+   - "Singing time is at 10 o'clock".

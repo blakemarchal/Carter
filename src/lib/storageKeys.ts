@@ -6,6 +6,8 @@ export const progressKey = (id: string) => `${NS}:v1:${id}`
 /** Not part of a backup: when this device last backed up, and its random device id. */
 export const BACKUP_LAST = `${NS}-backup:last`
 export const BACKUP_DEVICE = `${NS}-backup:device`
+/** Not part of a backup either: this device's play-totals switch and the counts not sent yet (lib/stats.ts). */
+export const TOTALS_PREFIX = `${NS}-totals:`
 
 /** The game's first name, for moving older saves (and restoring older backups). */
 export const OLD_NS = 'carters-ark'

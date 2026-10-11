@@ -2,7 +2,7 @@
 // resume-where-you-left-off, and the right music for each step. An island can have up to three
 // visits, split by "pause" steps: each finished visit counts toward the daily voyage, and the next
 // visit starts after the pause. First-try answers earn the island's stars (lib/score.ts).
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BackButton, BigButton, StepDots } from '../components/ui'
 import StoryBook from '../activities/StoryBook'
 import TwoByTwo from '../activities/TwoByTwo'
@@ -28,7 +28,7 @@ import type { Island, Step } from '../data/islands'
 import { completeIsland, getProgress, savedStep, today, update } from '../lib/progress'
 import { countVisit } from '../lib/voyage'
 import { ScoreContext, starsFor } from '../lib/score'
-import { count } from '../lib/stats'
+import { islandFinished, stepFinished, stepStarted, wrongFirstTry } from '../lib/stats'
 import { VisitPause } from '../components/VisitPause'
 import BuddyCheer from '../components/BuddyCheer'
 import { pauseNarration, preload, speak, stopSpeaking } from '../lib/speech'
@@ -60,21 +60,25 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   // Whether this player had already finished the island (a replay doesn't count toward the daily voyage).
   const [wasDone] = useState(() => getProgress().islandsDone.includes(island.id))
   const [stars, setStars] = useState(0)
-  const next = () => setStep((s) => s + 1)
+  // (play totals, if a parent turned them on: each step counted once, even if it reports done twice)
+  const counted = useRef({ started: -1, finished: -1 })
+  const next = () => {
+    if (counted.current.finished !== step) { counted.current.finished = step; stepFinished(island.id, steps, step) }
+    setStep(step + 1)
+  }
   const exit = () => {
-    if (step < reward && steps[step].kind !== 'pause') count(`quit:${island.id}:${step}`)
     stopSpeaking()
     pauseNarration(false)
     onExit()
   }
   // Each question card reports whether it was answered right the first time.
   const scored = useCallback((firstTry: boolean) => {
+    if (!firstTry) wrongFirstTry(island.id, steps, step)
     update((p) => {
       const [r, t] = p.islandScore?.[island.id] ?? [0, 0]
       return { ...p, islandScore: { ...p.islandScore, [island.id]: [r + (firstTry ? 1 : 0), t + 1] } }
     })
-  }, [island.id])
-  useEffect(() => { if (step === 0) count(`start:${island.id}`) }, [])
+  }, [island.id, step])
   // The activity pauses its narration while the question is up, and picks up again on "Keep playing".
   const askToLeave = () => {
     setLeaving(true)
@@ -87,13 +91,16 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   const current = steps[step]
   useEffect(() => setMood(MOOD[current.kind]), [step])
   useEffect(() => {
+    if (counted.current.started !== step) {
+      counted.current.started = step
+      stepStarted(island.id, steps, step, wasDone)
+      if (step === reward) islandFinished(island.id)
+    }
     // Reaching the reward finishes the island, even if she leaves without tapping the button.
     if (step === reward) {
       const [r, t] = getProgress().islandScore?.[island.id] ?? [0, 0]
       const n = starsFor(r, t)
       setStars(n)
-      count(`done:${island.id}`)
-      count(`stars:${island.id}:${n}`)
       update((p) => {
         const { [island.id]: _, ...islandScore } = p.islandScore ?? {}
         return {
@@ -108,7 +115,6 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
     }
     // A pause ends a visit: it counts toward today's voyage (unless it's a free one), and next time starts after it.
     if (current.kind === 'pause') {
-      count(`visit:${island.id}`)
       if (!wasDone && !current.free) update((p) => ({ ...p, voyage: countVisit(p.voyage, today()) }))
     }
     const saved = step === reward ? 0 : current.kind === 'pause' ? step + 1 : step

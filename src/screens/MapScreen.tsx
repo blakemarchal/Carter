@@ -15,7 +15,6 @@ import VoyageComplete from '../components/VoyageComplete'
 import { ISLANDS, islandById, loadIsland, loadedIsland } from '../data/islands'
 import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
 import { currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
-import { count } from '../lib/stats'
 import { Emoji } from '../art/scenes/kit'
 import { palById, stageFor } from '../data/pals'
 import { activeProfile, savedStep, today, update, useFamily, useProfiles, useProgress } from '../lib/progress'
@@ -317,7 +316,6 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
     // (where an island's visits begin is in its content: load it first, if it hasn't loaded yet)
     if (resting) await loadIsland(isl.id).catch(() => {})
     if (resting && startsNewVisit(isl.id)) {
-      count('rest-day')
       speak("The Ark is resting until tomorrow! You can play an island you've finished, visit your Pals, sing, or have a bedtime story.")
       return
     }

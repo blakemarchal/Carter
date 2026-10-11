@@ -111,6 +111,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
   const [turn, setTurn] = useState(0)
   const [kind, setKind] = useState<MoveKind>('basic')
   const [q, setQ] = useState<Question | null>(null)
+  const asked = useRef<Question[]>([]) // (so a battle doesn't ask the same question twice)
   const [moveNo, setMoveNo] = useState(0) // restarts the move animation each time
   const [foeMove, setFoeMove] = useState('')
   const [palAnim, setPalAnim] = useState<'dodge' | 'hurt' | 'berry' | ''>('')
@@ -194,7 +195,9 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     const skill: Skill = turn % 2 ? 'numbers' : 'reading'
     const base = getProgress().skills[skill]
     // Brave moves ask a question one level up.
-    setQ(makeQuestion(skill, s.kind === 'brave' ? Math.min(MAX_LEVEL[skill], base + 1) : base))
+    const next = makeQuestion(skill, s.kind === 'brave' ? Math.min(MAX_LEVEL[skill], base + 1) : base, undefined, asked.current)
+    asked.current.push(next)
+    setQ(next)
     setPhase('question')
   }
 

@@ -35,6 +35,8 @@ npm run build      # production files in dist/
 
 **Tests:** `npm test` checks the spoken-text rules, question generation, move unlocks, and every island, Pal and recipe.
 
+**Playthroughs:** `npm run e2e` has a robot play one visit of every island, a battle, the Pal Kitchen and a practice round of each learning exercise in WebKit (Safari's engine) at iPad size with touch, against its own dev server. Any console or page error fails it; pictures of every step land in `e2e-results/shots/` (and an HTML report in `e2e-results/report/`). Once, `npx playwright install --with-deps webkit`. Where WebKit can't be installed, `npm run e2e:chromium` plays it in Chromium. GitHub runs it on every push to a `blake/*` branch (`.github/workflows/e2e.yml`).
+
 ## Layout
 
 - `src/data/`: story text, Pals, word lists, islands (most content edits happen here)
