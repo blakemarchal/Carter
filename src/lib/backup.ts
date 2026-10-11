@@ -39,7 +39,7 @@ export function deviceLabel() {
   if (/Android/.test(ua)) return 'Android tablet or phone'
   if (/Windows/.test(ua)) return 'Windows computer'
   if (/Macintosh/.test(ua)) return 'Mac'
-  return 'This device'
+  return 'device' // (said after "this": "this device")
 }
 
 function collect() {
