@@ -201,13 +201,12 @@ separate "Ark Pals" account in our Stripe organization, so no real money moves. 
 `BILLING_ENFORCED` is off until you decide to turn it on. The first family, and any family you mark as
 comped on the billing dashboard, always plays free.
 
-1. **Install the Stripe library on the server** (once; again only if `package.json` changes its
-   dependencies). `deploy.sh` ships `package.json` but not `node_modules`, and the server runs fine
-   without it (billing is just off):
+1. **The Stripe library on the server** is installed by every deploy (`deploy.sh` / `deploy.ps1` send
+   `package-lock.json` and run `npm ci --omit=dev` on the server). To check it:
    ```bash
-   ssh root@68.183.130.3 'cd /opt/Carter && npm install --omit=dev && npm ls stripe'
+   ssh root@68.183.130.3 'cd /opt/Carter && npm ls stripe'
    ```
-   Expect `stripe@22.6.0`.
+   Expect `stripe@22.6.0`. Without it the server still runs; billing is just off.
 2. **Make a restricted key in the sandbox.** In the Stripe Dashboard, switch to the **Ark Pals** account,
    then to **Ark Pals sandbox**. Go to Developers → API keys → **Create restricted key**, name it
    "Ark Pals server", and give it only these permissions (everything else **None**):
