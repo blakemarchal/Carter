@@ -238,7 +238,8 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       if (!fam) return
       const subId = idOf(inv.parent?.subscription_details?.subscription)
       const r = row(fam)
-      if (subId && subId === r?.sponsor_subscription_id) return
+      if ((subId && subId === r?.sponsor_subscription_id) || inv.parent?.subscription_details?.metadata?.arkpals === 'sponsor') return
+      if (subId && r?.subscription_id && subId !== r.subscription_id) return
       set(fam, { payment_failed: event.created * 1000 })
     },
   }

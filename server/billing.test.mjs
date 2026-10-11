@@ -345,6 +345,8 @@ describe('Sponsor a Family', () => {
     const { fam, cus } = await withCustomer(t)
     await deliver(t.billing, event('customer.subscription.created', sub('sub_s', cus, { plan: 'sponsor-monthly', metadata: { arkpals: 'sponsor' } })))
     expect(t.billing.status(fam)).toMatchObject({ sponsoring: true, status: null, plan: null })
+    await deliver(t.billing, event('invoice.payment_failed', invoice('in_0', cus, 'sub_s', { paid: 0, product: 'arkpals_sponsor', metadata: { arkpals: 'sponsor' } })))
+    expect(t.billing.status(fam).paymentFailed).toBeNull() // (a sponsorship's card isn't the family's plan)
     expect(t.billing.access(fam).allowed).toBe(false) // (sponsoring isn't a plan of their own)
     await deliver(t.billing, event('invoice.paid', invoice('in_1', cus, 'sub_s', { paid: 999, product: 'arkpals_sponsor', metadata: { arkpals: 'sponsor' } })))
     await deliver(t.billing, event('invoice.paid', invoice('in_2', cus, 'sub_s', { paid: 999, product: 'arkpals_sponsor', metadata: { arkpals: 'sponsor' } })))
