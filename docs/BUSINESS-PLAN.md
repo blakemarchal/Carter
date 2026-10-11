@@ -93,7 +93,7 @@ Only the month and day are stored, never the year. Jan 8 is the first real test,
   - Checkout handles new subscriptions, and the built-in billing page handles cancel, update card and receipts.
   - Stripe tells our server when someone subscribes, renews or cancels, or a payment fails, so the game knows who has paid.
   - Promotion codes power the Grace codes.
-  - A **separate Stripe account under Marchal Technologies**, with its own statement descriptor (e.g. "ARK PALS"), keeps the books apart from RegKnots and Bree Creative. *(Still to decide: separate account, or the existing one with separate products.)*
+  - A **separate Stripe account under Marchal Technologies**, with its own statement descriptor (e.g. "ARK PALS"), keeps the books apart from RegKnots and Bree Creative. *(Decided Oct 11, 2026: a separate "Ark Pals" account inside the same Stripe organization as RegKnot, with the same LLC, EIN and bank, and its own descriptor, payouts and reports. Development uses a sandbox in that account.)*
 - **Storage:**
   - A SQLite database on the droplet, the same pattern as Hilco.
   - Each family's files go in their own folder (`/var/lib/arkpals/families/<id>/` for recordings, songs and backups), with a storage limit of about 200 MB per family.
@@ -196,7 +196,8 @@ The faith approach in SPEC.md §4.4 applies throughout: grace first, and obedien
 | Carter's edition | **None.** Carter is the first family, with no child-specific code. |
 | Birthday | **Birthday surprises for every child who has a birthday on file**, replacing the hardwired birthday island |
 | Dev site | **spiritflow.church** |
-| Still open | Separate Stripe account vs. separate products. App Store ever? (Apple takes 15–30% and requires its own payment system inside the app.) |
+| Stripe | **A separate "Ark Pals" account** in the same Stripe organization as RegKnot (Oct 11, 2026) |
+| Still open | App Store ever? (Apple takes 15–30% and requires its own payment system inside the app.) |
 
 ---
 

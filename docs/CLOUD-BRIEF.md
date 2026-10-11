@@ -28,8 +28,44 @@ Blake greenlit this on Oct 11, 2026. The cloud thread does the building and chec
    - Keep the same rules: no names, players, devices, answers or times of day.
    - Add an owner-only summary page that reads `GET /stats`, if there isn't one yet: sorted tables with the weakest spots first.
    - Make `docs/legal/PRIVACY.md` say exactly what's kept.
-6. **Hand back.** Update `docs/GAME-PLAN.md` §9. Then write a short note at the end of this file: what changed, any new spoken lines, anything the local thread must do (warm-up, voice-script pages, server changes) and anything that needs Blake's decision.
+6. **Billing in Stripe test mode (BUSINESS-PLAN §1 and §4, §10 step 5).**
+   - **Where it runs.** A separate "Ark Pals" Stripe account in Blake's organization, using a **sandbox** named "Ark Pals dev", not the shared test mode.
+   - **Library.** The official `stripe` Node SDK (22.6.0), on API version `2026-08-26.dahlia`, with one Stripe client instance; don't set a global key.
+   - **Keys.**
+     - A **restricted key** (`rk_`) with only the permissions the code needs. List them in DEPLOY.md.
+     - Add `npm run set-stripe-key`, modelled on `server/set-email-key.mjs`. It saves `STRIPE_KEY` to `/opt/Carter/.env` and never prints it.
+     - Keys never go in code, the client or git.
+   - **Catalog.** `npm run stripe-setup` creates or updates everything, keyed by `lookup_key`, so it's safe to run twice:
+     - The products: "Ark Pals Family" at $9.99/mo and $79/yr; "Ark Pals Grace" at $4.99/mo, a separate Product because it's a separate choice; and "Sponsor a Family" at $9.99/mo.
+     - 100%-off coupons for 6 and 12 months, used for the Grace codes.
+     - The webhook endpoint `https://spiritflow.church/stripe/webhook`, created through the API. The script saves its signing secret to `.env` as `STRIPE_WEBHOOK_SECRET`.
+   - **Checkout.**
+     - Checkout Sessions in subscription mode. Never pass `payment_method_types`.
+     - `allow_promotion_codes: true` and a 7-day `trial_period_days`.
+     - `integration_identifier` set to `arkpals-checkout-` plus 8 random letters.
+     - The yearly plan is shown first. The Grace price is offered kindly ("This price helps our family right now"), with no questions asked.
+   - **Billing page.** Stripe's Customer Portal, opened from the Parent Corner, for cancelling, changing the card and receipts.
+   - **Webhooks are required.**
+     - Verify the signature on the raw body.
+     - Handle `checkout.session.completed`, `checkout.session.async_payment_succeeded` (check `payment_status`), `customer.subscription.created`, `customer.subscription.updated` and `customer.subscription.deleted`, `invoice.paid` and `invoice.payment_failed`.
+     - Match each event to a family through the Stripe **Customer ID** saved on the family, not through metadata.
+     - Make the handlers safe when the same event arrives twice.
+   - **Access.**
+     - The family is what pays: save its plan, status and paid-through date.
+     - The game checks access when it's online and allows 7 days offline.
+     - **Enforcement stays off** behind `BILLING_ENFORCED` (off by default) until Blake turns it on.
+     - The first family, and any family the owner marks as comped (the church beta), is always free.
+   - **Owner dashboard** (first family only):
+     - Make batches of Grace codes: single-use promotion codes on the 6- and 12-month coupons. Show them for printing or copying.
+     - Show how many families are on each plan. It must never show children's data.
+   - **Sponsor a Family.** Each paid `invoice.paid` adds one Grace code to the owner's pool. Build this last, and leave it out if it gets complicated.
+   - **Tax.**
+     - Build `automatic_tax` support, but behind a `STRIPE_TAX` setting that's off.
+     - Prices use `tax_behavior: 'exclusive'`, and the product tax code comes from a setting. Don't hardcode a `txcd_`; Blake picks it from Stripe's list.
+     - DEPLOY.md must say that no tax is collected until Blake sets a head office address and has an active registration.
+   - **Tests.** Signed test events for every webhook, the access rules, and the offline grace period. Add a DEPLOY.md section with exactly what Blake does: make the sandbox, make the restricted key, `set-stripe-key`, `stripe-setup`, and test card 4242 4242 4242 4242.
+7. **Hand back.** Update `docs/GAME-PLAN.md` §9. Then write a short note at the end of this file: what changed, any new spoken lines, anything the local thread must do (warm-up, voice-script pages, server changes) and anything that needs Blake's decision.
 
 ## Later (not now)
 
-Billing in Stripe test mode waits until Blake creates the separate Ark Pals Stripe account.
+Church licenses, and turning on `BILLING_ENFORCED` and `STRIPE_TAX`: Blake decides these closer to launch.
