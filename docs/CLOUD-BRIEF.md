@@ -143,3 +143,46 @@ Everything is on **`blake/wave8`** (made from `blake/wave7`, pushed after each i
    - the reading sentences and stories, including "We sing a song to God." and "We fold our hands. We thank God for our food.";
    - the market prices (2 to 20 cents);
    - "Singing time is at 10 o'clock".
+
+### Update (Oct 11, later): billing and the approved follow-ups
+
+Also on `blake/wave8` (pushed as `blake/billing` too). `npx vitest run` passes (524 tests), and `npm run e2e:chromium` passes 36 of 36. The WebKit workflow passed on GitHub (runs 2 to 4).
+
+**What changed**
+- **Billing in Stripe test mode (item 6), off by default.**
+  - `server/billing.mjs`, `npm run set-stripe-key`, `npm run stripe-setup`, `POST /stripe/webhook`.
+  - The owner dashboard at `/billing/owner`.
+  - In the Parent Corner, a plan section (`src/components/FamilyPlan.tsx`). A grown-up-facing "The Pals are resting" screen shows only when plans are enforced and the family has none.
+  - `stripe@22.6.0` is a dependency. Billing data lives in the family database and is in the family's download. Deleting a family deletes its Stripe Customer first.
+- **Blake's decisions:**
+  - Longer or shorter moved to numbers level 3, and level 10 is half hours plus setting the clock.
+  - "bug" is the ladybug in all learning content, and the rat is redrawn.
+- **Play totals** also count each learning exercise kind and level and each practice skill and level (started, finished, right first time), plus placement results by level. The owner page lists the weakest spots first (rows with fewer than 10 starts aren't ranked).
+
+**For the local thread**
+- **Before or with the deploy:** run `npm install --omit=dev` on the server. `deploy.sh` doesn't ship `node_modules`, and billing needs `stripe`. Consider making `deploy.sh` send `package-lock.json` and run `npm ci --omit=dev`.
+- **Blake's steps, in order** (details in `deploy/DEPLOY.md`, "Billing: Stripe, in test mode"):
+  1. Make a restricted key in **Ark Pals sandbox** with these permissions:
+     - Customers W
+     - Checkout Sessions W
+     - Customer portal W
+     - Subscriptions R
+     - Products W
+     - Prices W
+     - Coupons W
+     - Promotion Codes W
+     - Webhook Endpoints W
+  2. `npm run set-stripe-key`.
+  3. Optionally set `STRIPE_TAX_CODE`.
+  4. `npm run stripe-setup`, then restart.
+  5. Test with a second family and card 4242 4242 4242 4242.
+- **New spoken lines:** none. The resting screen isn't spoken.
+- **After deploying:**
+  - Check Stripe's webhook deliveries are 200.
+  - Make Grace codes on `/billing/owner` and redeem one.
+  - Play a practice round and a placement game on a device that shares totals.
+
+**For Blake to decide**
+1. **Grace-code families still give a card, and renew at $9.99 after the free months unless they cancel.** Not taking a card would also drop it during everyone's free week, so it's left as is for now. I'd recommend changing this before the church beta, so a Grace family is never surprised by a charge. One way is to make a Grace code checkout collect no card and end when the free months do.
+2. **WebKit as a required check:** in GitHub, go to Settings → Rules → Rulesets → New branch ruleset. Target the branch you deploy from (`blake/happy-fermi-dkah27`), turn on "Require status checks to pass", and add **Playthroughs (WebKit)**.
+3. **Ranking minimum:** a row needs 10 starts before it's ranked (`MIN_RANKED` in `server/stats.mjs`).
