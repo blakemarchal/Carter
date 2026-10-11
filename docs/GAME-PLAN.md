@@ -241,6 +241,12 @@ Above all, it's **personal**. The child and their family appear in the pictures,
   - Each family can see what's kept, download all of it, or delete its account.
 - **Voice:** Mom's recording script is ready. Grok narration is made ahead of time for every fixed line, including the lines the game builds from names (the map, battles, memory verses, a Pal growing up), so the device voice is only a fallback.
 
+**Progress (Oct 11, 2026): wave 8, built in the cloud, on `blake/wave8`:**
+- **The learning backbone (§4) is built.** Reading and numbers each have ten levels (`src/learn/levels.ts`), and saved levels carry over. Practice rounds mix in hands-on exercises: spelling with letter tiles, word families, building sentences, the number line, setting a clock, the coin market, and putting things in order by length. A fresh reviewer played every level, inside islands and battles, at iPad size.
+- **The placement game.** New players get a two-to-three-minute treasure hunt with their Pal that sets their starting levels. Nothing is marked right or wrong. It's skipped for players who already have progress, and parents can rerun it from the Parent Corner.
+- **Automated playthroughs (§8).** `npm run e2e` (Playwright, WebKit at iPad size, touch) plays one visit of every island, a battle, the Pal Kitchen and each learning exercise, and fails on any console error. A GitHub workflow runs it on pushes to `blake/*`. It ran in Chromium here (36 of 36 passed), since WebKit can't be downloaded in the cloud container, so the first CI run is its first WebKit run.
+- **Privacy-first play stats (decision 4).** They're opt-in per device by a parent, and count only starts, finishes, replays and wrong first tries per island, visit and activity, per day. They're kept in each family's own data, included in download and delete, and shown to the owner only as sums, once at least five families share. `docs/legal/` (privacy, terms, data security) is on the branch and describes this.
+
 **Why this order:** if 20 islands were built on today's thin template, they'd inherit its problems (emoji, short islands, art drawn once and never checked). Fixing the template first makes every later island longer, more interactive and better checked, at no extra cost per island.
 
 ## 10. Decisions (all approved, Oct 3, 2026)
