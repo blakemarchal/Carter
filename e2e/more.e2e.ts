@@ -106,7 +106,7 @@ const EXERCISES: [kind: string, skill: string, level: number][] = [
   ['numberline', 'numbers', 6],
   ['clock', 'numbers', 8],
   ['coins', 'numbers', 9],
-  ['measure', 'numbers', 10],
+  ['measure', 'numbers', 3],
 ]
 
 test.describe('a practice round of each learning exercise', () => {
