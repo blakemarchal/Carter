@@ -2,6 +2,7 @@
 // right counts for an island's steps, and the same names and lists as the server (server/stats.mjs).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Step } from '../data/islands'
+import type { Task } from '../learn/types'
 import { ISLANDS, loadAllIslands } from '../data/islands'
 // @ts-expect-error (the server is plain JavaScript, without types)
 import * as server from '../../server/stats.mjs'
@@ -83,6 +84,43 @@ describe('play totals on the device', () => {
     for (const k of Object.keys(s.pendingStats()['2026-10-11'])) expect(server.validKey(k), k).toBe(true)
   })
 
+  it('counts practice rounds’ exercises and questions by kind or skill and level, and placement results', async () => {
+    const s = await stats()
+    s.setStatsOn(true)
+    const clock = { type: 'exercise', ex: { kind: 'clock', skill: 'numbers', say: 'Set the clock!', key: 'clock:6:' } } as const
+    const q = { type: 'choice', q: { say: 'Which word is cat?' } } as unknown as Task
+    s.taskStarted(clock, 'numbers', 6)
+    s.taskFinished(clock, 'numbers', 6, true)
+    s.taskStarted(clock, 'numbers', 6)
+    s.taskFinished(clock, 'numbers', 6, false)
+    s.taskStarted(q, 'reading', 3)
+    s.taskFinished(q, 'reading', 3, false)
+    s.taskStarted(q, 'reading', 10)
+    s.placed('reading', 4)
+    s.placed('numbers', 1)
+    // (a kind or level that can't be named isn't counted)
+    const odd = { type: 'exercise', ex: { kind: 'Robin', skill: 'reading', say: '', key: '' } } as const
+    s.taskStarted(odd, 'reading', 2)
+    s.taskStarted(clock, 'numbers', 11)
+    s.placed('reading', 0)
+    expect(s.pendingStats()['2026-10-11']).toEqual({
+      'start:ex:clock:6': 2, 'finish:ex:clock:6': 2, 'right:ex:clock:6': 1,
+      'start:q:reading:3': 1, 'finish:q:reading:3': 1, 'start:q:reading:10': 1,
+      'placed:reading:4': 1, 'placed:numbers:1': 1,
+    })
+    for (const k of Object.keys(s.pendingStats()['2026-10-11'])) expect(server.validKey(k), k).toBe(true)
+  })
+
+  it('learning names follow the grammar strictly', async () => {
+    const s = await stats()
+    const ok = ['start:ex:wordbuild:1', 'finish:ex:measure:10', 'right:ex:coins:5', 'start:q:reading:1', 'right:q:numbers:10', 'placed:reading:7', 'placed:numbers:10']
+    const notOk = ['wrong:ex:clock:3', 'replay:q:reading:2', 'start:ex:clock', 'start:ex:clock:0', 'start:ex:clock:11', 'start:ex:clock:03', 'start:ex:Robin:3',
+      'start:ex:clock:3:x', 'start:q:math:3', 'start:q:reading', 'placed:reading', 'placed:reading:3:x', 'placed:art:3', 'right:noah', 'right:noah:v1:quiz',
+      'placed:noah:3', 'start:ex:toString:1', 'start:q:constructor:1']
+    for (const k of ok) { expect(s.validKey(k), k).toBe(true); expect(server.validKey(k), k).toBe(true) }
+    for (const k of notOk) { expect(s.validKey(k), k).toBe(false); expect(server.validKey(k), k).toBe(false) }
+  })
+
   it('sends each day, and keeps what didn’t go through for next time', async () => {
     const s = await stats()
     s.setStatsOn(true)
@@ -108,6 +146,18 @@ describe('play totals on the device', () => {
 })
 
 describe('the same names on the device and the server', () => {
+  it('the same exercise kinds (every one the learning backbone plays), skills and top level', async () => {
+    const { EXERCISE_KINDS, SKILL_NAMES, TOP_LEVEL } = await stats()
+    const { EXERCISES } = await import('../learn/registry')
+    const { MAX_LEVEL } = await import('../lib/progress')
+    expect([...EXERCISE_KINDS].sort()).toEqual(Object.keys(EXERCISES).sort())
+    expect([...server.EXERCISE_KINDS].sort()).toEqual([...EXERCISE_KINDS].sort())
+    expect([...server.SKILLS].sort()).toEqual([...SKILL_NAMES].sort())
+    expect([...SKILL_NAMES].sort()).toEqual(Object.keys(MAX_LEVEL).sort())
+    for (const n of Object.values(MAX_LEVEL)) expect(n).toBe(TOP_LEVEL)
+    expect(server.TOP_LEVEL).toBe(TOP_LEVEL)
+  })
+
   it('the same islands', () => {
     expect([...server.ISLANDS].sort()).toEqual(ISLANDS.map((i) => i.id).sort())
   })
