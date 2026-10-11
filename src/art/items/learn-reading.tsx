@@ -121,21 +121,25 @@ function Log() {
 // ---------- Scenes ----------
 
 type Who = 'cat' | 'dog' | 'pig' | 'hen' | 'frog' | 'duck' | 'fox' | 'bug'
-const ART: Record<Who, string> = { cat: 'cat', dog: 'dog', pig: 'pig', hen: 'hen', frog: 'frog', duck: 'duck', fox: 'fox', bug: 'caterpillar' }
+const ART: Record<Who, string> = { cat: 'cat', dog: 'dog', pig: 'pig', hen: 'hen', frog: 'frog', duck: 'duck', fox: 'fox', bug: 'ladybug' }
 
 type Place = 'bed' | 'box' | 'open-box' | 'tub' | 'mud' | 'mat' | 'log'
+
+/** How big each one is next to the cat (a ladybug is small, so she sits on the bed like a real bug). */
+const SIZE: Partial<Record<Who, number>> = { bug: 0.7 }
 
 /** Someone on or in something. */
 function placed(who: Who, place: Place): () => ReactNode {
   const a = ART[who]
+  const k = SIZE[who] ?? 1
   switch (place) {
-    case 'bed': return () => <><Put id="bed" x={50} y={92} s={1} /><Put id={a} x={56} y={62} s={0.5} /></>
+    case 'bed': return () => <><Put id="bed" x={50} y={92} s={1} /><Put id={a} x={56} y={62} s={0.5 * k} /></>
     case 'box': return () => <><Put id="box" x={50} y={94} s={0.8} /><Put id={a} x={50} y={39} s={0.5} /></>
     case 'open-box': return () => <><BoxBack /><Put id={a} x={50} y={68} s={0.66} /><BoxFront /></>
     case 'tub': return () => <><TubBack /><Put id={a} x={50} y={72} s={0.6} /><TubFront /></>
     case 'mud': return () => <><MudBack /><Put id={a} x={50} y={92} s={0.72} /><MudFront /></>
     case 'mat': return () => <><Mat /><Put id={a} x={50} y={89} s={0.72} /></>
-    case 'log': return () => <><Log /><Put id={a} x={48} y={68} s={0.52} /></>
+    case 'log': return () => <><Log /><Put id={a} x={48} y={68} s={0.52 * k} /></>
   }
 }
 

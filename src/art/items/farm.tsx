@@ -499,44 +499,50 @@ function Mouse() {
   )
 }
 
-/** A friendly brown rat side-on, head turned to us: a long pointed snout, small round ears and a long bare tail. */
+/**
+ * A friendly grey-brown rat side-on, head turned to us: bigger and longer than the mouse, with a long pointed
+ * snout, small ears close to the head, long pink feet and a long, thick bare tail lying along the ground.
+ */
 function Rat() {
-  const FUR = '#a08d82'
-  const PINK = '#f5a9b7'
+  const FUR = '#968579'
+  const PINK = '#f2a6b4'
   const fur = useShade(FUR, 0.4, 0.16)
   const far = useShade(darken(FUR, 0.12), 0.3, 0.15)
   const line = ink(FUR)
   const pinkLine = darken(PINK, 0.3)
-  const tail = bez([20, 77], [-2, 92], [7, 58])
+  // The tail leaves the rump, sweeps down behind and runs forward along the ground under the rat.
+  const tail = bez([17, 74], [-6, 99], [50, 95.5])
   return (
     <g>
       <defs>{fur.def}{far.def}</defs>
-      <ellipse {...groundShadow(50, 92, 34)} />
-      {/* long bare pink tail with faint rings */}
-      <path d={tube(tail, (t) => 5 - 3.2 * t)} fill={PINK} stroke={pinkLine} strokeWidth={1.8} />
-      {[0.25, 0.42, 0.58, 0.74].map((t) => <path key={t} d={band(tail, t, 3.6 - 2.4 * t)} stroke={pinkLine} strokeWidth={1} strokeLinecap="round" opacity={0.7} />)}
+      <ellipse {...groundShadow(52, 92, 42)} />
+      {/* long, thick bare tail with faint rings */}
+      <path d={tube(tail, (t) => 8 - 5 * t)} fill={PINK} stroke={pinkLine} strokeWidth={1.8} />
+      {[0.2, 0.34, 0.48, 0.62, 0.76].map((t) => <path key={t} d={band(tail, t, 6.4 - 4.4 * t)} stroke={pinkLine} strokeWidth={1} strokeLinecap="round" opacity={0.6} />)}
       {/* far feet peeking out behind */}
-      <ellipse cx={36} cy={88} rx={5} ry={2.8} fill={darken(PINK, 0.1)} stroke={pinkLine} strokeWidth={1.5} />
-      <ellipse cx={66} cy={88} rx={4.5} ry={2.6} fill={darken(PINK, 0.1)} stroke={pinkLine} strokeWidth={1.5} />
-      {/* body with a paler belly, near legs and feet */}
-      <ellipse cx={42} cy={69} rx={25} ry={17} fill={fur.fill} />
-      <path d={edgePatch(42, 69, 25, 17, 30, 150, 7)} fill={lighten(FUR, 0.45)} />
-      <ellipse cx={42} cy={69} rx={25} ry={17} fill="none" stroke={line} strokeWidth={2.5} />
-      <ellipse cx={26} cy={76} rx={9} ry={8} fill={fur.fill} stroke={line} strokeWidth={2} />
-      <ellipse cx={24} cy={88.5} rx={6.5} ry={3} fill={PINK} stroke={pinkLine} strokeWidth={1.6} />
-      <rect x={54.5} y={72} width={7.5} height={16} rx={3.7} fill={fur.fill} stroke={line} strokeWidth={2} />
-      <ellipse cx={59.5} cy={88.5} rx={5.5} ry={2.8} fill={PINK} stroke={pinkLine} strokeWidth={1.6} />
-      {/* small round ears, then the head with its long snout */}
-      <circle cx={67} cy={42} r={6.5} fill={far.fill} stroke={line} strokeWidth={2} />
-      <circle cx={67.3} cy={42.3} r={3.6} fill={PINK} />
-      <circle cx={57} cy={44} r={8} fill={fur.fill} stroke={line} strokeWidth={2.2} />
-      <circle cx={57.5} cy={44.5} r={4.6} fill={PINK} />
-      <path d="M52 52 C56 42 72 42 81 51 C85 55 90 59 89.5 63 C89 67 84 67.5 78 67.5 C67 68.5 57 69 52 63 C49.5 59.5 50 55.5 52 52 Z" fill={fur.fill} stroke={line} strokeWidth={2.5} strokeLinejoin="round" />
-      <CuteFace x={69.5} y={54} s={0.38} gap={11.5} mouth={false} />
-      <circle cx={88.5} cy={62.5} r={2.8} fill="#ff8fab" stroke="#d9667f" strokeWidth={1.2} />
-      <path d="M78.5 65 Q82 67.5 85 65" stroke={EYE} strokeWidth={1.3} fill="none" strokeLinecap="round" />
-      <path d="M84 61 L95 57 M84.5 63.5 L96 63" stroke={line} strokeWidth={1.1} strokeLinecap="round" />
-      <Shine x={34} y={60} rx={7} ry={3.5} />
+      <ellipse cx={34} cy={88.5} rx={6} ry={2.8} fill={darken(PINK, 0.1)} stroke={pinkLine} strokeWidth={1.5} />
+      <ellipse cx={72} cy={88.5} rx={4.5} ry={2.6} fill={darken(PINK, 0.1)} stroke={pinkLine} strokeWidth={1.5} />
+      {/* long body with a humped back and a paler belly */}
+      <path d="M13 72 C12 56 28 46 46 47 C60 48 72 54 76 64 C79 74 74 84 62 86 C48 88 28 88 19 84 C15 81 13 77 13 72 Z" fill={fur.fill} />
+      <path d="M22 84 C34 80 56 79 72 80 C70 84 66 86 62 86 C48 88 30 88 22 84 Z" fill={lighten(FUR, 0.45)} />
+      <path d="M13 72 C12 56 28 46 46 47 C60 48 72 54 76 64 C79 74 74 84 62 86 C48 88 28 88 19 84 C15 81 13 77 13 72 Z" fill="none" stroke={line} strokeWidth={2.5} strokeLinejoin="round" />
+      {/* near haunch, back foot (long, like a rat's) and front leg */}
+      <ellipse cx={27} cy={74} rx={12} ry={11} fill={fur.fill} stroke={line} strokeWidth={2} />
+      <ellipse cx={24} cy={89} rx={9} ry={3.2} fill={PINK} stroke={pinkLine} strokeWidth={1.6} />
+      <rect x={60} y={74} width={8} height={15} rx={4} fill={fur.fill} stroke={line} strokeWidth={2} />
+      <ellipse cx={66} cy={89} rx={6} ry={2.9} fill={PINK} stroke={pinkLine} strokeWidth={1.6} />
+      {/* small round ears set close to the head */}
+      <circle cx={73} cy={39.5} r={5} fill={far.fill} stroke={line} strokeWidth={2} />
+      <circle cx={73.2} cy={39.8} r={2.6} fill={PINK} />
+      {/* the head, tapering to a long pointed snout */}
+      <path d="M57 54 C56 44 66 38.5 75 41 C81 43 86 50 92 56 C96 59.5 98 62.5 96.5 65 C95 67.5 91 67.5 87 67.5 C78 68 67 69 61 65 C58 62.5 57 58.5 57 54 Z" fill={fur.fill} stroke={line} strokeWidth={2.5} strokeLinejoin="round" />
+      <circle cx={63} cy={42} r={6} fill={fur.fill} stroke={line} strokeWidth={2.2} />
+      <circle cx={63.4} cy={42.4} r={3.3} fill={PINK} />
+      <CuteFace x={72} y={52.5} s={0.34} gap={10.5} mouth={false} />
+      <circle cx={96} cy={63.2} r={2.6} fill="#ff8fab" stroke="#d9667f" strokeWidth={1.2} />
+      <path d="M85 64.5 Q88.5 67 91.5 64.8" stroke={EYE} strokeWidth={1.3} fill="none" strokeLinecap="round" />
+      <path d="M90 60.5 L99 56 M90.5 63 L99.5 62" stroke={line} strokeWidth={1.1} strokeLinecap="round" />
+      <Shine x={36} y={56} rx={8} ry={3.6} />
     </g>
   )
 }
@@ -625,7 +631,7 @@ function Frog() {
   )
 }
 
-/** A green caterpillar (a "bug") inching along: round segments, little legs, and a smiling head with antennae. */
+/** A green caterpillar inching along: round segments, little legs, and a smiling head with antennae. */
 function Caterpillar() {
   const GREEN = '#7cc95a'
   const HEAD = '#a6db6c'
@@ -1010,7 +1016,7 @@ export const FARM: Item[] = [
   { id: 'rat', name: 'rat', emoji: ['🐀'], Draw: Rat },
   { id: 'rabbit', name: 'bunny', emoji: ['🐰'], Draw: Rabbit },
   { id: 'frog', name: 'frog', emoji: ['🐸'], Draw: Frog },
-  { id: 'caterpillar', name: 'bug', emoji: ['🐛'], Draw: Caterpillar },
+  { id: 'caterpillar', name: 'caterpillar', emoji: ['🐛'], Draw: Caterpillar },
   { id: 'ant', name: 'ant', emoji: ['🐜'], Draw: Ant },
   { id: 'ladybug', name: 'ladybug', emoji: ['🐞'], Draw: Ladybug },
   { id: 'bee', name: 'bee', emoji: ['🐝'], Draw: Bee },
