@@ -1,0 +1,9 @@
+/* Parent Corner: the family's plan (src/components/FamilyPlan.tsx). Yearly first. */
+.plan-choices { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+.plan-choice { flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; background: #fff; border: 2px solid #f0c4da; border-radius: 16px; padding: 12px 14px; }
+.plan-choice.best { border-color: var(--pink-deep); }
+.plan-choice b { font-size: 22px; }
+.plan-choice span { color: #6a5a7a; font-size: 15px; }
+.plan-choice button, .plan-grace button { align-self: flex-start; min-height: 48px; padding: 10px 20px; border-radius: 12px; font-size: 18px; font-weight: 700; background: #fff; border: 2px solid #f0c4da; }
+.plan-choice.best button { background: var(--pink); color: #fff; border-color: var(--pink); }
+.plan-grace { background: #fff; border-radius: 16px; padding: 12px 14px; margin: 0 0 8px; display: flex; flex-direction: column; gap: 8px; }

@@ -1,0 +1,7 @@
+/* The Pals are resting (src/screens/Resting.tsx): a calm screen for grown-ups. */
+.resting { justify-content: center; background: linear-gradient(#e9e4ff, #ffe0f0); text-align: center; }
+.resting h2 { font-size: 48px; color: var(--pink-deep); margin: 0; }
+.resting-pals { display: flex; align-items: flex-end; gap: 12px; }
+.resting-note { max-width: 620px; background: #fff; border-radius: 22px; padding: 16px 22px; box-shadow: 0 6px 0 rgba(0,0,0,.08); }
+.resting-note p { margin: 0; font-size: 19px; line-height: 1.45; font-family: system-ui, sans-serif; color: #4a3a5a; }
+.resting .leave-row { align-items: center; flex-wrap: wrap; justify-content: center; }
