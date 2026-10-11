@@ -105,7 +105,7 @@ export const READ_AND_ANSWER: ReadAsk[] = [
   { lines: ['The hen sat on ten eggs.'], ask: 'How many eggs?', answers: [w('10'), w('6'), w('3')] },
   { lines: ['Nova can see the moon.'], ask: 'What can Nova see?', answers: [p('moon', 'the moon'), p('sun', 'the sun'), p('rainbow', 'a rainbow')] },
   { lines: ['Ember ran to the tree.'], ask: 'Where did Ember run?', answers: [p('tree', 'to the tree'), p('house', 'to the house'), p('tent', 'to the tent')] },
-  { lines: ['A bug is in the cup.'], ask: 'What is in the cup?', answers: [p('caterpillar', 'a bug'), p('frog', 'a frog'), p('fish', 'a fish')] },
+  { lines: ['A bug is in the cup.'], ask: 'What is in the cup?', answers: [p('ladybug', 'a bug'), p('frog', 'a frog'), p('fish', 'a fish')] },
   { lines: ['Mom got a cake.'], ask: 'What did Mom get?', answers: [p('cake', 'a cake'), p('pizza', 'a pizza'), p('apple', 'an apple')] },
   { lines: ['The fox hid in the den.'], ask: 'Where did the fox hide?', answers: [w('den'), w('bed'), w('box')] },
 ]

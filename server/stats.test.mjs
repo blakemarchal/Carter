@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { EventEmitter } from 'node:events'
 import { describe, expect, it } from 'vitest'
-import { createStats, dayOf, fromDay, isOwner, MIN_FAMILIES, parseReport, retireOldStats, summarize, summaryPage, validKey, KEEP_DAYS } from './stats.mjs'
+import { createStats, dayOf, fromDay, isOwner, MIN_FAMILIES, MIN_RANKED, parseReport, weakestFirst, retireOldStats, summarize, summaryPage, validKey, KEEP_DAYS } from './stats.mjs'
 import { openFamilies } from './families.mjs'
 import { createBackups } from './backup.mjs'
 import { createRecordings } from './recordings.mjs'
@@ -174,12 +174,53 @@ describe('the owner’s summary', () => {
     expect(page).toMatch(/noah · v1 · quiz/)
   })
 
+  it('sums the learning backbone: exercises and questions by level, and placements by level', () => {
+    const a = { '2026-10-10': { 'start:ex:clock:6': 4, 'finish:ex:clock:6': 3, 'right:ex:clock:6': 1, 'start:q:reading:3': 2, 'right:q:reading:3': 2, 'placed:reading:4': 1, 'placed:numbers:2': 1 } }
+    const b = { '2026-10-11': { 'start:ex:clock:6': 1, 'placed:reading:4': 1, 'placed:reading:10': 1 } }
+    const s = summarize([a, b], { from: fromDay(7, NOW), min: 1 })
+    expect(s.families).toBe(2)
+    expect(s.exercises).toEqual({ 'clock:6': { start: 5, finish: 3, right: 1 } })
+    expect(s.questions).toEqual({ 'reading:3': { start: 2, finish: 0, right: 2 } })
+    expect(s.placements).toEqual({ reading: { 4: 2, 10: 1 }, numbers: { 2: 1 } })
+    expect(s.islands).toEqual({})
+    expect(parseReport(report('2026-10-11', a['2026-10-10']), NOW).counts).toEqual(a['2026-10-10'])
+    const page = summaryPage(s, { days: 7 })
+    expect(page).toContain('<h2>Learning exercises</h2>')
+    expect(page).toContain('clock · level 6')
+    expect(page).toContain('<h2>Placement game: where it started each skill</h2>')
+    expect(page).toMatch(/<td>reading<\/td><td>0<\/td><td>0<\/td><td>0<\/td><td>2<\/td>(<td>0<\/td>){5}<td>1<\/td><td>3<\/td>/)
+  })
+
+  it('puts the weakest spots first, and leaves rows with too few starts unranked at the end', () => {
+    const rows = {
+      'clock:2': { start: 40, finish: 38, right: 30 },
+      'clock:6': { start: 40, finish: 20, right: 8 },
+      'coins:5': { start: 2, finish: 0, right: 0 }, // (too few to rank: it would top the list)
+      'measure:10': { start: MIN_RANKED, finish: MIN_RANKED, right: 5 },
+      'clock:1': { start: 3, finish: 3, right: 3 },
+    }
+    const order = weakestFirst(rows, (r) => r.right / r.start, (k) => k.sort())
+    expect(order).toEqual([['clock:6', true], ['measure:10', true], ['clock:2', true], ['clock:1', false], ['coins:5', false]])
+    const days = { [dayOf(NOW)]: {
+      'start:ex:clock:2': 40, 'finish:ex:clock:2': 38, 'right:ex:clock:2': 30, 'start:ex:clock:6': 40, 'finish:ex:clock:6': 20, 'right:ex:clock:6': 8,
+      'start:ex:coins:5': 2, 'start:noah': 20, 'finish:noah': 19, 'start:jonah': 20, 'finish:jonah': 5, 'start:david': 1,
+    } }
+    const page = summaryPage(summarize([days], { from: fromDay(7, NOW), min: 1 }), { days: 7 })
+    const at = (t) => page.indexOf(t)
+    expect(at('clock · level 6')).toBeLessThan(at('clock · level 2'))
+    expect(at('clock · level 2')).toBeLessThan(at('coins · level 5'))
+    expect(at('<td>jonah</td>')).toBeLessThan(at('<td>noah</td>'))
+    expect(at('<td>noah</td>')).toBeLessThan(at('<td>david</td>'))
+    expect(page).toContain('<tr class="few"><td>coins · level 5</td>')
+  })
+
   it('shows no sums until enough families share, so one family can\'t be picked out', () => {
     const one = { [dayOf(NOW)]: { 'start:noah': 3 } }
     const s = summarize([one, one, one, one], { from: fromDay(7, NOW) })
     expect(MIN_FAMILIES).toBe(5)
     expect(s.hidden).toBe(true)
     expect(s.islands).toEqual({})
+    expect([s.exercises, s.questions, s.placements]).toEqual([{}, {}, {}])
     expect(summaryPage(s, { days: 7 })).toContain('no sums are shown yet')
     expect(summarize([one, one, one, one, one], { from: fromDay(7, NOW) }).islands.noah.start).toBe(15)
   })

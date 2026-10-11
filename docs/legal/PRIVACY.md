@@ -43,6 +43,12 @@ hard, so we can make the game better. Exactly this is kept:
   each kind of activity in a visit (a story, a quiz, a maze…) was **started**, **finished** and
   **replayed** (started again by a player who had already finished that island), and how many questions
   in each activity were **answered wrong the first time**;
+- for each day, in practice rounds: how many times each kind of learning exercise (building a word or a
+  sentence, the number line, the clock, coins, measuring) and the questions of each skill (reading,
+  numbers) were **started**, **finished** and **got right the first time** (with no wrong tries and no
+  help), at each level (1 to 10);
+- for each day, how many times the first-time treasure hunt (which finds where to start reading and
+  numbers) **ended at each level**, for each skill (one count per skill when the hunt is finished);
 - nothing else: no names, no players or which player did what, no devices, no answers, no free text and
   no times of day. Counts from all the devices that share are added together into one set of totals for
   your family.
@@ -71,7 +77,12 @@ We use a few service providers, only to run the game:
 - **Resend** sends our emails (sign-in links and invitations) when a grown-up asks for one; it receives
   that email address and the email.
 - **ImprovMX** forwards email sent to hello@spiritflow.church to us.
-- [At launch: **Stripe** handles payments; we never see full card numbers.]
+- **Stripe** handles payments when a family chooses a plan. It receives the email of the parent who starts
+  the plan, what they enter on Stripe's own checkout page (card and billing address), and our id for the
+  family, and nothing about the children. We never see full card numbers. We keep the family's Stripe
+  customer id, plan, status and paid-through date; they're in the family's download, and deleting the
+  family deletes its Stripe customer too, which ends the plan (Stripe keeps its own record of past payments,
+  as the law requires). [Billing is in Stripe's test mode until launch.]
 
 We don't sell, rent or trade information, and we share it with no one else, except if required by law.
 

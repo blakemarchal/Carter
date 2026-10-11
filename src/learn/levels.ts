@@ -42,14 +42,14 @@ export const LEVELS: Record<Skill, Level[]> = {
   numbers: [
     { label: 'Count to 10, shapes', question: mix([3, (t) => numbersQ(1, t)], [1, numbers.shapesQ]) },
     { label: 'Count to 20, what comes next (to 40)', question: mix([2, numbers.countTo20Q], [3, (t) => numbersQ(2, t)]) },
-    { label: 'More or fewer, what comes next (to 100)', question: mix([1, numbers.moreFewerQ], [1, (t) => numbersQ(3, t)]) },
+    { label: 'More or fewer, longer or shorter, what comes next (to 100)', question: mix([2, numbers.moreFewerQ], [2, timeMoney.measureQ], [2, (t) => numbersQ(3, t)]), exercise: timeMoney.measureEx },
     { label: 'Adding within 10, what comes next (to 100)', question: (t) => numbersQ(4, t) },
     { label: 'Taking away within 10, patterns, counting past 100', question: mix([3, (t) => numbersQ(5, t)], [2, numbers.patternQ]) },
     { label: 'Adding and taking away within 20', question: q(numbers.within20Q), exercise: numbers.numberLineEx },
     { label: 'Tens and ones', question: q(numbers.tensOnesQ) },
     { label: 'Time to the hour', question: q(timeMoney.clockHourQ), exercise: timeMoney.clockHourEx },
     { label: 'Coins', question: q(timeMoney.coinsQ), exercise: timeMoney.coinsEx },
-    { label: 'Half hours and measuring', question: mix([1, timeMoney.halfHourQ], [1, timeMoney.measureQ]), exercise: timeMoney.measureEx },
+    { label: 'Half hours (and hours to review)', question: mix([3, timeMoney.halfHourQ], [1, timeMoney.clockHourQ]), exercise: timeMoney.clockHourEx },
   ],
 }
 

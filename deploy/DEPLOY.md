@@ -194,6 +194,84 @@ Namecheap (Domain List → spiritflow.church → Advanced DNS; "Mail Settings" m
    ```
    `npm run set-email-key -- --check` sends another test; `-- --remove` turns email off again.
 
+## Billing: Stripe, in test mode
+
+Families pay through Stripe (`server/billing.mjs`). For now it runs in the **"Ark Pals sandbox"** of the
+separate "Ark Pals" account in our Stripe organization, so no real money moves. **Nothing is blocked**:
+`BILLING_ENFORCED` is off until you decide to turn it on. The first family, and any family you mark as
+comped on the billing dashboard, always plays free.
+
+1. **Install the Stripe library on the server** (once; again only if `package.json` changes its
+   dependencies). `deploy.sh` ships `package.json` but not `node_modules`, and the server runs fine
+   without it (billing is just off):
+   ```bash
+   ssh root@68.183.130.3 'cd /opt/Carter && npm install --omit=dev && npm ls stripe'
+   ```
+   Expect `stripe@22.6.0`.
+2. **Make a restricted key in the sandbox.** In the Stripe Dashboard, switch to the **Ark Pals** account,
+   then to **Ark Pals sandbox**. Go to Developers → API keys → **Create restricted key**, name it
+   "Ark Pals server", and give it only these permissions (everything else **None**):
+
+   | Permission | Access | Used for |
+   |---|---|---|
+   | Customers | Write | a family's Customer, made at its first checkout; deleted when the family is deleted |
+   | Checkout Sessions | Write | starting a plan |
+   | Customer portal | Write | the billing page (its sessions, and its settings made by `stripe-setup`) |
+   | Subscriptions | Read | reading a plan right after checkout |
+   | Products | Write | `stripe-setup`: the three products |
+   | Prices | Write | `stripe-setup`; finding prices by lookup key at checkout |
+   | Coupons | Write | `stripe-setup`: the 6- and 12-month Grace coupons |
+   | Promotion Codes | Write | Grace code batches, and Sponsor a Family codes |
+   | Webhook Endpoints | Write | `stripe-setup`: the webhook |
+
+   Copy the key (`rk_test_…`) straight into the next step. Don't paste it anywhere else (chat, email,
+   notes): the server's `.env` is the only place it lives.
+3. **Save the key.** It's checked with Stripe, saved to `/opt/Carter/.env` as `STRIPE_KEY`, and never shown:
+   ```bash
+   ssh root@68.183.130.3 -t 'cd /opt/Carter && npm run set-stripe-key'
+   ```
+   It refuses a key that isn't restricted (`rk_`), and a live key while we're in test mode.
+   `-- --check` checks the saved key again; `-- --remove` turns billing off.
+4. **Optional: the tax code.** Pick the products' tax code from Stripe's list (Stripe docs → Tax → Tax
+   codes; nothing is hardcoded) and add it to `.env` (it isn't a secret):
+   ```bash
+   ssh root@68.183.130.3 'cd /opt/Carter && echo STRIPE_TAX_CODE=txcd_XXXXXXXX >> .env'
+   ```
+   Without it, the products use the account's default tax code. Prices are tax-exclusive (tax is added
+   on top). **No tax is collected** until you add a head office address in Stripe (Settings → Tax), have
+   an active tax registration there, **and** set `STRIPE_TAX=1` in `.env`. Until then `STRIPE_TAX` stays off.
+5. **Make everything in Stripe**, then restart:
+   ```bash
+   ssh root@68.183.130.3 -t 'cd /opt/Carter && npm run stripe-setup && systemctl restart carter-web'
+   ```
+   It makes (or brings up to date) the products "Ark Pals Family" ($9.99/mo, $79/yr), "Ark Pals Grace"
+   ($4.99/mo) and "Sponsor a Family" ($9.99/mo), found again by their lookup keys; the 100%-off coupons
+   for 6 and 12 months; the billing page's settings; and the webhook `https://spiritflow.church/stripe/webhook`.
+   It saves the webhook's signing secret to `.env` as `STRIPE_WEBHOOK_SECRET` (never shown). It's safe to
+   run again. `-- --new-webhook-secret` makes the webhook again with a new secret.
+6. **Try it** (a second family, since the first one is always free):
+   - Make a new-family link (see "Families" above) and open it on another device or a private window.
+   - Parent Corner → **Your family's plan** → **Choose yearly**. On Stripe's page pay with the test card
+     **4242 4242 4242 4242**, any future date, any CVC, any ZIP.
+   - Back in Ark Pals, the plan shows "free week until …". **Billing page** opens Stripe's page to cancel,
+     change the card or plan, and see receipts.
+   - Stripe → Developers → Webhooks → the endpoint: every delivery should say 200.
+   - A Grace code: in the first family's Parent Corner, **📒 Billing, all families** (or
+     `https://spiritflow.church/billing/owner`) → Make codes. Use one at checkout with "Add promotion code".
+   - Test cards for other cases (declined, needs authentication) are on Stripe's "Testing" docs page.
+7. **The owner's dashboard** (`/billing/owner`, parents in the first family only) shows how many families
+   are on each plan, makes batches of single-use Grace codes (6 or 12 months free) to print or copy, lists
+   the codes made (Sponsor a Family adds one 6-month code for each month a sponsor pays), and comps a family
+   (always free, like the church beta). It never shows anything about children.
+8. **Later, when you decide:** `BILLING_ENFORCED=1` in `.env` (then restart) closes the game for families
+   without a plan: they see a calm "The Pals are resting" screen for grown-ups, and the Parent Corner stays
+   open. A device keeps playing for 7 days offline after its last check. Going live needs a live restricted
+   key (`npm run set-stripe-key -- --live`), `npm run stripe-setup` again, and the new domain in `SITE_URL`.
+
+Deleting a family (Parent Corner) deletes its Stripe Customer first, which cancels its plan at once; if
+Stripe can't be reached, the family isn't deleted, so try again later. The family's download includes its
+billing (plan, status, paid-through date, Stripe Customer ID).
+
 ## If something goes wrong
 
 ```bash

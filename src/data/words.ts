@@ -12,7 +12,7 @@ export interface Picture {
 export const CVC: Picture[] = [
   { word: 'cat', emoji: '🐱' }, { word: 'dog', emoji: '🐶', alsoCalled: ['puppy'] }, { word: 'pig', emoji: '🐷' },
   { word: 'hen', emoji: '🐔', alsoCalled: ['chicken'] }, { word: 'fox', emoji: '🦊' }, { word: 'bat', emoji: '🦇' },
-  { word: 'bug', emoji: '🐛' }, { word: 'sun', emoji: '☀️' }, { word: 'hat', emoji: '🎩' },
+  { word: 'bug', emoji: '🐞', alsoCalled: ['ladybug'] }, { word: 'sun', emoji: '☀️' }, { word: 'hat', emoji: '🎩' },
   { word: 'bed', emoji: '🛏️' }, { word: 'bus', emoji: '🚌' }, { word: 'box', emoji: '📦' },
   { word: 'map', emoji: '🗺️' }, { word: 'rat', emoji: '🐀' }, { word: 'web', emoji: '🕸️' },
   { word: 'ant', emoji: '🐜' }, { word: 'egg', emoji: '🥚' }, { word: 'cup', emoji: '☕', alsoCalled: ['coffee'] },
