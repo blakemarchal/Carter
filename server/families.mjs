@@ -283,6 +283,8 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
     cancelLink(familyId, linkId) {
       return q('DELETE FROM links WHERE id = ? AND family_id = ? AND used IS NULL').run(linkId, familyId).changes > 0
     },
+    /** The database itself (billing keeps its tables next to the families': server/billing.mjs). */
+    db,
     close: () => db.close(),
   }
   return api

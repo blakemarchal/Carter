@@ -1,7 +1,7 @@
 // Ark Pals server: serves the built game (dist/) to signed-in families (server/families.mjs).
 // A device is signed in with a one-time link (an invitation, or "sign in another device"), or, for the
 // first family, with its old family password. Each family sees only its own backups, recordings and songs.
-// No dependencies. Configured by environment (systemd EnvironmentFile=/opt/Carter/.env):
+// One dependency, the stripe package, and only for billing (without it, billing is off). Configured by environment (systemd EnvironmentFile=/opt/Carter/.env):
 //   PORT                   default 3004
 //   CARTER_PASSWORD_HASH   scrypt hash written by `npm run set-password` (the first family's password)
 //   CARTER_SESSION_SECRET  random secret for signing the sign-in cookies
@@ -10,6 +10,7 @@
 //   RESEND_API_KEY         optional: sends sign-in links and invitations by email (npm run set-email-key)
 //   EMAIL_FROM             with it: who emails are from, e.g. "Ark Pals <hello@spiritflow.church>"
 //   SITE_URL               optional: this site's address for links in emails (default: the address asked for)
+//   STRIPE_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PORTAL_CONFIG, BILLING_ENFORCED, STRIPE_TAX: billing (server/billing.mjs)
 //   CACHE_DIRECTORY        set by systemd (CacheDirectory=carter); where narration clips are kept
 //   STATE_DIRECTORY        set by systemd (StateDirectory=carter); where progress backups are kept
 import { createServer } from 'node:http'
@@ -26,6 +27,7 @@ import { createRecordings } from './recordings.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, openFamilies, ROLES } from './families.mjs'
 import { createMailer, inviteEmail, signInEmail } from './email.mjs'
+import { createBilling, handleBilling, handleWebhook, isOn, stripeFromEnv } from './billing.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 const PORT = Number(process.env.PORT ?? 3004)
@@ -52,6 +54,12 @@ if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. 
 const STATE = process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups')
 mkdirSync(STATE, { recursive: true })
 const families = openFamilies(join(STATE, 'arkpals.db'))
+const stripe = await stripeFromEnv()
+const billing = createBilling({
+  db: families.db, families, stripe, webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '', portalConfig: process.env.STRIPE_PORTAL_CONFIG ?? '',
+  enforced: isOn(process.env.BILLING_ENFORCED), tax: isOn(process.env.STRIPE_TAX),
+})
+if (!stripe) console.log('STRIPE_KEY not set: billing is off. Run: npm run set-stripe-key, then npm run stripe-setup')
 const mailer = createMailer({ apiKey: process.env.RESEND_API_KEY, from: process.env.EMAIL_FROM, outbox: process.env.EMAIL_OUTBOX })
 if (!mailer) console.log('RESEND_API_KEY not set: grown-ups share their links by hand. Run: npm run set-email-key')
 /** This site's address, for links in emails. */
@@ -447,13 +455,14 @@ async function handleFamily(req, res, url, s) {
     }
     if (what === 'export' && req.method === 'GET') {
       if (!parent) return json(res, 403)
-      return await writeFamilyExport(res, families, fam, storesFor(fam))
+      return await writeFamilyExport(res, families, fam, storesFor(fam), { billing: billing.exportFamily(fam) })
     }
     if (!what && req.method === 'DELETE') {
       if (!parent) return json(res, 403)
       if (fam === families.firstFamily()) return json(res, 409)
       // (they type the family's name to be sure)
       if (String((await readJson(req)).confirm ?? '').trim().toLowerCase() !== s.family.name.trim().toLowerCase()) return json(res, 400)
+      await billing.forget(fam) // (cancels the family's plan in Stripe first)
       await deleteFamilyData(families, fam, storesFor(fam))
       stores.delete(fam)
       res.writeHead(204, { 'Set-Cookie': `${DEVICE_COOKIE}=; Max-Age=0; Path=/; HttpOnly;${secure(req)} SameSite=Lax`, 'Cache-Control': 'no-store' })
@@ -640,6 +649,8 @@ createServer(async (req, res) => {
       res.writeHead(303, { Location: m ? `/${m[1] || 'join'}/${m[2]}` : '/' })
       return res.end()
     }
+    // Stripe's webhooks: no sign-in, its signature is checked on the body exactly as it came.
+    if (url.pathname === '/stripe/webhook' && req.method === 'POST') return await handleWebhook(req, res, billing)
     if (url.pathname.startsWith('/join/')) return await handleJoin(req, res, url, ip)
     if (url.pathname.startsWith('/start/')) return await handleStart(req, res, url, ip)
     // Browsers fetch the app manifest and icons without cookies, so these stay public (they contain nothing private).
@@ -657,6 +668,7 @@ createServer(async (req, res) => {
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url, mine)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url, mine)
     if (url.pathname === '/stats') return await handleStats(req, res, url, s)
+    if (url.pathname === '/billing' || url.pathname.startsWith('/billing/')) return await handleBilling(req, res, url, s, billing, { siteUrl, isOwner: (x) => isOwner(families, x) })
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()

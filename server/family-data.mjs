@@ -6,10 +6,11 @@ import { rm } from 'node:fs/promises'
 
 /**
  * Writes everything Ark Pals keeps for a family, as one JSON file to download: its grown-ups and devices,
- * every progress backup, every recording and song (audio as base64), and its play totals. Written a piece
+ * every progress backup, every recording and song (audio as base64), its play totals, and its billing (plan,
+ * status, paid-through date and Stripe Customer ID: server/billing.mjs exportFamily). Written a piece
  * at a time, since recordings and songs can be big.
  */
-export async function writeFamilyExport(res, families, familyId, st) {
+export async function writeFamilyExport(res, families, familyId, st, { billing = null } = {}) {
   const write = async (chunk) => { if (!res.write(chunk)) await new Promise((r) => res.once('drain', r)) }
   const list = async (items, each) => {
     let n = 0
@@ -25,7 +26,7 @@ export async function writeFamilyExport(res, families, familyId, st) {
   })
   await write(`{"exportedAt":${JSON.stringify(new Date().toISOString())},"family":${JSON.stringify(info.family)},`
     + `"members":${JSON.stringify(info.members)},"devices":${JSON.stringify(info.devices)},`
-    + `"playTotals":${JSON.stringify(await st.stats.get())},"backups":[`)
+    + `"billing":${JSON.stringify(billing)},"playTotals":${JSON.stringify(await st.stats.get())},"backups":[`)
   await list(await st.backups.list(), async (b) => {
     const text = await st.backups.get(b.id)
     return text && `{"id":${JSON.stringify(b.id)},"savedAt":${JSON.stringify(b.savedAt)},"label":${JSON.stringify(b.label)},"data":${text}}`
@@ -46,7 +47,8 @@ export async function writeFamilyExport(res, families, familyId, st) {
 
 /**
  * Deletes a family: its grown-ups, devices and invitations, and its folder with every backup, recording,
- * song and play total. (The first family can't be deleted: families.deleteFamily refuses, 409.)
+ * song and play total, and its billing row (cancelled in Stripe first: server/index.mjs calls billing.forget).
+ * (The first family can't be deleted: families.deleteFamily refuses, 409.)
  */
 export async function deleteFamilyData(families, familyId, st) {
   families.deleteFamily(familyId)
