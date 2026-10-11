@@ -3,6 +3,7 @@ import type { Skill } from './progress'
 import { CVC, SIGHT, LETTER_PICS, type Picture } from '../data/words'
 import { letterSound } from './spoken'
 import { pick, randInt, shuffle } from './util'
+import { levelFor } from '../learn/levels'
 
 export type Visual =
   | { kind: 'letter'; text: string }
@@ -11,6 +12,8 @@ export type Visual =
   | { kind: 'sequence'; nums: (number | null)[] }
   | { kind: 'sum'; a: number; b: number; op: '+' | '-'; emoji: string }
   | { kind: 'listen' }
+  /** A picture drawn by a learning topic's view (src/learn/topics): a clock, coins, a sentence to read… */
+  | { kind: 'learn'; view: string; data: unknown }
 
 export interface Choice {
   label: string
@@ -27,12 +30,12 @@ export interface Question {
   answer: number
 }
 
-function build(skill: Skill, say: string, visual: Visual, right: Choice, wrong: Choice[]): Question {
+export function build(skill: Skill, say: string, visual: Visual, right: Choice, wrong: Choice[]): Question {
   const choices = shuffle([right, ...wrong])
   return { skill, say, visual, choices, answer: choices.indexOf(right) }
 }
 
-const numChoice = (n: number): Choice => ({ label: String(n), say: String(n) })
+export const numChoice = (n: number): Choice => ({ label: String(n), say: String(n) })
 
 // ---------- Reading ----------
 
@@ -41,7 +44,8 @@ const CARRIER: Record<string, string> = { a: 'a, like a cat', I: 'I, like I love
 const sayWord = (w: string) => CARRIER[w] ?? w
 /** Could she call this picture something that starts with `letter`? (🐶 is a "puppy" too.) */
 const goesBy = (p: Picture, letter: string) => [p.word, ...(p.alsoCalled ?? [])].some((name) => name.startsWith(letter))
-function readingQ(level: number): Question {
+/** The first reading questions, by their original level 1 to 5 (src/learn/levels.ts places them now). */
+export function readingQ(level: number): Question {
   if (level <= 1) {
     const letters = Object.keys(LETTER_PICS)
     const letter = pick(letters)
@@ -73,7 +77,7 @@ function readingQ(level: number): Question {
 // ---------- Numbers ----------
 const ANIMALS = ['🐑', '🐟', '🦆', '🐞', '⭐', '🍎', '🐸', '🐣']
 
-function nearby(n: number, count: number, spread: number[]): number[] {
+export function nearby(n: number, count: number, spread: number[]): number[] {
   const out = new Set<number>()
   for (const d of shuffle(spread)) {
     if (out.size >= count) break
@@ -91,7 +95,8 @@ function nextNumberQ(lo: number, hi: number, decadeCrossing: boolean): Question 
     numChoice(end), nearby(end, 2, decadeCrossing ? [-10, 10, 1, -1] : [1, -1, 2, 10]).map(numChoice))
 }
 
-function numbersQ(level: number, theme?: string): Question {
+/** The first number questions, by their original level 1 to 5 (src/learn/levels.ts places them now). */
+export function numbersQ(level: number, theme?: string): Question {
   const thing = () => theme ?? pick(ANIMALS)
   if (level <= 1) {
     const n = randInt(3, 10)
@@ -123,7 +128,8 @@ export function makeQuestion(skill: Skill, level: number, theme?: string, avoid:
   // Same prompt and picture = same question (e.g. the letter E twice, even with a different answer).
   const key = (x: Question) => `${x.say}|${JSON.stringify(x.visual)}`
   const seen = new Set(avoid.map(key))
-  let q = skill === 'reading' ? readingQ(level) : numbersQ(level, theme)
-  for (let i = 0; i < 8 && seen.has(key(q)); i++) q = skill === 'reading' ? readingQ(level) : numbersQ(level, theme)
+  const make = () => levelFor(skill, level).question(theme)
+  let q = make()
+  for (let i = 0; i < 8 && seen.has(key(q)); i++) q = make()
   return q
 }

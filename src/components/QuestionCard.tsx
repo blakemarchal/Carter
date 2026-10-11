@@ -8,6 +8,7 @@ import { wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 import Pic from './Pic'
 import { ScoreContext } from '../lib/score'
+import { VIEWS } from '../learn/registry'
 
 function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
   switch (v.kind) {
@@ -39,6 +40,10 @@ function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
       )
     case 'listen':
       return <div className="q-listen">👂</div>
+    case 'learn': {
+      const View = VIEWS[v.view]
+      return View ? <View data={v.data} onSay={onSay} /> : null
+    }
   }
 }
 
@@ -80,7 +85,8 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
     }
   }
 
-  const textChoices = q.choices.every((c) => /^[\w\s]+$/.test(c.label))
+  // (Words and numbers show as text, "three o'clock" too; an emoji or a drawing shows as a picture.)
+  const textChoices = q.choices.every((c) => !c.art && !/\p{Extended_Pictographic}/u.test(c.label))
   return (
     <div className="q-card">
       <button className="q-prompt" onClick={() => speak(q.say)}>🔊</button>
