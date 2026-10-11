@@ -186,3 +186,23 @@ Also on `blake/wave8` (pushed as `blake/billing` too). `npx vitest run` passes (
 1. **Grace-code families still give a card, and renew at $9.99 after the free months unless they cancel.** Not taking a card would also drop it during everyone's free week, so it's left as is for now. I'd recommend changing this before the church beta, so a Grace family is never surprised by a charge. One way is to make a Grace code checkout collect no card and end when the free months do.
 2. **WebKit as a required check:** in GitHub, go to Settings → Rules → Rulesets → New branch ruleset. Target the branch you deploy from (`blake/happy-fermi-dkah27`), turn on "Require status checks to pass", and add **Playthroughs (WebKit)**.
 3. **Ranking minimum:** a row needs 10 starts before it's ranked (`MIN_RANKED` in `server/stats.mjs`).
+
+---
+
+## Hand-back: wave 9 (Oct 11, 2026)
+
+On **`blake/wave9`**, made from `blake/billing`, with `blake/wave7`'s Parent Corner wording fixes (c8842d7) merged in. `npx vitest run` passes (544 tests).
+
+**Blake's four approvals.** Items 1 to 3 were already done on `blake/wave8` / `blake/billing`, so wave 9 carries them:
+1. Longer or shorter is at numbers level 3, beside more or fewer. Level 10 is half hours, with hours to review and setting the clock as its exercise.
+2. "bug" is the ladybug everywhere in the learning content, and the rat is redrawn and clearly a rat. Its word-family card was checked beside the mouse.
+3. **WebKit as a required check:** the workflow passes on GitHub, but none of the cloud's tools can set branch rules. Blake clicks: Settings → Rules → Rulesets → New branch ruleset → target the deploy branch → "Require status checks to pass" → add **Playthroughs (WebKit)** → Create.
+4. The flagged content is left as is.
+
+**No emoji in the placement game or learning content**
+- **The placement game's puzzle pictures were already drawn.** They go through `Pic`, which draws the item library's picture, and this was checked on screen. The raw emoji left were its own icons: the 💎 in the treasure bag, and the 📖, 🔢, 🗺️, 🤔 and ⛵ on its labels and buttons.
+- **New drawings** in `src/art/items/learn-placement.tsx`: a gem, a book, number blocks (1 2 3) and a "not sure" thought bubble. All of the placement game's icons are now drawn, sized to sit with their words, and checked on screen.
+- **Learning content audit:** every question and exercise at every level shows only drawn pictures. A new test, `src/__tests__/learn-drawn.test.ts`, keeps it that way.
+- **Left as is:** the 🔊 "hear it again" and ⬅️ back buttons. They're the same in every activity across the whole game, so drawing them is a whole-game choice.
+
+**New spoken lines:** none. **Server work:** none beyond wave 8's billing steps. **For Blake:** the Grace-code card question from the billing hand-back is still open.
