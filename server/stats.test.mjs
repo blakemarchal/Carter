@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { EventEmitter } from 'node:events'
 import { describe, expect, it } from 'vitest'
-import { createStats, fromDay, isOwner, parseReport, retireOldStats, summarize, summaryPage, validKey, KEEP_DAYS } from './stats.mjs'
+import { createStats, dayOf, fromDay, isOwner, MIN_FAMILIES, parseReport, retireOldStats, summarize, summaryPage, validKey, KEEP_DAYS } from './stats.mjs'
 import { openFamilies } from './families.mjs'
 import { createBackups } from './backup.mjs'
 import { createRecordings } from './recordings.mjs'
@@ -162,7 +162,7 @@ describe('the owner’s summary', () => {
     const a = { '2026-10-01': { 'start:noah': 5 }, '2026-10-10': { 'start:noah': 2, 'finish:noah': 1, 'start:noah:v1': 2, 'wrong:noah:v1:quiz': 3, 'start:noah:v1:quiz': 2 } }
     const b = { '2026-10-11': { 'start:noah': 1, 'replay:noah': 1, 'finish:noah:v1': 1, 'wrong:noah:v1:quiz': 1, 'finish:jonah:v1:story': 4 } }
     const c = { '2026-09-01': { 'start:noah': 9 } } // (outside the days asked)
-    const s = summarize([a, b, c, {}], { from: fromDay(7, NOW) })
+    const s = summarize([a, b, c, {}], { from: fromDay(7, NOW), min: 1 })
     expect(s.families).toBe(2)
     expect(s.islands.noah).toEqual({ start: 3, finish: 1, replay: 1, wrong: 4 })
     expect(s.visits['noah:v1']).toEqual({ start: 2, finish: 1, replay: 0, wrong: 0 })
@@ -172,6 +172,16 @@ describe('the owner’s summary', () => {
     expect(page).toContain('<h1>Play totals</h1>')
     expect(page).toContain('2 families')
     expect(page).toMatch(/noah · v1 · quiz/)
+  })
+
+  it('shows no sums until enough families share, so one family can\'t be picked out', () => {
+    const one = { [dayOf(NOW)]: { 'start:noah': 3 } }
+    const s = summarize([one, one, one, one], { from: fromDay(7, NOW) })
+    expect(MIN_FAMILIES).toBe(5)
+    expect(s.hidden).toBe(true)
+    expect(s.islands).toEqual({})
+    expect(summaryPage(s, { days: 7 })).toContain('no sums are shown yet')
+    expect(summarize([one, one, one, one, one], { from: fromDay(7, NOW) }).islands.noah.start).toBe(15)
   })
 })
 

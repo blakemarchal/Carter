@@ -51,7 +51,8 @@ They're kept on our server with the rest of your family's data, for 400 days (ab
 which each day's counts are deleted. They're in your family's download, deleted when the family is
 deleted, and a parent can delete them at any time ("Delete our play totals"). Turning sharing off on a
 device stops it counting and drops anything it hasn't sent yet. We (the site owner) look only at sums
-across every family that shares, never at one family's totals, and they're never shared with anyone
+across every family that shares, never at one family's totals, and no sums are shown at all until at
+least five families share, so one family's play can't be picked out. They're never shared with anyone
 else or used for advertising.
 
 **Sign-in:** one cookie, set by us, keeps a signed-in device signed in. It isn't used for anything else.

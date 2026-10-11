@@ -46,7 +46,7 @@ export function validKey(k) {
   return KIND_SET.has(kind)
 }
 
-const dayOf = (t) => new Date(t).toISOString().slice(0, 10)
+export const dayOf = (t) => new Date(t).toISOString().slice(0, 10)
 /** Whether `day` is a real date within the days kept (a day ahead is allowed: time zones). */
 function validDay(day, now) {
   if (typeof day !== 'string' || !DAY.test(day)) return false
@@ -120,8 +120,11 @@ export function createStats(file, { clock = () => Date.now() } = {}) {
 /**
  * Sums of many families' totals (each as from get()), for the days from `from` on: per island, per visit
  * and per activity, plus how many families sent any. Only sums: nothing tells one family from another.
+ * With fewer than `min` families sharing in the range, no sums are given at all (`hidden`), since with
+ * one or two families the "sums" would show one family's play.
  */
-export function summarize(all, { from = '0000-00-00' } = {}) {
+export const MIN_FAMILIES = 5
+export function summarize(all, { from = '0000-00-00', min = MIN_FAMILIES } = {}) {
   const sums = new Map()
   let families = 0
   for (const days of all) {
@@ -149,6 +152,7 @@ export function summarize(all, { from = '0000-00-00' } = {}) {
       if (event === 'wrong') (islands[island] ??= row()).wrong += n
     }
   }
+  if (families < min) return { hidden: true, families: 0, islands: {}, visits: {}, activities: {}, kinds: {} }
   return { families, islands, visits, activities, kinds }
 }
 
@@ -184,7 +188,9 @@ a{color:#b0307a}summary{margin-top:32px;cursor:pointer;font-weight:700}
 @media (prefers-color-scheme:dark){body{background:#1d1822;color:#eee6f2}.note{color:#b8a8c6}th{background:#2a2330}th,td{border-color:#3a3040}a{color:#ff8cc0}}
 </style></head><body><main>
 <h1>Play totals</h1>
-<p class="note">Sums across every family that shares play totals (${s.families} ${s.families === 1 ? 'family' : 'families'} in this range). Days: ${range}.</p>
+${s.hidden
+    ? `<p class="note">Fewer than ${MIN_FAMILIES} families share play totals in this range, so no sums are shown yet: with so few, they would show one family's play. Days: ${range}.</p>`
+    : `<p class="note">Sums across every family that shares play totals (${s.families} families in this range). Days: ${range}.</p>`}
 <p class="note">A replay is a start by a player who had already finished the island (it counts as a start too). Finished: finishes per start.</p>
 ${table('Islands', 'Island', s.islands, order(Object.keys(s.islands)), { note: 'Wrong first tries: all the island’s activities together.' })}
 ${table('Visits', 'Island · visit', s.visits, order(Object.keys(s.visits)), { wrong: false })}
