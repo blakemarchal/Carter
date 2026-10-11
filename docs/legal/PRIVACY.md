@@ -43,6 +43,12 @@ hard, so we can make the game better. Exactly this is kept:
   each kind of activity in a visit (a story, a quiz, a maze…) was **started**, **finished** and
   **replayed** (started again by a player who had already finished that island), and how many questions
   in each activity were **answered wrong the first time**;
+- for each day, in practice rounds: how many times each kind of learning exercise (building a word or a
+  sentence, the number line, the clock, coins, measuring) and the questions of each skill (reading,
+  numbers) were **started**, **finished** and **got right the first time** (with no wrong tries and no
+  help), at each level (1 to 10);
+- for each day, how many times the first-time treasure hunt (which finds where to start reading and
+  numbers) **ended at each level**, for each skill (one count per skill when the hunt is finished);
 - nothing else: no names, no players or which player did what, no devices, no answers, no free text and
   no times of day. Counts from all the devices that share are added together into one set of totals for
   your family.

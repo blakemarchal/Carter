@@ -7,13 +7,19 @@
 //   <event>:<island>:v<visit>        start | finish | replay   (one visit of it)
 //   <event>:<island>:v<visit>:<kind> start | finish | replay | wrong   (one activity, by its kind)
 //
+//   <event>:ex:<exercise kind>:<level>  start | finish | right   (a practice round's exercise, at a level)
+//   <event>:q:<skill>:<level>           start | finish | right   (a practice round's question, at a level)
+//   placed:<skill>:<level>                                       (a placement game found this level)
+//
 // "replay": a start by a player who had already finished the island (also counted as a start).
-// "wrong": a question answered wrong the first time. No names, players, devices, answers or times of day.
+// "wrong": a question answered wrong the first time. "right": an exercise or question got right the first
+// time, with no help. No names, players, devices, answers or times of day.
 // See docs/GAME-PLAN.md §8 and docs/legal/PRIVACY.md.
 import { ISLANDS } from '../data/islands'
 import type { Step } from '../data/islands'
 import { NS, TOTALS_PREFIX } from './storageKeys'
-import { today } from './progress'
+import { today, type Skill } from './progress'
+import type { Task } from '../learn/types'
 
 /** Not part of a backup (lib/backup.ts): whether this device shares, and what's waiting to be sent. */
 const ON = `${TOTALS_PREFIX}on`
@@ -29,6 +35,13 @@ const KIND_SET: Record<Kind, true> = {
 }
 export const COUNTED_KINDS = Object.keys(KIND_SET) as Kind[]
 const EVENTS = ['start', 'finish', 'replay', 'wrong']
+/** The learning backbone's exercise kinds (learn/registry EXERCISES; a test keeps this and the server's list the same). */
+export const EXERCISE_KINDS = ['wordbuild', 'sentencebuild', 'numberline', 'clock', 'coins', 'measure']
+export const SKILL_NAMES: Skill[] = ['reading', 'numbers']
+/** The highest level a name can carry (progress MAX_LEVEL; a test keeps them the same). */
+export const TOP_LEVEL = 10
+const LEARN_EVENTS = ['start', 'finish', 'right']
+const LEVEL = /^([1-9]|10)$/
 const ISLAND_IDS = new Set(ISLANDS.map((i) => i.id))
 /** How many days of counts wait on the device while it can't reach the server. */
 const PENDING_DAYS = 60
@@ -37,6 +50,12 @@ const PENDING_DAYS = 60
 export function validKey(k: string) {
   if (k.length > 60) return false
   const [event, island, visit, kind, ...rest] = k.split(':')
+  // (learning: exercises and questions by level, and placement results)
+  if (event === 'placed') return (SKILL_NAMES as string[]).includes(island) && LEVEL.test(visit ?? '') && kind === undefined
+  if (island === 'ex' || island === 'q') {
+    const names: string[] = island === 'ex' ? EXERCISE_KINDS : SKILL_NAMES
+    return !rest.length && LEARN_EVENTS.includes(event) && names.includes(visit) && LEVEL.test(kind ?? '')
+  }
   if (rest.length || !EVENTS.includes(event) || !ISLAND_IDS.has(island)) return false
   if (visit === undefined) return event !== 'wrong'
   if (!/^v[1-9]$/.test(visit)) return false
@@ -138,6 +157,31 @@ export function wrongFirstTry(island: string, steps: Step[], step: number) {
   const s = steps[step]
   if (isActivity(s)) count(`wrong:${island}:v${visitOf(steps, step)}:${s.kind}`)
 }
+
+// ---- what the learning backbone counts (Practice, Placement) ----
+
+/** The name a practice round's task is counted under, at the level it was made for (undefined: not counted). */
+function taskName(task: Task, skill: Skill, level: number) {
+  const n = task.type === 'exercise' ? `ex:${task.ex.kind}:${level}` : `q:${skill}:${level}`
+  return validKey(`start:${n}`) ? n : undefined
+}
+
+/** A practice round shows a question or an exercise (count once per turn). */
+export function taskStarted(task: Task, skill: Skill, level: number) {
+  const n = taskName(task, skill, level)
+  if (n) count(`start:${n}`)
+}
+
+/** It's done; `firstTry`: right the first time, with no help. */
+export function taskFinished(task: Task, skill: Skill, level: number, firstTry: boolean) {
+  const n = taskName(task, skill, level)
+  if (!n) return
+  count(`finish:${n}`)
+  if (firstTry) count(`right:${n}`)
+}
+
+/** A placement game finished a skill at this level (once per skill per finished game). */
+export const placed = (skill: Skill, level: number) => count(`placed:${skill}:${level}`)
 
 /** Sends what's collected to our server; whatever doesn't go through waits for next time. */
 export async function flushStats() {

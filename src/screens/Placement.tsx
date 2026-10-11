@@ -1,7 +1,8 @@
 // The placement game (docs/GAME-PLAN.md §4): the first time a player plays, a short treasure hunt with
 // their Pal finds where to start reading and math. It's a game, not a test: every answer (and "not
 // sure") finds a treasure and gets praise, nothing is marked right or wrong, and nothing here counts
-// toward the levels' streaks, stars, stats or the daily voyage. Only the levels it finds are saved.
+// toward the levels' streaks, stars or the daily voyage. Only the levels it finds are saved (and, if a
+// parent turned play totals on, one count of the level found per skill finished: lib/stats placed).
 // Who gets it and how the next question is picked: learn/placement.ts.
 import { useEffect, useState } from 'react'
 import PalArt from '../components/PalArt'
@@ -15,6 +16,7 @@ import { makeQuestion, type Question } from '../lib/questions'
 import { speak, stopSpeaking } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { useAlive } from '../lib/useAlive'
+import { placed } from '../lib/stats'
 import './Placement.css'
 
 const ORDER: Skill[] = ['reading', 'numbers']
@@ -90,7 +92,9 @@ export default function Placement({ onDone }: { onDone: () => void }) {
       setQ(makeQuestion(skill, next.level, undefined, before))
       return
     }
-    const now = { ...found, [skill]: placedLevel(next) }
+    const level = placedLevel(next)
+    placed(skill, level)
+    const now = { ...found, [skill]: level }
     setFound(now)
     const after = ORDER[ORDER.indexOf(skill) + 1]
     if (after) return begin(after)

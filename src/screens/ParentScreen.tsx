@@ -255,7 +255,9 @@ function Improve() {
       {status && <p className="muted">{status}</p>}
       <p className="muted">
         Off unless a parent turns it on, for this device only. When it&rsquo;s on, this device counts how often each island, visit and
-        activity is started, finished and replayed, and how many questions were answered wrong the first time, and sends those
+        activity is started, finished and replayed, and how many questions were answered wrong the first time; how often each
+        practice exercise and question is started, finished and got right the first time, by its level; and which level each
+        treasure hunt (finding her levels) ended at. It sends those
         counts for each day to our own server, where they&rsquo;re kept with your family&rsquo;s data for about 13 months. No names,
         players, answers or times of day; no one else sees them. They&rsquo;re in your family&rsquo;s download, and deleted with your family.
         {!parent && ' A parent can turn this on.'}

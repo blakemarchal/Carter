@@ -6,8 +6,11 @@
 //   <event>:<island>                 start | finish | replay
 //   <event>:<island>:v<visit>        start | finish | replay
 //   <event>:<island>:v<visit>:<kind> start | finish | replay | wrong (a question's wrong first try)
+//   <event>:ex:<exercise>:<level>    start | finish | right (a practice round's exercise, right first try)
+//   <event>:q:<skill>:<level>        start | finish | right (a practice round's question)
+//   placed:<skill>:<level>           (a placement game ended at this level for this skill)
 //
-// e.g. "finish:noah:v2:quiz": 3. Nothing else is kept: no names, players, devices, answers or times of day.
+// e.g. "finish:noah:v2:quiz": 3, "right:ex:clock:6": 2, "placed:reading:4": 1. Nothing else is kept: no names, players, devices, answers or times of day.
 // The site owner sees only sums across all families (summarize, summaryPage).
 import { mkdir, readdir, readFile, rename, rm, rmdir, unlink, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
@@ -24,6 +27,12 @@ export const KINDS = [
   'build', 'spot', 'paint', 'steer', 'rhythm', 'share', 'catch', 'song',
 ]
 export const EVENTS = ['start', 'finish', 'replay', 'wrong']
+/** The learning backbone's exercise kinds, skills and levels (src/learn; kept with src/lib/stats.ts by a test). */
+export const EXERCISE_KINDS = ['wordbuild', 'sentencebuild', 'numberline', 'clock', 'coins', 'measure']
+export const SKILLS = ['reading', 'numbers']
+export const TOP_LEVEL = 10
+const LEARN_EVENTS = ['start', 'finish', 'right']
+const LEVEL = /^([1-9]|10)$/
 /** How many days of totals are kept (about 13 months); older days are dropped. */
 export const KEEP_DAYS = 400
 
@@ -39,6 +48,11 @@ const bad = () => Object.assign(new Error('bad stats'), { status: 400 })
 export function validKey(k) {
   if (typeof k !== 'string' || k.length > 60) return false
   const [event, island, visit, kind, ...rest] = k.split(':')
+  if (event === 'placed') return SKILLS.includes(island) && LEVEL.test(visit ?? '') && kind === undefined
+  if (island === 'ex' || island === 'q') {
+    const names = island === 'ex' ? EXERCISE_KINDS : SKILLS
+    return !rest.length && LEARN_EVENTS.includes(event) && names.includes(visit) && LEVEL.test(kind ?? '')
+  }
   if (rest.length || !EVENTS.includes(event) || !ISLAND_SET.has(island)) return false
   if (visit === undefined) return event !== 'wrong'
   if (!/^v[1-9]$/.test(visit)) return false
@@ -119,7 +133,8 @@ export function createStats(file, { clock = () => Date.now() } = {}) {
 
 /**
  * Sums of many families' totals (each as from get()), for the days from `from` on: per island, per visit
- * and per activity, plus how many families sent any. Only sums: nothing tells one family from another.
+ * and per activity; per exercise kind and level and per skill and level ('kind:level' / 'skill:level':
+ * start, finish, right); placements per skill and level; plus how many families sent any. Only sums: nothing tells one family from another.
  * With fewer than `min` families sharing in the range, no sums are given at all (`hidden`), since with
  * one or two families the "sums" would show one family's play.
  */
@@ -140,10 +155,14 @@ export function summarize(all, { from = '0000-00-00', min = MIN_FAMILIES } = {})
     if (any) families++
   }
   const row = () => ({ start: 0, finish: 0, replay: 0, wrong: 0 })
-  const islands = {}, visits = {}, activities = {}, kinds = {}
+  const learnRow = () => ({ start: 0, finish: 0, right: 0 })
+  const islands = {}, visits = {}, activities = {}, kinds = {}, exercises = {}, questions = {}, placements = {}
   for (const [k, n] of sums) {
     const [event, island, visit, kind] = k.split(':')
-    if (!visit) (islands[island] ??= row())[event] += n
+    if (event === 'placed') (placements[island] ??= {})[visit] = n
+    else if (island === 'ex') (exercises[`${visit}:${kind}`] ??= learnRow())[event] += n
+    else if (island === 'q') (questions[`${visit}:${kind}`] ??= learnRow())[event] += n
+    else if (!visit) (islands[island] ??= row())[event] += n
     else if (!kind) (visits[`${island}:${visit}`] ??= row())[event] += n
     else {
       (activities[`${island}:${visit}:${kind}`] ??= row())[event] += n
@@ -152,8 +171,8 @@ export function summarize(all, { from = '0000-00-00', min = MIN_FAMILIES } = {})
       if (event === 'wrong') (islands[island] ??= row()).wrong += n
     }
   }
-  if (families < min) return { hidden: true, families: 0, islands: {}, visits: {}, activities: {}, kinds: {} }
-  return { families, islands, visits, activities, kinds }
+  if (families < min) return { hidden: true, families: 0, islands: {}, visits: {}, activities: {}, kinds: {}, exercises: {}, questions: {}, placements: {} }
+  return { families, islands, visits, activities, kinds, exercises, questions, placements }
 }
 
 /** The first day of the last `days` days (for summarize's `from`). */
@@ -161,18 +180,62 @@ export const fromDay = (days, now = Date.now()) => dayOf(now - (days - 1) * DAY_
 
 const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 
-/** The owner's summary page: plain tables of the sums. */
+/** Rows with fewer starts than this aren't ranked (a 0 of 2 shouldn't top the list); they go last. */
+export const MIN_RANKED = 10
+
+/**
+ * Orders a table's rows weakest first: those with at least MIN_RANKED starts by `rate` (lowest first;
+ * ties: more starts first), then the rest in `order`. Returns [key, ranked] pairs.
+ */
+export function weakestFirst(rows, rate, order = (keys) => keys.sort()) {
+  const keys = Object.keys(rows)
+  const ranked = keys.filter((k) => rows[k].start >= MIN_RANKED)
+    .sort((a, b) => rate(rows[a]) - rate(rows[b]) || rows[b].start - rows[a].start || (a < b ? -1 : 1))
+  const few = order(keys.filter((k) => rows[k].start < MIN_RANKED))
+  return [...ranked.map((k) => [k, true]), ...few.map((k) => [k, false])]
+}
+
+const ratio = (a, b) => (b ? a / b : 0)
+/** Islands, visits and activities: finishes per start, then (for the same) more wrong first tries per start. */
+const finishRate = (r) => ratio(r.finish, r.start) - ratio(r.wrong ?? 0, r.start) / 1000
+/** Exercises and questions: got right the first time, per start (leaving early or needing help both lower it). */
+const rightRate = (r) => ratio(r.right, r.start)
+
+/** The owner's summary page: plain tables of the sums, the weakest spots first. */
 export function summaryPage(s, { days }) {
-  const order = (keys) => keys.sort((a, b) => {
+  const byIsland = (keys) => keys.sort((a, b) => {
     const [ia, ...ra] = a.split(':'), [ib, ...rb] = b.split(':')
     return ISLANDS.indexOf(ia) - ISLANDS.indexOf(ib) || ra.join(':').localeCompare(rb.join(':'))
   })
+  const byLevel = (keys) => keys.sort((a, b) => {
+    const [na, la] = a.split(':'), [nb, lb] = b.split(':')
+    return na.localeCompare(nb) || Number(la) - Number(lb)
+  })
   const pct = (a, b) => (b ? `${Math.round((100 * a) / b)}%` : '-')
-  const table = (title, label, rows, keys, { wrong = true, note = '' } = {}) => `
+  const label = (k) => esc(k.replaceAll(':', ' · '))
+  const levelLabel = (k) => { const [n, l] = k.split(':'); return `${esc(n)} · level ${esc(l)}` }
+  const wrap = (title, note, head, body) => `
 <h2>${esc(title)}</h2>${note ? `<p class="note">${esc(note)}</p>` : ''}
-${keys.length ? `<div class="wrap"><table><thead><tr><th>${esc(label)}</th><th>Starts</th><th>Replays</th><th>Finishes</th><th>Finished</th>${wrong ? '<th>Wrong first tries</th>' : ''}</tr></thead><tbody>
-${keys.map((k) => { const r = rows[k]; return `<tr><td>${esc(k.replaceAll(':', ' · '))}</td><td>${r.start}</td><td>${r.replay}</td><td>${r.finish}</td><td>${pct(r.finish, r.start)}</td>${wrong ? `<td>${r.wrong}</td>` : ''}</tr>` }).join('\n')}
+${body.length ? `<div class="wrap"><table><thead><tr>${head}</tr></thead><tbody>
+${body.join('\n')}
 </tbody></table></div>` : '<p class="note">Nothing yet.</p>'}`
+  const tr = (ranked, cells) => `<tr${ranked ? '' : ' class="few"'}>${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`
+
+  const playTable = (title, first, rows, order, { wrong = true, note = '' } = {}) => wrap(title, note,
+    `<th>${esc(first)}</th><th>Starts</th><th>Replays</th><th>Finishes</th><th>Finished</th>${wrong ? '<th>Wrong first tries</th>' : ''}`,
+    weakestFirst(rows, finishRate, order).map(([k, ranked]) => { const r = rows[k]
+      return tr(ranked, [label(k), r.start, r.replay, r.finish, pct(r.finish, r.start), ...(wrong ? [r.wrong] : [])]) }))
+  const learnTable = (title, first, rows, note) => wrap(title, note,
+    `<th>${esc(first)}</th><th>Starts</th><th>Finishes</th><th>Finished</th><th>Right first try</th><th>Right first try, per start</th>`,
+    weakestFirst(rows, rightRate, byLevel).map(([k, ranked]) => { const r = rows[k]
+      return tr(ranked, [levelLabel(k), r.start, r.finish, pct(r.finish, r.start), r.right, pct(r.right, r.start)]) }))
+  const levels = Array.from({ length: TOP_LEVEL }, (_, i) => String(i + 1))
+  const placed = Object.keys(s.placements).sort((a, b) => SKILLS.indexOf(a) - SKILLS.indexOf(b))
+  const placementTable = wrap('Placement game: where it started each skill', 'How many finished placement games ended at each level (one per skill per game).',
+    `<th>Skill</th>${levels.map((l) => `<th>${l}</th>`).join('')}<th>Games</th>`,
+    placed.map((sk) => { const r = s.placements[sk]
+      return tr(true, [esc(sk), ...levels.map((l) => r[l] ?? 0), levels.reduce((t, l) => t + (r[l] ?? 0), 0)]) }))
+
   const name = (d) => (d === KEEP_DAYS ? 'all kept' : `${d} days`)
   const range = [7, 30, 90, KEEP_DAYS].map((d) => (d === days ? `<b>${name(d)}</b>` : `<a href="?days=${d}">${name(d)}</a>`)).join(' · ')
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -183,20 +246,24 @@ main{max-width:960px;margin:0 auto}h1{margin:0 0 4px}h2{margin:32px 0 8px;font-s
 .note{color:#6a5a7a;margin:4px 0 12px}.wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:15px}
 th,td{padding:6px 10px;border-bottom:1px solid #eadff0;text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}th{background:#faf5fc}
+th:first-child,td:first-child{text-align:left}th{background:#faf5fc}tr.few td{color:#9a8aa8}
 a{color:#b0307a}summary{margin-top:32px;cursor:pointer;font-weight:700}
-@media (prefers-color-scheme:dark){body{background:#1d1822;color:#eee6f2}.note{color:#b8a8c6}th{background:#2a2330}th,td{border-color:#3a3040}a{color:#ff8cc0}}
+@media (prefers-color-scheme:dark){body{background:#1d1822;color:#eee6f2}.note{color:#b8a8c6}th{background:#2a2330}th,td{border-color:#3a3040}tr.few td{color:#86789a}a{color:#ff8cc0}}
 </style></head><body><main>
 <h1>Play totals</h1>
 ${s.hidden
     ? `<p class="note">Fewer than ${MIN_FAMILIES} families share play totals in this range, so no sums are shown yet: with so few, they would show one family's play. Days: ${range}.</p>`
     : `<p class="note">Sums across every family that shares play totals (${s.families} families in this range). Days: ${range}.</p>`}
-<p class="note">A replay is a start by a player who had already finished the island (it counts as a start too). Finished: finishes per start.</p>
-${table('Islands', 'Island', s.islands, order(Object.keys(s.islands)), { note: 'Wrong first tries: all the island’s activities together.' })}
-${table('Visits', 'Island · visit', s.visits, order(Object.keys(s.visits)), { wrong: false })}
-${table('Activities, all islands', 'Activity', s.kinds, Object.keys(s.kinds).sort())}
+<p class="note">Each table puts the weakest spots first: the lowest share finished (islands and activities) or got right the first time (learning). Rows with fewer than ${MIN_RANKED} starts aren't ranked: they come last, in grey.</p>
+<p class="note">A replay is a start by a player who had already finished the island (it counts as a start too). Finished: finishes per start. Right first try: right with no wrong tries and no help.</p>
+${learnTable('Learning exercises', 'Exercise · level', s.exercises, 'The building exercises in practice rounds (spell a word, a number line, a clock, coins, measuring…), by the level she was on.')}
+${learnTable('Practice questions', 'Skill · level', s.questions, 'The picture questions in practice rounds, by skill and the level she was on.')}
+${placementTable}
+${playTable('Islands', 'Island', s.islands, byIsland, { note: 'Wrong first tries: all the island’s activities together.' })}
+${playTable('Visits', 'Island · visit', s.visits, byIsland, { wrong: false })}
+${playTable('Activities, all islands', 'Activity', s.kinds, (k) => k.sort())}
 <details><summary>Every activity on every island</summary>
-${table('Activities', 'Island · visit · activity', s.activities, order(Object.keys(s.activities)))}
+${playTable('Activities', 'Island · visit · activity', s.activities, byIsland)}
 </details>
 <p class="note"><a href="/">Back to Ark Pals</a></p>
 </main></body></html>`
