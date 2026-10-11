@@ -115,6 +115,8 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
   const api = {
     /** The first family's id: its data stays where it always was. */
     firstFamily: () => meta('first_family'),
+    /** Every family's id (for the owner's sums of play totals). */
+    familyIds: () => q('SELECT id FROM families ORDER BY created').all().map((r) => r.id),
 
     /**
      * A device signing in with the old family password joins the first family, as its parents. With `key`

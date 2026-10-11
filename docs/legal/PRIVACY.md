@@ -36,9 +36,23 @@ contact other people.
 - voice recordings a grown-up makes in Family voices, and songs a grown-up adds, for your family's
   devices to play.
 
-**Play totals**, only if a grown-up turns them on: counts per day of things like islands finished and
-minutes played, added up with every other family's. They never include names, players, devices, answers
-or times of day.
+**Play totals**, only if a parent turns them on (Parent Corner, "Help make Ark Pals better"; off until
+then, and set on each device separately). They help us see where children stop, replay or find things
+hard, so we can make the game better. Exactly this is kept:
+- for each day (the date only, never the time), how many times each island, each visit of an island, and
+  each kind of activity in a visit (a story, a quiz, a maze…) was **started**, **finished** and
+  **replayed** (started again by a player who had already finished that island), and how many questions
+  in each activity were **answered wrong the first time**;
+- nothing else: no names, no players or which player did what, no devices, no answers, no free text and
+  no times of day. Counts from all the devices that share are added together into one set of totals for
+  your family.
+
+They're kept on our server with the rest of your family's data, for 400 days (about 13 months), after
+which each day's counts are deleted. They're in your family's download, deleted when the family is
+deleted, and a parent can delete them at any time ("Delete our play totals"). Turning sharing off on a
+device stops it counting and drops anything it hasn't sent yet. We (the site owner) look only at sums
+across every family that shares, never at one family's totals, and they're never shared with anyone
+else or used for advertising.
 
 **Sign-in:** one cookie, set by us, keeps a signed-in device signed in. It isn't used for anything else.
 
@@ -76,9 +90,9 @@ stop us collecting more at any time by deleting the family.
 In the Parent Corner, under "Your family's data", a parent can:
 - see what's kept, and how much room is left for recordings and songs;
 - **download everything** as one file: your grown-ups and devices, every progress backup, every recording
-  and every song;
+  and every song, and your play totals (if you share them);
 - **delete the family's account**, which removes every grown-up's sign-in, every device, and all your
-  backups, recordings and songs from our server right away. (What's on each device stays on that device
+  backups, recordings, songs and play totals from our server right away. (What's on each device stays on that device
   until the app is removed.)
 
 Grown-ups can also leave a family, and parents can remove grown-ups or sign devices out. For anything else,
@@ -88,6 +102,7 @@ write to hello@spiritflow.church.
 
 - Your family's information stays until you delete it or the family is deleted.
 - Progress backups: the newest 60 for each family.
+- Play totals (only if a parent turned them on): 400 days, then each day's counts are deleted.
 - Invitation and sign-in links stop working after 30 minutes to 30 days, depending on the kind, and once used.
 - [Copies of the server made before an update are kept for up to 30 days.]
 - [At launch: a family's data is deleted 90 days after a subscription ends.]

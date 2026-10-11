@@ -14,13 +14,14 @@
 //   STATE_DIRECTORY        set by systemd (StateDirectory=carter); where progress backups are kept
 import { createServer } from 'node:http'
 import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto'
-import { readFile, rm, stat } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import { mkdirSync } from 'node:fs'
 import { extname, join, normalize, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createTtsCache, MAX_CHARS, SPEEDS, VOICES } from './tts.mjs'
 import { createBackups } from './backup.mjs'
-import { createStats } from './stats.mjs'
+import { createStats, fromDay, isOwner, KEEP_DAYS, retireOldStats, summarize, summaryPage } from './stats.mjs'
+import { deleteFamilyData, writeFamilyExport } from './family-data.mjs'
 import { createRecordings } from './recordings.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, openFamilies, ROLES } from './families.mjs'
@@ -66,23 +67,27 @@ function mayEmail(key, max) {
   sentAt.set(key, [...times, now])
   return true
 }
-const stats = createStats(join(STATE, 'stats')) // (play totals only, never anyone's data: shared)
+// (play totals used to be pooled for all families in STATE/stats; they're kept per family now, so those go)
+retireOldStats(join(STATE, 'stats')).then((n) => { if (n) console.log(`Removed the old pooled play totals (${n} day${n === 1 ? '' : 's'})`) }, (e) => console.error(e.message))
 
 /**
- * A family's own backups, recordings and songs. The first family's stay where they always were; every
+ * A family's own backups, recordings, songs and play totals. The first family's stay where they always were; every
  * other family has its own folder.
  */
 const stores = new Map()
+const familyDir = (familyId) => (familyId === families.firstFamily() ? STATE : join(STATE, 'families', familyId))
+const statsFile = (familyId) => join(familyDir(familyId), 'play-totals.json')
 function storesFor(familyId) {
   let st = stores.get(familyId)
   if (!st) {
     const first = familyId === families.firstFamily()
-    const dir = first ? STATE : join(STATE, 'families', familyId)
+    const dir = familyDir(familyId)
     st = {
       dir: first ? null : dir, // (the folder that is all this family's, to delete with it)
       backups: createBackups(first ? STATE : join(dir, 'backups')),
       recordings: createRecordings(join(dir, 'recordings')),
       songs: createSongs(join(dir, 'songs')),
+      stats: createStats(statsFile(familyId)),
     }
     stores.set(familyId, st)
   }
@@ -90,21 +95,33 @@ function storesFor(familyId) {
 }
 
 /**
- * POST /stats adds a day's play totals (opt-in, counts only, from every family together); GET /stats is the
- * last 30 days (for the site's own family).
+ * POST /stats adds a day's play totals into the family's own (opt-in on each device, counts only: see
+ * server/stats.mjs); DELETE /stats deletes the family's (parents). GET /stats is the owner's page: sums
+ * across all families (?days=7|30|90|400, ?format=json).
  */
-async function handleStats(req, res) {
-  if (req.method === 'POST') {
-    try {
-      await stats.add((await readBody(req, 32 * 1024)).toString('utf8'))
-      res.writeHead(204)
-    } catch (e) {
-      res.writeHead(e.status ?? 400)
+async function handleStats(req, res, url, s) {
+  try {
+    if (req.method === 'POST') {
+      await storesFor(s.family.id).stats.add((await readBody(req, 64 * 1024)).toString('utf8'))
+      return json(res, 204)
     }
-    return res.end()
+    if (req.method === 'DELETE') {
+      if (s.member.role !== 'parent') return json(res, 403)
+      await storesFor(s.family.id).stats.clear()
+      return json(res, 204)
+    }
+    if (req.method !== 'GET') return json(res, 405)
+    if (!isOwner(families, s)) return json(res, 403)
+    const days = [7, 30, 90, KEEP_DAYS].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 30
+    // (read straight from each family's file: no need to set up the rest of their stores)
+    const all = await Promise.all(families.familyIds().map((id) => (stores.get(id)?.stats ?? createStats(statsFile(id))).get()))
+    const sums = summarize(all, { from: fromDay(days) })
+    if (url.searchParams.get('format') === 'json') return json(res, 200, { days, ...sums })
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
+    return res.end(summaryPage(sums, { days }))
+  } catch (e) {
+    return json(res, e.status ?? 400)
   }
-  res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
-  return res.end(JSON.stringify(await stats.recent()))
 }
 
 async function readBody(req, max) {
@@ -380,7 +397,7 @@ async function handleFamily(req, res, url, s) {
   const [, , what, id] = url.pathname.split('/')
   try {
     if (!what && req.method === 'GET') {
-      return json(res, 200, { me: { member: s.member.id, device: s.device.id, role: s.member.role, email: s.member.email ?? null }, emailOn: !!mailer, deletable: fam !== families.firstFamily(), ...families.view(fam, s.device.id) })
+      return json(res, 200, { me: { member: s.member.id, device: s.device.id, role: s.member.role, email: s.member.email ?? null }, emailOn: !!mailer, deletable: fam !== families.firstFamily(), owner: isOwner(families, s), ...families.view(fam, s.device.id) })
     }
     if (!what && req.method === 'PUT') {
       if (!parent) return json(res, 403)
@@ -430,17 +447,15 @@ async function handleFamily(req, res, url, s) {
     }
     if (what === 'export' && req.method === 'GET') {
       if (!parent) return json(res, 403)
-      return await exportFamily(res, s, storesFor(fam))
+      return await writeFamilyExport(res, families, fam, storesFor(fam))
     }
     if (!what && req.method === 'DELETE') {
       if (!parent) return json(res, 403)
       if (fam === families.firstFamily()) return json(res, 409)
       // (they type the family's name to be sure)
       if (String((await readJson(req)).confirm ?? '').trim().toLowerCase() !== s.family.name.trim().toLowerCase()) return json(res, 400)
-      const st = storesFor(fam)
-      families.deleteFamily(fam)
+      await deleteFamilyData(families, fam, storesFor(fam))
       stores.delete(fam)
-      if (st.dir && /^fam_[A-Za-z0-9_-]+$/.test(fam)) await rm(st.dir, { recursive: true, force: true })
       res.writeHead(204, { 'Set-Cookie': `${DEVICE_COOKIE}=; Max-Age=0; Path=/; HttpOnly;${secure(req)} SameSite=Lax`, 'Cache-Control': 'no-store' })
       return res.end()
     }
@@ -452,45 +467,6 @@ async function handleFamily(req, res, url, s) {
   } catch (e) {
     return json(res, e.status ?? 400)
   }
-}
-
-/**
- * GET /family/export: everything Ark Pals keeps for a family, as one JSON file to download: its grown-ups
- * and devices, every progress backup, and every recording and song (audio as base64). Written a piece at a
- * time, since recordings and songs can be big.
- */
-async function exportFamily(res, s, st) {
-  const write = async (chunk) => { if (!res.write(chunk)) await new Promise((r) => res.once('drain', r)) }
-  const list = async (items, each) => {
-    let n = 0
-    for (const it of items) {
-      const out = await each(it)
-      if (out) await write((n++ ? ',' : '') + out)
-    }
-  }
-  const info = families.exportFamily(s.family.id)
-  res.writeHead(200, {
-    'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store',
-    'Content-Disposition': `attachment; filename="ark-pals-family-${new Date().toISOString().slice(0, 10)}.json"`,
-  })
-  await write(`{"exportedAt":${JSON.stringify(new Date().toISOString())},"family":${JSON.stringify(info.family)},`
-    + `"members":${JSON.stringify(info.members)},"devices":${JSON.stringify(info.devices)},"backups":[`)
-  await list(await st.backups.list(), async (b) => {
-    const text = await st.backups.get(b.id)
-    return text && `{"id":${JSON.stringify(b.id)},"savedAt":${JSON.stringify(b.savedAt)},"label":${JSON.stringify(b.label)},"data":${text}}`
-  })
-  await write('],"recordings":[')
-  await list(await st.recordings.list(), async (id) => {
-    const r = await st.recordings.get(id)
-    return r && JSON.stringify({ id, type: r.type, base64: r.body.toString('base64') })
-  })
-  await write('],"songs":[')
-  await list(await st.songs.list(), async (song) => {
-    const a = song.audio ? await st.songs.getAudio(song.id) : null
-    return JSON.stringify({ ...song, audio: a ? { type: a.type, base64: a.body.toString('base64') } : null })
-  })
-  await write(']}')
-  res.end()
 }
 
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
@@ -680,8 +656,7 @@ createServer(async (req, res) => {
     if ((url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) || (url.pathname === '/backups' && req.method === 'GET')) return await handleBackup(req, res, url, mine)
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url, mine)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url, mine)
-    if (url.pathname === '/stats' && req.method === 'GET' && s.family.id !== families.firstFamily()) return json(res, 403)
-    if (url.pathname === '/stats' && (req.method === 'POST' || req.method === 'GET')) return await handleStats(req, res)
+    if (url.pathname === '/stats') return await handleStats(req, res, url, s)
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()

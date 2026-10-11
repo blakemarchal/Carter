@@ -19,7 +19,8 @@ import { isGrownup } from '../lib/party'
 import { PLAYER_EMOJIS } from '../lib/look'
 import { ISLANDS } from '../data/islands'
 import { DAILY_VISIT_CHOICES } from '../lib/voyage'
-import { flushStats, setStatsOn, statsOn } from '../lib/stats'
+import { deleteFamilyStats, flushStats, setStatsOn, statsOn } from '../lib/stats'
+import { useFamilyAccount } from '../lib/family'
 import type { Progress } from '../lib/progress'
 
 // (What each level practices: src/learn/levels.ts)
@@ -229,18 +230,36 @@ The current progress is saved to the server first, so you can undo this.`)) retu
   )
 }
 
-/** Play totals (opt-in): counts only, to our own server, to make the game better. */
+/** Play totals (opt-in, per device, parents): counts only, kept with the family's data on our own server. */
 function Improve() {
   const [on, setOn] = useState(statsOn())
+  const [status, setStatus] = useState('')
+  const { view } = useFamilyAccount()
+  // (a parent decides; offline, or before the family has loaded, whoever is in the Parent Corner can switch it off)
+  const parent = !view || view.me.role === 'parent'
   return (
     <section>
       <h3>Help make Ark Pals better</h3>
       <div className="level-row">
-        <button className={on ? 'on' : ''} onClick={() => { setStatsOn(!on); setOn(!on); if (!on) flushStats() }}>
+        <button className={on ? 'on' : ''} disabled={!on && !parent} onClick={() => { setStatsOn(!on); setOn(!on); setStatus(''); if (!on) flushStats() }}>
           {on ? '✅ Sharing play totals' : 'Share play totals'}
         </button>
+        {parent && view && (
+          <button onClick={async () => {
+            if (!confirm('Delete the play totals your family has shared so far?')) return
+            try { await deleteFamilyStats(); setStatus('Deleted.') } catch { setStatus('Couldn’t delete them just now. Try again later.') }
+          }}>Delete our play totals</button>
+        )}
+        {view?.owner && <a className="button-link" href="/stats">📊 Play totals, all families</a>}
       </div>
-      <p className="muted">Counts only, sent to our own server and no one else: how often each island is started, finished or left part-way, stars earned, and minutes played. No names, no answers, nothing personal.</p>
+      {status && <p className="muted">{status}</p>}
+      <p className="muted">
+        Off unless a parent turns it on, for this device only. When it&rsquo;s on, this device counts how often each island, visit and
+        activity is started, finished and replayed, and how many questions were answered wrong the first time, and sends those
+        counts for each day to our own server, where they&rsquo;re kept with your family&rsquo;s data for about 13 months. No names,
+        players, answers or times of day; no one else sees them. They&rsquo;re in your family&rsquo;s download, and deleted with your family.
+        {!parent && ' A parent can turn this on.'}
+      </p>
     </section>
   )
 }
