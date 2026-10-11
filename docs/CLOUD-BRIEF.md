@@ -29,7 +29,7 @@ Blake greenlit this on Oct 11, 2026. The cloud thread does the building and chec
    - Add an owner-only summary page that reads `GET /stats`, if there isn't one yet: sorted tables with the weakest spots first.
    - Make `docs/legal/PRIVACY.md` say exactly what's kept.
 6. **Billing in Stripe test mode (BUSINESS-PLAN §1 and §4, §10 step 5).**
-   - **Where it runs.** A separate "Ark Pals" Stripe account in Blake's organization, using a **sandbox** named "Ark Pals dev", not the shared test mode.
+   - **Where it runs.** A separate "Ark Pals" Stripe account in Blake's organization, using its **sandbox**, "Ark Pals sandbox" (already made), not the shared test mode.
    - **Library.** The official `stripe` Node SDK (22.6.0), on API version `2026-08-26.dahlia`, with one Stripe client instance; don't set a global key.
    - **Keys.**
      - A **restricted key** (`rk_`) with only the permissions the code needs. List them in DEPLOY.md.
@@ -63,7 +63,7 @@ Blake greenlit this on Oct 11, 2026. The cloud thread does the building and chec
      - Build `automatic_tax` support, but behind a `STRIPE_TAX` setting that's off.
      - Prices use `tax_behavior: 'exclusive'`, and the product tax code comes from a setting. Don't hardcode a `txcd_`; Blake picks it from Stripe's list.
      - DEPLOY.md must say that no tax is collected until Blake sets a head office address and has an active registration.
-   - **Tests.** Signed test events for every webhook, the access rules, and the offline grace period. Add a DEPLOY.md section with exactly what Blake does: make the sandbox, make the restricted key, `set-stripe-key`, `stripe-setup`, and test card 4242 4242 4242 4242.
+   - **Tests.** Signed test events for every webhook, the access rules, and the offline grace period. Add a DEPLOY.md section with exactly what Blake does: make the restricted key in "Ark Pals sandbox", `set-stripe-key`, `stripe-setup`, and test card 4242 4242 4242 4242.
 7. **Hand back.** Update `docs/GAME-PLAN.md` §9. Then write a short note at the end of this file: what changed, any new spoken lines, anything the local thread must do (warm-up, voice-script pages, server changes) and anything that needs Blake's decision.
 
 ## Later (not now)
