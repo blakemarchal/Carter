@@ -224,7 +224,8 @@ const SCENES: Record<string, () => ReactNode> = {
   'bug-leaf': () => (
     <Day ground={false}>
       <Put id="leaf" x={70} y={10} s={190} />
-      <Put id="caterpillar" x={120} y={46} s={84} />
+      {/* a ladybug walking up the leaf, seen from above */}
+      <g transform="rotate(30 166 98)"><Put id="ladybug" x={131} y={60} s={70} /></g>
     </Day>
   ),
   'bird-tree': () => (
