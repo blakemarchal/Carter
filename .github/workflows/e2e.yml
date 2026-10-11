@@ -1,0 +1,42 @@
+# Automated playthroughs in Safari's engine (docs/GAME-PLAN.md §8): on every push to a blake/* branch,
+# a robot plays one visit of every island, a battle, the Pal Kitchen and a practice round of each
+# learning exercise in WebKit at iPad size, failing on any console or page error (npm run e2e).
+# The screenshots and the HTML report are kept as an artifact of the run.
+name: Playthroughs (WebKit)
+
+on:
+  push:
+    branches: ['blake/*']
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playthrough:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck the playthroughs
+        run: npx tsc -p e2e/tsconfig.json
+      - name: Install WebKit (and the system libraries it needs)
+        run: npx playwright install --with-deps webkit
+      - name: Play
+        run: npm run e2e
+        env:
+          CI: '1'
+      - name: Keep the screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playthrough-${{ github.run_number }}
+          path: e2e-results/
+          retention-days: 14
+          if-no-files-found: ignore

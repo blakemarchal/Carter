@@ -16,7 +16,9 @@
     "test": "vitest run",
     "new-island": "node scripts/new-island.mjs",
     "preview:art": "rolldown scripts/preview-pals.tsx --platform node --format esm -o preview/render.mjs && node preview/render.mjs",
-    "preview:scenes": "rolldown scripts/preview-scenes.tsx --platform node --format esm -o preview/render-scenes.mjs && node preview/render-scenes.mjs"
+    "preview:scenes": "rolldown scripts/preview-scenes.tsx --platform node --format esm -o preview/render-scenes.mjs && node preview/render-scenes.mjs",
+    "e2e": "playwright test --project=webkit",
+    "e2e:chromium": "playwright test --project=chromium"
   },
   "dependencies": {
     "@fontsource/baloo-2": "^5.3.0",
@@ -24,6 +26,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

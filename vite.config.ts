@@ -58,4 +58,6 @@ export default defineConfig({
       },
     }),
   ],
+  // (The playthroughs write their pictures and traces here: not part of the app, so no reloads.)
+  server: { watch: { ignored: ['**/e2e-results/**'] } },
 })
