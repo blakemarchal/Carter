@@ -267,7 +267,7 @@ function AppVersion() {
   )
 }
 
-export default function ParentScreen({ onBack, onParty }: { onBack: () => void; onParty: () => void }) {
+export default function ParentScreen({ onBack, onParty, onPlacement }: { onBack: () => void; onParty: () => void; onPlacement: () => void }) {
   const p = useProgress()
   const me = activeProfile()
   const mins = Math.round(p.playSeconds / 60)
@@ -290,6 +290,11 @@ export default function ParentScreen({ onBack, onParty }: { onBack: () => void; 
       </section>
       <Week p={p} />
       <Islands p={p} />
+      <section>
+        <h3>🗺️ Starting levels</h3>
+        <p className="muted">A short treasure hunt with {me.name}&rsquo;s Pal (2 or 3 minutes) finds where to start reading and numbers. It plays once for a new player; play it again here, or set the levels below by hand.</p>
+        <div className="level-row"><button onClick={onPlacement}>🗺️ Find my levels again</button></div>
+      </section>
       {(['reading', 'numbers'] as Skill[]).map((s) => (
         <section key={s}>
           <h3>{s === 'reading' ? '📖 Reading' : '🔢 Numbers'} — level {p.skills[s]}: {SKILL_LABEL[s][p.skills[s] - 1]}</h3>

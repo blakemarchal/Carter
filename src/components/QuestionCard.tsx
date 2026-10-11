@@ -10,7 +10,7 @@ import Pic from './Pic'
 import { ScoreContext } from '../lib/score'
 import { VIEWS } from '../learn/registry'
 
-function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
+export function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
   switch (v.kind) {
     case 'letter':
       return <div className="q-letter">{v.text}</div>

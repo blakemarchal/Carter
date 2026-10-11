@@ -7,6 +7,8 @@ import ParentScreen from './screens/ParentScreen'
 import IslandView from './screens/IslandView'
 import Bedtime from './screens/Bedtime'
 import SingAlong from './screens/SingAlong'
+import Placement from './screens/Placement'
+import { placementDue } from './learn/placement'
 import BirthdayParty, { type PartyMode } from './screens/BirthdayParty'
 import PlayerArtProvider from './components/PlayerArt'
 import { islandById } from './data/islands'
@@ -25,7 +27,7 @@ import { unlockAudio } from './lib/audio'
 import { backupSoon } from './lib/backup'
 import { warmEgg } from './lib/care'
 
-type Screen = 'title' | 'starter' | 'map' | 'ark' | 'parent' | 'bedtime' | 'sing' | 'party' | `island:${string}`
+type Screen = 'title' | 'starter' | 'placement' | 'map' | 'ark' | 'parent' | 'bedtime' | 'sing' | 'party' | `island:${string}`
 
 const DAILY_MINUTES = 60
 
@@ -112,7 +114,7 @@ export default function App() {
     // Their birthday: straight to the surprise party (once a day).
     const party = isBirthday(list.find((x) => x.id === profileId)?.birthday) && me.partyShown !== today()
     if (party) setParty({ mode: 'day', back: 'map' })
-    setScreen(!me.starter ? 'starter' : party ? 'party' : 'map')
+    setScreen(!me.starter ? 'starter' : placementDue(me) ? 'placement' : party ? 'party' : 'map')
     backupSoon()
     flushStats()
     loadRecordings()
@@ -130,13 +132,15 @@ export default function App() {
   let view
   switch (shown) {
     case 'title': view = <Title onStart={start} />; break
-    case 'starter': view = <StarterPick onDone={() => go('map')} />; break
+    // A brand-new player then plays the placement game (learn/placement.ts), once.
+    case 'starter': view = <StarterPick onDone={() => go(placementDue(getProgress()) ? 'placement' : 'map')} />; break
+    case 'placement': view = <Placement onDone={() => go('map')} />; break
     case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}`)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} onBedtime={() => go('bedtime')} onSing={() => go('sing')}
       onParty={() => { setParty(p.partyShown === today() && p.partyAge ? { mode: 'replay', age: p.partyAge, back: 'map' } : { mode: 'day', back: 'map' }); go('party') }} />; break
     case 'sing': view = <SingAlong onBack={() => go('map')} />; break
     case 'bedtime': view = <Bedtime onDone={() => go('title')} />; break
     case 'ark': view = <ArkScreen onBack={() => go('map')} onParty={(age) => { setParty({ mode: 'replay', age, back: 'ark' }); go('party') }} />; break
-    case 'parent': view = <ParentScreen onBack={() => go('map')} onParty={() => { setParty({ mode: 'preview', back: 'parent' }); go('party') }} />; break
+    case 'parent': view = <ParentScreen onBack={() => go('map')} onPlacement={() => go('placement')} onParty={() => { setParty({ mode: 'preview', back: 'parent' }); go('party') }} />; break
     case 'party': view = <BirthdayParty key={`${party.mode}-${party.age}`} mode={party.mode} age={party.age} onDone={() => go(party.back)} />; break
     default: {
       const id = shown.slice('island:'.length)
