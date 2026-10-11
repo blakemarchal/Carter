@@ -59,6 +59,8 @@ export interface Progress {
   islandVersion?: Record<string, number>
   /** The day she saw the voyage-complete celebration on the map (every island done) and sailed on, so it shows once. */
   voyageCelebrated?: string
+  /** The placement game (learn/placement.ts): 'due' for a brand-new player, 'done' once played or skipped. */
+  placement?: 'due' | 'done'
 }
 
 export { DEFAULT_LOOK, type KidLook } from './look'
@@ -130,6 +132,7 @@ const fresh = (): Progress => ({
   sfx: true,
   dailyVisits: 2,
   stars: {},
+  placement: 'due',
 })
 
 /** Today's date on the device (local time, so the daily play time resets at midnight, not 7 PM). */
@@ -159,7 +162,8 @@ function write(key: string, value: unknown) {
 function loadProgress(id: string): Progress {
   const saved = read<Partial<Progress>>(keyFor(id))
   if (!saved) return fresh()
-  return upgradeSkills({ ...fresh(), ...saved, skillsVersion: saved.skillsVersion })
+  // (A save without `placement` is from before the placement game: it isn't offered to them.)
+  return upgradeSkills({ ...fresh(), ...saved, skillsVersion: saved.skillsVersion, placement: saved.placement })
 }
 
 /** A save from before the ten-level backbone: its levels move to where the same questions are now. */
