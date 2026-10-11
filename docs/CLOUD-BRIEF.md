@@ -23,12 +23,11 @@ Blake greenlit this on Oct 11, 2026. The cloud thread does the building and chec
 2. **Fresh-eyes review of the learning backbone.** Have a reviewer who didn't write it play every new exercise kind at every level, at iPad size (`scripts/film/` shows how). Check that the answers are right, the levels are right for ages 4–7, the drag targets are easy for small fingers, and the narration matches the screen. Fix what it finds.
 3. **Placement game (GAME-PLAN §4).** A short, friendly first-time game (about 2–3 minutes, no "test" feel) that sets each player's starting reading and math levels. Parents can rerun it or set the levels in the Parent Corner. It's skipped for players who already have progress.
 4. **Automated playthroughs in Safari's engine (GAME-PLAN §8).** Use Playwright with WebKit at iPad size and touch. It plays one visit of every island, a battle, the kitchen and a practice round of each learning kind. It fails on console errors and saves screenshots. Add `npm run e2e`, plus a GitHub Actions workflow that runs it on pushes to `blake/*`.
-5. **Privacy-first play stats (BUSINESS-PLAN §5, GAME-PLAN §8, decision 4).**
-   - Off until a parent opts in (Parent Corner).
-   - First-party only, no outside services, totals only: counts per island, visit or activity for starts, finishes, replays and wrong-first-tries. No free text and nothing that identifies a child.
-   - The server endpoint adds them into the family's data. Delete and export include them.
-   - An owner-only summary page.
-   - Update `docs/legal/PRIVACY.md` to say exactly what's kept.
+5. **Extend the play stats that already exist** (`src/lib/stats.ts`, `server/stats.mjs`, `POST/GET /stats`): opt-in, counts only, shared totals, readable only by the first family.
+   - Add totals for the learning backbone: each exercise kind and level gets started, finished and first-try-right counts, so we can see where kids struggle. Also count placement results by level.
+   - Keep the same rules: no names, players, devices, answers or times of day.
+   - Add an owner-only summary page that reads `GET /stats`, if there isn't one yet: sorted tables with the weakest spots first.
+   - Make `docs/legal/PRIVACY.md` say exactly what's kept.
 6. **Hand back.** Update `docs/GAME-PLAN.md` §9. Then write a short note at the end of this file: what changed, any new spoken lines, anything the local thread must do (warm-up, voice-script pages, server changes) and anything that needs Blake's decision.
 
 ## Later (not now)
