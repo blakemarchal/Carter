@@ -134,6 +134,13 @@ export default function Studio({ onClose }: { onClose: () => void }) {
     await fetch('/voice/house/share', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice, id, shared: on }) })
     await loadIndex()
   }
+  const rename = async () => {
+    const label = prompt('What should this voice be called? (Shown in the studio, and in the sing-along as “<name>’s version”.)', index?.voices[voice]?.label ?? '')
+    if (!label?.trim()) return
+    await fetch('/voice/house/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice, label: label.trim() }) })
+    await loadIndex()
+    loadHouse()
+  }
   const promote = async () => {
     if (!confirm('Copy your family’s own Family voices recordings into Mom’s house voice, for every family? Lines she has already recorded in the studio stay as they are.')) return
     const r = await fetch('/voice/house/promote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice: 'mom' }) })
@@ -178,6 +185,7 @@ export default function Studio({ onClose }: { onClose: () => void }) {
                 {voices.map(([v, d]) => <option key={v} value={v}>{d.label}{d.private ? ' (our family only)' : ''}</option>)}
               </select>
             </label>
+            <button onClick={rename}>Rename voice</button>
             <label className="studio-check"><input type="checkbox" checked={onlyTodo} onChange={(e) => setOnlyTodo(e.target.checked)} /> Only lines still to record</label>
             <button onClick={() => window.print()}>🖨️ Print this script</button>
             {voice === 'mom' && <button onClick={promote}>Copy our Family voices into Mom’s voice</button>}

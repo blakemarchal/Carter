@@ -344,3 +344,115 @@ On a new branch **`blake/voices`**, made from `blake/wave7`. This builds BUSINES
 8. **Tests:** template and slot matching, the playback order, no name ever reaching `/tts`, studio progress and changed-line flags, and the song timing placement.
 
 Hand back the same way as before. Include how many lines each voice has to record per queue, and an estimate of minutes for each.
+
+---
+
+## Hand-back: wave 10, our family's voices (Oct 12, 2026)
+
+On **`blake/voices`**, made from `blake/wave7` (363cdc5). It was pushed after each piece:
+1. the name library;
+2. the voice core;
+3. templates and stitching;
+4. the studio, its script and Carter's songs;
+5. names in the Parent Corner;
+6. these docs.
+
+Checks: `npx tsc -b` is clean, `npx vitest run` passes (597 tests, 42 of them new), and the Chromium playthroughs pass (36 of 36). The studio and its song mode were also driven in Chromium with a fake microphone: record, trim, level, keep, sing along, nudge.
+
+**What a line does now** (`src/lib/speech.ts`, `src/voice/resolve.ts`)
+1. **The family's own recording** of the exact line (Family voices) plays first, as before.
+2. **The house voice for the line's role** comes next, reading the whole line or stitched from recorded parts. Roles are set in `src/voice/roles.ts`, one table that's easy to change:
+   - `narrator`: Mom;
+   - `shade`: Dad, with Mom standing in;
+   - `pals`: the child, with Mom standing in.
+   Grumbleshade's swoop and finale and the foe's attacks are tagged `shade`. "Yes, please!" and "Hee hee! That tickles!" are tagged `pals`.
+3. **A Grok clip made ahead of time.** `/tts` now only serves cached clips and never makes a new one. With `TTS_LIVE=1` on dev, the owner's device can still make clips live, for warming. A line that mentions any player, sibling, pet or customised parent name is never asked of `/tts`, and never preloaded.
+4. **The device voice.**
+
+**Stitching** (`src/voice/templates.ts`, `src/voice/stitch.ts`)
+- There are 77 templates with `{name}`, `{pal}`, `{n}`, `{letter}` and `{sound}` slots. A line is split into sentences. Each run of sentences is either a whole recorded line or a template whose parts and slots are all recorded.
+- The whole line stays in one voice. The one exception is a family's own recording of their child's name, which is used first.
+- Parts play back to back through Web Audio, with silence trimmed. The gap is 40 ms within a sentence, 160 ms at a comma and 220 ms between sentences.
+- If any piece is missing, nothing is stitched. A line with a family's name then goes to the device voice.
+- **Numbers run 0–140, not 0–130:** counting past 100 goes up to 140.
+- A test samples every learning level, so a changed line with a number or sound that loses its template fails the tests.
+
+**Name library** (`scripts/name-library.mjs`, `src/voice/names.json`)
+- It holds the top 600 girls' and 600 boys' names by births from 2014 to 2024, from the SSA national data. ssa.gov is blocked from the cloud, so I took the same SSA files from the `usbabynames` npm package (2.2.1, data to 2024). The script reads SSA's own `yobYYYY.txt` files, so Blake can rerun it on `names.zip`.
+- Sound-alike spellings are merged ("Aiden", "Aidan" and "Ayden"; "Sara" and "Sarah"), while names said differently stay apart ("Maria" and "Mariah", "Eli" and "Ellie"). That leaves **1,062 names to record**.
+- **The Parent Corner** says under each player whether the game can say their name: in the family's own recording, by the narrator, in the library but not recorded yet, or not in the library (then the iPad reads those lines, and the name is never sent).
+- **Family voices** now records each child's name in two takes: the players, plus brothers and sisters from the cast.
+- **The owner's list** (`GET /voice/names`, shown in the studio) has the children's names that 3 or more families use, with counts only. The ones missing from the library go first in Mom's Names queue, and once recorded they're stitched like library names.
+
+**House set** (`server/house.mjs`)
+- Clips are kept per voice in `STATE_DIRECTORY/house/<voice>/<fingerprint>`, with an `index.json`. Each clip records:
+  - what it is (its key and the words read);
+  - where it sits in the script;
+  - its trim and gain;
+  - whether it's shared.
+- Families get a manifest, and the service worker keeps each clip after its first play (its address is versioned).
+- The child's voice is private to the owner's family unless the owner ticks "Share with every family" on that clip.
+- One owner action copies the first family's Family voices recordings into Mom's voice under the same fingerprints.
+- **Voice ids are `mom`, `dad` and `child`, not `carter`,** so no child's name goes in the code. Blake names the voices in the studio ("Rename voice"); the names are stored on the server.
+
+**The studio** (`src/screens/Studio.tsx`, owner only: Parent Corner → Family voices → 🎚️ Recording studio)
+- Choose a voice and a queue. Each line shows big words; you record, listen, retake and keep. Silence is trimmed automatically, and the level is checked and set (with a warning when a take is too quiet or too loud).
+- Space or R records and stops, P listens, Enter keeps, and the arrows move between lines.
+- Each queue shows progress ("412 of 1,030") and estimated minutes, and flags lines whose words changed since they were recorded. "🖨️ Print this script" prints the same list.
+- The script (`src/voice/script.ts`) comes from the game itself. The learning lines and the code's fixed strings are sampled into `src/voice/lines.gen.json` with a fixed seed by `npm run voice-script`; a test fails if the file is out of date.
+- **Carter sings** (song mode): headphones on, she sings along with the flute. The song's start is measured in the recording (allowing for output latency), and her voice is laid on the flute at that point, so the song's own word timings light the words. Earlier and Later buttons fix any drift by ear. It plays in the sing-along as "<her voice's name>'s version", for our family only until shared.
+
+**Lines to record, per voice and queue** (estimates include a listen-back and the odd retake: about 5 seconds a line plus 0.6 seconds a word, or 3 seconds for a name, number or letter)
+
+| Voice | Queue | Lines | About |
+|---|---|---|---|
+| Mom | Praise | 15 | 2 min |
+| Mom | Prompts | 368 | 1 h 30 |
+| Mom | Story pages (434 pages, verses and bedtime, plus 1,029 short picture-tap lines) | 1,463 | 4 h 35 (pages about 2 h 10, taps about 2 h 25) |
+| Mom | Learning | 446 | 56 min |
+| Mom | Templates (parts) | 86 | 10 min |
+| Mom | Names (1,062 children's names and 184 Pal names, two takes each) | 2,492 | 2 h 45 |
+| Mom | Numbers (0–140, two takes) | 282 | 19 min |
+| Mom | Letters (26 names and 26 sounds) | 52 | 3 min |
+| **Mom in all** | | **5,204** | **about 10 h 20** |
+| Dad | Prompts (Grumbleshade swoops in) | 3 | under 1 min |
+| Dad | Story (the Easter finale) | 4 | 1 min |
+| Dad | Templates | 4 | under 1 min |
+| Dad | Names (Pal names, one take) | 184 | 12 min |
+| **Dad in all** | | **195** | **about 15 min** |
+| Carter | Prompts (Pal lines) | 2 | under 1 min |
+| Carter | Songs (sung along, 31 songs) | 31 | about 1 h 50 |
+| **Carter in all** | | **33** | **about 1 h 50** |
+
+Praise and prompts first is about 1 h 30 of Mom's time and covers most of what a child hears. The picture taps are the most skippable: they fall back to the warmed Grok clips.
+
+**Not covered, and why**
+- Lines built from object names ("Where does the lion go?", "Drag the cookie here!") aren't in the script, because their combinations aren't fixed. They play the warmed Grok clip, then the device voice. Adding a template for any of them is one line in `templates.ts`.
+- "<Pal> used <move>!" lines also fall back to Grok, since move names aren't slots.
+- House clips are kept offline after their first play, not fetched ahead of time.
+
+**Privacy and legal**
+- `docs/legal/PRIVACY.md` now says no child's name ever leaves our server, and that xAI only made the game's fixed lines ahead of time. It also describes the names-in-use count (3 or more families, names and counts only, nothing kept).
+- New `docs/legal/VOICE-RELEASE.md` (draft for legal review): one copy each for Mom, Dad and the child, the child's signed by both parents. It covers:
+  - house use only, limited to Ark Pals;
+  - no ads, no resale and no voice cloning without separate written agreement;
+  - the child's voice for our family only, unless shared item by item;
+  - withdrawal within 30 days.
+  No names are in it; they go in when it's signed.
+
+**For the local thread**
+- **Deploy** as usual. The house folder is made on start, and there's nothing new in `.env`.
+- **After deploying:**
+  - In the first family's Parent Corner, open Family voices, then the Recording studio. Check the queues load with their counts.
+  - Rename the voices.
+  - Copy the Family voices recordings into Mom's voice.
+  - Record a praise line, then play a practice round and hear it.
+  - Check a player whose name isn't recorded hears "Way to go, …!" in the iPad voice, and that `/tts` gets no request with the name in it.
+- **Narration warm-up:** there are no new fixed spoken lines this wave. From now on, any line that isn't warmed plays in the device voice until Mom records it, so warm before each content deploy.
+- **New spoken lines:** none. The studio, the name notes and the sing-along label aren't spoken.
+
+**For Blake**
+- Sign the voice releases.
+- Rename the voices in the studio.
+- Decide whether to share any of Carter's songs.
+- Optional: rerun `node scripts/name-library.mjs <unzipped names.zip>` from SSA's own download to confirm the list (it should match).

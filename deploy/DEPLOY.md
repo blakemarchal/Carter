@@ -128,7 +128,33 @@ ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/sys
 - `npm run set-voice-key -- --check` tests the saved key without showing it. `-- --remove` goes back to the device voice.
 - The key lives only in `/opt/Carter/.env` (root-only). The game never sees it; it asks the server at `/tts`, which requires the family login.
 - Clips are cached in `/var/cache/carter`. New narration is capped at 200,000 characters a day (about $3), set by `TTS_DAILY_CHARS` in `.env`.
+- **Since wave 10, `/tts` only plays clips made ahead of time.** It never makes a new line by itself, and the game never asks it for a line with a family's name in it, so no child's name is sent to xAI. After new content ships, warm the new lines on the server (`node scripts/warm-narration.mjs …`, as before); a line that wasn't warmed is read by the device's voice until Mom records it. Only on the dev site, `TTS_LIVE=1` in `.env` lets the owner's device make new clips live, for warming.
 - The Parent Corner can switch each player between Ara, Eve (another Grok voice), and the iPad voice.
+
+## Step 4c: The house voices and the recording studio
+
+Mom is the narrator for every family, with Dad as Grumbleshade and the battle foe, and our child for the Pals'
+own little lines and her songs (docs/BUSINESS-PLAN.md §2). They record in the **recording studio**, which only
+the owner sees: Parent Corner (first family, a parent) → Family voices → **🎚️ Recording studio**. Nothing to set
+up on the server: the recordings are kept in `/var/lib/carter/house` (`STATE_DIRECTORY/house`), one folder per
+voice and an `index.json`, next to the families' own data, so the server's backups cover them.
+
+1. **Name the voices.** In the studio, choose each voice and tap **Rename voice**: Mom, Dad, and our child's
+   name (it's shown in the studio and in the sing-along as "<name>'s version"; it's kept on the server, never in
+   the code).
+2. **Keep what's already recorded.** On Mom's voice, **Copy our Family voices into Mom's voice** copies the story
+   pages she recorded in Family voices into the house set, so every family hears them.
+3. **Record, a queue at a time,** most-heard first: Praise, Prompts, Story pages, Learning, Templates, Names,
+   Numbers, Letters. Big words on screen; Space or R records and stops, P listens, Enter keeps, the arrows move.
+   Each take's silence is trimmed and its level set. **🖨️ Print this script** prints the queue. A line whose words
+   changed since it was recorded is flagged, to record again.
+4. **Our child's voice is for our family only.** In her voice, a recorded song or Pal line has a **Share with
+   every family** box; nothing is shared until it's ticked. Songs: headphones on, **🎤 Sing!**, and she sings
+   along with the flute; listen back, nudge it earlier or later if needed, keep it. It appears in the
+   sing-along as her version.
+5. The Names queue starts with any children's names families use that aren't in the library yet (only names
+   3 or more families use, shown with how many families).
+6. **Voice releases:** `docs/legal/VOICE-RELEASE.md`, one signed for each voice (our child's by both of us).
 
 ## Step 5: Install on Carter's iPad
 
