@@ -30,12 +30,13 @@ The plan for turning Carter's Ark into a paid, faith-based learning game for fam
 | | Monthly $9.99 | Yearly $79 |
 |---|---|---|
 | Stripe processing (2.9% + 30¢) | −$0.59 | −$2.59 |
+| Stripe Managed Payments (3.5%) | −$0.35 | −$2.77 |
 | **Tithe, 10% of gross** | **−$1.00** | **−$7.90** |
 | Voice cost once Mom's recordings replace Grok | $0 | $0 |
 | Hosting (existing droplet, ~$0 extra until hundreds of families) | ~$0 | ~$0 |
-| **Net to the LLC** | **≈ $8.40** | **≈ $68.50** |
+| **Net to the LLC** | **≈ $8.05** | **≈ $65.74** |
 
-- Sales tax on digital goods varies by state. Collect it on top of the price with Stripe Tax.
+- Sales tax: **Stripe Managed Payments** is the merchant of record (decided Oct 12, 2026). Stripe calculates, collects, files and pays sales tax, VAT and GST in 80+ countries, and handles fraud, disputes and payment support. Tax is added on top of the price and never counts as our revenue. Card statements read `LINK.COM* ARK PALS`, and receipts come from Link. The products' tax code still needs confirming with a tax advisor (provisionally `txcd_10201004`).
 - A monthly Stripe report produces the tithe figure (10% of gross) automatically.
 
 ---
@@ -175,7 +176,7 @@ The faith approach in SPEC.md §4.4 applies throughout: grace first, and obedien
 ## 8. Business setup checklist
 
 - [ ] Trademark search for "Ark Pals" and buy the domain, closer to launch.
-- [ ] Stripe account under Marchal Technologies, with products for monthly and yearly, the Grace price and Grace codes, Stripe Tax on, and a test mode for dev.
+- [ ] Stripe account under Marchal Technologies, with products for monthly and yearly, the Grace price and Grace codes, and a sandbox for dev. *(Done Oct 12, 2026: the Ark Pals account in our Stripe organization, its sandbox, and Managed Payments for tax. Still to do: confirm the tax code, and accept the Managed Payments terms before going live.)*
 - [ ] A bookkeeping category for the game, plus a monthly tithe report (10% of gross).
 - [ ] Voice release from your wife to the LLC.
 - [ ] Privacy policy, terms, and data-retention/security plan, followed by the legal review.
