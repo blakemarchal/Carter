@@ -4,3 +4,10 @@ spiritflow.church, www.spiritflow.church {
 	reverse_proxy 127.0.0.1:3004
 	header -Server
 }
+
+# Ark Pals production (deploy/arkpals-web.service): the paid site
+arkpals.world, www.arkpals.world {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3005
+	header -Server
+}

@@ -1,0 +1,25 @@
+[Unit]
+Description=Ark Pals production (arkpals.world)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ArkPals
+EnvironmentFile=/opt/ArkPals/.env
+ExecStart=/usr/bin/node server/index.mjs
+Restart=on-failure
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+# Narration clips (Grok voice) are cached here: /var/cache/arkpals
+CacheDirectory=arkpals
+# Progress backups are kept here: /var/lib/arkpals
+StateDirectory=arkpals
+ReadOnlyPaths=/opt/ArkPals
+
+[Install]
+WantedBy=multi-user.target
