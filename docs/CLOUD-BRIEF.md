@@ -456,3 +456,53 @@ Praise and prompts first is about 1 h 30 of Mom's time and covers most of what a
 - Rename the voices in the studio.
 - Decide whether to share any of Carter's songs.
 - Optional: rerun `node scripts/name-library.mjs <unzipped names.zip>` from SSA's own download to confirm the list (it should match).
+
+---
+
+## Next: wave 11, a bug and polish pass, and Grok for every line (Oct 12, 2026)
+
+On a new branch **`blake/polish`**, made from `blake/wave7`. Blake played production (arkpals.world) as a new owner and asked for a serious bug and polish pass. **Everything spoken should be Grok until our own recordings replace it.** Today some lines play in Grok and some in the device voice, which sounds bad.
+
+### A. Voice: Grok everywhere, without sending a child's name
+- **Why the device voice still plays:**
+  1. Lines that aren't in the warmed cache (`/tts` is cached-only now). Examples: object-name lines ("Where does the lion go?", "Drag the cookie here!"), "<Pal> used <move>!", and anything built at runtime.
+  2. Lines with a family name (by design: names never go to `/tts`).
+  3. A clip slower than 4 seconds.
+- **Letter sounds:** Blake hears "n" as "N-N-N" (the device voice spells out `say: 'nnn'`), and "t" sounds like "two" (likely Grok reading `/tə/`). See `src/lib/spoken.ts:23-31`.
+- **Make Grok a house voice (`grok`)**, ranked after our real voices and before the device voice. Stitch Grok clips exactly as the house voices are stitched (templates, slots, `src/voice/*`), so name lines are Grok too:
+  - Grok clips for every template part, numbers 0–140, letter names, **letter sounds as stand-alone clips**, Pal names, move names, item names, and **all 1,062 library names**. The library is the SSA's public list, so no family's data goes to xAI.
+  - Add templates for the combinatorial lines (`{item}`, `{move}` and any others you find), so they stitch instead of falling through.
+  - Write **`scripts/warm-house-grok.mjs`**, which the local thread runs on the server (only it can reach xAI). It makes every clip the house `grok` voice needs, skipping ones already made, never prints the key, and writes the house index. It takes a list of what to make, so it can be re-run after each wave.
+  - Remove the 4-second race for lines that are now house `grok` clips. Preload the next lines as now.
+  - **A child's name that isn't in the library** plays in the device voice, as now. Add a Parent Corner choice, **off by default**: "Let the narrator say <name>". It sends that one name to xAI once to make its two clips, and asks for the parent's consent in plain words. Update `docs/legal/PRIVACY.md`.
+  - **Letter sounds:** pick the Grok prompt per sound so it says the sound and not the letter name ("tuh" not "two"; a held "nnn" for n, m, s, f, l, r, v, z). Add an owner-only **Sound check page**: every letter sound, letter name and number 0–20 with a ▶ button, so Blake can listen and flag bad ones. Flagged clips get re-made by the warm script with a different prompt.
+- **A voice coverage log (owner devices, and dev only):** each time a line falls to the device voice, the client sends the line (never one with a family name) to a small owner-only endpoint. Show the list in the studio, so the local thread can add each line to the next warm-up. Add a test that walks every island step and learning level and fails if a line has no source but the device voice (names excepted).
+
+### B. Bugs Blake hit
+1. **The boat sits at a locked island.** A new player's `mapAt` defaults to `'noah'` (`src/lib/progress.ts:111`), from before the map was reordered. Default to the first island of the first sea. Repair saves whose `mapAt` is an island that isn't open yet: put the boat at the next open island.
+2. **A family link opened on a signed-in device silently moves that device into the new family.** Blake's owner computer joined "Test Fam". The start link and invitation links must say "This device is signed in to <family>". Offer "Open this on another device or a private window" and "Leave <family> on this device and start the new family" (with a confirm). Never move the first family's last device without that confirm.
+3. **The owner's grown-up is named "Grown-ups"** (the first-family bootstrap). After the first password sign-in, ask "What should we call you?" and then for an email.
+4. **"Check for updates" / "Reload app" gives no feedback** until the reload. Show a spinner and "Updating…" at once. Disable the button, and show "You have the newest version" when there's nothing new.
+
+### C. A polish pass over every screen
+Render every screen at iPad landscape (1180×820), iPad portrait (820×1180) and phone (390×844). Fix:
+- **Centering and spacing.** The treasure hunt has a big gap between the Pal and its words, and the Pal sits low. Many things are off-centre. Use one spacing scale, and centre content blocks.
+- **The Parent Corner needs a real layout.** Group it into clear sections with headings and short help:
+  - Players;
+  - Grown-ups and devices;
+  - Your family's plan;
+  - Voices and recordings;
+  - Learning levels;
+  - Play and limits;
+  - Data and privacy;
+  - App.
+  Use one style for inputs, selects and buttons (the invite row's native select and truncated placeholder look broken). Make it collapsible, or use a side menu on wide screens.
+- **Player avatars are emoji.** Use drawn avatars from the item library, as the game plan's no-emoji rule says, or confirm with Blake if that's large.
+- Comments still call the child "she" in places (`progress.ts:21` and others). Make them neutral.
+- Then a **fresh-eyes bug sweep**: play a new owner, a new customer family, a placement game, one visit of each sea, a battle, the kitchen, the sing-along and bedtime on WebKit at iPad size. Fix what's broken, and list what you leave.
+
+### Hand back
+The same way as before. Also list:
+- exactly what the local thread must run: `warm-house-grok.mjs` and its list, the warm-up, and anything in `.env`;
+- the Grok clip count to make (a rough xAI character total);
+- before and after screenshots of the Parent Corner and the treasure hunt.
