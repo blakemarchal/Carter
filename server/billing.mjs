@@ -16,8 +16,17 @@
 //   STRIPE_WEBHOOK_SECRET  the webhook endpoint's signing secret (written by npm run stripe-setup)
 //   STRIPE_PORTAL_CONFIG   the billing page's configuration (written by npm run stripe-setup)
 //   BILLING_ENFORCED       1 to start blocking families without a plan (off until Blake decides)
-//   STRIPE_TAX             1 to have Stripe Tax add sales tax at checkout (off until Blake decides)
 //   STRIPE_TAX_CODE        the products' tax code (txcd_…), used by npm run stripe-setup
+//
+// Sales tax: Stripe Managed Payments is on, so Stripe is the merchant of record and works out the tax itself.
+// Checkout must not send automatic_tax, customer_update, payment_method_types, tax_id_collection or
+// invoice_creation (Managed Payments refuses them).
+//
+// Grace codes (single-use, 6 or 12 months free) are ours, kept here: a family types one into "Your family's
+// plan", and gets a Family plan whose free trial lasts as long as the code, with no card asked for. When the
+// free months end without a card, Stripe cancels the plan (trial_settings.end_behavior.missing_payment_method
+// 'cancel'): it simply ends, and no one is ever charged. They aren't Stripe promotion codes, so they can't be
+// typed into a paid checkout either.
 import { randomBytes, randomInt } from 'node:crypto'
 
 /** The Stripe API version this code is written for (the SDK's own, pinned). */
@@ -43,11 +52,15 @@ export const PLANS = {
   'sponsor-monthly': { lookup: 'arkpals_sponsor_monthly', product: 'sponsor', amount: 999, interval: 'month', label: 'Sponsor a Family' },
 }
 const PLAN_BY_LOOKUP = Object.fromEntries(Object.entries(PLANS).map(([k, v]) => [v.lookup, k]))
-/** The 100%-off coupons behind Grace codes (custom ids), for the Family product only. */
-export const COUPONS = {
-  6: { id: 'arkpals_grace_6mo', name: 'Grace code: 6 months free', months: 6 },
-  12: { id: 'arkpals_grace_12mo', name: 'Grace code: 12 months free', months: 12 },
-}
+/** How many months free a Grace code can give. */
+export const GRACE_MONTHS = [6, 12]
+/** A Grace code's plan: the Family plan, monthly, if the family later adds a card to keep it. */
+export const GRACE_PLAN = 'family-monthly'
+/** A Grace checkout lasts this long, and holds its code (for that family) a little longer. */
+const GRACE_CHECKOUT_MIN = 30
+const GRACE_HOLD_MIN = 35
+/** Wrong Grace codes a family may try in an hour. */
+const GRACE_TRIES = 10
 /** Each paid Sponsor a Family invoice adds one Grace code of this many months to the owner's pool. */
 export const SPONSOR_CODE_MONTHS = 6
 export const WEBHOOK_EVENTS = [
@@ -82,6 +95,21 @@ export function graceCode(months) {
   return `GRACE${months}-${part()}-${part()}`
 }
 
+/** A typed Grace code as we write it ("grace6 abcd efgh" is GRACE6-ABCD-EFGH), or null if it can't be one. */
+export function tidyCode(typed) {
+  const m = /^GRACE(6|12)([A-Z0-9]{4})([A-Z0-9]{4})$/.exec(String(typed ?? '').toUpperCase().replace(/[^A-Z0-9]/g, ''))
+  return m ? `GRACE${m[1]}-${m[2]}-${m[3]}` : null
+}
+
+/** The time `months` calendar months after `ms` (in UTC). */
+export function addMonths(ms, months) {
+  const d = new Date(ms)
+  const day = d.getUTCDate()
+  d.setUTCMonth(d.getUTCMonth() + months)
+  if (d.getUTCDate() !== day) d.setUTCDate(0) // (Aug 31 + 6 months: the end of February, not March 3)
+  return d.getTime()
+}
+
 /** `integration_identifier` for a Checkout Session: "arkpals-checkout-" and 8 random letters. */
 export function integrationId() {
   return `arkpals-checkout-${Array.from({ length: 8 }, () => 'abcdefghijklmnopqrstuvwxyz'[randomInt(26)]).join('')}`
@@ -91,7 +119,7 @@ export function integrationId() {
  * Billing for the families in `families` (its SQLite `db`). `stripe` is the Stripe client (or a fake one
  * in tests; null when billing isn't set up). `webhooks` verifies signatures (the SDK's stripe.webhooks).
  */
-export function createBilling({ db, families, stripe = null, webhooks = stripe?.webhooks ?? null, webhookSecret = '', enforced = false, tax = false, portalConfig = '', clock = () => Date.now(), log = console } = {}) {
+export function createBilling({ db, families, stripe = null, webhooks = stripe?.webhooks ?? null, webhookSecret = '', enforced = false, portalConfig = '', clock = () => Date.now(), log = console } = {}) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS billing (
       family_id TEXT PRIMARY KEY REFERENCES families(id) ON DELETE CASCADE,
@@ -107,6 +135,14 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       id TEXT PRIMARY KEY, promo_id TEXT, code TEXT, months INTEGER NOT NULL, source TEXT NOT NULL,
       batch TEXT, ref TEXT UNIQUE, created INTEGER NOT NULL);
   `)
+  // (added for Grace codes that take no card: who used a code and when, and a hold while a family is at checkout)
+  const addColumns = (table, cols) => {
+    const have = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name))
+    for (const [name, type] of Object.entries(cols)) if (!have.has(name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${type}`)
+  }
+  addColumns('billing', { grace: 'INTEGER NOT NULL DEFAULT 0' })
+  addColumns('grace_codes', { used_by: 'TEXT', used_at: 'INTEGER', held_by: 'TEXT', held_until: 'INTEGER' })
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS grace_codes_code ON grace_codes(code)')
   const q = (sql) => db.prepare(sql)
   const row = (familyId) => q('SELECT * FROM billing WHERE family_id = ?').get(familyId) ?? null
   const ensure = (familyId) => q('INSERT INTO billing (family_id, updated) VALUES (?, ?) ON CONFLICT(family_id) DO NOTHING').run(familyId, clock())
@@ -153,15 +189,27 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
     if (r?.subscription_id === sub.id && (r.sub_stamp ?? 0) > stamp) return
     // (an old plan ending doesn't touch the newer one the family has now)
     if (r?.subscription_id && r.subscription_id !== sub.id && PAID.has(r.status) && !PAID.has(sub.status)) return
+    const grace = sub.metadata?.arkpals_grace ?? null
+    if (grace) useCode(grace, familyId)
     const end = sub.status === 'trialing' && sub.trial_end ? sub.trial_end : (item?.current_period_end ?? sub.ended_at ?? null)
     set(familyId, {
-      subscription_id: sub.id, plan: plan ?? 'other', status: sub.status,
+      subscription_id: sub.id, plan: plan ?? 'other', status: sub.status, grace: grace ? 1 : 0,
       paid_through: end ? end * 1000 : null,
       cancel_at_period_end: sub.cancel_at_period_end || sub.cancel_at ? 1 : 0,
       sub_stamp: stamp,
       trial_used: r?.trial_used || sub.trial_end || sub.trial_start ? 1 : 0,
       ...(sub.status === 'active' || sub.status === 'trialing' ? { payment_failed: null } : {}),
     })
+  }
+
+  /**
+   * A Grace code's plan has started: the code is used, for good. (Its checkout held it for this family, for
+   * longer than the checkout lasts, so another family can't have used it meanwhile.)
+   */
+  function useCode(codeId, familyId) {
+    const done = q('UPDATE grace_codes SET used_by = ?, used_at = ?, held_by = NULL, held_until = NULL WHERE id = ? AND (used_by IS NULL OR used_by = ?)')
+      .run(familyId, clock(), codeId, familyId).changes
+    if (!done) log.error?.(`Grace code ${codeId}: already used by another family`)
   }
 
   async function syncFromSession(event) {
@@ -180,33 +228,38 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
   }
 
   /** Each paid Sponsor a Family invoice: one Grace code into the owner's pool (once per invoice). */
-  async function sponsorCode(invoiceId, familyId) {
-    const id = `gc_${randomBytes(9).toString('base64url')}`
-    const claimed = q('INSERT INTO grace_codes (id, months, source, batch, ref, created) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(ref) DO NOTHING')
-      .run(id, SPONSOR_CODE_MONTHS, 'sponsor', 'Sponsored', `invoice:${invoiceId}`, clock()).changes > 0
-    if (!claimed) return
-    try {
-      needStripe()
-      const promo = await createPromo(SPONSOR_CODE_MONTHS, { source: 'sponsor' })
-      q('UPDATE grace_codes SET promo_id = ?, code = ? WHERE id = ?').run(promo.id, promo.code, id)
+  function sponsorCode(invoiceId, familyId) {
+    if (newCode(SPONSOR_CODE_MONTHS, { source: 'sponsor', batch: 'Sponsored', ref: `invoice:${invoiceId}` })) {
       set(familyId, { sponsored: (row(familyId)?.sponsored ?? 0) + 1 })
-    } catch (e) {
-      q('DELETE FROM grace_codes WHERE id = ?').run(id) // (Stripe sends the event again, and it's tried again)
-      throw e
     }
   }
 
-  async function createPromo(months, metadata = {}) {
+  /** Makes and keeps a new Grace code. Returns it, or null if one with this `ref` was made already. */
+  function newCode(months, { source, batch, ref = null }) {
     for (let tries = 0; ; tries++) {
+      const code = graceCode(months)
       try {
-        return await stripe.promotionCodes.create({
-          promotion: { type: 'coupon', coupon: COUPONS[months].id }, code: graceCode(months), max_redemptions: 1, metadata,
-        })
+        const made = q('INSERT INTO grace_codes (id, code, months, source, batch, ref, created) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(ref) DO NOTHING')
+          .run(`gc_${randomBytes(9).toString('base64url')}`, code, months, source, batch, ref, clock()).changes
+        return made ? code : null
       } catch (e) {
-        if (tries >= 2 || e?.code !== 'resource_already_exists') throw e // (the same code twice: very unlikely; try another)
+        if (tries >= 2 || !/UNIQUE/.test(e.message)) throw e // (the same code twice: very unlikely; try another)
       }
     }
   }
+
+  /** The family's Stripe Customer, made the first time. */
+  async function customerFor(fam, email) {
+    const had = row(fam)?.customer_id
+    if (had) return had
+    const c = await stripe.customers.create({ ...(email ? { email } : {}), metadata: { arkpals_family: fam } })
+    ensure(fam)
+    q('UPDATE billing SET customer_id = ?, updated = ? WHERE family_id = ? AND customer_id IS NULL').run(c.id, clock(), fam)
+    return row(fam).customer_id // (if two parents asked at once, the first one's)
+  }
+
+  /** Wrong Grace codes tried, by family: { count, since }. */
+  const wrongTries = new Map()
 
   const HANDLERS = {
     'checkout.session.completed': syncFromSession,
@@ -224,7 +277,7 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
         || inv.parent?.subscription_details?.metadata?.arkpals === 'sponsor'
         || lines.some((l) => idOf(l.pricing?.price_details?.product) === PRODUCTS.sponsor.id)
       if (sponsor) {
-        if (inv.amount_paid > 0) await sponsorCode(inv.id, fam)
+        if (inv.amount_paid > 0) sponsorCode(inv.id, fam)
         return
       }
       const r = row(fam)
@@ -260,7 +313,7 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       const first = familyId === families.firstFamily()
       return {
         stripeOn: !!stripe, enforced, free: first, comped: !!r?.comped,
-        plan: r?.plan ?? null, status: r?.status ?? null, paidThrough: r?.paid_through ?? null,
+        plan: r?.plan ?? null, status: r?.status ?? null, paidThrough: r?.paid_through ?? null, grace: !!r?.grace,
         cancelAtPeriodEnd: !!r?.cancel_at_period_end, trialUsed: !!r?.trial_used, paymentFailed: r?.payment_failed ?? null,
         sponsoring: PAID.has(r?.sponsor_status), billingPage: !!r?.customer_id,
         plans: Object.entries(PLANS).map(([id, p]) => ({ id, amount: p.amount, interval: p.interval, label: p.label })),
@@ -287,24 +340,64 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       const r = row(fam)
       if (sponsor ? PAID.has(r?.sponsor_status) : (fam === families.firstFamily() || r?.comped || PAID.has(r?.status))) throw err(409, 'already has a plan')
       const price = await priceId(plan)
-      let customer = r?.customer_id
-      if (!customer) {
-        const c = await stripe.customers.create({ ...(email ? { email } : {}), metadata: { arkpals_family: fam } })
-        ensure(fam)
-        q('UPDATE billing SET customer_id = ?, updated = ? WHERE family_id = ? AND customer_id IS NULL').run(c.id, clock(), fam)
-        customer = row(fam).customer_id // (if two parents asked at once, the first one's)
-      }
+      const customer = await customerFor(fam, email)
       const s = await stripe.checkout.sessions.create({
         mode: 'subscription',
         customer,
         line_items: [{ price, quantity: 1 }],
-        ...(sponsor ? {} : { allow_promotion_codes: true }),
+        payment_method_collection: 'always', // (a card, even for the free week)
         subscription_data: {
           ...(sponsor || r?.trial_used ? {} : { trial_period_days: TRIAL_DAYS }),
           metadata: { arkpals: sponsor ? 'sponsor' : 'family' },
         },
         integration_identifier: integrationId(),
-        ...(tax ? { automatic_tax: { enabled: true }, customer_update: { address: 'auto', name: 'auto' } } : {}),
+        success_url: `${returnUrl}/?billing=done`,
+        cancel_url: `${returnUrl}/?billing=back`,
+      })
+      return s.url
+    },
+
+    /**
+     * Stripe Checkout for a Grace code: the Family plan, free for the code's months, with no card. Returns its
+     * URL. Refuses (with a status the Parent Corner explains) a family that has a plan (409), a code that isn't
+     * one of ours (404), one that's been used (410), one another family is at checkout with now (423), and too
+     * many wrong codes in an hour (429). The code is used once the plan starts (the webhooks: see useCode).
+     */
+    async graceCheckout(session, typed, { returnUrl, email = null }) {
+      needStripe()
+      const fam = session.family.id
+      const r = row(fam)
+      if (fam === families.firstFamily() || r?.comped || PAID.has(r?.status)) throw err(409, 'already has a plan')
+      const now = clock()
+      const tries = wrongTries.get(fam)
+      if (tries && now - tries.since > 3600_000) wrongTries.delete(fam)
+      if ((wrongTries.get(fam)?.count ?? 0) >= GRACE_TRIES) throw err(429, 'too many codes')
+      const code = tidyCode(typed)
+      const c = code ? q('SELECT * FROM grace_codes WHERE code = ?').get(code) : null
+      if (!c || !GRACE_MONTHS.includes(c.months)) {
+        const w = wrongTries.get(fam) ?? { count: 0, since: now }
+        wrongTries.set(fam, { ...w, count: w.count + 1 })
+        throw err(404, 'no such code')
+      }
+      if (c.used_by) throw err(410, 'code used')
+      const held = q('UPDATE grace_codes SET held_by = ?, held_until = ? WHERE id = ? AND used_by IS NULL AND (held_by IS NULL OR held_by = ? OR held_until <= ?)')
+        .run(fam, now + GRACE_HOLD_MIN * 60_000, c.id, fam, now).changes
+      if (!held) throw err(423, 'code in use')
+      const price = await priceId(GRACE_PLAN)
+      const customer = await customerFor(fam, email)
+      const s = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        customer,
+        line_items: [{ price, quantity: 1 }],
+        payment_method_collection: 'if_required', // (nothing is due, so no card is asked for)
+        subscription_data: {
+          trial_end: Math.floor(addMonths(now, c.months) / 1000),
+          trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
+          metadata: { arkpals: 'family', arkpals_grace: c.id },
+        },
+        metadata: { arkpals_grace: c.id },
+        expires_at: Math.floor(now / 1000) + GRACE_CHECKOUT_MIN * 60,
+        integration_identifier: integrationId(),
         success_url: `${returnUrl}/?billing=done`,
         cancel_url: `${returnUrl}/?billing=back`,
       })
@@ -354,7 +447,9 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       const rows = Object.fromEntries(q('SELECT * FROM billing').all().map((r) => [r.family_id, r]))
       const list = q('SELECT id, name, created FROM families ORDER BY created').all().map((f) => {
         const r = rows[f.id]
-        const what = f.id === first ? 'free' : r?.comped ? 'comped' : PAID.has(r?.status) ? (r.status === 'trialing' ? 'trial' : r.plan ?? 'other') : r?.status ? 'ended' : 'none'
+        const what = f.id === first ? 'free' : r?.comped ? 'comped'
+          : PAID.has(r?.status) ? (r.status === 'trialing' ? (r.grace ? 'grace' : 'trial') : r.plan ?? 'other')
+          : r?.status ? 'ended' : 'none'
         return { id: f.id, name: f.name, created: f.created, what, status: r?.status ?? null, pastDue: r?.status === 'past_due', comped: !!r?.comped, first: f.id === first, sponsoring: PAID.has(r?.sponsor_status) }
       })
       const counts = {}
@@ -362,7 +457,8 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       return {
         counts, families: list, sponsors: list.filter((f) => f.sponsoring).length,
         pastDue: list.filter((f) => f.pastDue).length,
-        codes: q('SELECT code, months, source, batch, created FROM grace_codes WHERE code IS NOT NULL ORDER BY created DESC LIMIT 500').all().map((c) => ({ ...c })),
+        // (when a code was used, but not by whom: a Grace code is given quietly)
+        codes: q('SELECT code, months, source, batch, created, used_at AS used FROM grace_codes WHERE code IS NOT NULL ORDER BY created DESC LIMIT 500').all().map((c) => ({ ...c })),
       }
     },
 
@@ -370,16 +466,10 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
     async makeCodes(months, count, batch) {
       months = Number(months)
       count = Number(count)
-      if (!COUPONS[months] || !Number.isInteger(count) || count < 1 || count > 100) throw err(400, 'bad batch')
-      needStripe()
+      if (!GRACE_MONTHS.includes(months) || !Number.isInteger(count) || count < 1 || count > 100) throw err(400, 'bad batch')
       const label = String(batch ?? '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 60) || new Date(clock()).toISOString().slice(0, 10)
       const made = []
-      for (let i = 0; i < count; i++) {
-        const promo = await createPromo(months, { source: 'batch' })
-        q('INSERT INTO grace_codes (id, promo_id, code, months, source, batch, created) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(`gc_${randomBytes(9).toString('base64url')}`, promo.id, promo.code, months, 'batch', label, clock())
-        made.push(promo.code)
-      }
+      for (let i = 0; i < count; i++) made.push(newCode(months, { source: 'batch', batch: label }))
       return { months, batch: label, codes: made }
     },
 
@@ -398,7 +488,7 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
       const at = (t) => (t ? new Date(t).toISOString() : null)
       return {
         stripeCustomer: r.customer_id, comped: !!r.comped, plan: r.plan, status: r.status, subscription: r.subscription_id,
-        paidThrough: at(r.paid_through), cancelAtPeriodEnd: !!r.cancel_at_period_end, trialUsed: !!r.trial_used,
+        paidThrough: at(r.paid_through), graceCode: !!r.grace, cancelAtPeriodEnd: !!r.cancel_at_period_end, trialUsed: !!r.trial_used,
         lastPaymentFailed: at(r.payment_failed), sponsorSubscription: r.sponsor_subscription_id, sponsorStatus: r.sponsor_status,
         sponsoredCodes: r.sponsored, updated: at(r.updated),
       }
@@ -418,6 +508,9 @@ export function createBilling({ db, families, stripe = null, webhooks = stripe?.
         if (e?.code !== 'resource_missing') throw err(502, e.message)
       }
       q('UPDATE billing SET customer_id = NULL WHERE family_id = ?').run(familyId)
+      // (a Grace code it used stays used, but no longer says by whom)
+      q("UPDATE grace_codes SET used_by = 'deleted' WHERE used_by = ?").run(familyId)
+      q('UPDATE grace_codes SET held_by = NULL, held_until = NULL WHERE held_by = ?').run(familyId)
     },
   }
   return api
@@ -469,7 +562,7 @@ export async function handleWebhook(req, res, billing) {
 
 /**
  * GET /billing: whether the family may play ({ allowed, enforced, checkedAt }), and for parents its plan.
- * Parents: POST /billing/checkout {plan} -> {url}; POST /billing/portal -> {url}.
+ * Parents: POST /billing/checkout {plan} -> {url}; POST /billing/grace {code} -> {url}; POST /billing/portal -> {url}.
  * The owner (a parent in the first family): GET /billing/owner (the dashboard), POST /billing/owner/codes,
  * POST /billing/owner/comp.
  */
@@ -486,6 +579,10 @@ export async function handleBilling(req, res, url, s, billing, { siteUrl, isOwne
     if (what === 'checkout' && req.method === 'POST') {
       const b = JSON.parse((await readBody(req, 4096)).toString('utf8') || '{}')
       return json(res, 200, { url: await billing.checkout(s, String(b.plan ?? ''), { returnUrl: siteUrl(req), email: s.member.email ?? null }) })
+    }
+    if (what === 'grace' && req.method === 'POST') {
+      const b = JSON.parse((await readBody(req, 4096)).toString('utf8') || '{}')
+      return json(res, 200, { url: await billing.graceCheckout(s, String(b.code ?? ''), { returnUrl: siteUrl(req), email: s.member.email ?? null }) })
     }
     if (what === 'portal' && req.method === 'POST') return json(res, 200, { url: await billing.portal(s, { returnUrl: siteUrl(req) }) })
     return json(res, 405)
@@ -517,37 +614,37 @@ async function handleOwner(req, res, url, s, billing, isOwner) {
   return json(res, 404)
 }
 
-const NAMES = { free: 'Free (our family)', comped: 'Comped', 'family-yearly': 'Family, yearly', 'family-monthly': 'Family, monthly', 'grace-monthly': 'Grace price', trial: 'In their free week', other: 'Another price', ended: 'Plan ended', none: 'No plan yet' }
+const NAMES = { free: 'Free (our family)', comped: 'Comped', 'family-yearly': 'Family, yearly', 'family-monthly': 'Family, monthly', 'grace-monthly': 'Grace price', trial: 'In their free week', grace: 'Free with a Grace code', other: 'Another price', ended: 'Plan ended', none: 'No plan yet' }
 
 function dashboard(o, billing) {
-  const order = ['family-yearly', 'family-monthly', 'grace-monthly', 'trial', 'comped', 'free', 'ended', 'none', 'other']
+  const order = ['family-yearly', 'family-monthly', 'grace-monthly', 'trial', 'grace', 'comped', 'free', 'ended', 'none', 'other']
   const counts = order.filter((k) => o.counts[k]).map((k) => `<tr><td>${esc(NAMES[k])}</td><td>${o.counts[k]}</td></tr>`).join('')
   const day = (t) => new Date(t).toISOString().slice(0, 10)
   const fams = o.families.map((f) => `<tr><td>${esc(f.name)}</td><td>${esc(NAMES[f.what])}${f.pastDue ? ' (card being retried)' : ''}${f.sponsoring ? ' · sponsors a family' : ''}</td><td>${day(f.created)}</td><td>${f.first ? '' : `<form method="post" action="/billing/owner/comp"><input type="hidden" name="family" value="${esc(f.id)}"><input type="hidden" name="comped" value="${f.comped ? '0' : '1'}"><button class="small">${f.comped ? 'Stop comping' : 'Comp'}</button></form>`}</td></tr>`).join('')
-  const codes = o.codes.map((c) => `<tr><td class="code">${esc(c.code)}</td><td>${c.months} months</td><td>${esc(c.source === 'sponsor' ? 'Sponsored' : c.batch)}</td><td>${day(c.created)}</td></tr>`).join('')
+  const codes = o.codes.map((c) => `<tr><td class="code">${esc(c.code)}</td><td>${c.months} months</td><td>${esc(c.source === 'sponsor' ? 'Sponsored' : c.batch)}</td><td>${day(c.created)}</td><td>${c.used ? day(c.used) : 'Not yet'}</td></tr>`).join('')
   return `<h1>Billing</h1>
 <p class="note">${billing.stripeOn ? 'Stripe is connected.' : 'Stripe isn’t set up yet (npm run set-stripe-key, then npm run stripe-setup).'} Access is ${billing.enforced ? '<b>enforced</b>' : 'not enforced yet (BILLING_ENFORCED is off): every family can play'}. Counts only: nothing about children is here.</p>
 <h2>Families on each plan</h2>
 <table><tbody>${counts || '<tr><td>No families yet</td><td></td></tr>'}</tbody></table>
 <p class="note">${o.sponsors} ${o.sponsors === 1 ? 'family sponsors' : 'families sponsor'} another family. ${o.pastDue ? `${o.pastDue} with a card being retried.` : ''}</p>
 <h2>Make Grace codes</h2>
-<p class="note">Each code works once, at checkout, for a family plan: free for 6 or 12 months. Give them to children’s pastors and ministry leaders to hand out quietly.</p>
+<p class="note">Each code works once: a parent types it in Ark Pals (Parent Corner → Your family’s plan → I have a Grace code). The family plays free for 6 or 12 months with no card at all, and then the plan simply ends: no one is ever charged. Give them to children’s pastors and ministry leaders to hand out quietly.</p>
 <form method="post" action="/billing/owner/codes" class="row">
 <label>How many <input name="count" type="number" min="1" max="100" value="10" required></label>
 <label>Free for <select name="months"><option value="6">6 months</option><option value="12">12 months</option></select></label>
 <label>Who they're for <input name="batch" maxlength="60" placeholder="Grace Church, children's ministry"></label>
-<button ${billing.stripeOn ? '' : 'disabled'}>Make codes</button></form>
+<button>Make codes</button></form>
 <h2>Families</h2>
 <p class="note">Comped families (like the church beta) are always free. The first family always is.</p>
 <div class="wrap"><table><thead><tr><th>Family</th><th>Plan</th><th>Joined</th><th></th></tr></thead><tbody>${fams}</tbody></table></div>
 <h2>Grace codes made</h2>
-${codes ? `<div class="wrap"><table><thead><tr><th>Code</th><th>Free for</th><th>For</th><th>Made</th></tr></thead><tbody>${codes}</tbody></table></div>` : '<p class="note">None yet.</p>'}
+${codes ? `<div class="wrap"><table><thead><tr><th>Code</th><th>Free for</th><th>For</th><th>Made</th><th>Used</th></tr></thead><tbody>${codes}</tbody></table></div>` : '<p class="note">None yet.</p>'}
 <p class="note"><a href="/">Back to Ark Pals</a></p>`
 }
 
 function codesPage(m) {
   return `<h1>${m.codes.length} Grace ${m.codes.length === 1 ? 'code' : 'codes'}</h1>
-<p class="note">${esc(m.batch)} · each free for ${m.months} months, once. Enter it at checkout (“Add promotion code”).</p>
+<p class="note">${esc(m.batch)} · each free for ${m.months} months, once, with no card. In Ark Pals: Parent Corner → Your family’s plan → I have a Grace code.</p>
 <ul class="codes">${m.codes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
 <p class="note noprint">To print, use your browser’s Print (on an iPad: Share, then Print). To copy, select the codes. They’re kept on the billing page too.</p>
 <p class="noprint"><a href="/billing/owner">Back to billing</a></p>`

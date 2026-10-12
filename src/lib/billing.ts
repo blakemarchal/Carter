@@ -25,6 +25,8 @@ export interface BillingStatus {
   /** Stripe's subscription status: trialing, active, past_due, canceled… */
   status: string | null
   paidThrough: number | null
+  /** The plan came from a Grace code: free for its months, with no card, and then it simply ends. */
+  grace: boolean
   cancelAtPeriodEnd: boolean
   trialUsed: boolean
   paymentFailed: number | null
@@ -34,6 +36,20 @@ export interface BillingStatus {
   plans: { id: PlanId; amount: number; interval: 'month' | 'year'; label: string }[]
 }
 export type PlanId = 'family-yearly' | 'family-monthly' | 'grace-monthly' | 'sponsor-monthly'
+
+/** How long before a Grace code's free months end the Parent Corner says so. */
+export const GRACE_NOTE_DAYS = 14
+
+/**
+ * What to tell a family on a Grace code: 'free' (the free months, no card), 'ending' (they end within
+ * GRACE_NOTE_DAYS), 'ended' (they have, and the plan with them), or null (not on a Grace code).
+ */
+export function graceStage(b: Pick<BillingStatus, 'grace' | 'status' | 'paidThrough'>, now: number): 'free' | 'ending' | 'ended' | null {
+  if (!b.grace) return null
+  if (b.status === 'trialing') return b.paidThrough && b.paidThrough - now <= GRACE_NOTE_DAYS * DAY ? 'ending' : 'free'
+  if (b.status === 'canceled' || b.status === 'incomplete_expired') return 'ended'
+  return null // (they added a card, and the plan carries on as any other)
+}
 
 /**
  * Whether the game opens, from the last answer the server gave (`last`, null if it never has). Never
@@ -107,6 +123,8 @@ export const billingApi = {
   },
   /** Stripe Checkout for a plan: its address, to go to. */
   checkout: (plan: PlanId) => post<{ url: string }>('/billing/checkout', { plan }).then((r) => r.url),
+  /** Stripe Checkout for a Grace code (no card): its address. Refused with 404, 410, 423 or 429 (see FamilyPlan). */
+  grace: (code: string) => post<{ url: string }>('/billing/grace', { code }).then((r) => r.url),
   /** Stripe's billing page (cancel, card, plan, receipts): its address. */
   portal: () => post<{ url: string }>('/billing/portal').then((r) => r.url),
 }

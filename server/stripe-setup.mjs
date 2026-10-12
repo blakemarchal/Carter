@@ -5,13 +5,12 @@
 // It makes, each found again by its id or lookup_key:
 //   - the products "Ark Pals Family" ($9.99/mo and $79/yr), "Ark Pals Grace" ($4.99/mo) and "Sponsor a Family"
 //     ($9.99/mo); prices are tax-exclusive, and the products get STRIPE_TAX_CODE (from .env) if it's set
-//   - the 100%-off coupons for 6 and 12 months behind the Grace codes
 //   - the billing page's settings (cancel, change card or plan, receipts): saved to .env as STRIPE_PORTAL_CONFIG
 //   - the webhook endpoint https://spiritflow.church/stripe/webhook (SITE_URL, if set): its signing secret is
 //     saved to .env as STRIPE_WEBHOOK_SECRET, and never shown
 import { fileURLToPath } from 'node:url'
 import { readEnv, writeEnv } from './env.mjs'
-import { API_VERSION, COUPONS, PLANS, PRODUCTS, WEBHOOK_EVENTS, stripeFromEnv } from './billing.mjs'
+import { API_VERSION, PLANS, PRODUCTS, WEBHOOK_EVENTS, stripeFromEnv } from './billing.mjs'
 
 const missing = (e) => e?.code === 'resource_missing' || e?.statusCode === 404
 
@@ -61,21 +60,8 @@ export async function setupStripe(stripe, { siteUrl = 'https://spiritflow.church
     say(`Price ${p.lookup} ($${(p.amount / 100).toFixed(2)}/${p.interval}): ${old ? 'replaced' : 'made'}`)
   }
 
-  // Coupons for the Grace codes, by their own ids, for the Family product only.
-  for (const c of Object.values(COUPONS)) {
-    try {
-      const had = await stripe.coupons.retrieve(c.id)
-      if (had.percent_off !== 100 || had.duration_in_months !== c.months) say(`Coupon ${c.id}: exists but isn't 100% off for ${c.months} months. Check it in Stripe.`)
-      else say(`Coupon ${c.id}: up to date`)
-    } catch (e) {
-      if (!missing(e)) throw e
-      await stripe.coupons.create({
-        id: c.id, name: c.name, percent_off: 100, duration: 'repeating', duration_in_months: c.months,
-        applies_to: { products: [PRODUCTS.family.id] },
-      })
-      say(`Coupon ${c.id}: made`)
-    }
-  }
+  // (Grace codes need nothing here: they're kept by the server, and a Grace plan is a free trial on the Family
+  // monthly price. The 6- and 12-month coupons an earlier version made aren't used any more.)
 
   // The billing page (Customer Portal).
   const portal = {

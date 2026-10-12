@@ -2,7 +2,7 @@
 // the server when online and keeps playing for 7 days offline after its last good answer. The days match
 // the server's (server/billing.mjs).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { checkAccess, decideAccess, dollars, OFFLINE_DAYS, savedCheck } from '../lib/billing'
+import { billingApi, checkAccess, decideAccess, dollars, graceStage, GRACE_NOTE_DAYS, OFFLINE_DAYS, savedCheck } from '../lib/billing'
 // @ts-expect-error (the server is plain JavaScript, without types)
 import * as server from '../../server/billing.mjs'
 
@@ -94,4 +94,27 @@ it('shows prices the way people say them', () => {
   expect(dollars(7900)).toBe('$79')
   expect(dollars(658)).toBe('$6.58')
   expect(server.PLANS['family-yearly'].amount).toBe(7900)
+})
+
+describe('Grace codes, in the Parent Corner', () => {
+  it('free months, a gentle note before they end, and a kind word after', () => {
+    const g = (status: string | null, paidThrough: number | null, grace = true) => graceStage({ grace, status, paidThrough }, NOW)
+    expect(g('trialing', NOW + 120 * DAY)).toBe('free')
+    expect(g('trialing', NOW + (GRACE_NOTE_DAYS + 1) * DAY)).toBe('free')
+    expect(g('trialing', NOW + GRACE_NOTE_DAYS * DAY)).toBe('ending')
+    expect(g('trialing', NOW + DAY)).toBe('ending')
+    expect(g('canceled', NOW - DAY)).toBe('ended')
+    expect(g('active', NOW + 30 * DAY)).toBeNull() // (they added a card: an ordinary plan now)
+    expect(g('trialing', NOW + DAY, false)).toBeNull() // (the 7-day free week isn't a Grace code)
+    expect(GRACE_NOTE_DAYS).toBe(14)
+  })
+
+  it('sends the code to the server, which answers with Stripe’s checkout, or why not', async () => {
+    const ok = answer({ url: 'https://checkout.stripe.com/c/pay/cs_1' })
+    vi.stubGlobal('fetch', ok)
+    expect(await billingApi.grace('GRACE6-ABCD-EFGH')).toBe('https://checkout.stripe.com/c/pay/cs_1')
+    expect(ok).toHaveBeenCalledWith('/billing/grace', expect.objectContaining({ method: 'POST', body: JSON.stringify({ code: 'GRACE6-ABCD-EFGH' }) }))
+    vi.stubGlobal('fetch', answer({}, 410))
+    await expect(billingApi.grace('GRACE6-ABCD-EFGH')).rejects.toMatchObject({ status: 410 })
+  })
 })

@@ -5,7 +5,7 @@ import { EventEmitter } from 'node:events'
 import Stripe from 'stripe'
 import { describe, expect, it } from 'vitest'
 import { openFamilies } from './families.mjs'
-import { API_VERSION, COUPONS, PLANS, SPONSOR_CODE_MONTHS, WEBHOOK_EVENTS, createBilling, graceCode, handleBilling, handleWebhook, integrationId, isOn, sameOrigin } from './billing.mjs'
+import { API_VERSION, GRACE_MONTHS, PLANS, SPONSOR_CODE_MONTHS, WEBHOOK_EVENTS, addMonths, createBilling, graceCode, handleBilling, handleWebhook, integrationId, isOn, sameOrigin, tidyCode } from './billing.mjs'
 import { setupStripe } from './stripe-setup.mjs'
 import { writeFamilyExport } from './family-data.mjs'
 
@@ -13,6 +13,8 @@ const NOW = Date.UTC(2026, 9, 11, 15)
 const SEC = Math.floor(NOW / 1000)
 const DAY_S = 24 * 3600
 const SECRET = 'whsec_test_secret_for_unit_tests'
+/** Checkout parameters Stripe Managed Payments (Stripe as merchant of record) refuses. */
+const MANAGED_PAYMENTS_REFUSES = ['automatic_tax', 'customer_update', 'payment_method_types', 'tax_id_collection', 'invoice_creation']
 const sdk = new Stripe('rk_test_not_a_real_key', { apiVersion: API_VERSION })
 
 /** A Stripe API that remembers what it was asked, and answers like Stripe would (enough for billing). */
@@ -32,14 +34,13 @@ function fakeStripe() {
     checkout: { sessions: { create: rec('checkout.sessions.create', () => ({ id: 'cs_test_1', url: 'https://checkout.stripe.com/c/pay/cs_test_1' })) } },
     billingPortal: { sessions: { create: rec('portal.create', () => ({ url: 'https://billing.stripe.com/p/session/test_1' })) } },
     subscriptions: { retrieve: rec('subscriptions.retrieve', (id) => { if (!subs[id]) throw Object.assign(new Error('no such'), { code: 'resource_missing' }); return subs[id] }) },
-    promotionCodes: { create: rec('promotionCodes.create', (p) => ({ id: `promo_${++n}`, code: p.code })) },
   }
 }
 
-function setup({ enforced = false, tax = false, secret = SECRET, stripe = fakeStripe() } = {}) {
+function setup({ enforced = false, secret = SECRET, stripe = fakeStripe() } = {}) {
   let t = NOW
   const fams = openFamilies(':memory:', { clock: () => t })
-  const billing = createBilling({ db: fams.db, families: fams, stripe, webhooks: sdk.webhooks, webhookSecret: secret, enforced, tax, clock: () => t, log: { warn() {}, error() {} } })
+  const billing = createBilling({ db: fams.db, families: fams, stripe, webhooks: sdk.webhooks, webhookSecret: secret, enforced, clock: () => t, log: { warn() {}, error() {} } })
   const newFamily = (name = 'The Rivers') => {
     const dev = fams.useLink(fams.makeLink({ kind: 'family' }).token, { label: 'iPad', familyName: name, yourName: 'Sam' })
     return fams.session(dev)
@@ -116,7 +117,7 @@ describe('webhook signatures', () => {
 })
 
 describe('Checkout and the billing page', () => {
-  it('starts a subscription with promotion codes and a 7-day trial, and never names payment methods', async () => {
+  it('starts a subscription that takes a card, with a 7-day trial, and nothing Managed Payments refuses', async () => {
     const t = setup()
     const s = t.newFamily()
     const url = await t.billing.checkout(s, 'family-yearly', { returnUrl: 'https://spiritflow.church', email: 'sam@example.com' })
@@ -127,11 +128,14 @@ describe('Checkout and the billing page', () => {
     expect(p.mode).toBe('subscription')
     expect(p.customer).toBe('cus_1')
     expect(p.line_items).toEqual([{ price: 'price_arkpals_family_yearly', quantity: 1 }])
-    expect(p.allow_promotion_codes).toBe(true)
+    expect(p.payment_method_collection).toBe('always')
     expect(p.subscription_data.trial_period_days).toBe(7)
+    expect(p.subscription_data).not.toHaveProperty('trial_settings')
     expect(p.integration_identifier).toMatch(/^arkpals-checkout-[a-z]{8}$/)
-    expect(p).not.toHaveProperty('payment_method_types')
-    expect(p).not.toHaveProperty('automatic_tax')
+    for (const no of MANAGED_PAYMENTS_REFUSES) expect(p).not.toHaveProperty(no)
+    // (Grace codes are typed in Ark Pals, not at a paid checkout: there's no promotion code box to stack one on)
+    expect(p).not.toHaveProperty('allow_promotion_codes')
+    expect(p).not.toHaveProperty('discounts')
     expect(p.success_url).toBe('https://spiritflow.church/?billing=done')
     expect(JSON.stringify(p)).not.toMatch(/Rivers|Sam/) // (nothing about the family's people)
   })
@@ -150,13 +154,6 @@ describe('Checkout and the billing page', () => {
     expect(t.billing.status(fam).trialUsed).toBe(true)
   })
 
-  it('collects sales tax only when STRIPE_TAX is on', async () => {
-    const t = setup({ tax: true })
-    await t.billing.checkout(t.newFamily(), 'family-monthly', { returnUrl: 'https://x' })
-    const [[, p]] = t.stripe.called('checkout.sessions.create')
-    expect(p.automatic_tax).toEqual({ enabled: true })
-    expect(p.customer_update.address).toBe('auto')
-  })
 
   it('Sponsor a Family: no codes and no trial', async () => {
     const t = setup()
@@ -165,6 +162,8 @@ describe('Checkout and the billing page', () => {
     expect(p.line_items[0].price).toBe('price_arkpals_sponsor_monthly')
     expect(p).not.toHaveProperty('allow_promotion_codes')
     expect(p.subscription_data).toEqual({ metadata: { arkpals: 'sponsor' } })
+    expect(p.payment_method_collection).toBe('always')
+    for (const no of MANAGED_PAYMENTS_REFUSES) expect(p).not.toHaveProperty(no)
   })
 
   it('refuses a plan the family doesn’t need, or one that doesn’t exist', async () => {
@@ -196,6 +195,153 @@ describe('Checkout and the billing page', () => {
     const s = t.newFamily()
     await expect(t.billing.checkout(s, 'family-yearly', { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 503 })
     expect(t.billing.access(s.family.id)).toEqual({ allowed: true, enforced: false, reason: 'none' })
+  })
+})
+
+describe('Grace codes take no card', () => {
+  /** A family with a Grace plan that has just started, from a 6-month code. */
+  async function graceFamily(t, name = 'The Rivers', months = 6) {
+    const [code] = (await t.billing.makeCodes(months, 1, 'Grace Church')).codes
+    const s = t.newFamily(name)
+    await t.billing.graceCheckout(s, code, { returnUrl: 'https://spiritflow.church' })
+    const p = t.stripe.called('checkout.sessions.create').at(-1)[1]
+    const fam = s.family.id
+    const cus = t.fams.db.prepare('SELECT customer_id FROM billing WHERE family_id = ?').get(fam).customer_id
+    const graceSub = (status = 'trialing') => ({ ...sub(`sub_${fam}`, cus, { status, plan: 'family-monthly', trialEnd: p.subscription_data.trial_end, end: p.subscription_data.trial_end }), metadata: p.subscription_data.metadata })
+    return { code, s, fam, cus, p, graceSub }
+  }
+
+  it('a Grace checkout asks for no card, and is free for exactly the code’s months', async () => {
+    const t = setup()
+    const [code] = (await t.billing.makeCodes(12, 1, 'Grace Church')).codes
+    const s = t.newFamily()
+    // (typed any old way: lower case, spaces, no dashes)
+    const url = await t.billing.graceCheckout(s, ` ${code.toLowerCase().replace(/-/g, ' ')} `, { returnUrl: 'https://spiritflow.church', email: 'sam@example.com' })
+    expect(url).toMatch(/^https:\/\/checkout\.stripe\.com\//)
+    const [[, p]] = t.stripe.called('checkout.sessions.create')
+    expect(p.mode).toBe('subscription')
+    expect(p.line_items).toEqual([{ price: 'price_arkpals_family_monthly', quantity: 1 }])
+    expect(p.payment_method_collection).toBe('if_required')
+    expect(p.subscription_data.trial_end).toBe(Math.floor(Date.UTC(2027, 9, 11, 15) / 1000)) // (12 months from Oct 11, 2026)
+    expect(p.subscription_data.trial_settings).toEqual({ end_behavior: { missing_payment_method: 'cancel' } })
+    expect(p.subscription_data).not.toHaveProperty('trial_period_days')
+    expect(p.subscription_data.metadata).toMatchObject({ arkpals: 'family', arkpals_grace: expect.stringMatching(/^gc_/) })
+    expect(p.expires_at).toBe(SEC + 30 * 60)
+    expect(p).not.toHaveProperty('allow_promotion_codes')
+    expect(p).not.toHaveProperty('discounts')
+    for (const no of MANAGED_PAYMENTS_REFUSES) expect(p).not.toHaveProperty(no)
+    expect(JSON.stringify(p)).not.toMatch(/Rivers|Sam|GRACE/) // (nothing about the family, and not the code itself)
+    expect(addMonths(Date.UTC(2026, 7, 31), 6)).toBe(Date.UTC(2027, 1, 28)) // (Aug 31 + 6 months: the end of February)
+  })
+
+  it('the plan starts with no payment: the family plays, and the code is used', async () => {
+    const t = setup({ enforced: true })
+    const { fam, cus, p, graceSub } = await graceFamily(t)
+    expect(t.billing.ownerSummary().codes[0].used).toBeNull() // (not used until the plan starts)
+    t.stripe.subs[`sub_${fam}`] = graceSub()
+    await deliver(t.billing, event('checkout.session.completed', { ...session(cus, `sub_${fam}`, { payment_status: 'no_payment_required', metadata: p.metadata }) }))
+    expect(t.billing.status(fam)).toMatchObject({ plan: 'family-monthly', status: 'trialing', grace: true, paidThrough: p.subscription_data.trial_end * 1000 })
+    expect(t.billing.access(fam)).toEqual({ allowed: true, enforced: true, reason: 'paid' })
+    expect(t.billing.ownerSummary().codes[0].used).toBe(NOW)
+    expect(t.billing.ownerSummary().counts).toMatchObject({ grace: 1 })
+    expect(t.billing.exportFamily(fam).graceCode).toBe(true)
+  })
+
+  it('the subscription event alone (before the checkout one) uses the code too', async () => {
+    const t = setup()
+    const { fam, graceSub } = await graceFamily(t)
+    await deliver(t.billing, event('customer.subscription.created', graceSub()))
+    expect(t.billing.status(fam)).toMatchObject({ status: 'trialing', grace: true })
+    expect(t.billing.ownerSummary().codes[0].used).toBe(NOW)
+  })
+
+  it('the free months end without a card: Stripe cancels the plan, nothing is charged, and the family can choose again', async () => {
+    const t = setup({ enforced: true })
+    const { code, s, fam, p, graceSub } = await graceFamily(t)
+    await deliver(t.billing, event('customer.subscription.created', graceSub()))
+    // (missing_payment_method 'cancel': at the trial's end Stripe deletes the subscription; no invoice is paid or failed)
+    const ended = { ...graceSub('canceled'), ended_at: p.subscription_data.trial_end }
+    expect(await deliver(t.billing, event('customer.subscription.deleted', ended, { created: p.subscription_data.trial_end }))).toBe(200)
+    expect(t.billing.status(fam)).toMatchObject({ status: 'canceled', grace: true, paymentFailed: null })
+    expect(t.billing.access(fam)).toEqual({ allowed: false, enforced: true, reason: 'none' })
+    // (the same code again: refused; a new one: fine; a paid plan: a card, and no second free week)
+    await expect(t.billing.graceCheckout(s, code, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 410 })
+    const [another] = (await t.billing.makeCodes(6, 1)).codes
+    expect(await t.billing.graceCheckout(s, another, { returnUrl: 'https://x' })).toMatch(/^https:/)
+    await t.billing.checkout(s, 'family-monthly', { returnUrl: 'https://x' })
+    const paid = t.stripe.called('checkout.sessions.create').at(-1)[1]
+    expect(paid.payment_method_collection).toBe('always')
+    expect(paid.subscription_data).not.toHaveProperty('trial_period_days')
+  })
+
+  it('a family that adds a card on the billing page keeps its plan after the free months', async () => {
+    const t = setup({ enforced: true })
+    const { fam, p, graceSub } = await graceFamily(t)
+    await deliver(t.billing, event('customer.subscription.created', graceSub()))
+    const later = p.subscription_data.trial_end
+    await deliver(t.billing, event('customer.subscription.updated', { ...graceSub('active'), items: sub('x', 'y', { plan: 'family-monthly', end: later + 30 * DAY_S }).items }, { created: later }))
+    expect(t.billing.status(fam)).toMatchObject({ status: 'active', plan: 'family-monthly', paidThrough: (later + 30 * DAY_S) * 1000 })
+    expect(t.billing.access(fam).allowed).toBe(true)
+  })
+
+  it('refuses a used code, a code that isn’t ours, a family that has a plan, and too many guesses', async () => {
+    const t = setup()
+    const { code, graceSub } = await graceFamily(t, 'The Rivers')
+    await deliver(t.billing, event('customer.subscription.created', graceSub()))
+    const other = t.newFamily('The Hills')
+    await expect(t.billing.graceCheckout(other, code, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 410 })
+    await expect(t.billing.graceCheckout(other, 'GRACE6-AAAA-AAAA', { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 404 })
+    await expect(t.billing.graceCheckout(other, 'hello', { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 404 })
+    const first = { family: { id: t.fams.firstFamily() }, member: { role: 'parent' } }
+    const [fresh] = (await t.billing.makeCodes(6, 1)).codes
+    await expect(t.billing.graceCheckout(first, fresh, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 409 })
+    for (let i = 0; i < 8; i++) await expect(t.billing.graceCheckout(other, `GRACE6-BBBB-BB${i}${i}`, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 404 })
+    await expect(t.billing.graceCheckout(other, fresh, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 429 })
+    t.later(61 * 60_000)
+    expect(await t.billing.graceCheckout(other, fresh, { returnUrl: 'https://x' })).toMatch(/^https:/)
+    expect(tidyCode('grace12 abcd-efgh')).toBe('GRACE12-ABCD-EFGH')
+    expect(tidyCode('GRACE7-ABCD-EFGH')).toBeNull()
+  })
+
+  it('a code at one family’s checkout waits for it (longer than the checkout lasts), then is free again', async () => {
+    const t = setup()
+    const [code] = (await t.billing.makeCodes(6, 1)).codes
+    const a = t.newFamily('The Rivers')
+    const b = t.newFamily('The Hills')
+    await t.billing.graceCheckout(a, code, { returnUrl: 'https://x' })
+    await t.billing.graceCheckout(a, code, { returnUrl: 'https://x' }) // (the same family again: fine)
+    await expect(t.billing.graceCheckout(b, code, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 423 })
+    t.later(36 * 60_000) // (A's checkout expired at 30 minutes, unused)
+    expect(await t.billing.graceCheckout(b, code, { returnUrl: 'https://x' })).toMatch(/^https:/)
+    await expect(t.billing.graceCheckout(a, code, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 423 })
+  })
+
+  it('the route: parents only, and the Parent Corner hears why a code was refused', async () => {
+    const t = setup()
+    const [code] = (await t.billing.makeCodes(6, 1)).codes
+    const s = t.newFamily()
+    const opts = { siteUrl: () => 'https://spiritflow.church', isOwner: () => false }
+    const post = async (who, body) => {
+      const res = fakeRes()
+      await handleBilling(fakeReq({ body: Buffer.from(JSON.stringify(body)) }), res, new URL('http://x/billing/grace'), who, t.billing, opts)
+      return res
+    }
+    expect((await post({ ...s, member: { ...s.member, role: 'grownup' } }, { code })).status).toBe(403)
+    expect((await post(s, { code: 'GRACE6-ZZZZ-ZZZZ' })).status).toBe(404)
+    const ok = await post(s, { code })
+    expect(ok.status).toBe(200)
+    expect(JSON.parse(ok.body).url).toMatch(/^https:\/\/checkout\.stripe\.com\//)
+    expect(t.stripe.called('checkout.sessions.create')[0][1].success_url).toBe('https://spiritflow.church/?billing=done')
+  })
+
+  it('deleting the family keeps its code used, without saying by whom', async () => {
+    const t = setup()
+    const { code, fam, graceSub } = await graceFamily(t)
+    await deliver(t.billing, event('customer.subscription.created', graceSub()))
+    await t.billing.forget(fam)
+    t.fams.deleteFamily(fam)
+    expect(t.fams.db.prepare('SELECT used_by FROM grace_codes WHERE code = ?').get(code).used_by).toBe('deleted')
+    await expect(t.billing.graceCheckout(t.newFamily('The Hills'), code, { returnUrl: 'https://x' })).rejects.toMatchObject({ status: 410 })
   })
 })
 
@@ -319,7 +465,7 @@ describe('webhooks: each event, matched by Customer ID', () => {
     await deliver(t.billing, e1)
     await deliver(t.billing, e1)
     await deliver(t.billing, event('invoice.paid', paid))
-    expect(t.stripe.called('promotionCodes.create')).toHaveLength(1)
+    expect(t.billing.ownerSummary().codes).toHaveLength(1)
     expect(t.billing.exportFamily(fam).sponsoredCodes).toBe(1)
   })
 
@@ -351,12 +497,9 @@ describe('Sponsor a Family', () => {
     await deliver(t.billing, event('invoice.paid', invoice('in_1', cus, 'sub_s', { paid: 999, product: 'arkpals_sponsor', metadata: { arkpals: 'sponsor' } })))
     await deliver(t.billing, event('invoice.paid', invoice('in_2', cus, 'sub_s', { paid: 999, product: 'arkpals_sponsor', metadata: { arkpals: 'sponsor' } })))
     await deliver(t.billing, event('invoice.paid', invoice('in_3', cus, 'sub_s', { paid: 0, product: 'arkpals_sponsor', metadata: { arkpals: 'sponsor' } })))
-    const promos = t.stripe.called('promotionCodes.create')
-    expect(promos).toHaveLength(2)
-    expect(promos[0][1]).toMatchObject({ promotion: { type: 'coupon', coupon: COUPONS[SPONSOR_CODE_MONTHS].id }, max_redemptions: 1 })
     const codes = t.billing.ownerSummary().codes
     expect(codes).toHaveLength(2)
-    expect(codes.every((c) => c.source === 'sponsor' && c.months === SPONSOR_CODE_MONTHS)).toBe(true)
+    expect(codes.every((c) => c.source === 'sponsor' && c.months === SPONSOR_CODE_MONTHS && /^GRACE6-/.test(c.code) && c.used === null)).toBe(true)
     expect(t.billing.status(fam).paidThrough).toBeNull()
     expect(t.billing.ownerSummary().sponsors).toBe(1)
   })
@@ -408,12 +551,13 @@ describe('the owner’s dashboard', () => {
     expect(Object.keys(o.families[0]).sort()).toEqual(['comped', 'created', 'first', 'id', 'name', 'pastDue', 'sponsoring', 'status', 'what'])
   })
 
-  it('makes batches of single-use Grace codes on the 6- and 12-month coupons', async () => {
-    const t = setup()
+  it('makes batches of single-use Grace codes, for 6 or 12 months (kept here: nothing is made in Stripe)', async () => {
+    const t = setup({ stripe: null })
     const made = await t.billing.makeCodes('12', '3', 'Grace Church')
     expect(made.codes).toHaveLength(3)
     expect(new Set(made.codes).size).toBe(3)
-    for (const [, p] of t.stripe.called('promotionCodes.create')) expect(p).toMatchObject({ promotion: { type: 'coupon', coupon: 'arkpals_grace_12mo' }, max_redemptions: 1 })
+    expect(made.codes.every((c) => /^GRACE12-/.test(c))).toBe(true)
+    expect(GRACE_MONTHS).toEqual([6, 12])
     expect(t.billing.ownerSummary().codes.map((c) => c.batch)).toEqual(['Grace Church', 'Grace Church', 'Grace Church'])
     await expect(t.billing.makeCodes(3, 1)).rejects.toMatchObject({ status: 400 })
     await expect(t.billing.makeCodes(6, 0)).rejects.toMatchObject({ status: 400 })
@@ -431,6 +575,8 @@ describe('the owner’s dashboard', () => {
     await handleBilling(fakeReq({ method: 'GET' }), page, new URL('http://x/billing/owner'), owner, t.billing, opts)
     expect(page.status).toBe(200)
     expect(page.body).toContain('Make Grace codes')
+    expect(page.body).toContain('no card')
+    expect(page.body).not.toContain('promotion code')
     const no = fakeRes()
     await handleBilling(fakeReq({ method: 'GET' }), no, new URL('http://x/billing/owner'), other, t.billing, opts)
     expect(no.status).toBe(403)
@@ -459,6 +605,7 @@ describe('the owner’s dashboard', () => {
     await handleBilling(fakeReq({ method: 'POST', body: Buffer.from('months=6&count=1&batch=Test'), headers: { origin: 'null', 'sec-fetch-site': 'same-origin', host: 'spiritflow.church' } }), ours, new URL('http://x/billing/owner/codes'), owner, t.billing, opts)
     expect(ours.status).toBe(200)
     expect(ours.body).toMatch(/GRACE6-/)
+    expect(ours.body).toContain('I have a Grace code')
     const host = { host: 'spiritflow.church' }
     expect(sameOrigin({ headers: host })).toBe(true)
     expect(sameOrigin({ headers: { ...host, origin: 'https://spiritflow.church' } })).toBe(true)
@@ -542,7 +689,7 @@ describe('npm run stripe-setup', () => {
     }
   }
 
-  it('makes the catalog, the coupons, the billing page and the webhook, and running it again changes nothing', async () => {
+  it('makes the catalog, the billing page and the webhook (no coupons: Grace codes are ours), and running it again changes nothing', async () => {
     const st = catalogStripe()
     const r1 = await setupStripe(st, { taxCode: 'txcd_10000000' })
     expect(Object.keys(st.made.products).sort()).toEqual(['arkpals_family', 'arkpals_grace', 'arkpals_sponsor'])
@@ -552,8 +699,7 @@ describe('npm run stripe-setup', () => {
     expect(byKey.arkpals_family_yearly).toMatchObject({ product: 'arkpals_family', unit_amount: 7900, recurring: { interval: 'year' } })
     expect(byKey.arkpals_grace_monthly).toMatchObject({ product: 'arkpals_grace', unit_amount: 499 })
     expect(byKey.arkpals_sponsor_monthly).toMatchObject({ product: 'arkpals_sponsor', unit_amount: 999 })
-    expect(st.made.coupons.arkpals_grace_6mo).toMatchObject({ percent_off: 100, duration: 'repeating', duration_in_months: 6, applies_to: { products: ['arkpals_family'] } })
-    expect(st.made.coupons.arkpals_grace_12mo).toMatchObject({ percent_off: 100, duration_in_months: 12 })
+    expect(st.made.coupons).toEqual({})
     expect(st.made.hooks).toHaveLength(1)
     expect(st.made.hooks[0]).toMatchObject({ url: 'https://spiritflow.church/stripe/webhook', enabled_events: WEBHOOK_EVENTS, api_version: API_VERSION })
     expect(r1.webhookSecret).toBe(st.made.hooks[0].secret)
@@ -565,7 +711,7 @@ describe('npm run stripe-setup', () => {
     expect(st.made.hooks).toHaveLength(1)
     expect(r2.webhookSecret).toBeNull()
     expect(r2.portalConfig).toBe(r1.portalConfig)
-    expect(st.calls.filter((c) => c === 'products.create' || c === 'coupons.create')).toHaveLength(5)
+    expect(st.calls.filter((c) => c === 'products.create' || c === 'coupons.create')).toHaveLength(3)
   })
 
   it('a changed price takes over the lookup key; a lost webhook secret makes the webhook again', async () => {

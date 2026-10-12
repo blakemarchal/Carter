@@ -7,3 +7,8 @@
 .plan-choice button, .plan-grace button { align-self: flex-start; min-height: 48px; padding: 10px 20px; border-radius: 12px; font-size: 18px; font-weight: 700; background: #fff; border: 2px solid #f0c4da; }
 .plan-choice.best button { background: var(--pink); color: #fff; border-color: var(--pink); }
 .plan-grace { background: #fff; border-radius: 16px; padding: 12px 14px; margin: 0 0 8px; display: flex; flex-direction: column; gap: 8px; }
+.grace-code { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 6px 0 2px; }
+.grace-code label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 220px; font-weight: 700; }
+.grace-code input { min-height: 48px; padding: 8px 12px; border-radius: 12px; border: 2px solid #f0c4da; font-size: 18px; font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.04em; text-transform: uppercase; }
+.grace-code button { min-height: 48px; padding: 10px 20px; border-radius: 12px; font-size: 18px; font-weight: 700; background: #fff; border: 2px solid #f0c4da; }
+.plan-note { background: #fff7e0; border-radius: 14px; padding: 10px 14px; }

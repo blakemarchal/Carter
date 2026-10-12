@@ -10,7 +10,7 @@
 //   RESEND_API_KEY         optional: sends sign-in links and invitations by email (npm run set-email-key)
 //   EMAIL_FROM             with it: who emails are from, e.g. "Ark Pals <hello@spiritflow.church>"
 //   SITE_URL               optional: this site's address for links in emails (default: the address asked for)
-//   STRIPE_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PORTAL_CONFIG, BILLING_ENFORCED, STRIPE_TAX: billing (server/billing.mjs)
+//   STRIPE_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PORTAL_CONFIG, BILLING_ENFORCED: billing (server/billing.mjs)
 //   CACHE_DIRECTORY        set by systemd (CacheDirectory=carter); where narration clips are kept
 //   STATE_DIRECTORY        set by systemd (StateDirectory=carter); where progress backups are kept
 import { createServer } from 'node:http'
@@ -57,7 +57,7 @@ const families = openFamilies(join(STATE, 'arkpals.db'))
 const stripe = await stripeFromEnv()
 const billing = createBilling({
   db: families.db, families, stripe, webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '', portalConfig: process.env.STRIPE_PORTAL_CONFIG ?? '',
-  enforced: isOn(process.env.BILLING_ENFORCED), tax: isOn(process.env.STRIPE_TAX),
+  enforced: isOn(process.env.BILLING_ENFORCED),
 })
 if (!stripe) console.log('STRIPE_KEY not set: billing is off. Run: npm run set-stripe-key, then npm run stripe-setup')
 const mailer = createMailer({ apiKey: process.env.RESEND_API_KEY, from: process.env.EMAIL_FROM, outbox: process.env.EMAIL_OUTBOX })

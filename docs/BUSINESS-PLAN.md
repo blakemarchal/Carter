@@ -18,7 +18,7 @@ The plan for turning Carter's Ark into a paid, faith-based learning game for fam
 | **Monthly** | **$9.99/mo** | About the same as secular learning apps (ABCmouse is $12.99/mo) and above most Christian kids' apps ($4–5/mo), which are mostly story or video apps without adaptive learning. A full content library justifies it. |
 | **Yearly** | **$79/yr** | Kids' apps lose families month to month, so a yearly plan is the main defense. Push it at checkout. |
 | **Grace price** | **$4.99/mo**, self-selected | A "this price helps our family right now" option at checkout. No proof and no questions asked, because dignity matters more than policing. |
-| **Grace codes** | Free for 6 or 12 months | Given in batches to children's pastors or ministry leaders to hand out quietly. Built with Stripe promotion codes. |
+| **Grace codes** | Free for 6 or 12 months | Given in batches to children's pastors or ministry leaders to hand out quietly. No card is taken: the family types the code in Ark Pals, gets a free trial as long as the code, and the plan simply ends when it does. |
 | **Sponsor a family** | $9.99/mo add-on | A parent pays for one Grace code a month. This turns generosity into a feature, and it's the same spirit as the tithe. |
 | **Church license** (after launch) | e.g. $199/yr for 25 families | Lets a church buy codes for all its families. |
 
@@ -93,7 +93,7 @@ Only the month and day are stored, never the year. Jan 8 is the first real test,
 - **Stripe:**
   - Checkout handles new subscriptions, and the built-in billing page handles cancel, update card and receipts.
   - Stripe tells our server when someone subscribes, renews or cancels, or a payment fails, so the game knows who has paid.
-  - Promotion codes power the Grace codes.
+  - Grace codes are kept by our server. Each one starts a Stripe free trial that takes no card and cancels itself when it ends.
   - A **separate Stripe account under Marchal Technologies**, with its own statement descriptor (e.g. "ARK PALS"), keeps the books apart from RegKnots and Bree Creative. *(Decided Oct 11, 2026: a separate "Ark Pals" account inside the same Stripe organization as RegKnot, with the same LLC, EIN and bank, and its own descriptor, payouts and reports. Development uses a sandbox in that account.)*
 - **Storage:**
   - A SQLite database on the droplet, the same pattern as Hilco.

@@ -226,3 +226,65 @@ On a new branch **`blake/grace-nocard`**, made from `blake/wave7`. Billing is li
 - **Tests:** a Grace checkout has no card and ends with the free months. A normal checkout still takes a card and has the 7-day trial. A used code is refused. Also cover the webhooks for the trial ending without a card.
 - Update DEPLOY.md if Blake has anything to do, and the owner page's wording for codes.
 - Hand back the same way as before.
+
+---
+
+## Hand-back: Grace codes take no card (Oct 12, 2026)
+
+On **`blake/grace-nocard`**, made from `blake/wave7` (5534ea1). `npx tsc -b` is clean and `npx vitest run` passes (555 tests, 11 of them new for this item).
+
+**What a Grace family sees**
+- In "Your family's plan", a new **I have a Grace code** field (any case; spaces or dashes) with a **Use my code** button. Stripe's checkout opens for the Family plan, free for the code's 6 or 12 months, and **asks for no card**.
+- During the free months the Parent Corner reads "Family plan, a gift from a Grace code · free until …" and "No card, and no charge. When the free months end, the plan simply ends."
+- **14 days before the end**, a gentle note says the date and that nothing will be charged. To keep going, they can add a card on the billing page (the plan carries on at $9.99 a month), or once the free months end, choose a plan or enter another code.
+- **After it ends**, a kind word, then the plans and the code field again. A family that has had a Grace plan doesn't get a second 7-day free week on a paid plan.
+- Refused codes are explained:
+  - not one of ours (404);
+  - already used (410);
+  - at another family's checkout right now (423);
+  - 10 wrong codes in an hour (429);
+  - the family already has a plan (409).
+- Everyone else is unchanged: a card, and the 7-day free week once.
+
+**How it works (`server/billing.mjs`)**
+- **Grace codes are now ours, kept in SQLite, not Stripe promotion codes.**
+  - The owner page and Sponsor a Family make them the same way as before (GRACE6-XXXX-XXXX), with no Stripe call.
+  - Codes made before this change are in the same table, so they still work in the new field.
+  - `stripe-setup` no longer makes the coupons. The old coupons and promotion codes in the sandbox are unused now: archive them or leave them.
+- **The Grace Checkout Session** (`POST /billing/grace {code}`) uses the Family monthly price with:
+  - `payment_method_collection: 'if_required'`;
+  - `subscription_data.trial_end` = the code's months as calendar months (Aug 31 + 6 is the end of February);
+  - `trial_settings.end_behavior.missing_payment_method: 'cancel'`;
+  - metadata naming the code's row id (never the code itself);
+  - `expires_at` in 30 minutes.
+  No coupon or discount is sent.
+- **Single use.**
+  - While a family is at checkout, the code is held for that family for 35 minutes, longer than the session lives, so two families can't both redeem it.
+  - It is marked used when the plan starts. Either `checkout.session.completed` or `customer.subscription.created` does this, whichever arrives first.
+  - The owner page shows when each code was used, not by whom.
+  - Deleting a family keeps its code used but drops who used it.
+- **No stacking:** paid checkouts no longer set `allow_promotion_codes`, so there's no "Add promotion code" box. A Grace code can't go on a paid plan, and nothing else used that box. If Blake wants launch promo codes later, it's one line to turn back on.
+- **Managed Payments:**
+  - Checkout no longer sends `automatic_tax` or `customer_update`, and never sent `payment_method_types`, `tax_id_collection` or `invoice_creation`. A test checks all five on every kind of checkout.
+  - `STRIPE_TAX` isn't read any more.
+  - Paid checkouts now say `payment_method_collection: 'always'` outright. That was already Stripe's default.
+- **Trial ending without a card:** Stripe deletes the subscription. `customer.subscription.deleted` (already one of our 7 events) marks it canceled, and the family can choose again. No invoice is made, so no charge is possible. No new webhook events are needed, so the endpoint is unchanged.
+- **I chose `payment_method_collection: 'if_required'` with a `trial_end` trial.** Stripe's Managed Payments changelog names `if_required` as the way to start a free trial without a payment method. That is the only confirmation: the cloud thread can't reach docs.stripe.com (the network blocks it), so it couldn't read the rest of the Managed Payments docs. Stripe's Trial Offers can't be used through Checkout, so this uses the ordinary trial.
+- **Worth checking in the sandbox:** a Grace checkout really shows no card field under Managed Payments, and a card added on the billing page during the free months keeps the plan going. DEPLOY.md's step 6 walks through both.
+
+**Owner page wording:** "Each code works once: a parent types it in Ark Pals (Parent Corner → Your family's plan → I have a Grace code). The family plays free for 6 or 12 months with no card at all, and then the plan simply ends: no one is ever charged." The printed codes page says the same in one line. A new "Free with a Grace code" row counts those families.
+
+**Docs:** DEPLOY.md's billing section covers Managed Payments, Grace codes and the trimmed key permissions. It also has new steps 6 to try a code and, optionally, the free months ending. BUSINESS-PLAN.md now says Grace codes take no card.
+
+**For the local thread**
+- **Deploy** as usual. The database adds its new columns on start (`billing.grace`; `grace_codes.used_by`, `used_at`, `held_by`, `held_until`) and a unique index on codes.
+- **Blake doesn't need to change anything in Stripe or `.env`.**
+  - Optionally, set the restricted key's Coupons and Promotion Codes permissions back to None.
+  - Optionally, delete the `STRIPE_TAX` line from `.env` (it does nothing now).
+  - Re-running `npm run stripe-setup` isn't needed.
+- **Production test** (DEPLOY.md step 6):
+  - Make a code on `/billing/owner`.
+  - In a second new family, enter it under "I have a Grace code".
+  - Check Stripe asks for no card, the plan shows "a gift from a Grace code", the dashboard shows the code used, and the same code is refused the second time.
+  - Check webhook deliveries are 200.
+- **New spoken lines:** none. The Parent Corner isn't spoken.

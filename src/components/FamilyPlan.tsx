@@ -1,9 +1,11 @@
 // Parent Corner: the family's plan (server/billing.mjs), for parents only. Choosing a plan goes to Stripe's
 // checkout (yearly first; the Grace price offered kindly, no questions asked); Stripe's billing page cancels,
-// changes the card or plan, and has the receipts. Nothing about the children is sent to Stripe.
+// changes the card or plan, and has the receipts. A Grace code from a church gives free months with no card at
+// all, and the plan simply ends when they do (a gentle note says so first). Nothing about the children is sent
+// to Stripe.
 import { useEffect, useState } from 'react'
 import './FamilyPlan.css'
-import { billingApi, dollars, type BillingStatus, type PlanId } from '../lib/billing'
+import { billingApi, dollars, graceStage, type BillingStatus, type PlanId } from '../lib/billing'
 import { useFamilyAccount } from '../lib/family'
 
 const day = (t: number) => new Date(t).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
@@ -11,10 +13,35 @@ const PLAN_NAMES: Record<string, string> = {
   'family-yearly': 'Family plan, yearly', 'family-monthly': 'Family plan, monthly', 'grace-monthly': 'Family plan, Grace price',
 }
 
+/** Why a Grace code was refused, by the server's answer. */
+const CODE_REFUSED: Record<number, string> = {
+  404: 'That code doesn’t look right. Check it and try again.',
+  410: 'That code has already been used. Whoever gave it to you may have another.',
+  423: 'That code is at a checkout right now. If it’s yours, try again in half an hour.',
+  429: 'That’s a lot of tries. Please wait an hour, then try again.',
+}
+
 /** What the family has now, in a sentence or two. */
 function Current({ b }: { b: BillingStatus }) {
   const name = PLAN_NAMES[b.plan ?? ''] ?? 'Family plan'
   const until = b.paidThrough ? day(b.paidThrough) : null
+  const grace = graceStage(b, Date.now())
+  if (grace === 'free' || grace === 'ending') {
+    const monthly = b.plans.find((p) => p.id === 'family-monthly')
+    return (
+      <>
+        <p><b>Family plan, a gift from a Grace code</b>{' · '}free{until ? ` until ${until}` : ''}</p>
+        <p className="muted">No card, and no charge. When the free months end, the plan simply ends.</p>
+        {grace === 'ending' && (
+          <p className="plan-note">
+            Your free months end{until ? ` on ${until}` : ' soon'}. We hope they&rsquo;ve been a blessing to your family.
+            Nothing will be charged. To keep playing after that, you can add a card on the billing page and the plan carries
+            on{monthly ? ` at ${dollars(monthly.amount)} a month` : ''}, or, once they&rsquo;ve ended, choose a plan here or enter another Grace code.
+          </p>
+        )}
+      </>
+    )
+  }
   return (
     <>
       <p><b>{name}</b>{' · '}
@@ -34,6 +61,7 @@ export default function FamilyPlan() {
   const [b, setB] = useState<BillingStatus | null>(null)
   const [busy, setBusy] = useState('')
   const [status, setStatus] = useState('')
+  const [code, setCode] = useState('')
   useEffect(() => { billingApi.status().then(setB) }, [])
   if (!b) return null // (offline, or not a parent)
 
@@ -44,7 +72,10 @@ export default function FamilyPlan() {
       location.assign(await get())
     } catch (e) {
       setBusy('')
-      setStatus((e as { status?: number }).status === 409 ? 'Your family already has a plan. Use the billing page to change it.' : 'Couldn’t reach Stripe just now. Try again in a moment.')
+      const code = (e as { status?: number }).status ?? 0
+      setStatus(code === 409 ? 'Your family already has a plan. Use the billing page to change it.'
+        : what === 'grace' && CODE_REFUSED[code] ? CODE_REFUSED[code]
+        : 'Couldn’t reach Stripe just now. Try again in a moment.')
     }
   }
   const price = (id: PlanId) => b.plans.find((p) => p.id === id)
@@ -62,6 +93,9 @@ export default function FamilyPlan() {
         : has ? <Current b={b} />
         : (
           <>
+            {graceStage(b, Date.now()) === 'ended' && (
+              <p className="plan-note">Your free months from a Grace code have ended. We hope they were a blessing to your family. Choose a plan below, or enter another Grace code.</p>
+            )}
             <p>One plan covers the whole family, with up to 4 players.{!b.trialUsed && ' The first 7 days are free.'} Cancel any time.</p>
             <div className="plan-choices">
               {yearly && <div className="plan-choice best"><b>{dollars(yearly.amount)} a year</b><span>About {dollars(Math.round(yearly.amount / 12))} a month: the best value</span>{pick('family-yearly', 'Choose yearly')}</div>}
@@ -73,7 +107,15 @@ export default function FamilyPlan() {
                 {pick('grace-monthly', `Choose ${dollars(grace.amount)} a month`)}
               </div>
             )}
-            <p className="muted">Have a Grace code from your church? Choose a plan, then tap &ldquo;Add promotion code&rdquo; on the checkout page.</p>
+            <form className="grace-code" onSubmit={(e) => { e.preventDefault(); if (code.trim()) go('grace', () => billingApi.grace(code)) }}>
+              <label>
+                <span>I have a Grace code</span>
+                <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="GRACE6-XXXX-XXXX" maxLength={24}
+                  autoCapitalize="characters" autoComplete="off" autoCorrect="off" spellCheck={false} />
+              </label>
+              <button disabled={!!busy || !b.stripeOn || !code.trim()}>{busy === 'grace' ? 'Opening…' : 'Use my code'}</button>
+            </form>
+            <p className="muted">A Grace code from your church gives 6 or 12 months free, with no card. When they end, the plan simply ends.</p>
           </>
         )}
       <div className="level-row">

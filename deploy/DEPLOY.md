@@ -201,6 +201,16 @@ separate "Ark Pals" account in our Stripe organization, so no real money moves. 
 `BILLING_ENFORCED` is off until you decide to turn it on. The first family, and any family you mark as
 comped on the billing dashboard, always plays free.
 
+**Stripe Managed Payments is on**: Stripe is the merchant of record, and works out, collects and pays sales
+tax itself. So Ark Pals' checkout never asks Stripe Tax for anything (no `automatic_tax`), and `STRIPE_TAX`
+isn't read any more (a `STRIPE_TAX=` line left in `.env` does nothing).
+
+**Grace codes take no card.** A family types its code in Ark Pals (Parent Corner → Your family's plan → I have
+a Grace code) and gets the Family plan free for the code's 6 or 12 months, as a Stripe free trial that asks for
+no card. When the free months end without a card, Stripe cancels the plan: no one is ever charged. (A family
+that wants to carry on can add a card on the billing page before then.) The codes are kept by the server, so
+they aren't Stripe promotion codes, and checkout no longer has an "Add promotion code" box.
+
 1. **The Stripe library on the server** is installed by every deploy (`deploy.sh` / `deploy.ps1` send
    `package-lock.json` and run `npm ci --omit=dev` on the server). To check it:
    ```bash
@@ -219,11 +229,10 @@ comped on the billing dashboard, always plays free.
    | Subscriptions | Read | reading a plan right after checkout |
    | Products | Write | `stripe-setup`: the three products |
    | Prices | Write | `stripe-setup`; finding prices by lookup key at checkout |
-   | Coupons | Write | `stripe-setup`: the 6- and 12-month Grace coupons |
-   | Promotion Codes | Write | Grace code batches, and Sponsor a Family codes |
    | Webhook Endpoints | Write | `stripe-setup`: the webhook |
 
-   Copy the key (`rk_test_…`) straight into the next step. Don't paste it anywhere else (chat, email,
+   (A key made earlier with Coupons and Promotion Codes too still works: those aren't used any more, and
+   you can set them back to None.) Copy the key (`rk_test_…`) straight into the next step. Don't paste it anywhere else (chat, email,
    notes): the server's `.env` is the only place it lives.
 3. **Save the key.** It's checked with Stripe, saved to `/opt/Carter/.env` as `STRIPE_KEY`, and never shown:
    ```bash
@@ -231,21 +240,19 @@ comped on the billing dashboard, always plays free.
    ```
    It refuses a key that isn't restricted (`rk_`), and a live key while we're in test mode.
    `-- --check` checks the saved key again; `-- --remove` turns billing off.
-4. **Optional: the tax code.** Pick the products' tax code from Stripe's list (Stripe docs → Tax → Tax
-   codes; nothing is hardcoded) and add it to `.env` (it isn't a secret):
+4. **The tax code.** The products' tax code goes in `.env` (it isn't a secret; we use `txcd_10201004`,
+   still to be confirmed with a tax advisor):
    ```bash
-   ssh root@68.183.130.3 'cd /opt/Carter && echo STRIPE_TAX_CODE=txcd_XXXXXXXX >> .env'
+   ssh root@68.183.130.3 'cd /opt/Carter && echo STRIPE_TAX_CODE=txcd_10201004 >> .env'
    ```
-   Without it, the products use the account's default tax code. Prices are tax-exclusive (tax is added
-   on top). **No tax is collected** until you add a head office address in Stripe (Settings → Tax), have
-   an active tax registration there, **and** set `STRIPE_TAX=1` in `.env`. Until then `STRIPE_TAX` stays off.
+   Prices are tax-exclusive (tax is added on top). With Managed Payments on, Stripe works out and
+   collects the tax at checkout itself: there's nothing else to switch on.
 5. **Make everything in Stripe**, then restart:
    ```bash
    ssh root@68.183.130.3 -t 'cd /opt/Carter && npm run stripe-setup && systemctl restart carter-web'
    ```
    It makes (or brings up to date) the products "Ark Pals Family" ($9.99/mo, $79/yr), "Ark Pals Grace"
-   ($4.99/mo) and "Sponsor a Family" ($9.99/mo), found again by their lookup keys; the 100%-off coupons
-   for 6 and 12 months; the billing page's settings; and the webhook `https://spiritflow.church/stripe/webhook`.
+   ($4.99/mo) and "Sponsor a Family" ($9.99/mo), found again by their lookup keys; the billing page's settings; and the webhook `https://spiritflow.church/stripe/webhook`.
    It saves the webhook's signing secret to `.env` as `STRIPE_WEBHOOK_SECRET` (never shown). It's safe to
    run again. `-- --new-webhook-secret` makes the webhook again with a new secret.
 6. **Try it** (a second family, since the first one is always free):
@@ -256,11 +263,19 @@ comped on the billing dashboard, always plays free.
      change the card or plan, and see receipts.
    - Stripe → Developers → Webhooks → the endpoint: every delivery should say 200.
    - A Grace code: in the first family's Parent Corner, **📒 Billing, all families** (or
-     `https://spiritflow.church/billing/owner`) → Make codes. Use one at checkout with "Add promotion code".
+     `https://spiritflow.church/billing/owner`) → Make codes. In a second new family (one that hasn't
+     chosen a plan), Parent Corner → Your family's plan → **I have a Grace code**, type it, **Use my code**.
+     Stripe's page should ask for **no card**: just confirm. Back in Ark Pals the plan shows "a gift from a
+     Grace code · free until …", and the dashboard lists the code as used. The same code again is refused.
+   - Optional, the free months ending without a card: in Stripe → Subscriptions, open that family's
+     subscription and change its trial to end in a few minutes (Actions → Update subscription). When it
+     ends, Stripe should **cancel** it (no invoice, no charge), the webhook delivery says 200, and the
+     family's plan section offers the plans and the code field again, with a kind word. (The server's
+     tests cover these webhooks, so it's fine to skip this.)
    - Test cards for other cases (declined, needs authentication) are on Stripe's "Testing" docs page.
 7. **The owner's dashboard** (`/billing/owner`, parents in the first family only) shows how many families
-   are on each plan, makes batches of single-use Grace codes (6 or 12 months free) to print or copy, lists
-   the codes made (Sponsor a Family adds one 6-month code for each month a sponsor pays), and comps a family
+   are on each plan, makes batches of single-use Grace codes (6 or 12 months free, no card) to print or
+   copy, lists the codes made and when each was used (not by whom) (Sponsor a Family adds one 6-month code for each month a sponsor pays), and comps a family
    (always free, like the church beta). It never shows anything about children.
 8. **Later, when you decide:** `BILLING_ENFORCED=1` in `.env` (then restart) closes the game for families
    without a plan: they see a calm "The Pals are resting" screen for grown-ups, and the Parent Corner stays
