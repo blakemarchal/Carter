@@ -5,7 +5,7 @@ import { EventEmitter } from 'node:events'
 import Stripe from 'stripe'
 import { describe, expect, it } from 'vitest'
 import { openFamilies } from './families.mjs'
-import { API_VERSION, COUPONS, PLANS, SPONSOR_CODE_MONTHS, WEBHOOK_EVENTS, createBilling, graceCode, handleBilling, handleWebhook, integrationId, isOn } from './billing.mjs'
+import { API_VERSION, COUPONS, PLANS, SPONSOR_CODE_MONTHS, WEBHOOK_EVENTS, createBilling, graceCode, handleBilling, handleWebhook, integrationId, isOn, sameOrigin } from './billing.mjs'
 import { setupStripe } from './stripe-setup.mjs'
 import { writeFamilyExport } from './family-data.mjs'
 
@@ -449,6 +449,22 @@ describe('the owner’s dashboard', () => {
     const cross = fakeRes()
     await handleBilling(fakeReq({ method: 'POST', body: Buffer.from('family=x&comped=1'), headers: { origin: 'https://evil.example', host: 'spiritflow.church' } }), cross, new URL('http://x/billing/owner/comp'), owner, t.billing, opts)
     expect(cross.status).toBe(405)
+  })
+
+  it('takes our own forms, which browsers post with Origin: null (our pages send no referrer)', async () => {
+    const t = setup()
+    const owner = t.fams.session(t.fams.passwordDevice('iPad'))
+    const opts = { siteUrl: () => 'https://spiritflow.church', isOwner: (s) => s.family.id === t.fams.firstFamily() && s.member.role === 'parent' }
+    const ours = fakeRes()
+    await handleBilling(fakeReq({ method: 'POST', body: Buffer.from('months=6&count=1&batch=Test'), headers: { origin: 'null', 'sec-fetch-site': 'same-origin', host: 'spiritflow.church' } }), ours, new URL('http://x/billing/owner/codes'), owner, t.billing, opts)
+    expect(ours.status).toBe(200)
+    expect(ours.body).toMatch(/GRACE6-/)
+    const host = { host: 'spiritflow.church' }
+    expect(sameOrigin({ headers: host })).toBe(true)
+    expect(sameOrigin({ headers: { ...host, origin: 'https://spiritflow.church' } })).toBe(true)
+    expect(sameOrigin({ headers: { ...host, origin: 'null', 'sec-fetch-site': 'cross-site' } })).toBe(false)
+    expect(sameOrigin({ headers: { ...host, origin: 'null' } })).toBe(false)
+    expect(sameOrigin({ headers: { ...host, origin: 'not a url' } })).toBe(false)
   })
 })
 

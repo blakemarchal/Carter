@@ -440,8 +440,21 @@ async function readBody(req, max) {
   return Buffer.concat(chunks)
 }
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
-/** A form posted from another site is refused (the cookie is SameSite=Lax too). */
-const sameOrigin = (req) => !req.headers.origin || new URL(req.headers.origin).host === req.headers.host
+/**
+ * A form posted from another site is refused (the cookie is SameSite=Lax too). Our pages send
+ * `Referrer-Policy: no-referrer`, so a browser posts our own forms with `Origin: null`: then the
+ * browser's Sec-Fetch-Site says whether it came from this site.
+ */
+export function sameOrigin(req) {
+  const origin = req.headers.origin
+  if (!origin) return true
+  if (origin === 'null') return req.headers['sec-fetch-site'] === 'same-origin'
+  try {
+    return new URL(origin).host === req.headers.host
+  } catch {
+    return false
+  }
+}
 
 /** POST /stripe/webhook (no sign-in: Stripe's signature is checked instead). */
 export async function handleWebhook(req, res, billing) {
