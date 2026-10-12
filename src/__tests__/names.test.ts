@@ -14,7 +14,8 @@ const files = (dir: string): string[] =>
 it('no child is written into the game', () => {
   const found: string[] = []
   for (const f of [...files('src'), 'index.html', 'vite.config.ts']) {
-    if (f.includes('__tests__')) continue
+    // (the name library is the SSA's list of the 1,000 or so most common children's names: every child's, not ours)
+    if (f.includes('__tests__') || f.endsWith(join('voice', 'names.json'))) continue
     readFileSync(f, 'utf8').split('\n').forEach((line, i) => {
       // "Luke 2:11" is the Bible book; "carters-ark" is the old storage name.
       if (/\bcarter\b/i.test(line) || /\bLuke\b(?!\s+\d)/.test(line)) found.push(`${f}:${i + 1}: ${line.trim()}`)

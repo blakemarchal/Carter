@@ -1,5 +1,5 @@
 // The name library (scripts/name-library.mjs -> ./names.json): the children's first names the house narrator
-// records, each twice: mid-sentence ("…, Carter.") and as an exclamation ("Carter!"). Spellings that sound
+// records, each twice: mid-sentence ("…, Olivia.") and as an exclamation ("Olivia!"). Spellings that sound
 // alike share one recording. A name that isn't here (and that the family hasn't recorded) is never sent
 // anywhere: the line it's in is read by the device's own voice.
 import data from './names.json'
@@ -12,10 +12,10 @@ export const LIBRARY_SOURCE: string = data.source
 const bySpelling = new Map<string, string>()
 for (const g of data.names) for (const s of g) bySpelling.set(s.toLowerCase(), g[0])
 
-/** A name as typed, tidied for looking up: "  carter " -> "carter". */
+/** A name as typed, tidied for looking up: "  olivia " -> "olivia". */
 export const nameKey = (name: string) => name.trim().toLowerCase().normalize('NFC')
 
-/** The library's spelling for a child's name ("Karter" -> "Carter"), or null when it isn't in the library. */
+/** The library's spelling for a child's name ("Aidan" -> "Aiden"), or null when it isn't in the library. */
 export function libraryName(name: string): string | null {
   return bySpelling.get(nameKey(name)) ?? null
 }

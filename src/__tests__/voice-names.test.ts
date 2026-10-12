@@ -12,12 +12,12 @@ describe('the name library', () => {
     expect(LIBRARY_NAMES.length).toBeGreaterThan(1000)
     expect(LIBRARY_NAMES.length).toBeLessThanOrEqual(1200)
     expect(new Set(LIBRARY_NAMES.map((n) => n.toLowerCase())).size).toBe(LIBRARY_NAMES.length)
-    for (const n of ['Olivia', 'Liam', 'Noah', 'Emma', 'Carter', 'Luke', 'Sophia']) expect(LIBRARY_NAMES).toContain(n)
+    for (const n of ['Olivia', 'Liam', 'Noah', 'Emma', 'Ava', 'Lucas', 'Sophia']) expect(LIBRARY_NAMES).toContain(n)
   })
 
   it('finds a name in any case or sound-alike spelling', () => {
-    expect(libraryName('carter')).toBe('Carter')
-    expect(libraryName(' Karter ')).toBe('Carter')
+    expect(libraryName('olivia')).toBe('Olivia')
+    expect(libraryName(' Sofia ')).toBe('Sophia')
     expect(libraryName('Aidan')).toBe('Aiden')
     expect(libraryName('Sarah')).toBe(libraryName('Sara'))
     expect(libraryName('Zxqvbn')).toBeNull()
@@ -26,7 +26,7 @@ describe('the name library', () => {
   it('merges spellings said alike, and keeps apart names said differently', () => {
     const same = [['Aiden', 'Aidan', 'Ayden'], ['Sara', 'Sarah'], ['Caden', 'Kaden'], ['Riley', 'Riley'], ['Rylee', 'Ryleigh'], ['Jordan', 'Jordyn'], ['Lily', 'Lilly']]
     for (const g of same) expect(new Set(g.map(soundKey)).size, g.join('/')).toBe(1)
-    const apart = [['Maria', 'Mariah'], ['Eli', 'Ellie'], ['Mia', 'Mya'], ['Mila', 'Myla'], ['John', 'Johan'], ['Hallie', 'Haley'], ['Ali', 'Allie'], ['Anya', 'Aniyah'], ['Emma', 'Emily'], ['Luke', 'Lucas']]
+    const apart = [['Maria', 'Mariah'], ['Eli', 'Ellie'], ['Mia', 'Mya'], ['Mila', 'Myla'], ['John', 'Johan'], ['Hallie', 'Haley'], ['Ali', 'Allie'], ['Anya', 'Aniyah'], ['Emma', 'Emily'], ['Leo', 'Levi']]
     for (const [a, b] of apart) expect(soundKey(a), `${a}/${b}`).not.toBe(soundKey(b))
   })
 
