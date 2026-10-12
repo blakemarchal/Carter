@@ -206,3 +206,23 @@ On **`blake/wave9`**, made from `blake/billing`, with `blake/wave7`'s Parent Cor
 - **Left as is:** the 🔊 "hear it again" and ⬅️ back buttons. They're the same in every activity across the whole game, so drawing them is a whole-game choice.
 
 **New spoken lines:** none. **Server work:** none beyond wave 8's billing steps. **For Blake:** the Grace-code card question from the billing hand-back is still open.
+
+---
+
+## Next: Grace codes take no card (Blake approved, Oct 12, 2026)
+
+On a new branch **`blake/grace-nocard`**, made from `blake/wave7`. Billing is live in the sandbox with **Stripe Managed Payments ON**: Stripe is the merchant of record. So Checkout must not send `automatic_tax`, `customer_update`, `payment_method_types`, `tax_id_collection` or `invoice_creation`. The products carry `txcd_10201004` (`STRIPE_TAX_CODE` in .env).
+
+- **Goal:** a family with a Grace code never enters a card and is never charged. The plan simply ends when the free months do, and the family can then choose a plan or ask for another code. Everyone else keeps the card and the 7-day free week, unchanged.
+- **Suggested shape:**
+  - In "Your family's plan", add an "I have a Grace code" field. The server checks the code (active, unused, one of our Grace coupons).
+  - It then makes a Checkout Session for the Family monthly price with:
+    - `payment_method_collection: 'if_required'`;
+    - a trial the length of the code (6 or 12 months) instead of the coupon;
+    - `subscription_data.trial_settings.end_behavior.missing_payment_method: 'cancel'`.
+  - The code is marked used once the session completes (deactivate the promotion code, or record it). Then the same code can't be used twice, and the "Add promotion code" box can't stack it on a paid plan.
+  - If Managed Payments refuses any of this, find the Stripe-native way that works with it (`stripe docs`, or docs.stripe.com/payments/managed-payments). Say in the hand-back what you chose.
+- Before the free months end, the family sees a gentle note in the Parent Corner. No surprise charge is possible.
+- **Tests:** a Grace checkout has no card and ends with the free months. A normal checkout still takes a card and has the 7-day trial. A used code is refused. Also cover the webhooks for the trial ending without a card.
+- Update DEPLOY.md if Blake has anything to do, and the owner page's wording for codes.
+- Hand back the same way as before.
