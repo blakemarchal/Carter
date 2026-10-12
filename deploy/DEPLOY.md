@@ -194,6 +194,24 @@ Namecheap (Domain List → spiritflow.church → Advanced DNS; "Mail Settings" m
    ```
    `npm run set-email-key -- --check` sends another test; `-- --remove` turns email off again.
 
+## Production: arkpals.world
+
+The paid site runs beside the dev site on the same droplet, as its own copy with its own settings and data:
+
+| | Dev | Production |
+|---|---|---|
+| Address | spiritflow.church | arkpals.world (and www) |
+| Folder, settings | `/opt/Carter`, `/opt/Carter/.env` | `/opt/ArkPals`, `/opt/ArkPals/.env` |
+| Service, port | `carter-web`, 3004 | `arkpals-web`, 3005 |
+| Data, voice cache | `/var/lib/carter`, `/var/cache/carter` | `/var/lib/arkpals`, `/var/cache/arkpals` |
+| Stripe | the "Ark Pals sandbox" (`rk_test_` key) | the live "Ark Pals" account (`rk_live_` key) |
+
+- **Deploy:** `.\deploy\deploy.ps1 -Site prod`, or `./deploy/deploy.sh prod`. With no option, both scripts deploy to dev.
+- **The service:** `deploy/arkpals-web.service` goes in `/etc/systemd/system/`. The Caddy block is in `deploy/Caddyfile.snippet`.
+- **Settings:** `.env` has `SITE_URL=https://arkpals.world` and `PORT=3005`, and its own session secret. It started with the dev site's family password hash, voice and email keys, and the live Stripe key. `npm run stripe-setup` there made the live products, the billing page and the webhook `https://arkpals.world/stripe/webhook`.
+- **Script commands** (`set-password`, `set-stripe-key`, `stripe-setup`, `new-family-link`) work the same in `/opt/ArkPals`. Use `STATE_DIRECTORY=/var/lib/arkpals` for `new-family-link`.
+- **The first family:** whoever first signs in on arkpals.world with the family password becomes the owner's family (free, owner pages).
+
 ## Billing: Stripe, in test mode
 
 Families pay through Stripe (`server/billing.mjs`). For now it runs in the **"Ark Pals sandbox"** of the
