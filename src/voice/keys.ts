@@ -11,7 +11,7 @@ export const keys = {
   name: (name: string, take: Take) => `⟪name⟫ ${name.trim().toLowerCase()} ${take}`,
   /** A Pal's name (every Pal at every stage). */
   pal: (name: string, take: Take) => `⟪pal⟫ ${name.trim().toLowerCase()} ${take}`,
-  /** A number, 0 to 130. */
+  /** A number, 0 to 140. */
   number: (n: number, take: Take) => `⟪number⟫ ${n} ${take}`,
   /** A letter's name ("bee"). */
   letter: (l: string) => `⟪letter⟫ ${l.toLowerCase()}`,

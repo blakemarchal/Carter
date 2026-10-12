@@ -24,11 +24,16 @@ import { flushStats } from './lib/stats'
 import { encouragements, preload, setFamilyVoices, setNarrator, setRate, unlockSpeech } from './lib/speech'
 import { loadRecordings } from './lib/recordings'
 import { loadHouse } from './voice/house'
+import { setStitcher } from './voice/resolve'
+import { stitch } from './voice/stitch'
 import { setSfxEnabled } from './lib/sfx'
 import { musicReady, setMood, setMusicEnabled } from './lib/music'
 import { unlockAudio } from './lib/audio'
 import { backupSoon } from './lib/backup'
 import { warmEgg } from './lib/care'
+
+// Lines that aren't recorded whole are stitched from the house voices' recorded pieces.
+setStitcher(stitch)
 
 type Screen = 'title' | 'starter' | 'placement' | 'map' | 'ark' | 'parent' | 'bedtime' | 'sing' | 'party' | `island:${string}`
 
