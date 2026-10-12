@@ -126,7 +126,7 @@ export default function Placement({ onDone }: { onDone: () => void }) {
         <div className="pl-center">
           <PalArt pal={pal} stage={stage} size={260} className="bounce" />
           <p>{palName} wants to go on a treasure hunt with you!</p>
-          <BigButton color="pink" onClick={() => { setPhase('play'); begin('reading') }}>🗺️ Let's go!</BigButton>
+          <BigButton color="pink" onClick={() => { setPhase('play'); begin('reading') }}><Pic e="🗺️" /> Let's go!</BigButton>
         </div>
       )}
 
@@ -134,14 +134,14 @@ export default function Placement({ onDone }: { onDone: () => void }) {
         <div className="pl-play">
           <div className="pl-pal">
             <PalArt key={gems} pal={pal} stage={stage} size={120} className={gems ? 'pl-hop' : ''} />
-            <span className="pl-kind">{skill === 'reading' ? '📖 Word puzzles' : '🔢 Number puzzles'}</span>
+            <span className="pl-kind">{skill === 'reading' ? <><Pic e="📖" /> Word puzzles</> : <><Pic e="🔢" /> Number puzzles</>}</span>
           </div>
           {q && (
             <div className="q-card pl-card" key={`${skill}-${search.asked}`}>
               <button className="q-prompt" aria-label="Hear it again" onClick={() => speak(q.say)}>🔊</button>
               <VisualView v={q.visual} onSay={(s) => speak(s)} />
               <Choices q={q} picked={picked} onPick={answer} />
-              <button className={`pl-unsure ${picked === 'unsure' ? 'picked' : ''}`} onClick={() => answer('unsure')}>🤔 Not sure</button>
+              <button className={`pl-unsure ${picked === 'unsure' ? 'picked' : ''}`} onClick={() => answer('unsure')}><Pic e="🤔" /> Not sure</button>
             </div>
           )}
         </div>
@@ -152,7 +152,7 @@ export default function Placement({ onDone }: { onDone: () => void }) {
           <Confetti />
           <PalArt pal={pal} stage={stage} size={260} className="bounce" />
           <p>What a treasure hunt!</p>
-          <BigButton color="pink" onClick={onDone}>⛵ Let's sail!</BigButton>
+          <BigButton color="pink" onClick={onDone}><Pic e="⛵" /> Let's sail!</BigButton>
         </div>
       )}
     </div>

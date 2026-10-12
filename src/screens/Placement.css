@@ -26,3 +26,5 @@
   .pl-card { gap: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { .pl-hop, .pl-bag span { animation: none; } }
+/* (Drawn icons beside words: the size of a capital letter, sitting on the line.) */
+.placement .pl-kind .pic, .placement .pl-unsure .pic, .placement .big-btn .pic { width: 1.35em; height: 1.35em; vertical-align: -0.3em; }

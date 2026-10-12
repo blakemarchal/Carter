@@ -39,6 +39,7 @@ import { LEARN_BUILDERS } from './learn-builders'
 import { LEARN_READING } from './learn-reading'
 import { LEARN_NUMBERS } from './learn-numbers'
 import { LEARN_TIME_MONEY } from './learn-time-money'
+import { LEARN_PLACEMENT } from './learn-placement'
 
 export type { Item } from './types'
 export const ITEM_GROUPS: Record<string, Item[]> = {
@@ -75,6 +76,7 @@ export const ITEM_GROUPS: Record<string, Item[]> = {
   'learn-reading': LEARN_READING,
   'learn-numbers': LEARN_NUMBERS,
   'learn-time-money': LEARN_TIME_MONEY,
+  'learn-placement': LEARN_PLACEMENT,
 }
 export const ITEMS: Item[] = Object.values(ITEM_GROUPS).flat()
 
