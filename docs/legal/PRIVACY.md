@@ -8,7 +8,8 @@ Ark Pals is a Bible adventure game for children ages 4 to 7, made by Marchal Tec
 
 **In short:** grown-ups sign in, not children. We keep only what the game needs to work for your family.
 We never show ads, never sell or rent information, use no third-party tracking or analytics, and nothing
-is shared between families. A parent can download or delete everything at any time in the Parent Corner.
+is shared between families. **No child's name ever leaves our server.** A parent can download or delete
+everything at any time in the Parent Corner.
 
 ## Who uses Ark Pals
 
@@ -25,7 +26,7 @@ contact other people.
 - the family names a parent adds for the stories (what the children call their grown-ups, brothers,
   sisters and pets);
 - each player's progress, Pals, stickers and settings;
-- copies of the game itself, narration clips and songs, so it works offline.
+- copies of the game itself, narration clips, the house narrator's recordings and songs, so it works offline.
 
 **On our server**, for your family only:
 - your family's name, and each grown-up's name, role (parent or grown-up), chosen avatar, and email
@@ -33,8 +34,14 @@ contact other people.
 - the devices signed in to your family: a name like "iPad", and when each was first and last used;
 - backups of your players' progress (copies of what's on each device, so a lost or reset device doesn't
   lose it): the newest 60 are kept;
-- voice recordings a grown-up makes in Family voices, and songs a grown-up adds, for your family's
-  devices to play.
+- voice recordings a grown-up makes in Family voices (story pages, and their children's names, so the
+  game can say a name in their own voice), and songs a grown-up adds, for your family's devices to play.
+
+**Names families use**, counted: so our narrator can record the children's names families use that aren't
+in her name library yet, we count how many families use each child's first name (read from the players and
+brothers and sisters in each family's newest progress backup). We (the site owner) see a name only when
+three or more families use it, and then only the name and how many families, never which families. Nothing
+is kept: the count is made when we look.
 
 **Play totals**, only if a parent turns them on (Parent Corner, "Help make Ark Pals better"; off until
 then, and set on each device separately). They help us see where children stop, replay or find things
@@ -70,10 +77,12 @@ requests to anyone else's servers [confirm: fonts and all other files are served
 
 We use a few service providers, only to run the game:
 - **DigitalOcean** hosts our server in the United States, where everything above is stored.
-- **xAI** turns the narrator's lines into speech (the "Ara" voice). It receives the text of the line being
-  read. A few lines include a child's first name (for example, in the birthday story); otherwise no
-  personal information is sent. The audio is kept on our server so each line is made only once. [Planned
-  before launch: names are added from separate recordings, so no name is ever sent.]
+- **xAI** made some of the narration (the "Ara" voice) ahead of time, while we built the game: the
+  game's own fixed lines, and nothing else. **Nothing from your family is ever sent to xAI, and no child's
+  name ever leaves our server.** The narrator is our own family's recorded voice (we call it the house
+  narrator). Where a line has a child's name in it, the game puts it together from recordings: your own
+  recording of the name (Family voices), or our narrator's recording of it from her library of common
+  children's names. If neither has the name, that line is read by the device's own voice, on the device.
 - **Resend** sends our emails (sign-in links and invitations) when a grown-up asks for one; it receives
   that email address and the email.
 - **ImprovMX** forwards email sent to hello@spiritflow.church to us.

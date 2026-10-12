@@ -226,6 +226,9 @@ export function useProgress() {
 
 // ---------- Profiles ----------
 
+/** The players on this device (and which is playing). */
+export const getProfiles = () => profiles
+
 export function useProfiles() {
   return useSyncExternalStore(subscribe, () => profiles)
 }

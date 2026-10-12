@@ -21,6 +21,7 @@
     "preview:scenes": "rolldown scripts/preview-scenes.tsx --platform node --format esm -o preview/render-scenes.mjs && node preview/render-scenes.mjs",
     "e2e": "playwright test --project=webkit",
     "e2e:chromium": "playwright test --project=chromium",
+    "voice-script": "rolldown scripts/voice-script.tsx --platform node --format esm --module-types .css=empty -d preview/voice-script-build && node preview/voice-script-build/voice-script.js",
     "learning-lines": "rolldown scripts/learning-lines.tsx --platform node --format esm --module-types .css=empty -d preview/learning-lines-build && node preview/learning-lines-build/learning-lines.js"
   },
   "dependencies": {

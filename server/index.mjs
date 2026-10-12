@@ -7,6 +7,8 @@
 //   CARTER_SESSION_SECRET  random secret for signing the sign-in cookies
 //   XAI_API_KEY            optional: enables Grok's "Ara" narration voice (npm run set-voice-key)
 //   TTS_DAILY_CHARS        optional: cap on new narration generated per day (default 200000, about $3)
+//   TTS_LIVE               optional, the dev site only: 1 lets the owner make new narration clips live (for
+//                          warming). Without it /tts only plays clips made ahead of time, never a new line.
 //   RESEND_API_KEY         optional: sends sign-in links and invitations by email (npm run set-email-key)
 //   EMAIL_FROM             with it: who emails are from, e.g. "Ark Pals <hello@spiritflow.church>"
 //   SITE_URL               optional: this site's address for links in emails (default: the address asked for)
@@ -24,6 +26,8 @@ import { createBackups } from './backup.mjs'
 import { createStats, fromDay, isOwner, KEEP_DAYS, retireOldStats, summarize, summaryPage } from './stats.mjs'
 import { deleteFamilyData, writeFamilyExport } from './family-data.mjs'
 import { createRecordings } from './recordings.mjs'
+import { createHouse, handleHouse } from './house.mjs'
+import { familyNames, namesInUse } from './names-in-use.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, openFamilies, ROLES } from './families.mjs'
 import { createMailer, inviteEmail, signInEmail } from './email.mjs'
@@ -54,6 +58,7 @@ if (!tts) console.log('XAI_API_KEY not set: the game will use the device voice. 
 const STATE = process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups')
 mkdirSync(STATE, { recursive: true })
 const families = openFamilies(join(STATE, 'arkpals.db'))
+const house = createHouse(join(STATE, 'house'))
 const stripe = await stripeFromEnv()
 const billing = createBilling({
   db: families.db, families, stripe, webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '', portalConfig: process.env.STRIPE_PORTAL_CONFIG ?? '',
@@ -243,7 +248,11 @@ async function handleBackup(req, res, url, { backups }) {
   return res.end(text ?? '')
 }
 
-async function serveTts(res, url) {
+/**
+ * GET /tts: a narration clip made ahead of time (scripts/warm-narration.mjs), or 404, and the game uses the
+ * device voice. Only with TTS_LIVE on (the dev site) does the owner's device make new clips, for warming.
+ */
+async function serveTts(res, url, s) {
   const text = (url.searchParams.get('text') ?? '').trim()
   const voice = url.searchParams.get('voice') ?? 'ara'
   const speed = url.searchParams.get('speed') ?? '1'
@@ -257,7 +266,12 @@ async function serveTts(res, url) {
     return res.end()
   }
   try {
-    const mp3 = await tts(text, voice, speed)
+    const live = isOn(process.env.TTS_LIVE) && isOwner(families, s)
+    const mp3 = live ? await tts(text, voice, speed) : await tts.cached(text, voice, speed)
+    if (!mp3) {
+      res.writeHead(404, { 'Cache-Control': 'no-store' })
+      return res.end()
+    }
     // The URL fully determines the audio, so the device can keep it forever (and offline).
     res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'private, max-age=31536000, immutable' })
     res.end(mp3)
@@ -668,12 +682,22 @@ createServer(async (req, res) => {
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url, mine)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url, mine)
     if (url.pathname === '/stats') return await handleStats(req, res, url, s)
+    if (url.pathname === '/voice/names' && req.method === 'GET') {
+      // (the owner's studio: children's names used by 3 or more families, counts only)
+      if (!isOwner(families, s)) return json(res, 403)
+      const texts = await Promise.all(families.familyIds().map((id) => storesFor(id).backups.get().catch(() => null)))
+      return json(res, 200, namesInUse(texts.filter(Boolean).map(familyNames)))
+    }
+    if (url.pathname === '/voice/house' || url.pathname.startsWith('/voice/house/')) {
+      const own = s.family.id === families.firstFamily()
+      return await handleHouse(req, res, url, house, { own, owner: isOwner(families, s), familyRecordingsDir: join(STATE, 'recordings') })
+    }
     if (url.pathname === '/billing' || url.pathname.startsWith('/billing/')) return await handleBilling(req, res, url, s, billing, { siteUrl, isOwner: (x) => isOwner(families, x) })
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       return res.end()
     }
-    if (url.pathname === '/tts') return await serveTts(res, url)
+    if (url.pathname === '/tts') return await serveTts(res, url, s)
     await serveFile(res, decodeURIComponent(url.pathname))
   } catch (e) {
     console.error(e)

@@ -169,7 +169,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
       await speak(foeIntro)
       if (!alive.current) return
       sfx.shadowMove()
-      await speak(swoop)
+      await speak(swoop, { role: 'shade' })
       if (!alive.current) return
       setShade('inside')
       if (team.length > 1) {
@@ -215,7 +215,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
       if (dodge) sfx.dodge()
       else sfx.oof()
     }, 600)
-    await Promise.all([speak(`${foeName} used ${mv}!`), wait(1600)])
+    await Promise.all([speak(`${foeName} used ${mv}!`, { role: 'shade' }), wait(1600)])
     if (!alive.current) return
     let hearts = energy
     if (dodge) await speak(`${name} dodged it!`)
@@ -274,13 +274,13 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     setPhase('finale')
     setMood('story')
     setShade('listen')
-    await speak(SHADE_SAY.finale.listen)
+    await speak(SHADE_SAY.finale.listen, { role: 'shade' })
     if (!alive.current) return
-    await speak(SHADE_SAY.finale.whisper)
+    await speak(SHADE_SAY.finale.whisper, { role: 'shade' })
     if (!alive.current) return
     setShade('smile')
     sfx.sparkle()
-    await speak(SHADE_SAY.finale.smile)
+    await speak(SHADE_SAY.finale.smile, { role: 'shade' })
     if (!alive.current) return
     // His shadow turns to light…
     setShade('glow')
@@ -299,7 +299,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     setMood('home')
     sfx.fanfare()
     addPalXp(GLADSHADE, 0)
-    await speak(SHADE_SAY.finale.glad)
+    await speak(SHADE_SAY.finale.glad, { role: 'shade' })
     // (over to her side, with her Pal, so the creature can be asked to join too)
     if (alive.current) setShade('joined')
   }
@@ -346,7 +346,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     setPhase('ask')
     await speak(`${foeName}, would you like to join our ark?`)
     if (!alive.current) return
-    await speak('Yes, please!', { pitch: 1.35 })
+    await speak('Yes, please!', { pitch: 1.35, role: 'pals' })
     if (alive.current) speak('Throw a Friend Ball!')
   }
 

@@ -1,5 +1,5 @@
 import { LEVELS } from '../learn/levels'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { BackButton } from '../components/ui'
 import {
   activeProfile, addProfile, deleteProfile, editProfile, MAX_LEVEL, playerName, resetProgress, setSkillLevel,
@@ -10,6 +10,7 @@ import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
 import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
+import { NAME_STATUS_TEXT, useNameStatus } from '../voice/name-status'
 import FamilySongs from '../components/FamilySongs'
 import FamilyAccounts from '../components/FamilyAccounts'
 import FamilyPlan from '../components/FamilyPlan'
@@ -37,6 +38,12 @@ const NARRATORS: { id: Narrator; label: string }[] = [
 ]
 
 const EMOJIS = PLAYER_EMOJIS
+
+/** Whether the game can say this player's name in a real voice. */
+function NameVoice({ name }: { name: string }) {
+  const status = useNameStatus(name)
+  return status ? <p className={`muted name-voice ${status}`}>{NAME_STATUS_TEXT[status](name.trim())}</p> : null
+}
 
 function Players() {
   const { active, list } = useProfiles()
@@ -66,6 +73,7 @@ function Players() {
               <button className="danger" onClick={() => confirm(`Delete ${pr.name} and all of their progress?`) && deleteProfile(pr.id)}>Delete</button>
             )}
           </div>
+          <NameVoice name={pr.name} />
           {open === pr.id && <PlayerDetails profile={pr} />}
           </div>
         ))}
@@ -162,19 +170,29 @@ function Islands({ p }: { p: Progress }) {
   )
 }
 
+const Studio = lazy(() => import('./Studio'))
+
 function Voices({ p }: { p: Progress }) {
   const [open, setOpen] = useState(false)
+  const [studio, setStudio] = useState(false)
+  const { view } = useFamilyAccount()
   return (
     <section>
       <h3>Family voices</h3>
-      <p>Record yourself reading the stories. Your voice plays instead of the narrator for any page you record.</p>
+      <p>Record yourself reading the stories, and your children&rsquo;s names. Your voice plays instead of the narrator for any page you record, and the game says your child&rsquo;s name in your voice.</p>
       <div className="level-row">
-        <button onClick={() => setOpen(true)}>🎙️ Record story pages</button>
+        <button onClick={() => setOpen(true)}>🎙️ Record names and story pages</button>
         <button className={p.familyVoices ? 'on' : ''} onClick={() => update((x) => ({ ...x, familyVoices: !x.familyVoices }))}>
           {p.familyVoices ? 'Play family recordings: on' : 'Play family recordings: off'}
         </button>
       </div>
+      {view?.owner && (
+        <div className="level-row">
+          <button onClick={() => setStudio(true)}>🎚️ Recording studio: the house voices</button>
+        </div>
+      )}
       {open && <FamilyVoices onClose={() => setOpen(false)} />}
+      {studio && <Suspense fallback={null}><Studio onClose={() => setStudio(false)} /></Suspense>}
     </section>
   )
 }

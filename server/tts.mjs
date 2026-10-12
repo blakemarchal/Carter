@@ -1,5 +1,7 @@
 // Narration voice: Grok's "Ara" voice via the xAI text-to-speech API (https://api.x.ai/v1/tts).
 // Every line is generated once, then served from a disk cache, so a sentence is only ever paid for once.
+// The public game only plays clips made ahead of time (scripts/warm-narration.mjs, from the game's fixed
+// lines): it never asks for a new one, so no child's name is ever sent to xAI. `tts.cached` reads those.
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -42,9 +44,11 @@ export function createTtsCache({ apiKey, dir, dailyChars }) {
   })
   ready.catch(() => {})
 
-  return async function tts(text, voice, speed) {
+  const fileFor = (text, voice, speed) => join(dir, `${createHash('sha256').update(`${voice}|${speed}|${text}`).digest('hex')}.mp3`)
+
+  async function tts(text, voice, speed) {
     const id = createHash('sha256').update(`${voice}|${speed}|${text}`).digest('hex')
-    const file = join(dir, `${id}.mp3`)
+    const file = fileFor(text, voice, speed)
     await ready
     try {
       return await readFile(file)
@@ -71,4 +75,10 @@ export function createTtsCache({ apiKey, dir, dailyChars }) {
     inFlight.set(id, job)
     return job
   }
+  /** A clip that was made already (warmed at build time), or null: never makes a new one. */
+  tts.cached = async (text, voice, speed) => {
+    await ready
+    return readFile(fileFor(text, voice, speed)).catch(() => null)
+  }
+  return tts
 }

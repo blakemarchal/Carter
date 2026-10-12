@@ -20,7 +20,7 @@ export function numberWords(n: number): string {
  * Letter sounds for phonics, written into narration as ⟦n⟧ (see `letterSound`).
  * `ipa` is read by the Grok voice; `say` is the device voice's best attempt.
  */
-const PHONICS: Record<string, { ipa: string; say: string }> = {
+export const PHONICS: Record<string, { ipa: string; say: string }> = {
   a: { ipa: 'æ', say: 'ah' }, b: { ipa: 'bə', say: 'buh' }, c: { ipa: 'kə', say: 'kuh' }, d: { ipa: 'də', say: 'duh' },
   e: { ipa: 'ɛ', say: 'eh' }, f: { ipa: 'fː', say: 'fff' }, g: { ipa: 'ɡə', say: 'guh' }, h: { ipa: 'hə', say: 'huh' },
   i: { ipa: 'ɪ', say: 'ih' }, j: { ipa: 'dʒə', say: 'juh' }, k: { ipa: 'kə', say: 'kuh' }, l: { ipa: 'lː', say: 'lll' },
