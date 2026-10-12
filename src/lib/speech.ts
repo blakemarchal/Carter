@@ -206,8 +206,8 @@ export function unlockSpeech() {
   synth.speak(u)
 }
 
-const PRAISE = ['Great job!', 'You did it!', 'Wonderful!', 'Way to go, {name}!', 'Amazing!', 'Super smart!', 'Yay!']
-const RETRY = ['Oops, try again!', 'Almost! Try again.', 'Good try! Let’s try once more.']
+export const PRAISE = ['Great job!', 'You did it!', 'Wonderful!', 'Way to go, {name}!', 'Amazing!', 'Super smart!', 'Yay!']
+export const RETRY = ['Oops, try again!', 'Almost! Try again.', 'Good try! Let’s try once more.']
 const named = (s: string) => s.replace('{name}', playerName())
 export const praise = () => named(PRAISE[Math.floor(Math.random() * PRAISE.length)])
 export const retry = () => RETRY[Math.floor(Math.random() * RETRY.length)]

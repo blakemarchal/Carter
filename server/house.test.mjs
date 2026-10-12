@@ -36,8 +36,8 @@ const OTHER = { own: false, owner: false }
 describe('the house voices', () => {
   it('keeps clips by voice and fingerprint, with what they are, their trim and loudness', async () => {
     const h = house()
-    const c = await h.put('mom', id(1), 'audio/mp4', Buffer.alloc(500, 1), { key: 'Great job!', ref: 'praise:0', start: '120', end: '980', gain: '1.4' })
-    expect(c).toMatchObject({ ext: 'm4a', key: 'Great job!', ref: 'praise:0', start: 120, end: 980, gain: 1.4, bytes: 500 })
+    const c = await h.put('mom', id(1), 'audio/mp4', Buffer.alloc(500, 1), { key: 'Great job!', said: 'Great job!', ref: 'praise:0', start: '120', end: '980', gain: '1.4' })
+    expect(c).toMatchObject({ ext: 'm4a', key: 'Great job!', said: 'Great job!', ref: 'praise:0', start: 120, end: 980, gain: 1.4, bytes: 500 })
     expect((await h.get('mom', id(1))).body.length).toBe(500)
     const m = await h.manifest()
     expect(m.clips.mom[id(1)]).toEqual([c.at.toString(36), 120, 980, 1.4])

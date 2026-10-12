@@ -145,3 +145,25 @@ describe('trimming silence', () => {
     expect(soundBounds(new Float32Array(100), rate)).toEqual([0, 0.1]) // (silence: left as it is)
   })
 })
+
+describe('a sung song, placed on the song’s timings', () => {
+  it('finds where the song starts in the recording, allowing for what the singer hears late', async () => {
+    const { songStartInRecording } = await import('../voice/song-take')
+    expect(songStartInRecording({ recordingStarted: 1000, songStarted: 1250, outputLatency: 0.03, inputLatency: 0.02 })).toBe(300)
+    expect(songStartInRecording({ recordingStarted: 1000, songStarted: 990 })).toBe(10)
+  })
+
+  it('lays the voice onto the flute so a word sung at song time t plays at t', async () => {
+    const { mixVocal } = await import('../voice/song-take')
+    const rate = 100
+    const backing = [new Float32Array(300)] // (three seconds of silence)
+    const vocal = new Float32Array(400)
+    vocal[150] = 0.5 // (the recording started 0.5 s before the song; this was sung at song time 1.0 s)
+    const [mixed] = mixVocal(backing, vocal, rate, 500)
+    expect(mixed.findIndex((v) => v !== 0)).toBe(100)
+    expect(mixed[100]).toBeCloseTo(0.5)
+    expect(mixed.length).toBe(300) // (the song's own length: its word timings stay as they are)
+    const [loud] = mixVocal([new Float32Array(10).fill(0.9)], new Float32Array(10).fill(0.9), rate, 0, 1)
+    expect(Math.max(...loud)).toBe(1) // (never past full scale)
+  })
+})

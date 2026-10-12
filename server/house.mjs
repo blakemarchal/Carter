@@ -100,8 +100,8 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
     },
 
     /**
-     * Saves a clip. `meta`: key (what was said, or a slot's key), ref (where the line is in the script, so a
-     * change to its words can be flagged), start and end (ms of sound to play), gain.
+     * Saves a clip. `meta`: key (what was said, or a slot's key), said (the words read), ref (where the line is
+     * in the script, so a change to its words can be flagged), start and end (ms of sound to play), gain.
      */
     async put(voice, id, type, body, meta = {}) {
       checkVoice(voice)
@@ -122,7 +122,8 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
       ix.clips[voice][id] = {
         ext, at: clock(), bytes: body.length,
         key: typeof meta.key === 'string' ? meta.key.slice(0, 2000) : old?.key ?? null,
-        ref: typeof meta.ref === 'string' ? meta.ref.slice(0, 200) : old?.ref ?? null,
+        ref: typeof meta.ref === 'string' ? meta.ref.slice(0, 2000) : old?.ref ?? null,
+        said: typeof meta.said === 'string' ? meta.said.slice(0, 2000) : old?.said ?? null,
         start: ms(meta.start) ?? 0, end: ms(meta.end) ?? 0,
         gain: Number.isFinite(gain) && gain > 0 && gain <= 8 ? Math.round(gain * 100) / 100 : 1,
         ...(old?.shared ? { shared: true } : {}),
@@ -181,7 +182,7 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
         if (ix.clips[voice][id]) { had++; continue }
         await copyFile(join(fromDir, f), fileOf(voice, id, ext))
         const { size } = await stat(fileOf(voice, id, ext))
-        ix.clips[voice][id] = { ext, at: clock(), bytes: size, key: null, ref: null, start: 0, end: 0, gain: 1, promoted: true }
+        ix.clips[voice][id] = { ext, at: clock(), bytes: size, key: null, said: null, ref: null, start: 0, end: 0, gain: 1, promoted: true }
         copied++
       }
       if (copied) await persist()
@@ -239,7 +240,7 @@ export async function handleHouse(req, res, url, house, { own, owner, familyReco
       if (!owner) return json(res, 403)
       if (req.method === 'PUT') {
         const q = url.searchParams
-        const meta = { key: q.get('key') ?? undefined, ref: q.get('ref') ?? undefined, start: q.get('start'), end: q.get('end'), gain: q.get('gain') }
+        const meta = { key: q.get('key') ?? undefined, said: q.get('said') ?? undefined, ref: q.get('ref') ?? undefined, start: q.get('start'), end: q.get('end'), gain: q.get('gain') }
         return json(res, 200, await house.put(a, b, req.headers['content-type'] ?? '', await readBody(req, MAX_BYTES), meta))
       }
       if (req.method === 'DELETE') {

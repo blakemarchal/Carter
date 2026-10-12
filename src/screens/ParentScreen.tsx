@@ -1,5 +1,5 @@
 import { LEVELS } from '../learn/levels'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { BackButton } from '../components/ui'
 import {
   activeProfile, addProfile, deleteProfile, editProfile, MAX_LEVEL, playerName, resetProgress, setSkillLevel,
@@ -162,8 +162,12 @@ function Islands({ p }: { p: Progress }) {
   )
 }
 
+const Studio = lazy(() => import('./Studio'))
+
 function Voices({ p }: { p: Progress }) {
   const [open, setOpen] = useState(false)
+  const [studio, setStudio] = useState(false)
+  const { view } = useFamilyAccount()
   return (
     <section>
       <h3>Family voices</h3>
@@ -174,7 +178,13 @@ function Voices({ p }: { p: Progress }) {
           {p.familyVoices ? 'Play family recordings: on' : 'Play family recordings: off'}
         </button>
       </div>
+      {view?.owner && (
+        <div className="level-row">
+          <button onClick={() => setStudio(true)}>🎚️ Recording studio: the house voices</button>
+        </div>
+      )}
       {open && <FamilyVoices onClose={() => setOpen(false)} />}
+      {studio && <Suspense fallback={null}><Studio onClose={() => setStudio(false)} /></Suspense>}
     </section>
   )
 }

@@ -1,7 +1,10 @@
 // Sing-along: pick a song, then Ara sings it while the words light up one by one (great for
 // following along and early reading) and her Pal dances to the beat. "I sing!" swaps to the same
 // song with the tune on a flute, so she can be the singer. In "Happy Birthday" the game says the
-// player's name where it goes (Ara leaves it for the name). Styles: styles.css, "Sing-along".
+// player's name where it goes (Ara leaves it for the name). When the house's child voice has sung a song
+// in the studio (screens/Studio.tsx), a third version plays it: her singing laid on the flute track, on the
+// song's own word timings. That's for the owner's family only, unless the owner shares it (server/house.mjs).
+// Styles: styles.css, "Sing-along".
 import { useEffect, useRef, useState } from 'react'
 import DressedPal from '../components/DressedPal'
 import { BackButton, BigButton, Confetti } from '../components/ui'
@@ -13,6 +16,24 @@ import { preload, speak, stopSpeaking } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { familyAsSongs, loadSong, Playback, useFamilySongs, useNameSlot, withTimings } from '../lib/songs'
 import { useAlive } from '../lib/useAlive'
+import { ac } from '../lib/audio'
+import { keys } from '../voice/keys'
+import { clipAudio, houseFind, houseManifest } from '../voice/house'
+import { mixedBuffer } from '../voice/song-take'
+
+/** Who's singing: Ara, the player (the flute only), or the house's child voice (her recording on the flute). */
+type Mode = 'ara' | 'mine' | 'house'
+
+/** The child voice's sung version of a song, mixed onto its flute track, if this family may hear it. */
+async function houseVersion(song: Song): Promise<AudioBuffer | null> {
+  if (!song.audio.sing) return null
+  const hit = await houseFind(['child'], keys.song(song.id))
+  if (!hit) return null
+  const [v, start, , gain] = hit.info
+  const [flute, sung] = await Promise.all([loadSong(song.audio.sing), clipAudio(hit.voice, hit.id, v)])
+  if (!sung) return null
+  return mixedBuffer(ac(), flute, await ac().decodeAudioData(sung.slice(0)), start, gain)
+}
 
 /** The index of the last item whose time has come (or -1). */
 function lastAt<T>(items: T[], t: number, at: (x: T) => number) {
@@ -46,8 +67,11 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
   const name = playerName()
   const [song, setSong] = useState(() => withName(picked, name))
   const [state, setState] = useState<'loading' | 'playing' | 'paused' | 'done' | 'error'>('loading')
-  const [mine, setMine] = useState(false) // "I sing!": the version without Ara
-  const mineNow = useRef(false)
+  const [mode, setMode] = useState<Mode>('ara')
+  const mineNow = useRef(false) // (not Ara: the game doesn't say the name in the song)
+  const [house, setHouse] = useState(false) // the child voice has sung this one
+  useEffect(() => { houseFind(['child'], keys.song(picked.id)).then((h) => setHouse(!!h && !!picked.audio.sing)) }, [picked])
+  const houseLabel = houseManifest()?.voices.child?.label
   const [pos, setPos] = useState({ line: -1, word: -1, beat: -1 })
   const play = useRef<Playback | null>(null)
   const nameSlot = useNameSlot(song, name, () => !mineNow.current)
@@ -124,15 +148,17 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
   const switchVoice = async () => {
     const pb = play.current
     if (!pb || !song.audio.sing) return
-    const next = !mine
-    setMine(next)
-    mineNow.current = next
+    const was = mode
+    const next: Mode = mode === 'ara' ? 'mine' : mode === 'mine' && house ? 'house' : 'ara'
+    setMode(next)
+    mineNow.current = next !== 'ara'
     try {
-      const buf = await loadSong(next ? song.audio.sing : song.audio.ara)
+      const buf = next === 'house' ? await houseVersion(picked) : await loadSong(next === 'mine' ? song.audio.sing : song.audio.ara)
+      if (!buf) throw new Error('no version')
       if (alive.current && play.current === pb) pb.swap(buf)
     } catch {
-      setMine(!next)
-      mineNow.current = !next
+      setMode(was)
+      mineNow.current = was !== 'ara'
     }
   }
 
@@ -145,8 +171,8 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
         {inIsland ? <span /> : <BackButton onClick={onDone} />}
         <h2>{song.emoji} {song.title}</h2>
         {song.audio.sing
-          ? <button className={`sing-mode ${mine ? 'mine' : ''}`} onClick={() => { sfx.pop(); switchVoice() }} disabled={state === 'loading'}>
-              {mine ? '🙋 I sing!' : '🎤 Ara sings'}
+          ? <button className={`sing-mode ${mode !== 'ara' ? 'mine' : ''}`} onClick={() => { sfx.pop(); switchVoice() }} disabled={state === 'loading'}>
+              {mode === 'mine' ? '🙋 I sing!' : mode === 'house' ? `🎶 ${houseLabel ?? 'Our child'}’s version` : '🎤 Ara sings'}
             </button>
           : <span />}
       </header>

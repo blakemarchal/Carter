@@ -32,7 +32,9 @@ export const TEMPLATES: Template[] = [
   t('treasure-end', '{pal} had so much fun with you, {name}.', 'prompts', 'the placement game'),
   t('bday-you', 'It was you, {name}!', 'story', 'the birthday story'),
   t('bday-made', 'God made you, {name}!', 'story', 'the birthday story'),
+  t('bday-title', 'Happy Birthday, {name}.', 'story', 'the birthday story: its title'),
   t('bday-happy', 'Happy birthday, {name}!', 'story', 'the birthday story'),
+  t('thanks-making', 'Thank you, God, for making {name}!', 'story', 'the birthday party'),
   t('hello-baby', 'Hello, baby {name}!', 'prompts', 'the birthday party'),
   t('has-baby', '{name} has the baby!', 'prompts', 'the birthday party'),
 
