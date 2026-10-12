@@ -123,3 +123,22 @@ describe('/tts in the public game', () => {
     fetchSpy.mockRestore()
   })
 })
+
+describe('names families use (the owner’s studio)', async () => {
+  const { familyNames, namesInUse } = await import('./names-in-use.mjs')
+  const backup = (players, siblings = []) => JSON.stringify({ keys: {
+    'ark-pals:profiles': JSON.stringify({ active: 'a', list: players.map((p, i) => ({ id: `p${i}`, ...p })) }),
+    'ark-pals:family': JSON.stringify({ mom: 'Mom', dad: 'Dad', siblings: siblings.map((name) => ({ name })), pets: [] }),
+  } })
+
+  it('reads the children in a backup: players who aren’t grown-ups, and brothers and sisters', () => {
+    expect(familyNames(backup([{ name: 'Zuri' }, { name: 'Sam', grownup: true }], ['Bo']))).toEqual(['Zuri', 'Bo'])
+    expect(familyNames('not json')).toEqual([])
+  })
+
+  it('counts only names used by 3 or more families, and nothing else about them', () => {
+    const fams = [['Zuri', 'Bo'], ['zuri'], ['Zuri', 'Zuri'], ['Bo'], ['Bo'], ['Quill']]
+    expect(namesInUse(fams)).toEqual([{ name: 'Bo', families: 3 }, { name: 'Zuri', families: 3 }])
+    expect(namesInUse(fams.slice(0, 2))).toEqual([])
+  })
+})

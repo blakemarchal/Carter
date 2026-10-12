@@ -66,4 +66,11 @@ describe('the recording script', () => {
     expect(c.mom.praise!.minutes).toBeGreaterThan(0)
     expect(Object.keys(c).sort()).toEqual(['child', 'dad', 'mom'])
   })
+
+  it('names families use that aren’t in the library are recorded first in the Names queue', async () => {
+    const islands = await Promise.all(ISLANDS.map((i) => loadIsland(i.id)))
+    const s = buildScript(islands, { extraNames: ['Zxqvbn', 'Olivia'] }).filter((i) => i.voice === 'mom' && i.queue === 'names')
+    expect(s.slice(0, 2).map((i) => i.say).sort()).toEqual(['Zxqvbn!', '…, Zxqvbn.'])
+    expect(s.filter((i) => i.say === 'Olivia!')).toHaveLength(1) // (in the library already: not twice)
+  })
 })

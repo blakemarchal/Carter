@@ -111,8 +111,8 @@ async function slotPiece(voice: Voice, kind: SlotKind, value: string, take: Take
         const own = recordingFor(keys.name(nameKey(value), take))
         if (await own) return { own }
       }
-      const lib = libraryName(value)
-      return lib ? housePiece(voice, keys.name(lib, take)) : null
+      // (the library's spelling, or a name the owner recorded beyond the library: families use it)
+      return (await housePiece(voice, keys.name(libraryName(value) ?? value, take)))
     }
     case 'pal': return housePiece(voice, keys.pal(value, take))
     case 'n': return housePiece(voice, keys.number(parseNumber(value)!, take))

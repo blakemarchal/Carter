@@ -10,6 +10,7 @@ import { ac } from '../lib/audio'
 import { startRecording, stopRecording } from '../lib/recordings'
 import { ISLANDS, loadIsland } from '../data/islands'
 import { fingerprint } from '../voice/keys'
+import { libraryName } from '../voice/names'
 import { clipAudio, loadHouse } from '../voice/house'
 import { playParts, stopParts } from '../voice/player'
 import { buildScript, QUEUE_NAMES, QUEUES, scriptCounts, type Queue, type ScriptItem } from '../voice/script'
@@ -32,6 +33,7 @@ export default function Studio({ onClose }: { onClose: () => void }) {
   const [take, setTake] = useState<Take | null>(null)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
+  const [used, setUsed] = useState<{ name: string; families: number }[]>([])
 
   const loadIndex = useCallback(async () => {
     try {
@@ -47,7 +49,11 @@ export default function Studio({ onClose }: { onClose: () => void }) {
     loadIndex()
     ;(async () => {
       const islands = await Promise.all(ISLANDS.map((i) => loadIsland(i.id)))
-      const all = buildScript(islands)
+      // (children's names families use, 3 or more families each: the ones not in the library go first)
+      const inUse: { name: string; families: number }[] = await fetch('/voice/names', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).catch(() => [])
+      const missing = inUse.filter((n) => !libraryName(n.name))
+      setUsed(missing)
+      const all = buildScript(islands, { extraNames: missing.map((n) => n.name) })
       const m = new Map<ScriptItem, string>()
       for (const it of all) m.set(it, await fingerprint(it.key))
       setIds(m)
@@ -187,6 +193,9 @@ export default function Studio({ onClose }: { onClose: () => void }) {
             ))}
           </nav>
 
+          {queue === 'names' && used.length > 0 && (
+            <p className="muted noprint">Names families use that aren’t in the library yet (first in this queue): {used.map((n) => `${n.name} (${n.families} families)`).join(', ')}.</p>
+          )}
           {!item ? <p className="studio-done noprint">Every line in {QUEUE_NAMES[queue]} is recorded. Thank you!</p> : item.song ? (
             <SongTake key={item.song} item={item} voice={voice} id={id} recorded={!!recorded} onSaved={async () => { await loadIndex(); loadHouse() }} />
           ) : (

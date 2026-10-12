@@ -106,6 +106,22 @@ describe('stitching', () => {
     expect(await stitch('Way to go, Olivia! Something nobody recorded.')).toBeNull()
   })
 
+  it('a name the owner recorded beyond the library is stitched too', async () => {
+    setHouse(await house({ mom: [...partsOf('way-to-go'), keys.name('Zxqvbn', 'exclaim')] }))
+    expect(await stitch('Way to go, Zxqvbn!')).toHaveLength(2)
+  })
+
+  it('the Parent Corner says whether the game can say a name', async () => {
+    const { nameStatus } = await import('../voice/name-status')
+    setHouse(await house({ mom: [keys.name('Olivia', 'mid'), keys.name('Olivia', 'exclaim')] }))
+    expect(await nameStatus('olivia')).toBe('house')
+    expect(await nameStatus('Ava')).toBe('library')
+    expect(await nameStatus('Zxqvbn')).toBe('missing')
+    familyIds = [await lineId(keys.name('zxqvbn', 'mid')), await lineId(keys.name('zxqvbn', 'exclaim'))]
+    await loadRecordings()
+    expect(await nameStatus('Zxqvbn')).toBe('family')
+  })
+
   it('the family’s own recording of their child’s name comes first', async () => {
     familyIds = [await lineId(keys.name('Zxqvbn', 'exclaim'))]
     await loadRecordings()

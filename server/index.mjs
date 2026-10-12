@@ -27,6 +27,7 @@ import { createStats, fromDay, isOwner, KEEP_DAYS, retireOldStats, summarize, su
 import { deleteFamilyData, writeFamilyExport } from './family-data.mjs'
 import { createRecordings } from './recordings.mjs'
 import { createHouse, handleHouse } from './house.mjs'
+import { familyNames, namesInUse } from './names-in-use.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, openFamilies, ROLES } from './families.mjs'
 import { createMailer, inviteEmail, signInEmail } from './email.mjs'
@@ -681,6 +682,12 @@ createServer(async (req, res) => {
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url, mine)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url, mine)
     if (url.pathname === '/stats') return await handleStats(req, res, url, s)
+    if (url.pathname === '/voice/names' && req.method === 'GET') {
+      // (the owner's studio: children's names used by 3 or more families, counts only)
+      if (!isOwner(families, s)) return json(res, 403)
+      const texts = await Promise.all(families.familyIds().map((id) => storesFor(id).backups.get().catch(() => null)))
+      return json(res, 200, namesInUse(texts.filter(Boolean).map(familyNames)))
+    }
     if (url.pathname === '/voice/house' || url.pathname.startsWith('/voice/house/')) {
       const own = s.family.id === families.firstFamily()
       return await handleHouse(req, res, url, house, { own, owner: isOwner(families, s), familyRecordingsDir: join(STATE, 'recordings') })

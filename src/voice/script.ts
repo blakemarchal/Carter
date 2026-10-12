@@ -16,7 +16,7 @@ import { BEDTIME_LINES } from '../screens/Bedtime'
 import { PLACEMENT_PRAISE } from '../screens/Placement'
 import gen from './lines.gen.json'
 import { keys, type Take } from './keys'
-import { LIBRARY_NAMES } from './names'
+import { LIBRARY_NAMES, libraryName } from './names'
 import { MAX_NUMBER, PAL_NAMES, matchTemplate, sentences } from './stitch'
 import { pieces, recordedParts, TEMPLATES, type SlotKind } from './templates'
 import { voicesFor, type Role, type Voice } from './roles'
@@ -80,8 +80,12 @@ const takeText = (word: string, take: Take) => (take === 'exclaim' ? `${word}!` 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 const numberSay = (n: number, take: Take) => (take === 'exclaim' ? `${n}!` : `${n}`)
 
-/** The whole script, every voice. Islands are passed in (they load on demand in the game). */
-export function buildScript(islands: IslandSource[]): ScriptItem[] {
+/**
+ * The whole script, every voice. Islands are passed in (they load on demand in the game). `extraNames`: names
+ * families use that aren't in the name library (the owner's studio asks the server: GET /voice/names); they're
+ * recorded first in the Names queue.
+ */
+export function buildScript(islands: IslandSource[], { extraNames = [] }: { extraNames?: string[] } = {}): ScriptItem[] {
   const out: ScriptItem[] = []
   const seen = new Set<string>()
   const add = (item: ScriptItem) => {
@@ -159,6 +163,7 @@ export function buildScript(islands: IslandSource[]): ScriptItem[] {
   // ---- what fills the slots: Pals and children's names, numbers, letters and their sounds ----
   for (const [voice, kinds] of needs) {
     const takes = (k: SlotKind) => [...(kinds.get(k) ?? [])].sort()
+    for (const take of takes('name')) for (const n of extraNames.filter((x) => !libraryName(x))) add({ ref: `name:${n}:${take}`, queue: 'names', voice, key: keys.name(n, take), say: takeText(n, take), context: take === 'exclaim' ? 'on its own, excited' : 'in the middle of a sentence', where: 'names families use (not in the library)' })
     for (const take of takes('pal')) for (const p of PAL_NAMES) add({ ref: `pal:${p}:${take}`, queue: 'names', voice, key: keys.pal(p, take), say: takeText(p, take), context: take === 'exclaim' ? 'on its own, excited' : 'in the middle of a sentence', where: 'Pal names' })
     for (const take of takes('name')) for (const n of LIBRARY_NAMES) add({ ref: `name:${n}:${take}`, queue: 'names', voice, key: keys.name(n, take), say: takeText(n, take), context: take === 'exclaim' ? 'on its own, excited' : 'in the middle of a sentence', where: 'children’s names' })
     for (const take of takes('n')) for (let n = 0; n <= MAX_NUMBER; n++) add({ ref: `num:${n}:${take}`, queue: 'numbers', voice, key: keys.number(n, take), say: numberSay(n, take), context: take === 'exclaim' ? 'an answer, cheerful' : 'in the middle of a sentence', where: 'numbers' })
