@@ -288,3 +288,59 @@ On **`blake/grace-nocard`**, made from `blake/wave7` (5534ea1). `npx tsc -b` is 
   - Check Stripe asks for no card, the plan shows "a gift from a Grace code", the dashboard shows the code used, and the same code is refused the second time.
   - Check webhook deliveries are 200.
 - **New spoken lines:** none. The Parent Corner isn't spoken.
+
+---
+
+## Next: wave 10, our family's voices (Oct 12, 2026)
+
+On a new branch **`blake/voices`**, made from `blake/wave7`. This builds BUSINESS-PLAN §2 (the voice plan), which is planned but not built. Read §2 and §3 first.
+
+**Today:**
+- A line is spoken by one of three things, in this order: a family recording (exact text only; one voice per family; Parent Corner → Family voices, story pages and bedtime only), then live Grok `/tts`, then the device voice. See `src/lib/speech.ts:146-169`.
+- Lines with names (the child, Pals, the family cast) go to Grok as whole sentences, so **a child's name is sent to xAI**. Nothing is stitched.
+
+**Goal:** Mom is the house narrator for every family. Dad and Carter voice some parts. Children's names are spoken without being sent anywhere. Live Grok becomes a build-time fallback only.
+
+1. **Voices and roles.**
+   - Recordings carry a **voice** (`mom`, `dad`, `carter`, and room for more) as well as the line fingerprint.
+   - A **role** decides which voice speaks a line. By default:
+     - `narrator`: Mom. Story pages, prompts, praise and learning.
+     - `shade`: Dad. Grumbleshade's lines and the battle foe.
+     - `pals`: Carter. Short Pal cheers and reactions, if they exist as lines.
+   - Make the role table easy to change.
+   - Keep each family's own recordings (Family voices) first in line, above the house narrator.
+2. **House narrator.** The house set is shipped to every family:
+   - the owner's recordings, kept on the server and stored per voice;
+   - fetched like the narration clips, and cached for offline play.
+   The order becomes:
+   1. family recording;
+   2. house recording for the line's role;
+   3. a Grok clip made at build time (warmed cache);
+   4. the device voice.
+   Mom's existing Family voices recordings in the first family, the story pages, can be promoted into the house set with one owner action (same fingerprints).
+3. **Stitching.**
+   - Lines with `{name}`, Pal names, numbers (0–130), letters and letter sounds are stored as **templates with slots**.
+   - A template is recorded once in two parts, before and after the slot.
+   - The slot is filled from a **name library**: each name is recorded twice, mid-sentence and as an exclamation ("…, Carter." / "Carter!").
+   - Play the parts back to back with tight gaps (Web Audio, trimmed silence).
+   - If a name isn't recorded, the line goes to the device voice for that line only. Never send it to Grok.
+   - Pal names, numbers and letters are fixed sets, so record them all.
+4. **The name library.** Build a list of the most common US children's first names from the Social Security Administration's baby-name data (public domain), births from about 2014 to the latest year. Start with the top 600 girls' and 600 boys' names, merged, with spellings that sound alike recorded once ("Aiden/Aidan").
+   - The Parent Corner shows whether each player's name is in the library.
+   - A family can record its own child's name in Family voices (two takes).
+   - The owner's dashboard shows names families use that aren't in the library yet. Show counts only, and only when 3 or more families use the name.
+5. **The recording studio** (owner only, iPad-friendly):
+   - Choose a voice, then a queue: story pages, prompts, praise, learning, templates, names, numbers, letters or songs.
+   - Line by line: big text, record / play back / retake, automatic silence trimming and level check, and keyboard or tap to go to the next line.
+   - Progress per queue ("412 of 1,030"), and flags on lines whose text changed since they were recorded.
+   - **Priority order:** what a child hears most comes first. Praise and prompts, then story pages, then learning, then names.
+   - A printable script per voice and queue, made from the same data.
+6. **Carter sings.** A song mode in the studio: she sings along with the "I sing!" flute version through headphones. The recording is placed on the song's existing word timings, so no tapping is needed. It plays as "Carter's version" in the sing-along.
+   - **By default, Carter's voice is for our family only.** Only Blake can turn on sharing her songs or Pal lines with every family, per item.
+7. **Privacy.**
+   - Remove live `/tts` from the public build. Keep it on dev behind the owner, for warming only.
+   - Update `docs/legal/PRIVACY.md`: no child's name ever leaves our server.
+   - Add a voice release to `docs/legal/` for Mom, Dad and Carter (Carter's signed by her parents). It covers house use and is limited to Ark Pals.
+8. **Tests:** template and slot matching, the playback order, no name ever reaching `/tts`, studio progress and changed-line flags, and the song timing placement.
+
+Hand back the same way as before. Include how many lines each voice has to record per queue, and an estimate of minutes for each.
