@@ -61,7 +61,9 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
     sfx.good()
     setHearts((h) => h + 1)
     react('wiggle-happy', 700)
-    speak(pick(PET_LINES).replaceAll('{name}', name))
+    const line = pick(PET_LINES)
+    // (the Pal's own giggle is a Pal line; the rest are the narrator's)
+    speak(line.replaceAll('{name}', name), { role: line.includes('{name}') ? 'narrator' : 'pals' })
   }
 
   const eat = () => {

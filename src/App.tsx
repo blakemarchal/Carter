@@ -23,6 +23,7 @@ import { useToday } from './lib/useToday'
 import { flushStats } from './lib/stats'
 import { encouragements, preload, setFamilyVoices, setNarrator, setRate, unlockSpeech } from './lib/speech'
 import { loadRecordings } from './lib/recordings'
+import { loadHouse } from './voice/house'
 import { setSfxEnabled } from './lib/sfx'
 import { musicReady, setMood, setMusicEnabled } from './lib/music'
 import { unlockAudio } from './lib/audio'
@@ -120,6 +121,7 @@ export default function App() {
     backupSoon()
     flushStats()
     loadRecordings()
+    loadHouse()
     warmEgg()
     preload([
       'Where should we go? Tap an island!',

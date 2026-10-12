@@ -35,7 +35,7 @@ export default defineConfig({
         globIgnores: ['**/music/**'],
         // These pages come from the server, not the installed app: /login (the sign-in form, when a device is
         // signed out), the pages a family's link opens (/join/…, /start/…), and the owner's play totals (/stats) and billing (/billing/owner).
-        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//, /^\/stats/, /^\/billing\//],
+        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//, /^\/stats/, /^\/billing\//, /^\/voice\//],
         // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
         runtimeCaching: [{
           urlPattern: ({ url }) => url.pathname === '/tts',
@@ -43,6 +43,15 @@ export default defineConfig({
           options: {
             cacheName: 'narration',
             expiration: { maxEntries: 3000 },
+            cacheableResponse: { statuses: [200] },
+          },
+        }, {
+          // The house voices' clips (server/house.mjs): each address carries its version, so a kept copy never goes stale.
+          urlPattern: ({ url }) => /^\/voice\/house\/[^/]+\/[0-9a-f]{16}$/.test(url.pathname) && url.searchParams.has('v'),
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'house-voices',
+            expiration: { maxEntries: 12000 },
             cacheableResponse: { statuses: [200] },
           },
         }, {
