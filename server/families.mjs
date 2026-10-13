@@ -15,7 +15,7 @@ export const FIRST_MEMBER_NAME = 'Grown-ups'
 
 export const ROLES = ['parent', 'grownup']
 /** How long each kind of link works for, in days. */
-const LINK_DAYS = { member: 7, device: 1, family: 30 }
+const LINK_DAYS = { member: 7, device: 1, family: 30, signup: 1 }
 
 const newId = (prefix) => `${prefix}_${randomBytes(9).toString('base64url')}`
 const hashToken = (t) => createHash('sha256').update(t).digest('base64url')
@@ -70,6 +70,10 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
   const hasColumn = (table, col) => !!q(`SELECT 1 FROM pragma_table_info('${table}') WHERE name = ?`).get(col)
   if (!hasColumn('members', 'email')) db.exec('ALTER TABLE members ADD COLUMN email TEXT')
   if (!hasColumn('links', 'email')) db.exec('ALTER TABLE links ADD COLUMN email TEXT')
+  // (added for public sign-up: the family name a parent gave when signing up, kept on their emailed link; and
+  // how and when a parent agreed to the terms and privacy policy for their children, kept on the family)
+  if (!hasColumn('links', 'family_name')) db.exec('ALTER TABLE links ADD COLUMN family_name TEXT')
+  if (!hasColumn('families', 'consent')) db.exec('ALTER TABLE families ADD COLUMN consent TEXT')
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS members_email ON members(email) WHERE email IS NOT NULL')
   // A used or expired link is no use to anyone, so it isn't kept: they're cleared out as new ones are made.
   const purgeLinks = () => q('DELETE FROM links WHERE used IS NOT NULL OR expires < ?').run(clock())
@@ -168,18 +172,24 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
      * sooner (a sign-in link sent by email); `email` is where an invitation was sent, which becomes the new
      * grown-up's email when they join.
      */
-    makeLink({ kind, familyId = null, memberId = null, name = null, role = null, madeBy = null, minutes = null, email = null }) {
+    makeLink({ kind, familyId = null, memberId = null, name = null, role = null, madeBy = null, minutes = null, email = null, familyName = null }) {
       if (!(kind in LINK_DAYS)) throw Object.assign(new Error('bad kind'), { status: 400 })
       if (kind === 'member') {
         name = cleanName(name)
         if (!ROLES.includes(role)) throw Object.assign(new Error('bad role'), { status: 400 })
       }
+      // (a parent who signed up: their name, their family's name and their email, for the page their link opens)
+      if (kind === 'signup') {
+        name = cleanName(name)
+        familyName = cleanName(familyName)
+        if (!cleanEmail(email)) throw Object.assign(new Error('bad email'), { status: 400 })
+      } else familyName = null
       purgeLinks()
       const token = randomBytes(24).toString('base64url')
       const id = newId('lnk')
       const expires = clock() + Math.min(LINK_DAYS[kind] * DAY, minutes ? minutes * 60_000 : Infinity)
-      q(`INSERT INTO links (id, token_hash, kind, family_id, member_id, name, role, made_by, created, expires, email)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, hashToken(token), kind, familyId, memberId, name, role, madeBy, clock(), expires, cleanEmail(email))
+      q(`INSERT INTO links (id, token_hash, kind, family_id, member_id, name, role, made_by, created, expires, email, family_name)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, hashToken(token), kind, familyId, memberId, name, role, madeBy, clock(), expires, cleanEmail(email), familyName)
       return { id, token, expires }
     },
 
@@ -189,8 +199,11 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
       if (!l || l.used || l.expires < clock()) return null
       const family = l.family_id ? q('SELECT id, name FROM families WHERE id = ?').get(l.family_id) : null
       const member = l.member_id ? q('SELECT id, name FROM members WHERE id = ?').get(l.member_id) : null
-      if ((l.kind !== 'family' && !family) || (l.kind === 'device' && !member)) return null
-      return { kind: l.kind, name: l.name, role: l.role, family: family ? { ...family } : null, member: member ? { ...member } : null }
+      if ((l.kind !== 'family' && l.kind !== 'signup' && !family) || (l.kind === 'device' && !member)) return null
+      return {
+        kind: l.kind, name: l.name, role: l.role, family: family ? { ...family } : null, member: member ? { ...member } : null,
+        ...(l.kind === 'signup' ? { familyName: l.family_name, email: l.email } : {}),
+      }
     },
 
     /**
@@ -202,11 +215,13 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
         const l = q('SELECT * FROM links WHERE token_hash = ?').get(hashToken(String(token)))
         if (!l || l.used || l.expires < clock()) return null
         let familyId = l.family_id, memberId = l.member_id
-        if (l.kind === 'family') {
-          familyId = addFamily(familyName)
-          memberId = addMember(familyId, yourName, 'parent')
-          const email = cleanEmail(yourEmail)
+        if (l.kind === 'family' || l.kind === 'signup') {
+          familyId = addFamily(familyName ?? l.family_name)
+          memberId = addMember(familyId, yourName ?? l.name, 'parent')
+          // (signing up: the email the link went to, which proves it's theirs; and their agreement, kept)
+          const email = cleanEmail(l.kind === 'signup' ? l.email : yourEmail)
           if (email) try { q('UPDATE members SET email = ? WHERE id = ?').run(email, memberId) } catch (e) { throw emailTaken(e) }
+          if (l.kind === 'signup') q('UPDATE families SET consent = ? WHERE id = ?').run(JSON.stringify({ at: clock(), how: 'sign-up: agreed to the terms and privacy policy as a parent, confirmed by email' }), familyId)
         } else if (l.kind === 'member') {
           memberId = addMember(familyId, l.name, l.role)
           // (the address the invitation went to, unless someone else already signs in with it)
@@ -229,6 +244,12 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
         devices: devices.map((d) => ({ id: d.id, label: d.label, seen: d.seen, member: d.member_id, mine: d.id === deviceId })),
         invites: links.map((l) => ({ ...l })),
       }
+    },
+
+    /** How and when a parent agreed for their family (public sign-up), or null: { at, how }. */
+    consentOf(familyId) {
+      const c = q('SELECT consent FROM families WHERE id = ?').get(familyId)?.consent
+      return c ? JSON.parse(c) : null
     },
 
     renameFamily(familyId, name) {

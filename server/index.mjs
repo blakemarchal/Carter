@@ -13,6 +13,8 @@
 //   RESEND_API_KEY         optional: sends sign-in links and invitations by email (npm run set-email-key)
 //   EMAIL_FROM             with it: who emails are from, e.g. "Ark Pals <hello@spiritflow.church>"
 //   SITE_URL               optional: this site's address for links in emails (default: the address asked for)
+//   SIGNUP_OPEN            optional: 1 lets anyone start a family from the front page (it needs email set up);
+//                          without it, families join by invitation (new-family links) only
 //   STRIPE_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PORTAL_CONFIG, BILLING_ENFORCED: billing (server/billing.mjs)
 //   CACHE_DIRECTORY        set by systemd (CacheDirectory=carter); where narration clips are kept
 //   STATE_DIRECTORY        set by systemd (StateDirectory=carter); where progress backups are kept
@@ -34,7 +36,8 @@ import { createMissed, createNameConsent, makeNameClips, removeNameClips } from 
 import { synthesize } from './tts.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, FIRST_MEMBER_NAME, openFamilies, ROLES } from './families.mjs'
-import { createMailer, inviteEmail, signInEmail } from './email.mjs'
+import { createMailer, inviteEmail, signInEmail, signupEmail } from './email.mjs'
+import { landingPage } from './landing.mjs'
 import { createBilling, handleBilling, handleWebhook, isOn, stripeFromEnv } from './billing.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
@@ -73,6 +76,8 @@ const billing = createBilling({
 })
 if (!stripe) console.log('STRIPE_KEY not set: billing is off. Run: npm run set-stripe-key, then npm run stripe-setup')
 const mailer = createMailer({ apiKey: process.env.RESEND_API_KEY, from: process.env.EMAIL_FROM, outbox: process.env.EMAIL_OUTBOX })
+/** Whether anyone may start a family from the front page (else families join by invitation). */
+const SIGNUP_OPEN = isOn(process.env.SIGNUP_OPEN)
 if (!mailer) console.log('RESEND_API_KEY not set: grown-ups share their links by hand. Run: npm run set-email-key')
 /** This site's address, for links in emails. */
 const siteUrl = (req) => (process.env.SITE_URL || `${secure(req) ? 'https' : 'http'}://${req.headers.host}`).replace(/\/$/, '')
@@ -630,23 +635,67 @@ ${mailer ? `<label for="email">Your email, for a sign-in link on a new device (o
 }
 
 /** GET/POST /start/<token>: a new family, from a link the site owner made. */
+/**
+ * POST /signup: a parent's family name, their own name, their email and their agreement for their children.
+ * Nothing is made yet: we email a link (24 hours, once) that starts the family when it's opened, which also
+ * shows the email is theirs. Someone who already signs in with that email is sent a sign-in link instead (the
+ * page says the same either way, so it doesn't tell anyone who has an account).
+ */
+async function handleSignup(req, res, ip) {
+  const f = new URLSearchParams((await readBody(req, 4000)).toString('utf8'))
+  const values = { family: f.get('family') ?? '', you: f.get('you') ?? '', email: f.get('email') ?? '' }
+  const again = (status, msg) => {
+    res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
+    return res.end(landingPage({ open: SIGNUP_OPEN, email: !!mailer, form: { values, msg } }))
+  }
+  if (!SIGNUP_OPEN || !mailer) return again(403, 'Ark Pals is by invitation for now.')
+  if (limited(ip)) return again(429, 'Too many tries. Please wait 15 minutes.')
+  let family, you, email
+  try {
+    family = cleanName(values.family)
+    you = cleanName(values.you)
+  } catch {
+    return again(400, "Please give your family's name and your own (up to 40 letters each).")
+  }
+  try { email = cleanEmail(values.email) } catch { email = null }
+  if (!email) return again(400, 'Please give an email that works: the link to start your family goes there.')
+  if (f.get('consent') !== 'yes') return again(400, 'Please tick the box to agree for your family.')
+  if (!mayEmail(`ip:${ip}`, 10)) return again(429, 'Too many tries. Please wait an hour.')
+  if (mayEmail(`signup:${email}`, 3)) {
+    const who = families.memberByEmail(email)
+    let message
+    if (who) {
+      const l = families.makeLink({ kind: 'device', familyId: who.family.id, memberId: who.member.id, madeBy: who.member.id, minutes: 30 })
+      message = signInEmail({ link: `${siteUrl(req)}/join/${l.token}`, name: who.member.name, family: who.family.name })
+    } else {
+      const l = families.makeLink({ kind: 'signup', name: you, familyName: family, email, madeBy: 'sign-up' })
+      message = signupEmail({ link: `${siteUrl(req)}/start/${l.token}`, name: you, family })
+    }
+    mailer.send({ to: email, ...message }).catch((e) => console.error(e.message))
+  }
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
+  return res.end(landingPage({ open: SIGNUP_OPEN, email: true, signedUpTo: email }))
+}
+
 async function handleStart(req, res, url, ip) {
   const token = url.pathname.slice('/start/'.length)
   if (limited(ip)) return sendPage(res, 429, 'Ark Pals', `<div class="card"><h1>🌈 Ark Pals</h1><p>Too many tries. Please wait 15 minutes.</p></div>`)
   const link = families.peekLink(token)
-  if (!link || link.kind !== 'family') {
+  if (!link || (link.kind !== 'family' && link.kind !== 'signup')) {
     fail(ip)
     return sendPage(res, 404, 'Ark Pals', deadLink(req))
   }
   const was = currentSession(req)
   const guard = linkGuard(was, null, was ? families.view(was.family.id, was.device.id).devices.length : 0)
   const leaving = guard.leave ? leaveChoices(was, { last: guard.last, firstFamily: was.family.id === families.firstFamily(), action: 'start the new family' }) : ''
-  const form = (msg = '', family = '', you = '', email = '') => `<form method="post"><h1>🌈 Ark Pals</h1>
+  // (a parent who signed up already gave their names and email: shown to check, the email as it was sent)
+  const signup = link.kind === 'signup'
+  const form = (msg = '', family = signup ? link.familyName : '', you = signup ? link.name : '', email = '') => `<form method="post"><h1>🌈 Ark Pals</h1>
 <p>Welcome! Start your family's Ark. You can invite more grown-ups, like grandparents, once you're in.</p>
 ${msg ? `<div class="err">${esc(msg)}</div>` : ''}${leaving}
 <label for="family">Your family's name</label><input id="family" name="family" maxlength="40" placeholder="The Smith family" value="${esc(family)}" required autofocus>
 <label for="you">Your name (what the family calls you)</label><input id="you" name="you" maxlength="40" placeholder="Mom" value="${esc(you)}" required>
-${mailer ? `<label for="email">Your email (for sign-in links on a new device; optional)</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" value="${esc(email)}">` : ''}
+${signup ? `<p class="small">You'll sign in with <b>${esc(link.email)}</b>.</p>` : mailer ? `<label for="email">Your email (for sign-in links on a new device; optional)</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" value="${esc(email)}">` : ''}
 <button>Start our family</button></form>`
   if (req.method === 'POST') {
     const f = new URLSearchParams((await readBody(req, 2000)).toString('utf8'))
@@ -742,6 +791,8 @@ createServer(async (req, res) => {
       }
       return sendPage(res, 200, 'Ark Pals', `<div class="card"><h1>🌈 Ark Pals</h1><p>If that email belongs to a grown-up in a family here, a sign-in link is on its way. It works once, for 30 minutes.</p><p class="small">Nothing there? Check the spam folder, or ask your family for a link.</p><p><a href="/">Back</a></p></div>`)
     }
+    // Public sign-up (SIGNUP_OPEN): a parent asks for the link that starts their family (server/landing.mjs).
+    if (url.pathname === '/signup' && req.method === 'POST') return await handleSignup(req, res, ip)
     // A pasted link: go to its page (/join/… or /start/…), just as opening it would.
     if (url.pathname === '/login/link' && req.method === 'POST') {
       const pasted = new URLSearchParams((await readBody(req, 2000)).toString('utf8')).get('link') ?? ''
@@ -757,12 +808,14 @@ createServer(async (req, res) => {
     // scripts/legal-pages.mjs).
     if (LEGAL[url.pathname] && (req.method === 'GET' || req.method === 'HEAD')) return await serveFile(res, LEGAL[url.pathname])
     // Browsers fetch the app manifest and icons without cookies, so these stay public (they contain nothing private).
-    const isPublic = ['/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.png'].includes(url.pathname)
+    const isPublic = ['/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.png'].includes(url.pathname) || url.pathname.startsWith('/landing/')
     const s = isPublic ? null : sessionOf(req, res)
     if (!isPublic && !s) {
-      // Pages get the sign-in form; everything else is simply refused.
+      // The front page for a visitor (what Ark Pals is, and how to start or sign in); other pages get the sign-in
+      // form (/login for one on purpose); everything else is simply refused.
       const wantsPage = (req.headers.accept ?? '').includes('text/html')
       res.writeHead(wantsPage ? 200 : 401, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
+      if (wantsPage && url.pathname === '/') return res.end(landingPage({ open: SIGNUP_OPEN, email: !!mailer }))
       return res.end(wantsPage ? LOGIN_PAGE() : '')
     }
     if (url.pathname === '/welcome') return await handleWelcome(req, res, s)

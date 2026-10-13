@@ -262,6 +262,24 @@ The paid site runs beside the dev site on the same droplet, as its own copy with
 - **Script commands** (`set-password`, `set-stripe-key`, `stripe-setup`, `new-family-link`) work the same in `/opt/ArkPals`. Use `STATE_DIRECTORY=/var/lib/arkpals` for `new-family-link`.
 - **The first family:** whoever first signs in on arkpals.world with the family password becomes the owner's family (free, owner pages).
 
+## The front page and public sign-up
+
+A visitor who isn't signed in sees the front page (`server/landing.mjs`): what Ark Pals is, what's in it, the
+prices, and links to the Privacy Policy and Terms. Signed-in devices go straight to the game, and `/login` still
+has the family password, email and pasted-link sign-in.
+
+- **`SIGNUP_OPEN=1`** in `.env` (then restart) lets anyone start a family from the front page. Without it, the
+  front page says families join by invitation, and new families come from `new-family-link` as before.
+- Sign-up needs email set up (Resend). A parent gives their family's name, their own name and their email, and
+  ticks that they're the parent or guardian and agree to the Terms and Privacy Policy. Nothing is made yet: they
+  get an email with a link (it works once, for 24 hours). Opening it shows the names to check, and **Start our
+  family** makes the family, signs that device in, and keeps the email for sign-in links.
+- The family keeps a record of when the parent agreed (`families.consent`), our record of parental consent.
+- Someone who signs up with an email that's already a grown-up's gets a sign-in link instead, and the page says
+  the same either way. Sign-ups are limited per address (10 an hour) and per email (3 an hour).
+- The front page's pictures are `public/landing/*.jpg` (taken from the game at iPad size; take them again when
+  the game's look changes).
+
 ## Billing: Stripe, in test mode
 
 Families pay through Stripe (`server/billing.mjs`). For now it runs in the **"Ark Pals sandbox"** of the

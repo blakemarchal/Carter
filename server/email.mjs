@@ -49,6 +49,20 @@ export function signInEmail({ link, name, family }) {
   }
 }
 
+/** "Start your family on Ark Pals": the link a parent asked for when signing up. */
+export function signupEmail({ link, name, family }) {
+  const lines = [
+    `Hi ${esc(name)}! Here's the link to start <b>${esc(family)}</b> on Ark Pals, the Bible adventure game.`,
+    'Open it on the phone or tablet your children will play on, and tap Start.',
+  ]
+  const foot = 'It works once, for 24 hours. If you didn\'t sign up for Ark Pals, you can ignore this email: nothing is made until the link is opened.'
+  return {
+    subject: 'Start your family on Ark Pals',
+    text: `${plain(lines)}\n\n${link}\n\n${foot}`,
+    html: page(lines, 'Start our family', link, foot),
+  }
+}
+
 /** "You're invited to join <family> on Ark Pals." */
 export function inviteEmail({ link, name, family, from }) {
   const lines = [

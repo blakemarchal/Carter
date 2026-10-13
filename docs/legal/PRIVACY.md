@@ -32,6 +32,8 @@ contact other people.
 **On our server**, for your family only:
 - your family's name, and each grown-up's name, role (parent or grown-up), chosen avatar, and email
   address if they add one (to be sent a sign-in link);
+- for a family that signed up on our website: when the parent agreed to these terms for their children,
+  as our record of their consent (it's kept with the family, and deleted with it);
 - the devices signed in to your family: a name like "iPad", and when each was first and last used;
 - backups of your players' progress (copies of what's on each device, so a lost or reset device doesn't
   lose it): the newest 60 are kept;
