@@ -24,6 +24,7 @@ import { flushStats } from './lib/stats'
 import { encouragements, preload, setFamilyVoices, setNarrator, setRate, unlockSpeech } from './lib/speech'
 import { loadRecordings } from './lib/recordings'
 import { loadHouse } from './voice/house'
+import { loadFamilyView } from './lib/family'
 import { setStitcher } from './voice/resolve'
 import { stitch } from './voice/stitch'
 import { setSfxEnabled } from './lib/sfx'
@@ -127,6 +128,7 @@ export default function App() {
     flushStats()
     loadRecordings()
     loadHouse()
+    loadFamilyView()
     warmEgg()
     preload([
       'Where should we go? Tap an island!',

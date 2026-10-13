@@ -68,6 +68,10 @@ across every family that shares, never at one family's totals, and no sums are s
 least five families share, so one family's play can't be picked out. They're never shared with anyone
 else or used for advertising.
 
+**Voice coverage (our own devices only):** when one of *our* devices (the site owner's) hears a line in
+the device's voice because no recording or Grok clip had it yet, it tells our server the line, so we can
+make it. Never a line with anyone's name in it, and nothing from any other family's devices.
+
 **Sign-in:** one cookie, set by us, keeps a signed-in device signed in. It isn't used for anything else.
 
 We don't collect location, contacts, photos or anything else from the device, and the game makes no
@@ -77,12 +81,16 @@ requests to anyone else's servers [confirm: fonts and all other files are served
 
 We use a few service providers, only to run the game:
 - **DigitalOcean** hosts our server in the United States, where everything above is stored.
-- **xAI** made some of the narration (the "Ara" voice) ahead of time, while we built the game: the
-  game's own fixed lines, and nothing else. **Nothing from your family is ever sent to xAI, and no child's
-  name ever leaves our server.** The narrator is our own family's recorded voice (we call it the house
-  narrator). Where a line has a child's name in it, the game puts it together from recordings: your own
-  recording of the name (Family voices), or our narrator's recording of it from her library of common
-  children's names. If neither has the name, that line is read by the device's own voice, on the device.
+- **xAI** makes the narrator's voice (Grok's "Ara" voice), ahead of time, on our server: the game's own
+  lines, and the pieces lines are put together from (numbers, letters, the names of things and Pals, and
+  the children's first names in our name library, which is the US Social Security Administration's public
+  list of common baby names). **Nothing from your family is sent to xAI unless a parent chooses it**, and no
+  child's name ever leaves our server otherwise. As our own family records the lines, their voice replaces
+  Grok's. A child's name that isn't in the library is read by the device's own voice, on the device,
+  unless a parent turns on **"Let the narrator say <name>"** (Parent Corner, under the player; off until
+  then). Only then is that one name, and nothing else, sent to xAI, once, to make two short clips of the
+  narrator saying it, which are kept with your family's recordings, are in your download, and are deleted
+  when you turn it off or delete the family.
 - **Resend** sends our emails (sign-in links and invitations) when a grown-up asks for one; it receives
   that email address and the email.
 - **ImprovMX** forwards email sent to hello@spiritflow.church to us.

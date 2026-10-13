@@ -2,7 +2,9 @@
 // made by npm run voice-script; it ships as dist/voice/grok-list.json), in Grok's "Ara" voice, into the house set
 // (STATE_DIRECTORY/house/grok, and its index.json), which the game plays for every family. Run it on the server,
 // where the voice key lives (read from .env, never printed), as root, from /opt/Carter:
-//   node scripts/warm-house-grok.mjs [list = dist/voice/grok-list.json] [--dry-run] [--max-chars=400000]
+//   node scripts/warm-house-grok.mjs [list = dist/voice/grok-list.json] [--missed] [--dry-run] [--max-chars=400000]
+// --missed also makes the lines the owner's devices heard in the device voice (the studio's "Lines that fell to
+// the device voice": STATE_DIRECTORY/house/missed.json), so the next warm-up catches up with them.
 // It's safe to run again after each wave: clips already made are skipped. A clip flagged on the sound check page
 // (the owner's, in the Parent Corner) is made again with its next prompt, and unflagged. A line already made for
 // /tts (the old narration cache) is copied, not paid for again. Files are handed to the state folder's owner (the
@@ -40,8 +42,12 @@ export function plan(list, clips = {}) {
 }
 
 async function main() {
-  const list = JSON.parse(readFileSync(listFile, 'utf8'))
   const houseDir = join(state, 'house')
+  const list = JSON.parse(readFileSync(listFile, 'utf8'))
+  if (args.includes('--missed') && existsSync(join(houseDir, 'missed.json'))) {
+    const missed = JSON.parse(readFileSync(join(houseDir, 'missed.json'), 'utf8'))
+    list.push(...missed.map((m) => ({ key: m.line, say: [m.spoken || m.line], ref: 'missed' })))
+  }
   const house = createHouse(houseDir)
   const todo = plan(list, (await house.index()).clips[VOICE])
   const chars = todo.reduce((n, t) => n + t.prompt.length, 0)

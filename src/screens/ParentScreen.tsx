@@ -10,7 +10,7 @@ import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
 import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
-import { NAME_STATUS_TEXT, useNameStatus } from '../voice/name-status'
+import { NAME_CONSENT, NAME_STATUS_TEXT, setNarratorSaysName, useAgreedNames, useNameStatus } from '../voice/name-status'
 import FamilySongs from '../components/FamilySongs'
 import FamilyAccounts from '../components/FamilyAccounts'
 import FamilyPlan from '../components/FamilyPlan'
@@ -42,7 +42,34 @@ const EMOJIS = PLAYER_EMOJIS
 /** Whether the game can say this player's name in a real voice. */
 function NameVoice({ name }: { name: string }) {
   const status = useNameStatus(name)
-  return status ? <p className={`muted name-voice ${status}`}>{NAME_STATUS_TEXT[status](name.trim())}</p> : null
+  const agreed = useAgreedNames().some((n) => n.toLowerCase() === name.trim().toLowerCase())
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  if (!status || !name.trim()) return null
+  const toggle = async (on: boolean) => {
+    if (on && !confirm(NAME_CONSENT(name.trim()))) return
+    setBusy(true)
+    setError('')
+    try {
+      await setNarratorSaysName(name, on)
+    } catch (e) {
+      const code = (e as { status?: number }).status
+      setError(code === 503 ? 'The narrator’s voice isn’t set up on this server.' : code === 429 ? 'That’s enough names for today. Try again tomorrow.' : code === 400 ? 'That doesn’t look like a name.' : 'Couldn’t do that just now. Check you’re online and try again.')
+    }
+    setBusy(false)
+  }
+  return (
+    <div className={`name-voice ${status}`}>
+      <p className="muted">{agreed ? `🔊 The narrator says “${name.trim()}” (you said yes).` : NAME_STATUS_TEXT[status](name.trim())}</p>
+      {(status === 'missing' || agreed) && (
+        <label className="check-row">
+          <input type="checkbox" checked={agreed} disabled={busy} onChange={(e) => toggle(e.target.checked)} />
+          <span>Let the narrator say {name.trim()}{busy ? ' …' : ''}</span>
+        </label>
+      )}
+      {error && <p className="warn">{error}</p>}
+    </div>
+  )
 }
 
 function Players() {
@@ -73,7 +100,7 @@ function Players() {
               <button className="danger" onClick={() => confirm(`Delete ${pr.name} and all of their progress?`) && deleteProfile(pr.id)}>Delete</button>
             )}
           </div>
-          <NameVoice name={pr.name} />
+          {!isGrownup(pr) && <NameVoice name={pr.name} />}
           {open === pr.id && <PlayerDetails profile={pr} />}
           </div>
         ))}
@@ -171,10 +198,12 @@ function Islands({ p }: { p: Progress }) {
 }
 
 const Studio = lazy(() => import('./Studio'))
+const SoundCheck = lazy(() => import('./SoundCheck'))
 
 function Voices({ p }: { p: Progress }) {
   const [open, setOpen] = useState(false)
   const [studio, setStudio] = useState(false)
+  const [soundCheck, setSoundCheck] = useState(false)
   const { view } = useFamilyAccount()
   return (
     <section>
@@ -189,10 +218,12 @@ function Voices({ p }: { p: Progress }) {
       {view?.owner && (
         <div className="level-row">
           <button onClick={() => setStudio(true)}>🎚️ Recording studio: the house voices</button>
+          <button onClick={() => setSoundCheck(true)}>🔤 Sound check: letters and numbers</button>
         </div>
       )}
       {open && <FamilyVoices onClose={() => setOpen(false)} />}
       {studio && <Suspense fallback={null}><Studio onClose={() => setStudio(false)} /></Suspense>}
+      {soundCheck && <Suspense fallback={null}><SoundCheck onClose={() => setSoundCheck(false)} /></Suspense>}
     </section>
   )
 }

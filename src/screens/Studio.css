@@ -33,3 +33,19 @@
   .studio-print li { break-inside: avoid; margin-bottom: 4px; }
 }
 .studio-tools button:disabled { opacity: 0.4; }
+
+/* The sound check (screens/SoundCheck.tsx). */
+.sc-group { max-width: 1100px; margin: 0 auto 16px; width: 100%; }
+.sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.sc-cell { display: flex; align-items: center; gap: 8px; background: #fbf4f8; border-radius: 14px; padding: 6px 8px; }
+.sc-cell span { flex: 1; font-size: 17px; }
+.sc-cell small { display: block; color: #8a7a99; font-size: 13px; }
+.sc-cell button { min-width: 44px; min-height: 44px; border-radius: 12px; border: 2px solid #f0c4da; background: #fff; font-size: 18px; }
+.sc-cell .sc-flag { opacity: 0.35; }
+.sc-cell .sc-flag.on { opacity: 1; border-color: #e0408a; }
+.sc-cell.flagged { box-shadow: inset 0 0 0 2px #e0408a; }
+.sc-cell.missing { opacity: 0.55; }
+/* The studio's list of lines that fell to the device voice. */
+.studio-missed { max-width: 980px; margin: 18px auto 0; background: #fff8e6; border-radius: 18px; padding: 12px 16px; }
+.studio-missed ol { margin: 6px 0; padding-left: 1.6em; max-height: 260px; overflow-y: auto; }
+.studio-missed li { margin-bottom: 2px; }

@@ -43,6 +43,51 @@ export function useNameStatus(name: string): NameStatus | null {
 export const NAME_STATUS_TEXT: Record<NameStatus, (name: string) => string> = {
   family: (n) => `🎙️ The game says “${n}” in your own recording.`,
   house: (n) => `🔊 The narrator says “${n}” by name.`,
-  library: (n) => `“${n}” is in the name library; the narrator hasn’t recorded it yet. You can record it yourself in Family voices.`,
-  missing: (n) => `“${n}” isn’t in the name library yet. Record it in Family voices (two short takes) and the game will say it in your voice. Until then, lines with the name are read by the iPad’s own voice: the name is never sent anywhere.`,
+  library: (n) => `🔊 The narrator says “${n}” by name (it’s in our name library). You can also record it yourself in Family voices.`,
+  missing: (n) => `“${n}” isn’t in our name library. Record it in Family voices (two short takes) and the game will say it in your voice. Until then, lines with the name are read by the iPad’s own voice, and the name isn’t sent anywhere, unless you choose below.`,
+}
+
+// ---------- "Let the narrator say <name>" ----------
+// A name that isn't in the library is read by the device's own voice, unless a parent chooses to let the
+// narrator say it: that one name is then sent to xAI, once, to make its two clips (server/voice-extras.mjs).
+
+let agreed: string[] | null = null
+const agreedListeners = new Set<() => void>()
+
+/** The names this family agreed the narrator may say (asked of the server once). */
+export async function loadAgreedNames(): Promise<string[]> {
+  if (agreed) return agreed
+  try {
+    const r = await fetch('/voice/names/mine', { cache: 'no-store' })
+    agreed = r.ok ? await r.json() : []
+  } catch {
+    agreed = []
+  }
+  agreedListeners.forEach((l) => l())
+  return agreed!
+}
+
+export function useAgreedNames(): string[] {
+  const [, force] = useState(0)
+  useEffect(() => {
+    const l = () => force((n) => n + 1)
+    agreedListeners.add(l)
+    loadAgreedNames()
+    return () => { agreedListeners.delete(l) }
+  }, [])
+  return agreed ?? []
+}
+
+/** What a parent is told before agreeing: plainly, what is sent, to whom, and how to undo it. */
+export const NAME_CONSENT = (name: string) =>
+  `This sends the name “${name}”, and only the name, to xAI (the company that makes the narrator’s voice), once, to make two short clips of the narrator saying it. Nothing else about your family or your child is sent. The clips are kept with your family’s recordings, and turning this off deletes them.`
+
+/** Lets the narrator say the name (true), or stops it and deletes its clips (false). Throws with a status if refused. */
+export async function setNarratorSaysName(name: string, on: boolean) {
+  const r = await fetch('/voice/name', { method: on ? 'POST' : 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name.trim() }) })
+  if (!r.ok) throw Object.assign(new Error(`name voice: ${r.status}`), { status: r.status })
+  agreed = on ? [...(agreed ?? []), name.trim()] : (agreed ?? []).filter((n) => n.toLowerCase() !== name.trim().toLowerCase())
+  agreedListeners.forEach((l) => l())
+  const { loadRecordings } = await import('../lib/recordings')
+  await loadRecordings()
 }

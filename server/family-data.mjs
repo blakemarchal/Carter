@@ -26,7 +26,8 @@ export async function writeFamilyExport(res, families, familyId, st, { billing =
   })
   await write(`{"exportedAt":${JSON.stringify(new Date().toISOString())},"family":${JSON.stringify(info.family)},`
     + `"members":${JSON.stringify(info.members)},"devices":${JSON.stringify(info.devices)},`
-    + `"billing":${JSON.stringify(billing)},"playTotals":${JSON.stringify(await st.stats.get())},"backups":[`)
+    + `"billing":${JSON.stringify(billing)},"playTotals":${JSON.stringify(await st.stats.get())},`
+    + `"namesTheNarratorMaySay":${JSON.stringify((await st.voiceNames?.list()) ?? [])},"backups":[`)
   await list(await st.backups.list(), async (b) => {
     const text = await st.backups.get(b.id)
     return text && `{"id":${JSON.stringify(b.id)},"savedAt":${JSON.stringify(b.savedAt)},"label":${JSON.stringify(b.label)},"data":${text}}`

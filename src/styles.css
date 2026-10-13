@@ -1297,3 +1297,7 @@ input { -webkit-user-select: text; user-select: text; }
 /* A small busy ring, inside a button or a line of text ("Checking…", "Updating…"). */
 .spinner { display: inline-block; width: 0.9em; height: 0.9em; vertical-align: -0.12em; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-turn 0.8s linear infinite; }
 @keyframes spinner-turn { to { transform: rotate(360deg); } }
+
+/* A checkbox with its words (Parent Corner). */
+.check-row { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; font-size: 17px; cursor: pointer; }
+.check-row input { width: 24px; height: 24px; accent-color: var(--pink-deep, #e0408a); }

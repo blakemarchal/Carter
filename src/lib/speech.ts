@@ -12,6 +12,18 @@ import { planLine } from '../voice/resolve'
 import { playParts, stopParts } from '../voice/player'
 import { mentionsPrivateName } from '../voice/privacy'
 import type { Role } from '../voice/roles'
+import { isOwnerDevice } from './family'
+
+/**
+ * The voice coverage log: on the owner's devices, a line that falls to the device voice is reported (once a
+ * session; never a line with a family's name), so the next Grok warm-up can add it (server/voice-extras.mjs).
+ */
+const reported = new Set<string>()
+function reportMissed(text: string) {
+  if (!isOwnerDevice() || reported.has(text) || !mayAskVoice(text)) return
+  reported.add(text)
+  fetch('/voice/missed', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ line: text, spoken: toSpoken(text, 'grok') }) }).catch(() => {})
+}
 
 let narrator: Narrator = 'ara'
 let familyVoices = true // play Mom/Dad recordings when a line has one
@@ -141,7 +153,10 @@ async function sayNow(text: string, pitch: number, g: number, role: Role) {
       if (g !== gen) return
       if (mp3 && (await playClip(mp3, g))) return
     }
-    if (g === gen) await deviceSpeak(toSpoken(text, 'device'), pitch)
+    if (g === gen) {
+      reportMissed(text)
+      await deviceSpeak(toSpoken(text, 'device'), pitch)
+    }
   } finally {
     talking--
     duck(false)

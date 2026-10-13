@@ -29,6 +29,8 @@ import { createRecordings } from './recordings.mjs'
 import { createHouse, handleHouse } from './house.mjs'
 import { familyNames, namesInUse } from './names-in-use.mjs'
 import { leaveChoices, leaveConfirmed, linkGuard } from './link-guard.mjs'
+import { createMissed, createNameConsent, makeNameClips, removeNameClips } from './voice-extras.mjs'
+import { synthesize } from './tts.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, FIRST_MEMBER_NAME, openFamilies, ROLES } from './families.mjs'
 import { createMailer, inviteEmail, signInEmail } from './email.mjs'
@@ -60,6 +62,9 @@ const STATE = process.env.STATE_DIRECTORY ?? join(ROOT, '..', '.backups')
 mkdirSync(STATE, { recursive: true })
 const families = openFamilies(join(STATE, 'arkpals.db'))
 const house = createHouse(join(STATE, 'house'))
+const missed = createMissed(join(STATE, 'house', 'missed.json'))
+/** Names sent to xAI today, per family ("Let the narrator say <name>"): a few at most. */
+const namesToday = new Map()
 const stripe = await stripeFromEnv()
 const billing = createBilling({
   db: families.db, families, stripe, webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '', portalConfig: process.env.STRIPE_PORTAL_CONFIG ?? '',
@@ -102,6 +107,7 @@ function storesFor(familyId) {
       recordings: createRecordings(join(dir, 'recordings')),
       songs: createSongs(join(dir, 'songs')),
       stats: createStats(statsFile(familyId)),
+      voiceNames: createNameConsent(join(dir, 'voice-names.json')),
     }
     stores.set(familyId, st)
   }
@@ -147,6 +153,36 @@ async function readBody(req, max) {
     chunks.push(c)
   }
   return Buffer.concat(chunks)
+}
+
+/**
+ * "Let the narrator say <name>" (Parent Corner, parents only; off until a parent chooses it): GET
+ * /voice/names/mine lists the names the family agreed to; POST /voice/name {name} sends that one name to xAI
+ * once to make its two clips (kept with the family's recordings); DELETE /voice/name {name} deletes them.
+ */
+async function handleNameVoice(req, res, url, s, st) {
+  try {
+    if (s.member.role !== 'parent') return json(res, 403)
+    if (url.pathname === '/voice/names/mine' && req.method === 'GET') return json(res, 200, await st.voiceNames.list())
+    const { name } = JSON.parse((await readBody(req, 2000)).toString('utf8') || '{}')
+    if (req.method === 'DELETE') {
+      await removeNameClips(name, { recordings: st.recordings, consent: st.voiceNames })
+      return json(res, 204)
+    }
+    if (req.method !== 'POST') return json(res, 405)
+    const key = process.env.XAI_API_KEY
+    if (!key) return json(res, 503)
+    const day = new Date().toISOString().slice(0, 10)
+    const used = namesToday.get(s.family.id)
+    const count = used?.day === day ? used.count : 0
+    if (count >= 6) return json(res, 429)
+    namesToday.set(s.family.id, { day, count: count + 1 })
+    await makeNameClips(name, { synth: (t) => synthesize(t, 'ara', '1', key), recordings: st.recordings, consent: st.voiceNames })
+    return json(res, 204)
+  } catch (e) {
+    if (!e.status) console.error(`name voice: ${e.message}`)
+    return json(res, e.status ?? 502)
+  }
 }
 
 /** /songs (list), /songs/<id> (PUT details, DELETE), /songs/<id>/audio (GET, PUT). */
@@ -726,6 +762,18 @@ createServer(async (req, res) => {
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url, mine)
     if (url.pathname === '/songs' || url.pathname.startsWith('/songs/')) return await handleSongs(req, res, url, mine)
     if (url.pathname === '/stats') return await handleStats(req, res, url, s)
+    if (url.pathname === '/voice/names/mine' || url.pathname === '/voice/name') return await handleNameVoice(req, res, url, s, storesFor(s.family.id))
+    if (url.pathname === '/voice/missed') {
+      // (the voice coverage log: the owner's devices send lines that fell to the device voice)
+      if (!isOwner(families, s)) return json(res, 403)
+      if (req.method === 'POST') {
+        const b = JSON.parse((await readBody(req, 4096)).toString('utf8') || '{}')
+        await missed.add(b.line, b.spoken)
+        return json(res, 204)
+      }
+      if (req.method === 'DELETE') { await missed.clear(); return json(res, 204) }
+      return json(res, 200, await missed.list())
+    }
     if (url.pathname === '/voice/names' && req.method === 'GET') {
       // (the owner's studio: children's names used by 3 or more families, counts only)
       if (!isOwner(families, s)) return json(res, 403)

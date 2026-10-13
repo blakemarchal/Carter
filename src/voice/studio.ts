@@ -4,7 +4,7 @@ import { soundBounds } from './player'
 import type { Queue, ScriptItem } from './script'
 
 /** A clip as the server's index keeps it (server/house.mjs). */
-export interface IndexClip { key: string | null; said: string | null; ref: string | null; at: number; start: number; end: number; gain: number; shared?: boolean; promoted?: boolean }
+export interface IndexClip { key: string | null; said: string | null; ref: string | null; at: number; start: number; end: number; gain: number; shared?: boolean; promoted?: boolean; flagged?: boolean; attempt?: number }
 export interface HouseIndex { version: number; voices: Record<string, { label: string; private?: boolean }>; clips: Record<string, Record<string, IndexClip>> }
 
 export type LineStatus = 'todo' | 'done' | 'changed'

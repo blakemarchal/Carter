@@ -61,6 +61,17 @@ export const familyApi = {
 let cached: FamilyView | null = null
 const listeners = new Set<(v: FamilyView | null) => void>()
 
+/** Whether this device's grown-up is the site's owner (as last fetched): its device reports lines the narrator missed. */
+export const isOwnerDevice = () => !!cached?.owner
+
+/** Fetches the family once when the game starts (offline, or an older server: nothing happens). */
+export async function loadFamilyView() {
+  try {
+    cached = await familyApi.get()
+    listeners.forEach((f) => f(cached))
+  } catch { /* offline */ }
+}
+
 /**
  * The family, fetched when needed (kept for the session; `reload` after a change). null while it's
  * loading, or offline (the game itself doesn't need it).

@@ -34,6 +34,9 @@ export default function Studio({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
   const [used, setUsed] = useState<{ name: string; families: number }[]>([])
+  const [missed, setMissed] = useState<{ line: string; count: number; last: number }[]>([])
+  const loadMissed = () => fetch('/voice/missed', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).then(setMissed).catch(() => {})
+  useEffect(() => { loadMissed() }, [])
 
   const loadIndex = useCallback(async () => {
     try {
@@ -228,6 +231,18 @@ export default function Studio({ onClose }: { onClose: () => void }) {
               <p className="muted">Space or R: record and stop · P: listen · Enter: keep · ← →: move</p>
             </section>
           )}
+
+          <section className="studio-missed noprint">
+            <h3>Lines that fell to the device voice</h3>
+            {missed.length ? (
+              <>
+                <p className="muted">Heard on our own (the owner’s) devices with no recording or Grok clip. The next Grok warm-up on the server adds them:
+                  <code> node scripts/warm-house-grok.mjs --missed</code></p>
+                <ol>{missed.map((m) => <li key={m.line}>{m.line} <span className="muted">({m.count}×)</span></li>)}</ol>
+                <button onClick={async () => { if (confirm('Clear this list? (Do it after the warm-up has made them.)')) { await fetch('/voice/missed', { method: 'DELETE' }); loadMissed() } }}>Clear the list</button>
+              </>
+            ) : <p className="muted">None so far: everything our devices said had a voice.</p>}
+          </section>
 
           <section className="studio-print">
             <h2>Ark Pals: {label}, {QUEUE_NAMES[queue]}</h2>
