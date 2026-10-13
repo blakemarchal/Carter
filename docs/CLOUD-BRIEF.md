@@ -518,7 +518,7 @@ On **`blake/polish`**, made from `blake/wave7` (ddb7a66). It was pushed after ea
 4. the polish;
 5. this hand-back.
 
-Checks: `npx tsc -b` is clean, `npx vitest run` passes (611 tests, 26 of them new), and the Chromium playthroughs pass (36 of 36). WebKit can't be downloaded in the cloud, so the WebKit playthroughs run in CI on this push.
+Checks: `npx tsc -b` is clean, `npx vitest run` passes (611 tests, 14 of them new; several older ones were extended), and the Chromium playthroughs pass (36 of 36). WebKit can't be downloaded in the cloud, so the WebKit playthroughs run in CI on this push.
 
 ### What the local thread must run
 
