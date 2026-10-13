@@ -7,9 +7,7 @@ import { PAGES, page, toHtml } from '../../scripts/legal-pages.mjs'
 describe('the legal pages', () => {
   it('are up to date with docs/legal (if not: node scripts/legal-pages.mjs)', () => {
     // (line endings aside: a Windows checkout has CRLF)
-    const read = (f: string) => readFileSync(f, 'utf8').replace(/
-/g, '
-')
+    const read = (f: string) => readFileSync(f, 'utf8').replace(/\r\n/g, '\n')
     for (const p of PAGES as { md: string; out: string }[]) expect(read(p.out)).toBe(page(read(p.md)))
   })
 
