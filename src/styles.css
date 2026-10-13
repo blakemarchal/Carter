@@ -1384,3 +1384,29 @@ input { -webkit-user-select: text; user-select: text; }
   .title-pals { gap: var(--s1); }
   .title-pals svg { width: 30vw; height: auto; }
 }
+
+/* The drawn arrows on back and next buttons (components/ui.tsx Arrow): the size of the emoji they replace. */
+.arrow-icon { width: 1em; height: 1em; vertical-align: -0.12em; display: inline-block; }
+.icon-btn.back { color: var(--pink-deep); }
+.big-btn .arrow-icon { width: 1.1em; height: 1.1em; }
+
+/* Parent Corner on a phone: a player's picture, name and Delete on one line, then who's playing and their
+   birthday on the next (instead of three ragged lines). */
+@media (max-width: 560px) {
+  .parent .player-row { gap: 8px; }
+  .parent .player-row input { flex: 1 1 110px; width: auto; min-width: 0; }
+  .parent .player-row .emoji-pick { order: 0; }
+  .parent .player-row input { order: 1; }
+  .parent .player-row .danger { order: 2; padding: 8px 12px; }
+  .parent .player-row > .tag, .parent .player-row > button:not(.emoji-pick):not(.danger) { order: 3; }
+}
+@media (max-width: 560px) {
+  .parent .player-add input { flex: 1 1 110px; width: auto; min-width: 0; }
+}
+
+/* The sing-along's Pal sits with the words, the two centred together (not the Pal at the far left). (Side by
+   side only: on a narrow screen they're stacked, and the words take the width.) */
+.sing-stage { justify-content: center; margin-inline: auto; }
+@media (min-width: 761px) { .sing-words { flex: 0 1 780px; } }
+.sing-controls .big-btn { color: var(--ink); }
+.sing-controls .big-btn.pink { color: #fff; }

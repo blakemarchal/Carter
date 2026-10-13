@@ -6,19 +6,27 @@
 
 ## Responsible person
 
-[Owner's name], for Marchal Technologies LLC: keeps this plan, decides who may reach the server (only
-the owner today), and handles requests and incidents (hello@spiritflow.church).
+Blake Marchal, for Marchal Technologies LLC: keeps this plan, decides who may reach the server (only
+the owner today), and handles requests and incidents (hello@arkpals.world).
 
 ## What we hold, and where
 
+Production (arkpals.world) keeps its data in `/var/lib/arkpals`, its narration cache in `/var/cache/arkpals`
+and its settings in `/opt/ArkPals/.env`. The test site (spiritflow.church) has its own copy of each, in
+`/var/lib/carter`, `/var/cache/carter` and `/opt/Carter/.env`, with only our own family and test families.
+The paths below are production's.
+
 | Data | Where | Kept |
 |---|---|---|
-| Family, grown-ups (names, roles, avatars, emails), devices, links | `/var/lib/carter/arkpals.db` (SQLite) | until the family deletes it; used and expired links [purge after 30 days] |
-| Progress backups | `/var/lib/carter` (first family), `/var/lib/carter/families/<id>/backups` | the newest 60 per family |
-| Play totals (opt-in per device by a parent; per-day counts of starts, finishes, replays and wrong first tries per island, visit and activity kind; of starts, finishes and right-first-tries per learning exercise kind and level and per practice-question skill and level; and of placement results per skill and level; no names, players, devices or times) | `play-totals.json` in the family's folder (`/var/lib/carter` for the first family) | 400 days, then each day is dropped; in the family's download, deleted with the family or by a parent; the owner's page (`/stats`) shows only sums across families, and none until at least five families share |
+| Family, grown-ups (names, roles, avatars, emails), devices, links, plans, Grace codes | `/var/lib/arkpals/arkpals.db` (SQLite) | until the family deletes it; used and expired links [purge after 30 days] |
+| Progress backups | `/var/lib/arkpals` (first family), `/var/lib/arkpals/families/<id>/backups` | the newest 60 per family |
+| Play totals (opt-in per device by a parent; per-day counts of starts, finishes, replays and wrong first tries per island, visit and activity kind; of starts, finishes and right-first-tries per learning exercise kind and level and per practice-question skill and level; and of placement results per skill and level; no names, players, devices or times) | `play-totals.json` in the family's folder (`/var/lib/arkpals` for the first family) | 400 days, then each day is dropped; in the family's download, deleted with the family or by a parent; the owner's page (`/stats`) shows only sums across families, and none until at least five families share |
 | Family voice recordings, family songs | `…/recordings`, `…/songs` beside them | until deleted by the family; limited to 300 MB and 400 MB |
-| Narration audio (by line text) | `/var/cache/carter` | until cleared; [stop sending names to the voice service, then clear the clips that contain names] |
-| Snapshots of `/var/lib/carter` before updates | `/root/carter-state-*.tgz` | [delete after 30 days: add a daily cleanup] |
+| House voices: our family's recordings and Grok's clips of the game's lines | `/var/lib/arkpals/house` | until replaced; no family's names (the name library is the SSA's public list) |
+| Narration audio (by line text) | `/var/cache/arkpals` | until cleared; never a line with a family's name in it (the game never asks for one) |
+| A name a parent chose "Let the narrator say" for | the family's recordings | until the parent turns it off, or the family is deleted |
+| Nightly backups of the data (checked, then packed) | `/var/backups/arkpals` | 30 days |
+| Snapshots of the data before updates | `/root/*-state-*.tgz` | [delete after 30 days: add a daily cleanup] |
 
 A deleted family is removed from the database and its folder at once.
 
@@ -33,13 +41,13 @@ A deleted family is removed from the database and its folder at once.
   folder. Tests check that one family can't reach another's data, devices or people.
 - **The server:** a DigitalOcean droplet reached only by the owner over SSH with a key. The game runs as an
   unprivileged user under systemd hardening (read-only system, no new privileges, private temp).
-  Secrets (`/opt/Carter/.env`) are readable by root only. SSH takes keys only (no passwords), the
+  Secrets (each site's `.env`) are readable by root only. SSH takes keys only (no passwords), the
   firewall (ufw) lets in only SSH and the web (80, 443), and security updates install automatically
   (unattended-upgrades), all checked October 4, 2026.
 - **The app:** a strict Content Security Policy (scripts from our own site only), no frames, no sniffing,
   and no referrer sent. It loads nothing from anyone else's servers.
-- **Service providers** (DigitalOcean, xAI, Resend, ImprovMX, and Stripe at launch) get only what they
-  need for their part (see the Privacy Policy). [Keep their data-processing terms on file.]
+- **Service providers** (DigitalOcean, xAI, Resend, ImprovMX, and Stripe with its Link checkout) get only
+  what they need for their part (see the Privacy Policy). [Keep their data-processing terms on file.]
 
 ## If something goes wrong
 

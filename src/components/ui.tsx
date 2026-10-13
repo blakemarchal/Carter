@@ -2,11 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 
-export function BigButton({ children, onClick, color = 'pink', className = '', disabled }: {
+export function BigButton({ children, onClick, color = 'pink', className = '', disabled, 'aria-label': label }: {
   children: ReactNode; onClick: () => void; color?: 'pink' | 'blue' | 'green' | 'yellow' | 'white'; className?: string; disabled?: boolean
+  /** What it does, for a button that's only a picture (the arrows). */
+  'aria-label'?: string
 }) {
   return (
-    <button className={`big-btn ${color} ${className}`} disabled={disabled}
+    <button className={`big-btn ${color} ${className}`} disabled={disabled} aria-label={label}
       onClick={() => { sfx.pop(); onClick() }}>
       {children}
     </button>
@@ -20,8 +22,28 @@ export function SpeakerButton({ text }: { text: string }) {
   )
 }
 
+/** A drawn arrow (the ⬅️ and ➡️ emoji look different on every device: a blue square on Windows). */
+export function Arrow({ dir = 'right' }: { dir?: 'left' | 'right' }) {
+  return (
+    <svg className="arrow-icon" viewBox="0 0 24 24" aria-hidden="true" style={dir === 'left' ? { transform: 'scaleX(-1)' } : undefined}>
+      <path d="M4 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/** Drawn play, pause and again icons (the emoji are a blue square on Windows). */
+export function Icon({ kind }: { kind: 'play' | 'pause' | 'again' }) {
+  return (
+    <svg className="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+      {kind === 'play' && <path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />}
+      {kind === 'pause' && <><rect x="5.5" y="4.5" width="4.5" height="15" rx="1.5" fill="currentColor" /><rect x="14" y="4.5" width="4.5" height="15" rx="1.5" fill="currentColor" /></>}
+      {kind === 'again' && <><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /><path d="M20 3.5v5h-5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></>}
+    </svg>
+  )
+}
+
 export function BackButton({ onClick }: { onClick: () => void }) {
-  return <button className="icon-btn back" aria-label="Back" onClick={() => { sfx.pop(); onClick() }}>⬅️</button>
+  return <button className="icon-btn back" aria-label="Back" onClick={() => { sfx.pop(); onClick() }}><Arrow dir="left" /></button>
 }
 
 export function StepDots({ total, current }: { total: number; current: number }) {

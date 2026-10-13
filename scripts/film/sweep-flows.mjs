@@ -3,11 +3,11 @@
 // Notes every console or page error, and takes a picture of each step.
 //   node scripts/film/sweep-flows.mjs <site, e.g. http://127.0.0.1:3997> <family password> <start link> <out folder>
 import { chromium } from '@playwright/test'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, existsSync } from 'node:fs'
 
 const [site, password, startLink, out = 'preview/flows'] = process.argv.slice(2)
 mkdirSync(out, { recursive: true })
-const browser = await chromium.launch({ executablePath: process.env.CHROME ?? '/opt/pw-browsers/chromium' })
+const browser = await chromium.launch({ executablePath: process.env.CHROME ?? (existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined) })
 const notes = []
 let n = 0
 

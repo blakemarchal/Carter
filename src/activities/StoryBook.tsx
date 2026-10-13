@@ -2,7 +2,7 @@ import { useEffect, useState, type ComponentType } from 'react'
 import type { StoryPage } from '../data/islands'
 import { speak } from '../lib/speech'
 import { useTapPictures } from '../lib/useTapPictures'
-import { BigButton } from '../components/ui'
+import { Arrow, BigButton } from '../components/ui'
 import { sfx } from '../lib/sfx'
 import { BuddyContext } from '../art/scenes/buddy'
 import { palById, stageFor } from '../data/pals'
@@ -27,9 +27,9 @@ export default function StoryBook({ title, pages, art, onDone }: { title: string
       {Art ? <div className="story-art" key={i} onClick={tap}><BuddyContext.Provider value={buddy}><Art /></BuddyContext.Provider></div> : <div className="story-scene" key={i}>{page.scene}</div>}
       <p className="story-text" onClick={() => speak(line)}>{page.text}</p>
       <div className="story-nav">
-        <BigButton color="white" disabled={i === 0} onClick={() => { sfx.whoosh(); setI(i - 1) }}>⬅️</BigButton>
+        <BigButton color="white" disabled={i === 0} onClick={() => { sfx.whoosh(); setI(i - 1) }} aria-label="Back"><Arrow dir="left" /></BigButton>
         <span className="story-page">{i + 1} / {pages.length}</span>
-        <BigButton color="pink" onClick={() => { sfx.whoosh(); if (i < pages.length - 1) setI(i + 1); else onDone() }}>➡️</BigButton>
+        <BigButton color="pink" onClick={() => { sfx.whoosh(); if (i < pages.length - 1) setI(i + 1); else onDone() }} aria-label="Next"><Arrow /></BigButton>
       </div>
     </div>
   )

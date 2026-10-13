@@ -3,7 +3,8 @@
 // every console error and page error (the test fails on any), and helpers to tap, drag and take pictures.
 // The way it sets up a player and plays each activity follows the film scripts in scripts/film/.
 import { test as base, expect, type Page, type TestInfo } from '@playwright/test'
-import { mkdirSync, readFileSync, rmSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { appendFileSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 
 export { expect }
@@ -35,6 +36,20 @@ const SERVER: Record<string, { status?: number; json: unknown }> = {
   '/recordings': { json: [] },
   '/songs': { json: [] },
 }
+
+// The voice audit (E2E_VOICE_AUDIT=1): the house Grok voice is "recorded" in full, every clip in
+// public/voice/grok-list.json, as the server has it after the warm-up (each one plays the same short real clip),
+// so whatever the game still hands to the device's own voice is a line nothing covers. Those are written to
+// e2e-results/voice-audit.txt, one per line, with the test that heard it.
+const AUDIT = !!process.env.E2E_VOICE_AUDIT
+const auditManifest = () => {
+  const clips: Record<string, [string, number, number, number]> = {}
+  for (const c of JSON.parse(readFileSync(new URL('../public/voice/grok-list.json', import.meta.url), 'utf8')) as { key: string }[]) {
+    clips[createHash('sha256').update(c.key.trim()).digest('hex').slice(0, 16)] = ['a', 0, 0, 1]
+  }
+  return { version: 1, voices: {}, clips: { grok: clips } }
+}
+const AUDIT_CLIP = AUDIT ? readFileSync(new URL('./voice-audit-clip.mp3', import.meta.url)) : null
 
 export type Box = { x: number; y: number; w: number; h: number }
 export type Pt = { x: number; y: number }
@@ -161,7 +176,7 @@ export function fixture(extra: Record<string, unknown> = {}) {
     movesSeen: [], openAll: true, outfits: { pip: 'bow' }, fed: { day: '', counts: {} },
     egg: { warmth: 2, day: '' }, colors: {}, stickerSpots: [{ s: '🌈', x: 30, y: 40 }], cooked: {},
     familyVoices: false, log: {}, skills: { reading: 2, numbers: 2 }, skillsVersion: 2, streak: { reading: 0, numbers: 0 },
-    stickers: ['🌈', '⭐', '🐑'], playDate: today(), playSeconds: 0, speechRate: 1, narrator: 'device', music: false, sfx: true,
+    stickers: ['🌈', '⭐', '🐑'], playDate: today(), playSeconds: 0, speechRate: 1, narrator: AUDIT ? 'ara' : 'device', music: false, sfx: true,
     dailyVisits: 0,
     ...extra,
   }
@@ -203,7 +218,19 @@ export const test = base.extend<{ app: App }>({
       const r = SERVER[new URL(route.request().url()).pathname]
       return route.fulfill({ status: r.status ?? 200, contentType: 'application/json', body: JSON.stringify(r.json) })
     })
+    if (AUDIT) {
+      const manifest = auditManifest()
+      await page.route((url) => url.pathname === '/voice/house', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(manifest) }))
+      await page.route((url) => url.pathname.startsWith('/voice/house/grok/'), (route) => route.fulfill({ contentType: 'audio/mpeg', body: AUDIT_CLIP! }))
+    }
     await use(app)
+    if (AUDIT) {
+      const said = await app.eval<string[]>('window.__said || []').catch(() => [] as string[])
+      mkdirSync('e2e-results', { recursive: true })
+      const who = info.titlePath.slice(1).join(' › ')
+      for (const line of new Set(said)) if (line.trim()) appendFileSync('e2e-results/voice-audit.txt', `${line.replace(/\s+/g, ' ')}	${who}
+`)
+    }
     await app.shot('end')
     expect(app.errors, 'console errors and page errors').toEqual([])
   },

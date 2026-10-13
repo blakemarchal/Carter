@@ -22,8 +22,21 @@ function saved(): HouseManifest | null {
   }
 }
 
+let firstLoad: Promise<void> | null = null
+/**
+ * Resolves once the device knows what the house voices have recorded: at once if it kept the list from before,
+ * else when the first answer from the server comes (so a brand-new device's first lines aren't read by the
+ * device's own voice just because the list hadn't arrived yet).
+ */
+export const houseReady = (): Promise<void> => (houseManifest() ? Promise.resolve() : firstLoad ?? Promise.resolve())
+
 /** Asks the server what the house voices have recorded (keeps the last answer when offline). */
-export async function loadHouse() {
+export function loadHouse(): Promise<void> {
+  const p = fetchHouse()
+  firstLoad ??= p
+  return p
+}
+async function fetchHouse() {
   manifest ??= saved()
   try {
     const r = await fetch('/voice/house', { cache: 'no-store' })

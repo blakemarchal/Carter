@@ -2,7 +2,7 @@
 // polish), for checking centring, spacing and overflow by eye. Notes anything wider than the screen.
 //   ARK_URL=http://localhost:5199 CHROME=/opt/pw-browsers/chromium node scripts/film/screens-sweep.mjs <out folder>
 import { chromium } from '@playwright/test'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, existsSync } from 'node:fs'
 
 const out = process.argv[2] ?? 'preview/sweep'
 mkdirSync(out, { recursive: true })
@@ -16,7 +16,7 @@ const save = JSON.stringify({
   skills: { reading: 2, numbers: 2 }, skillsVersion: 2, streak: { reading: 0, numbers: 0 }, stickers: ['🌈', '⭐'], playDate: today,
   playSeconds: 0, speechRate: 1, narrator: 'device', music: false, sfx: false, dailyVisits: 0, stars: {}, placement: 'done',
 })
-const browser = await chromium.launch({ executablePath: process.env.CHROME ?? '/opt/pw-browsers/chromium' })
+const browser = await chromium.launch({ executablePath: process.env.CHROME ?? (existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined) })
 const overflow = []
 for (const [size, [w, h]] of Object.entries(SIZES)) {
   const page = await browser.newPage({ viewport: { width: w, height: h } })

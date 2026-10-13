@@ -1,7 +1,7 @@
 // Stands in for a mini-game that isn't built yet: the kit's backdrop and a button to go on, so an
 // island can be played through while its game is being made.
 import { useEffect, type ReactNode } from 'react'
-import { BigButton } from '../../components/ui'
+import { Arrow, BigButton } from '../../components/ui'
 import { speak } from '../../lib/speech'
 import { useAlive } from '../../lib/useAlive'
 import { Board } from './Board'
@@ -15,7 +15,7 @@ export function GamePlaceholder({ title, intro, done, backdrop, onDone }: {
     <div className="activity game">
       <div className="practice-head"><h2>{title}</h2></div>
       <Board>{backdrop}</Board>
-      <BigButton color="pink" onClick={async () => { await speak(done); if (alive.current) onDone() }}>➡️</BigButton>
+      <BigButton color="pink" onClick={async () => { await speak(done); if (alive.current) onDone() }} aria-label="Next"><Arrow /></BigButton>
     </div>
   )
 }

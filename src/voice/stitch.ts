@@ -13,6 +13,7 @@ import { clipAudio, houseFind, houseManifest, type ClipInfo } from './house'
 import { libraryName, nameKey } from './names'
 import { PART_GAP, SENTENCE_GAP, type Part } from './player'
 import { voicesFor, type Role, type Voice } from './roles'
+import { sentences } from './sentences'
 import { hasWords, pieces, TEMPLATES, type SlotKind, type Template } from './templates'
 
 /** Numbers that have recordings: 0 to 140 (the brief says 130; counting past 100 goes up to 140). */
@@ -88,14 +89,14 @@ export function matchTemplates(sentence: string): Match[] {
 /** The most specific template a sentence fits, with what's in its slots, or null. */
 export const matchTemplate = (sentence: string): Match | null => matchTemplates(sentence)[0] ?? null
 
-/** Whether a template's slots are only things recorded for Grok (items and moves), not by our own voices. */
-export const grokOnly = (tpl: Template) => /\{(item|move)\}/.test(tpl.text)
+/**
+ * Whether only Grok records a template: its slots are things only Grok records (items and moves), or it's a line
+ * with the child's name taken out (./templates.ts).
+ */
+export const grokOnly = (tpl: Template) => !!tpl.nameless || /\{(item|move)\}/.test(tpl.text)
 
-/** A line in sentences: "Great job! 3 plus 4." -> ["Great job!", "3 plus 4."] */
-export function sentences(text: string): string[] {
-  // (a new sentence starts with a capital, a number, a letter sound or a quote: "Even… me?" he whispered. is one)
-  return text.replace(/\s+/g, ' ').trim().split(/(?<=[.!?…]["”'’]?)\s+(?=["“']?[\p{Lu}\d⟦])/u).filter(Boolean)
-}
+/** (kept here too, where it's always been imported from) */
+export { sentences }
 
 /**
  * A piece found but not yet fetched (so trying a voice that turns out to miss a piece fetches nothing): a house

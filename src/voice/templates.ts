@@ -8,6 +8,7 @@
 // (said as its name: "bee"), {sound} a letter's sound (written ⟦b⟧ in the game's lines), {item} a thing's name as
 // an activity says it ("the lion", "apples", "the land"), {move} a Pal's move. Items and moves are recorded one
 // by one (the game's data has them all: src/voice/grok-list.ts), so their lines stitch instead of falling through.
+import { withoutNames } from './nameless'
 import type { Role } from './roles'
 
 export type SlotKind = 'name' | 'pal' | 'n' | 'letter' | 'sound' | 'item' | 'move'
@@ -20,6 +21,8 @@ export interface Template {
   queue: 'praise' | 'prompts' | 'learning' | 'story'
   /** Where it's said, for the printed script. */
   where: string
+  /** The same line without the child's name (made below), for when the narrator can't say the name: Grok records it. */
+  nameless?: boolean
 }
 
 const t = (id: string, text: string, queue: Template['queue'], where: string, role?: Role): Template => ({ id, text, queue, where, ...(role ? { role } : {}) })
@@ -109,6 +112,9 @@ export const TEMPLATES: Template[] = [
   t('thats-big', 'That’s the big {letter}!', 'prompts', 'tracing letters'),
   t('thats-little', 'That’s the little {letter}!', 'prompts', 'tracing letters'),
   t('letter-says', '{letter} says {sound}!', 'prompts', 'tracing letters'),
+  // (the word builder: a letter tile's sound, and the word put together from its sounds)
+  t('sound-alone', '{sound}', 'learning', 'word builder: a letter tile, tapped or placed'),
+  t('blend-3', '{sound}, {sound}, {sound}: {item}!', 'learning', 'word builder: the word, sound by sound'),
 
   // ---- things, by name ----
   t('where-does', 'Where does {item} go?', 'prompts', 'sorting'),
@@ -163,6 +169,17 @@ export const TEMPLATES: Template[] = [
   t('sing-to', 'Let’s sing Happy Birthday to {name}!', 'prompts', 'the birthday party'),
   t('dear-name', 'Happy birthday, dear {name}!', 'prompts', 'the birthday party'),
 ]
+
+// Each line with a child's name, also without it (./nameless.ts): "Way to go, {name}!" -> "Way to go!". When the
+// narrator can't say a name (not in the library, not recorded by the family), lib/speech.ts says the line this way
+// instead of handing all of it to the device's own voice. A line that's about the name ("{name} has the baby!")
+// has no such twin.
+const SOMEONE = 'Qzxsomeone'
+for (const tpl of [...TEMPLATES]) {
+  if (!tpl.text.includes('{name}')) continue
+  const text = withoutNames(tpl.text.replaceAll('{name}', SOMEONE), [SOMEONE])
+  if (text && !TEMPLATES.some((x) => x.text === text)) TEMPLATES.push({ ...tpl, id: `${tpl.id}~noname`, text, nameless: true })
+}
 
 const SLOT = /\{(name|pal|n|letter|sound|item|move)\}/g
 

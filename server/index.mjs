@@ -7,8 +7,9 @@
 //   CARTER_SESSION_SECRET  random secret for signing the sign-in cookies
 //   XAI_API_KEY            optional: enables Grok's "Ara" narration voice (npm run set-voice-key)
 //   TTS_DAILY_CHARS        optional: cap on new narration generated per day (default 200000, about $3)
-//   TTS_LIVE               optional, the dev site only: 1 lets the owner make new narration clips live (for
-//                          warming). Without it /tts only plays clips made ahead of time, never a new line.
+//   TTS_LIVE               optional: 0 stops /tts making a new clip the first time a line is needed (then it only
+//                          plays clips made ahead of time). On by default, within TTS_DAILY_CHARS. The game never
+//                          asks for a line with a family's name in it (src/voice/privacy.ts).
 //   RESEND_API_KEY         optional: sends sign-in links and invitations by email (npm run set-email-key)
 //   EMAIL_FROM             with it: who emails are from, e.g. "Ark Pals <hello@spiritflow.church>"
 //   SITE_URL               optional: this site's address for links in emails (default: the address asked for)
@@ -286,8 +287,10 @@ async function handleBackup(req, res, url, { backups }) {
 }
 
 /**
- * GET /tts: a narration clip made ahead of time (scripts/warm-narration.mjs), or 404, and the game uses the
- * device voice. Only with TTS_LIVE on (the dev site) does the owner's device make new clips, for warming.
+ * GET /tts: a narration clip, made ahead of time (scripts/warm-narration.mjs) or else made now and kept, so the
+ * narrator says every line, even one built as the game is played ("Number four, green!"). The game never asks
+ * for a line with a family's name in it. TTS_LIVE=0 plays only clips made ahead of time (404 for others, and
+ * the game uses the device voice).
  */
 async function serveTts(res, url, s) {
   const text = (url.searchParams.get('text') ?? '').trim()
@@ -303,7 +306,7 @@ async function serveTts(res, url, s) {
     return res.end()
   }
   try {
-    const live = isOn(process.env.TTS_LIVE) && isOwner(families, s)
+    const live = !/^(0|false|no|off)$/i.test(String(process.env.TTS_LIVE ?? '').trim())
     const mp3 = live ? await tts(text, voice, speed) : await tts.cached(text, voice, speed)
     if (!mp3) {
       res.writeHead(404, { 'Cache-Control': 'no-store' })
@@ -419,7 +422,7 @@ h1{margin:0 0 6px;color:#e2468f;font-size:30px}p{margin:0 0 18px;color:#8a7a99}
 input{width:100%;box-sizing:border-box;font-size:20px;padding:14px;border-radius:14px;border:2px solid #f0c4da;margin-bottom:14px}
 button{width:100%;font-size:22px;font-weight:700;padding:14px;border:0;border-radius:14px;background:#ff6fae;color:#fff}
 .err{color:#b42318;margin-bottom:12px}
-form.alt{padding:22px 28px}.alt p{margin-bottom:12px;color:#6a5a7a}.alt input{font-size:16px}.alt button{font-size:18px;background:#fff;color:#e2468f;border:2px solid #ff6fae}.hint{font-size:14px;margin:14px 0 0}
+form.alt{padding:22px 28px}.alt p{margin-bottom:12px;color:#6a5a7a}.legal{margin:4px 0 0;font-size:14px}.legal a{color:#8a7a99}.alt input{font-size:16px}.alt button{font-size:18px;background:#fff;color:#e2468f;border:2px solid #ff6fae}.hint{font-size:14px;margin:14px 0 0}
 </style></head><body><form method="post" action="/login">
 <h1>🌈 Ark Pals</h1><p>Grown-ups only: family password</p>
 ${msg ? `<div class="err">${msg}</div>` : ''}
@@ -431,7 +434,8 @@ ${mailer ? `<form method="post" action="/login/email" class="alt"><p><b>Signed i
 <form method="post" action="/login/link" class="alt"><p><b>Got a link from your family?</b> Open it, or paste it here:</p>
 <input name="link" autocomplete="off" aria-label="Your link" placeholder="Paste your link" required>
 <button>Use my link</button>
-<p class="hint">Joined already, in Safari? Open Ark Pals there, hold the ⚙️ for the Parent Corner, and tap <b>Sign in another device as me</b> for a new link.</p></form></body></html>`
+<p class="hint">Joined already, in Safari? Open Ark Pals there, hold the ⚙️ for the Parent Corner, and tap <b>Sign in another device as me</b> for a new link.</p></form>
+<p class="legal"><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p></body></html>`
 
 // ---- families: the Parent Corner's family section, and the pages a link opens ----
 
@@ -545,6 +549,9 @@ button{width:100%;font-size:22px;font-weight:700;padding:14px;border:0;border-ra
 label.check{display:flex;gap:10px;align-items:flex-start;font-weight:600;text-align:left;margin:0 0 16px}
 label.check input{width:24px;height:24px;margin:2px 0 0;flex:none}.err p{margin:0;color:inherit}
 </style></head><body>${body}</body></html>`
+/** The pages anyone may read, signed in or not. */
+const LEGAL = { '/privacy': '/legal/privacy.html', '/terms': '/legal/terms.html' }
+
 const sendPage = (res, status, title, body) => {
   res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
   res.end(PAGE(title, body))
@@ -746,6 +753,9 @@ createServer(async (req, res) => {
     if (url.pathname === '/stripe/webhook' && req.method === 'POST') return await handleWebhook(req, res, billing)
     if (url.pathname.startsWith('/join/')) return await handleJoin(req, res, url, ip)
     if (url.pathname.startsWith('/start/')) return await handleStart(req, res, url, ip)
+    // The Privacy Policy and Terms of Use are open to anyone (public/legal: made from docs/legal by
+    // scripts/legal-pages.mjs).
+    if (LEGAL[url.pathname] && (req.method === 'GET' || req.method === 'HEAD')) return await serveFile(res, LEGAL[url.pathname])
     // Browsers fetch the app manifest and icons without cookies, so these stay public (they contain nothing private).
     const isPublic = ['/manifest.webmanifest', '/icon.svg', '/apple-touch-icon.png'].includes(url.pathname)
     const s = isPublic ? null : sessionOf(req, res)

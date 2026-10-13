@@ -128,7 +128,7 @@ ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/sys
 - `npm run set-voice-key -- --check` tests the saved key without showing it. `-- --remove` goes back to the device voice.
 - The key lives only in `/opt/Carter/.env` (root-only). The game never sees it; it asks the server at `/tts`, which requires the family login.
 - Clips are cached in `/var/cache/carter`. New narration is capped at 200,000 characters a day (about $3), set by `TTS_DAILY_CHARS` in `.env`.
-- **Since wave 10, `/tts` only plays clips made ahead of time.** It never makes a new line by itself, and the game never asks it for a line with a family's name in it, so no child's name is sent to xAI. After new content ships, warm the new lines on the server (`node scripts/warm-narration.mjs …`, as before); a line that wasn't warmed is read by the device's voice until Mom records it. Only on the dev site, `TTS_LIVE=1` in `.env` lets the owner's device make new clips live, for warming.
+- **`/tts` makes a line the first time it's needed** (and keeps it), within `TTS_DAILY_CHARS`: the lines built during play ("Number four, green!", "Share six loaves of bread with three friends…") that the warm-ups can't list. The game never asks it for a line with a family's name in it, so no child's name is sent to xAI: a name the narrator can't say is left out of the line ("Way to go!"). `TTS_LIVE=0` in `.env` turns this off (then only clips made ahead of time play, and the device's voice reads the rest).
 - The Parent Corner can switch each player between Ara, Eve (another Grok voice), and the iPad voice.
 
 ## Step 4b+: Grok for every line (the house Grok voice)

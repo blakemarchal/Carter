@@ -13,6 +13,7 @@ import { PALS } from '../data/pals'
 import { CUT_SAY, RECIPES } from '../data/recipes'
 import { SHADOW_MOVES } from '../data/shade'
 import { ACCESSORIES } from '../lib/care'
+import { SPELL_WORDS } from '../learn/topics/builders'
 import { LETTER_NAME_PROMPTS, numberWords, PHONICS, toSpoken } from '../lib/spoken'
 import { keys } from './keys'
 import { buildScript, type Gen, type IslandSource } from './script'
@@ -56,6 +57,8 @@ export function itemNames(islands: IslandSource[]): string[] {
   for (const s of SEAS) { add(s.name); s.islands.forEach((i) => add(i.name)) }
   for (const i of ISLANDS) add(i.name)
   ;['penny', 'nickel', 'dime', 'quarter'].forEach(add)
+  // (the words the word builder spells, said after their sounds: "⟦p⟧, ⟦a⟧, ⟦n⟧: pan!")
+  for (const w of SPELL_WORDS) add(w.word)
   return [...out].sort()
 }
 

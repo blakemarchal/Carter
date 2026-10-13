@@ -10,7 +10,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from 'react'
 import type { RhythmKit } from './types'
 import { Board, BoardLayer } from './Board'
-import { BigButton, Confetti } from '../../components/ui'
+import { Arrow, BigButton, Confetti } from '../../components/ui'
 import { ac, buses, kick, midiHz, musicBox, noiseBuffer, pad, unlockAudio } from '../../lib/audio'
 import { sparkle } from '../../art/scenes/kit'
 import { speak, stopSpeaking } from '../../lib/speech'
@@ -898,7 +898,7 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
         {phase === 'ask' && (
           <div className="rhythm-overlay rhythm-ask">
             <BigButton color="yellow" className="rhythm-again" onClick={() => { stopSpeaking(); begin() }}>🎵 Again!</BigButton>
-            <BigButton color="pink" className="rhythm-next" onClick={() => { stopRun(); onDone() }}>➡️</BigButton>
+            <BigButton color="pink" className="rhythm-next" onClick={() => { stopRun(); onDone() }} aria-label="Next"><Arrow /></BigButton>
           </div>
         )}
       </Board>

@@ -4,7 +4,7 @@
 // The family server isn't there (the Vite dev server), so its answers are stood in: an owner in a family of two
 // grown-ups and two devices, on no plan yet.
 import { chromium } from '@playwright/test'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, existsSync } from 'node:fs'
 
 const out = process.argv[2] ?? 'preview/layout'
 mkdirSync(out, { recursive: true })
@@ -28,7 +28,7 @@ const SERVER = {
 const today = new Date().toISOString().slice(0, 10)
 const save = (extra) => JSON.stringify({ version: 1, starter: 'zippy', pals: { zippy: 40 }, islandsDone: [], islandStep: {}, mapAt: 'creation', battlesWon: 0, movesSeen: [], openAll: false, outfits: {}, fed: { day: '', counts: {} }, egg: { warmth: 0, day: '' }, colors: {}, stickerSpots: [], cooked: {}, familyVoices: true, log: {}, skills: { reading: 1, numbers: 1 }, skillsVersion: 2, streak: { reading: 0, numbers: 0 }, stickers: [], playDate: today, playSeconds: 0, speechRate: 1, narrator: 'device', music: false, sfx: false, dailyVisits: 2, stars: {}, ...extra })
 
-const browser = await chromium.launch({ executablePath: process.env.CHROME ?? '/opt/pw-browsers/chromium' })
+const browser = await chromium.launch({ executablePath: process.env.CHROME ?? (existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined) })
 for (const [size, [w, h]] of Object.entries(SIZES)) {
   const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 })
   await page.route((u) => new globalThis.URL(u).pathname in SERVER, (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(SERVER[new globalThis.URL(r.request().url()).pathname]) }))

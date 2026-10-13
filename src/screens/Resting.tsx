@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import './Resting.css'
 import PalArt from '../components/PalArt'
-import { BigButton, HoldButton } from '../components/ui'
+import { Arrow, BigButton, HoldButton } from '../components/ui'
 import { palById } from '../data/pals'
 import type { Access } from '../lib/billing'
 
@@ -27,7 +27,7 @@ export default function Resting({ why, onParent, onBack, onRetry }: {
         </p>
       </div>
       <div className="leave-row">
-        <BigButton color="white" onClick={onBack}>⬅️ Back</BigButton>
+        <BigButton color="white" onClick={onBack}><Arrow dir="left" /> Back</BigButton>
         <BigButton color="white" disabled={checking} onClick={async () => { setChecking(true); await onRetry(); setChecking(false) }}>
           {checking ? 'Checking…' : '🔄 Check again'}
         </BigButton>

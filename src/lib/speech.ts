@@ -8,9 +8,11 @@
 import { duck } from './audio'
 import { playerName, type Narrator } from './progress'
 import { toSpoken } from './spoken'
+import { houseReady } from '../voice/house'
 import { planLine } from '../voice/resolve'
 import { playParts, stopParts } from '../voice/player'
-import { mentionsPrivateName } from '../voice/privacy'
+import { withoutNames } from '../voice/nameless'
+import { mentionsPrivateName, privateNames } from '../voice/privacy'
 import type { Role } from '../voice/roles'
 import { isOwnerDevice } from './family'
 
@@ -137,24 +139,43 @@ export const isSpeaking = () => talking > 0
 /** Whether a line may be asked of the narration service: never one with a family's name in it. */
 export const mayAskVoice = (text: string) => !mentionsPrivateName(text)
 
+/**
+ * A line with the family's names in it, without them ('' if there are none, or nothing would be left):
+ * "Way to go, Ella!" -> "Way to go!". When the narrator can't say a name, it says the line this way, so a new
+ * player hears our narrator throughout instead of the device's own voice for every line with their name in it.
+ * (Not when a parent chose the device's voice: it can say any name.)
+ */
+const nameless = (text: string) => (narrator !== 'device' && mentionsPrivateName(text) ? withoutNames(text, privateNames()) : '')
+
 async function sayNow(text: string, pitch: number, g: number, role: Role) {
   if (g !== gen || !toSpoken(text, 'device')) return
   duck(true)
   talking++
   try {
-    // Recordings: the family's own, then the house voices (whole, or stitched from pieces).
+    // Recordings: the family's own, then the house voices (whole, or stitched from pieces). (On a new device, the
+    // list of what's recorded may still be on its way: wait a moment for it.)
+    await within(houseReady(), 2500, undefined)
+    if (g !== gen) return
     const plan = await within(planLine(text, role, { family: familyVoices, grok: narrator !== 'device' }), 3000, null)
     if (g !== gen) return
     if (plan && (await playParts(plan.parts, () => g === gen))) return
-    if (narrator !== 'device' && grokAvailable && mayAskVoice(text)) {
+    // (a name the narrator can't say: the same line without it, in the narrator's voice)
+    const alt = nameless(text)
+    if (alt) {
+      const altPlan = await within(planLine(alt, role, { family: familyVoices, grok: true }), 3000, null)
+      if (g !== gen) return
+      if (altPlan && (await playParts(altPlan.parts, () => g === gen))) return
+    }
+    const ask = alt || text
+    if (narrator !== 'device' && grokAvailable && mayAskVoice(ask)) {
       // Wait up to 4 seconds for a new line to be generated; after that use the device voice
       // (the clip keeps downloading in the background, so it's ready next time).
-      const mp3 = await within(fetchClip(toSpoken(text, 'grok')), 4000, null)
+      const mp3 = await within(fetchClip(toSpoken(ask, 'grok')), 4000, null)
       if (g !== gen) return
       if (mp3 && (await playClip(mp3, g))) return
     }
     if (g === gen) {
-      reportMissed(text)
+      reportMissed(ask)
       await deviceSpeak(toSpoken(text, 'device'), pitch)
     }
   } finally {
@@ -211,8 +232,12 @@ export async function preload(lines: string[], role: Role = 'narrator') {
   for (const line of lines) {
     // (planning a line starts fetching its recordings' audio, which is then kept)
     const plan = await planLine(line, role, { family: familyVoices, grok: narrator !== 'device' }).catch(() => null)
-    if (plan || narrator === 'device' || !grokAvailable) continue
-    if (mayAskVoice(line)) await fetchClip(toSpoken(line, 'grok'))
+    if (plan || narrator === 'device') continue
+    const alt = nameless(line)
+    if (alt && (await planLine(alt, role, { family: familyVoices, grok: true }).catch(() => null))) continue
+    if (!grokAvailable) continue
+    const ask = alt || line
+    if (mayAskVoice(ask)) await fetchClip(toSpoken(ask, 'grok'))
   }
 }
 

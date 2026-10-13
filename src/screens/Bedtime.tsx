@@ -2,7 +2,7 @@
 // then "Goodnight". Starts from the "Pals are sleepy" reminder or the moon on the map.
 import { useEffect, useState } from 'react'
 import DressedPal from '../components/DressedPal'
-import { BigButton } from '../components/ui'
+import { Arrow, BigButton } from '../components/ui'
 import { palById, stageFor } from '../data/pals'
 import { getProgress, playerName } from '../lib/progress'
 import { setMood } from '../lib/music'
@@ -58,7 +58,7 @@ export default function Bedtime({ onDone }: { onDone: () => void }) {
       <div className="bed-nav">
         {last
           ? <BigButton color="white" onClick={onDone}>🌙 Goodnight</BigButton>
-          : <BigButton color="white" onClick={() => setI(i + 1)}>➡️</BigButton>}
+          : <BigButton color="white" onClick={() => setI(i + 1)} aria-label="Next"><Arrow /></BigButton>}
       </div>
     </div>
   )

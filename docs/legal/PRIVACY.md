@@ -1,7 +1,8 @@
 # Ark Pals Privacy Policy
 
 > **DRAFT for legal review** (docs/BUSINESS-PLAN.md §5). Written to match exactly what the game and server
-> do as of October 2026. Items in [brackets] are still to confirm. Not yet published.
+> do as of October 2026, and published at arkpals.world/privacy so it can be read in place; not final until
+> reviewed. Items in [brackets] are still to confirm.
 
 Ark Pals is a Bible adventure game for children ages 4 to 7, made by Marchal Technologies LLC
 ("we"). This policy says what we keep, why, who else sees it, and how a family can see or delete all of it.
@@ -21,7 +22,7 @@ contact other people.
 ## What we keep, and why
 
 **On your device** (in the app's own storage, which stays on the device):
-- each player's first name or nickname, an emoji, how their character looks, and optionally their birthday,
+- each player's first name or nickname, a picture they choose, how their character looks, and optionally their birthday,
   so the game can greet them and hold their birthday party;
 - the family names a parent adds for the stories (what the children call their grown-ups, brothers,
   sisters and pets);
@@ -75,31 +76,35 @@ make it. Never a line with anyone's name in it, and nothing from any other famil
 **Sign-in:** one cookie, set by us, keeps a signed-in device signed in. It isn't used for anything else.
 
 We don't collect location, contacts, photos or anything else from the device, and the game makes no
-requests to anyone else's servers [confirm: fonts and all other files are served by us].
+requests to anyone else's servers: its fonts, pictures, music and everything else come from ours.
 
 ## Who else handles it
 
 We use a few service providers, only to run the game:
 - **DigitalOcean** hosts our server in the United States, where everything above is stored.
-- **xAI** makes the narrator's voice (Grok's "Ara" voice), ahead of time, on our server: the game's own
-  lines, and the pieces lines are put together from (numbers, letters, the names of things and Pals, and
-  the children's first names in our name library, which is the US Social Security Administration's public
-  list of common baby names). **Nothing from your family is sent to xAI unless a parent chooses it**, and no
-  child's name ever leaves our server otherwise. As our own family records the lines, their voice replaces
-  Grok's. A child's name that isn't in the library is read by the device's own voice, on the device,
-  unless a parent turns on **"Let the narrator say <name>"** (Parent Corner, under the player; off until
+- **xAI** makes the narrator's voice (Grok's "Ara" voice), on our server: the game's own lines, made ahead
+  of time; the pieces lines are put together from (numbers, letters, the names of things and Pals, and the
+  children's first names in our name library, which is the US Social Security Administration's public list of
+  common baby names); and, the first time one is needed, a game line that's put together during play, like
+  "Number four, green!". Those lines are the game's own words and never contain a name from your family.
+  **Nothing from your family is sent to xAI unless a parent chooses it**, and no child's name ever leaves our
+  server otherwise. As our own family records the lines, their voice replaces Grok's. A child's name that
+  isn't in the library is left out of the line ("Way to go!" instead of "Way to go, Ella!"), unless a parent
+  turns on **"Let the narrator say <name>"** (Parent Corner, under the player; off until
   then). Only then is that one name, and nothing else, sent to xAI, once, to make two short clips of the
   narrator saying it, which are kept with your family's recordings, are in your download, and are deleted
   when you turn it off or delete the family.
 - **Resend** sends our emails (sign-in links and invitations) when a grown-up asks for one; it receives
   that email address and the email.
-- **ImprovMX** forwards email sent to hello@spiritflow.church to us.
-- **Stripe** handles payments when a family chooses a plan. It receives the email of the parent who starts
-  the plan, what they enter on Stripe's own checkout page (card and billing address), and our id for the
-  family, and nothing about the children. We never see full card numbers. We keep the family's Stripe
-  customer id, plan, status and paid-through date; they're in the family's download, and deleting the
-  family deletes its Stripe customer too, which ends the plan (Stripe keeps its own record of past payments,
-  as the law requires). [Billing is in Stripe's test mode until launch.]
+- **ImprovMX** forwards email sent to hello@arkpals.world to us.
+- **Stripe** handles payments when a family chooses a plan, and its checkout, **Link**, is the seller of
+  record for the payment: it works out and collects sales tax, and sends the receipts. Stripe receives the
+  email of the parent who starts the plan, what they enter on Stripe's own checkout page (card and billing
+  address; a Grace code's checkout asks for no card), and our id for the family, and nothing about the
+  children. A parent can choose to save their details with Link, under Link's own privacy policy. We never
+  see card numbers. We keep the family's Stripe customer id, plan, status and paid-through date; they're in
+  the family's download, and deleting the family deletes its Stripe customer too, which ends the plan
+  (Stripe keeps its own record of past payments, as the law requires).
 
 We don't sell, rent or trade information, and we share it with no one else, except if required by law.
 
@@ -108,8 +113,9 @@ We don't sell, rent or trade information, and we share it with no one else, exce
 Ark Pals is made for children, so we follow the Children's Online Privacy Protection Act (COPPA). We
 collect the least we can: a child's first name or nickname, how their character looks, an optional
 birthday, their progress, and any recordings their grown-ups choose to make. All of it is entered by a
-parent or played on a device a parent signed in. [Consent: at paid launch, a parent's card payment;
-for free families, a confirmation email and a consent checkbox. To confirm with counsel.]
+parent or played on a device a parent signed in. [To confirm with counsel: how a parent gives consent. At
+paid launch, a parent's card payment; for families on a Grace code or the free beta, a confirmation email
+and a consent checkbox.]
 
 A parent can review everything we keep about their family, download it, or delete it (below), and can
 stop us collecting more at any time by deleting the family.
@@ -125,7 +131,7 @@ In the Parent Corner, under "Your family's data", a parent can:
   until the app is removed.)
 
 Grown-ups can also leave a family, and parents can remove grown-ups or sign devices out. For anything else,
-write to hello@spiritflow.church.
+write to hello@arkpals.world.
 
 ## How long we keep it
 
@@ -133,18 +139,22 @@ write to hello@spiritflow.church.
 - Progress backups: the newest 60 for each family.
 - Play totals (only if a parent turned them on): 400 days, then each day's counts are deleted.
 - Invitation and sign-in links stop working after 30 minutes to 30 days, depending on the kind, and once used.
-- [Copies of the server made before an update are kept for up to 30 days.]
-- [At launch: a family's data is deleted 90 days after a subscription ends.]
+- Backups of our server's data, in case of an accident: kept for 30 days. [Copies made just before an
+  update: to be deleted after 30 days too, once that cleanup is set up.]
+- [To decide before launch: a family's data is deleted 90 days after its plan ends, if the family doesn't
+  come back.]
 
 ## Keeping it safe
 
 Everything travels over an encrypted connection (HTTPS). Sign-in links work once and are stored only in
-scrambled form; sign-in cookies can't be read by scripts. Each family's files are kept apart, and only we
-can reach the server. See our data-security plan (docs/legal/DATA-SECURITY.md) [publish a summary].
+scrambled form; sign-in cookies can't be read by scripts. Each family's files are kept apart. Only we can
+sign in to the server, with a key (never a password); its firewall lets in only web traffic and that
+sign-in. It gets security updates automatically, and its data is backed up every night.
 
 ## Changes and contact
 
-If this policy changes in a way that matters, we'll say so in the game before it takes effect.
-Questions or requests: **hello@spiritflow.church**. Marchal Technologies LLC, [mailing address].
+If this policy changes in a way that matters, we'll say so in the game, and by email to the family's
+parents, before it takes effect. Questions or requests: **hello@arkpals.world**. Marchal Technologies LLC,
+[mailing address].
 
-*Last updated: [date of publishing].*
+*Last updated: October 13, 2026.*

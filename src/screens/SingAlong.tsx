@@ -7,7 +7,7 @@
 // Styles: styles.css, "Sing-along".
 import { useEffect, useRef, useState } from 'react'
 import DressedPal from '../components/DressedPal'
-import { BackButton, BigButton, Confetti } from '../components/ui'
+import { Arrow, BackButton, BigButton, Confetti, Icon } from '../components/ui'
 import { SONGS, withName, type Song } from '../data/songs'
 import { palById, stageFor } from '../data/pals'
 import { getProgress, playerName } from '../lib/progress'
@@ -200,16 +200,16 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
       <div className="sing-controls">
         {state === 'done' ? (
           <>
-            <BigButton color="yellow" onClick={again}>🔁 Again!</BigButton>
+            <BigButton color="yellow" onClick={again}><Icon kind="again" /> Again!</BigButton>
             {inIsland
-              ? <BigButton color="pink" onClick={() => { stopSpeaking(); onDone() }}>➡️</BigButton>
+              ? <BigButton color="pink" onClick={() => { stopSpeaking(); onDone() }} aria-label="Next"><Arrow /></BigButton>
               : <BigButton color="white" onClick={onDone}>🎵 More songs</BigButton>}
           </>
         ) : (
           <>
-            <BigButton color="pink" onClick={toggle} disabled={state === 'loading' || state === 'error'}>{state === 'playing' ? '⏸' : '▶️'}</BigButton>
-            <BigButton color="white" onClick={again} disabled={state === 'loading' || state === 'error'}>🔁</BigButton>
-            {inIsland && state === 'error' && <BigButton color="pink" onClick={onDone}>➡️</BigButton>}
+            <BigButton color="pink" onClick={toggle} disabled={state === 'loading' || state === 'error'} aria-label={state === 'playing' ? 'Pause' : 'Play'}><Icon kind={state === 'playing' ? 'pause' : 'play'} /></BigButton>
+            <BigButton color="white" onClick={again} disabled={state === 'loading' || state === 'error'} aria-label="Start again"><Icon kind="again" /></BigButton>
+            {inIsland && state === 'error' && <BigButton color="pink" onClick={onDone} aria-label="Next"><Arrow /></BigButton>}
           </>
         )}
       </div>
