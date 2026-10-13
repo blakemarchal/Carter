@@ -1,0 +1,6 @@
+[Unit]
+Description=Back up Ark Pals production data (arkpals.world)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/arkpals-backup /var/lib/arkpals /var/backups/arkpals
