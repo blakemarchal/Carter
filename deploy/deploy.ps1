@@ -7,7 +7,7 @@ $HostName = if ($env:CARTER_HOST) { $env:CARTER_HOST } else { 'root@68.183.130.3
 $Dir, $Service, $Port = if ($Site -eq 'prod') { '/opt/ArkPals', 'arkpals-web', 3005 } else { '/opt/Carter', 'carter-web', 3004 }
 npm run build
 if ($LASTEXITCODE -ne 0) { throw 'build failed' }
-tar czf carter-deploy.tgz dist server package.json package-lock.json deploy
+tar czf carter-deploy.tgz dist server package.json package-lock.json deploy scripts/warm-house-grok.mjs scripts/warm-narration.mjs
 scp carter-deploy.tgz "${HostName}:/tmp/carter-deploy.tgz"
 Remove-Item carter-deploy.tgz
 # Strip CRs: with git's autocrlf this file is checked out with CRLF, and bash on the server chokes on them.
@@ -18,7 +18,7 @@ mkdir -p $DIR && cd $DIR
 rm -rf dist && tar xzf /tmp/carter-deploy.tgz --exclude=.env && rm /tmp/carter-deploy.tgz
 # The server's own packages (stripe), exactly as locked; the game itself is all in dist/.
 npm ci --omit=dev --ignore-scripts --no-audit --no-fund --loglevel=error
-chown -R root:root $DIR && chmod -R u=rwX,go=rX dist server deploy package.json package-lock.json node_modules
+chown -R root:root $DIR && chmod -R u=rwX,go=rX dist server deploy scripts package.json package-lock.json node_modules
 if systemctl is-enabled --quiet $SERVICE 2>/dev/null; then
   systemctl restart $SERVICE && sleep 1
   curl -fsS -o /dev/null -w "health: HTTP %{http_code}\n" -H "Accept: text/html" http://127.0.0.1:$PORT/
