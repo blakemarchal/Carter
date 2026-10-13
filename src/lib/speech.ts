@@ -188,11 +188,15 @@ export function stopSpeaking() {
   window.speechSynthesis?.cancel()
 }
 
-/** Download lines in the background so they play instantly later. */
-export async function preload(lines: string[]) {
-  if (narrator === 'device') return
+/**
+ * Download lines in the background so they play instantly later: their recordings (the house voices, Grok's
+ * among them, whole or in pieces), or else a clip made ahead of time.
+ */
+export async function preload(lines: string[], role: Role = 'narrator') {
   for (const line of lines) {
-    if (!grokAvailable) return
+    // (planning a line starts fetching its recordings' audio, which is then kept)
+    const plan = await planLine(line, role, { family: familyVoices }).catch(() => null)
+    if (plan || narrator === 'device' || !grokAvailable) continue
     if (mayAskVoice(line)) await fetchClip(toSpoken(line, 'grok'))
   }
 }

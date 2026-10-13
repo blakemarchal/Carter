@@ -142,3 +142,31 @@ describe('names families use (the owner’s studio)', async () => {
     expect(namesInUse(fams.slice(0, 2))).toEqual([])
   })
 })
+
+describe('the house Grok voice, made by scripts/warm-house-grok.mjs', () => {
+  it('the running server sees clips the warm script adds (it writes the same index), and saves in batches', async () => {
+    const dir = folder()
+    const server = house(dir)
+    await server.put('mom', id(1), 'audio/mp4', Buffer.alloc(10), { key: 'Hi' })
+    expect(Object.keys((await server.manifest()).clips)).toEqual(['mom'])
+    const script = house(dir)
+    await script.put('grok', id(2), 'audio/mpeg', Buffer.alloc(10), { key: 'Great job!', said: 'Great job!', attempt: 0 }, { save: false })
+    await script.put('grok', id(3), 'audio/mpeg', Buffer.alloc(10), { key: '⟪sound⟫ t', said: 'tuh.', attempt: 1 }, { save: false })
+    await script.flush()
+    await new Promise((r) => setTimeout(r, 20))
+    const m = await server.manifest()
+    expect(Object.keys(m.clips.grok).sort()).toEqual([id(2), id(3)])
+    expect((await server.index()).clips.grok[id(3)]).toMatchObject({ said: 'tuh.', attempt: 1 })
+  })
+
+  it('the owner flags a clip that sounds wrong (the sound check page); a new one clears it', async () => {
+    const h = house()
+    await h.put('grok', id(1), 'audio/mpeg', Buffer.alloc(10), { key: '⟪sound⟫ t' })
+    expect((await call(h, 'POST', '/voice/house/flag', OWNERS_FAMILY, JSON.stringify({ voice: 'grok', id: id(1), flagged: true }))).status).toBe(403)
+    expect((await call(h, 'POST', '/voice/house/flag', OWNER, JSON.stringify({ voice: 'grok', id: id(1), flagged: true }))).status).toBe(204)
+    expect((await h.index()).clips.grok[id(1)].flagged).toBe(true)
+    expect((await h.manifest()).clips.grok[id(1)][4]).toBe(1)
+    await h.put('grok', id(1), 'audio/mpeg', Buffer.alloc(12), { key: '⟪sound⟫ t', attempt: 1 })
+    expect((await h.index()).clips.grok[id(1)].flagged).toBeUndefined()
+  })
+})

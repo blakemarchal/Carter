@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { lineId, loadRecordings } from '../lib/recordings'
 import { keys } from '../voice/keys'
 import { setHouse, type HouseManifest } from '../voice/house'
-import { matchTemplate, parseNumber, sentences, stitch, PAL_NAMES } from '../voice/stitch'
+import { grokOnly, matchTemplate, matchTemplates, parseNumber, sentences, stitch, PAL_NAMES } from '../voice/stitch'
 import { TEMPLATES, recordedParts } from '../voice/templates'
 import { LEVELS } from '../learn/levels'
 import { SHADE_SAY } from '../data/shade'
@@ -38,7 +38,7 @@ beforeEach(async () => {
 describe('templates', () => {
   it('each has its own id, and only the slots there are', () => {
     expect(new Set(TEMPLATES.map((t) => t.id)).size).toBe(TEMPLATES.length)
-    for (const t of TEMPLATES) expect(t.text.replace(/\{(name|pal|n|letter|sound)\}/g, '')).not.toMatch(/[{}]/)
+    for (const t of TEMPLATES) expect(t.text.replace(/\{(name|pal|n|letter|sound|item|move)\}/g, '')).not.toMatch(/[{}]/)
     expect(recordedParts(TEMPLATES.find((t) => t.id === 'way-to-go')!)).toEqual([[0, 'Way to go,']])
     expect(recordedParts(TEMPLATES.find((t) => t.id === 'seq')!)).toEqual([]) // ("3, 4, 5." is just numbers)
     expect(recordedParts(TEMPLATES.find((t) => t.id === 'starts-with')!)).toEqual([[0, 'Which picture starts with the'], [1, 'sound, like the letter']])
@@ -55,8 +55,12 @@ describe('templates', () => {
     expect(matchTemplate("It's Zippy!")).toMatchObject({ tpl: { id: 'its-pal' }, values: [{ kind: 'pal', value: 'Zippy' }] }) // (a straight apostrophe too)
     expect(matchTemplate('Zippy became Sparkle!')?.values.map((v) => v.value)).toEqual(['Zippy', 'Sparkle'])
     expect(matchTemplate('Hop forward 5 times!')?.values[0]).toMatchObject({ value: '5', take: 'mid' })
-    expect(matchTemplate('200!')).toBeNull() // (numbers are recorded up to 140)
-    expect(matchTemplate('Nobody wrote this one.')).toBeNull()
+    expect(matchTemplate('200!')?.tpl.id).not.toBe('n-bang') // (numbers are recorded up to 140)
+    expect(matchTemplates('Nobody wrote this one.').filter((m) => !grokOnly(m.tpl))).toEqual([])
+    // (things and moves: any words fit, and only a recorded one stitches)
+    expect(matchTemplate('Where does the lion go?')).toMatchObject({ tpl: { id: 'where-does' }, values: [{ kind: 'item', value: 'the lion' }] })
+    expect(matchTemplate('Zippy used Joy Spark!')?.values.map((v) => v.value)).toEqual(['Zippy', 'Joy Spark'])
+    expect(matchTemplates("That's 5.").map((m) => m.tpl.id)).toEqual(['thats-n', 'thats-item'])
     expect(parseNumber('forty-seven')).toBe(47)
     expect(parseNumber('one hundred forty')).toBe(140)
     expect(parseNumber('141')).toBeNull()

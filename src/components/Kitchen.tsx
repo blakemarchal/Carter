@@ -9,6 +9,7 @@ import { MixingBowl, StirBowl, bowlSlot, type Batter } from './Bowl'
 import { BackButton, BigButton, Confetti } from './ui'
 import { FRUIT_COLOR, stageFor, type PalDef } from '../data/pals'
 import { recipeFor, type CookStep, type Recipe } from '../data/recipes'
+import { CUT_SAY } from '../data/recipes'
 import { playerName, useProgress } from '../lib/progress'
 import { serve } from '../lib/kitchen'
 import { praise, retry, speak } from '../lib/speech'
@@ -236,7 +237,6 @@ function PatternStep({ step, onDone }: { step: Extract<CookStep, { kind: 'patter
 
 // ---------- cut: pick the cut, then the knife slices ----------
 
-const CUT_SAY = { halves: 'two halves', triangles: 'two triangles', quarters: 'four pieces' }
 
 /** Pick the right way to cut: halves, triangles or quarters. A knife slices it, and it comes apart. */
 function CutStep({ step, onDone }: { step: Extract<CookStep, { kind: 'cut' }>; onDone: Done }) {

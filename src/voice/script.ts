@@ -17,7 +17,7 @@ import { PLACEMENT_PRAISE } from '../screens/Placement'
 import gen from './lines.gen.json'
 import { keys, type Take } from './keys'
 import { LIBRARY_NAMES, libraryName } from './names'
-import { MAX_NUMBER, PAL_NAMES, matchTemplate, sentences } from './stitch'
+import { grokOnly, MAX_NUMBER, PAL_NAMES, matchTemplates, sentences } from './stitch'
 import { pieces, recordedParts, TEMPLATES, type SlotKind } from './templates'
 import { voicesFor, type Role, type Voice } from './roles'
 
@@ -46,7 +46,7 @@ export interface ScriptItem {
 }
 
 export interface IslandSource { id: string; name: string; steps: Step[] }
-type Gen = { learning: [string, number][]; code: string[]; taps: string[] }
+export type Gen = { learning: [string, number][]; code: string[]; taps: string[] }
 const GEN = gen as Gen
 
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length
@@ -62,9 +62,11 @@ export function recordSeconds(item: ScriptItem): number {
 
 /** The fixed sentences of a line to record: the whole line, or (when some sentences are templates) the others. */
 export function fixedPieces(line: string): string[] {
+  // (only the templates our own voices record count: a Grok-only one like "{item}!" fits almost anything)
+  const slotted = (s: string) => matchTemplates(s).some((m) => !grokOnly(m.tpl))
   const ss = sentences(line)
-  if (!ss.some((s) => matchTemplate(s))) return line.trim() ? [line.replace(/\s+/g, ' ').trim()] : []
-  return ss.filter((s) => !matchTemplate(s))
+  if (!ss.some(slotted)) return line.trim() ? [line.replace(/\s+/g, ' ').trim()] : []
+  return ss.filter((s) => !slotted(s))
 }
 
 /** Each step's fixed lines (what the island says besides its story pages). */
@@ -85,7 +87,7 @@ const numberSay = (n: number, take: Take) => (take === 'exclaim' ? `${n}!` : `${
  * families use that aren't in the name library (the owner's studio asks the server: GET /voice/names); they're
  * recorded first in the Names queue.
  */
-export function buildScript(islands: IslandSource[], { extraNames = [] }: { extraNames?: string[] } = {}): ScriptItem[] {
+export function buildScript(islands: IslandSource[], { extraNames = [], gen = GEN }: { extraNames?: string[]; gen?: Gen } = {}): ScriptItem[] {
   const out: ScriptItem[] = []
   const seen = new Set<string>()
   const add = (item: ScriptItem) => {
@@ -114,7 +116,7 @@ export function buildScript(islands: IslandSource[], { extraNames = [] }: { extr
   line('prompts', 'shade:cloud', SHADE_SAY.cloudIntro('Zippy'), 'friendly battle', 'shade')
   line('prompts', 'pals:yes', 'Yes, please!', 'friendly battle: the new friend answers', 'pals')
   line('prompts', 'pals:tickles', 'Hee hee! That tickles!', 'Pal home: petting', 'pals')
-  GEN.code.forEach((l) => line('prompts', `code:${l}`, l, 'the game'))
+  gen.code.forEach((l) => line('prompts', `code:${l}`, l, 'the game'))
 
   // ---- story pages ----
   for (const isl of islands) {
@@ -134,14 +136,15 @@ export function buildScript(islands: IslandSource[], { extraNames = [] }: { extr
   const party = partyStory({ name: 'Olivia', grownups: ['Mom', 'Dad'], siblings: [], pets: [] })
   party.forEach((pg, i) => line('story', `birthday:${i}`, i === 0 ? `${storyTitle('Olivia')}. ${pg.text}` : pg.text, 'the birthday story'))
   BIRTHDAY_VERSE.chunks.forEach((c, i) => line('story', `birthday-verse:${i}`, c, 'the birthday verse'))
-  GEN.taps.forEach((l) => line('story', `tap:${l}`, l, 'tapping a story picture'))
+  gen.taps.forEach((l) => line('story', `tap:${l}`, l, 'tapping a story picture'))
 
   // ---- learning: the levels' lines, most heard first ----
-  GEN.learning.forEach(([l]) => line('learning', `learn:${l}`, l, 'practice and battles'))
+  gen.learning.forEach(([l]) => line('learning', `learn:${l}`, l, 'practice and battles'))
 
   // ---- templates: each one's parts, in the voice of its role ----
   const needs = new Map<Voice, Map<SlotKind, Set<Take>>>()
-  for (const tpl of TEMPLATES) {
+  // (templates with things or moves in them are Grok's alone for now: src/voice/grok-list.ts)
+  for (const tpl of TEMPLATES.filter((t) => !grokOnly(t))) {
     const voice = voiceOf(tpl.role)
     const blank = tpl.text.replace(/\{(name|pal|n|letter|sound)\}/g, '___')
     for (const [i, said] of recordedParts(tpl)) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { letterSound, numberWords, toSpoken } from '../lib/spoken'
+import { letterSound, numberWords, PHONICS, toSpoken } from '../lib/spoken'
 
 describe('numberWords', () => {
   it.each([[0, 'zero'], [7, 'seven'], [10, 'ten'], [12, 'twelve'], [20, 'twenty'], [47, 'forty-seven'], [100, 'one hundred'], [130, 'one hundred thirty'], [2027, 'two thousand twenty-seven']])('%i -> %s', (n, w) => {
@@ -31,8 +31,13 @@ describe('toSpoken', () => {
     expect(toSpoken('The wise men bow down.', 'grok')).toBe('The wise men bow down.')
     expect(toSpoken('A rainbow and an elbow', 'grok')).toBe('A rainbow and an elbow')
   })
-  it('uses IPA for the Grok voice and a spelling for the device voice', () => {
-    expect(toSpoken(`the ${letterSound('n')} sound`, 'grok')).toBe('the /nː/ sound')
-    expect(toSpoken(`the ${letterSound('n')} sound`, 'device')).toBe('the nnn sound')
+  it('asks Grok for the sound, not the letter (a held sound, or "tuh"), and never spells it out on the device', () => {
+    expect(toSpoken(`the ${letterSound('n')} sound`, 'grok')).toBe('the Nnnnn sound')
+    expect(toSpoken(`the ${letterSound('t')} sound`, 'grok')).toBe('the tuh sound') // (as IPA alone, it came out "two")
+    expect(toSpoken(`the ${letterSound('n')} sound`, 'device')).toBe('the nuh sound') // ("nnn" was read "N, N, N")
+    for (const [l, p] of Object.entries(PHONICS)) {
+      expect(p.say, l).not.toMatch(/(.)\1\1/)
+      expect(p.grok.length, l).toBeGreaterThanOrEqual(2) // (a second prompt, for when one is flagged)
+    }
   })
 })

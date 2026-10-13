@@ -8,6 +8,9 @@
 //   candles  a candle on the cake for each year (the birthday cake, only on a birthday)
 import type { Fruit } from './pals'
 
+/** How each way of cutting is said ("Cut the sandwich into two triangles!"). */
+export const CUT_SAY = { halves: 'two halves', triangles: 'two triangles', quarters: 'four pieces' }
+
 export interface Ingredient { emoji: string; say: string; plural: string }
 
 export type CookStep =

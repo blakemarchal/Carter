@@ -5,6 +5,7 @@ import gen from '../voice/lines.gen.json'
 import { voiceLines } from '../voice/lines-source'
 import { buildScript, fixedPieces, QUEUES, scriptCounts, type ScriptItem } from '../voice/script'
 import { TEMPLATES, recordedParts } from '../voice/templates'
+import { grokOnly } from '../voice/stitch'
 import { LIBRARY_NAMES } from '../voice/names'
 import { keys } from '../voice/keys'
 
@@ -37,7 +38,7 @@ describe('the recording script', () => {
     const s = await get()
     const mom = new Set(s.filter((i) => i.voice === 'mom').map((i) => i.key))
     expect(mom.has('Great job!')).toBe(true)
-    for (const t of TEMPLATES.filter((t) => !t.role)) for (const [i] of recordedParts(t)) expect(mom.has(keys.part(t.id, i)), t.id).toBe(true)
+    for (const t of TEMPLATES.filter((t) => !t.role && !grokOnly(t))) for (const [i] of recordedParts(t)) expect(mom.has(keys.part(t.id, i)), t.id).toBe(true)
     for (const n of LIBRARY_NAMES) expect(mom.has(keys.name(n, 'exclaim')) && mom.has(keys.name(n, 'mid')), n).toBe(true)
     for (let n = 0; n <= 140; n++) expect(mom.has(keys.number(n, 'exclaim')), String(n)).toBe(true)
     expect(mom.has(keys.sound('b')) && mom.has(keys.letter('b')) && mom.has(keys.pal('Zippy', 'mid'))).toBe(true)

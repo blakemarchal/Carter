@@ -6,7 +6,7 @@ import { fingerprint } from './keys'
 import type { Voice } from './roles'
 
 /** A clip: its version, where its sound starts and ends (ms; 0 = the whole recording) and how loud to play it. */
-export type ClipInfo = [v: string, start: number, end: number, gain: number]
+export type ClipInfo = [v: string, start: number, end: number, gain: number, flagged?: 1]
 export interface HouseManifest { version: number; voices: Record<string, { label: string }>; clips: Record<string, Record<string, ClipInfo>> }
 
 const KEY = `${NS}-voice:house`

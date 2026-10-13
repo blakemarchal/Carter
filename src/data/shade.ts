@@ -89,3 +89,6 @@ export const VOYAGE_DONE = [
   "God's love is for everyone: for you, for every Pal on your Ark, and even for Gladshade.",
   'You can sail back to any island, any time.',
 ]
+
+/** What the shadow (or the grumpy cloud) does in a friendly battle: never hurtful, just grumpy. */
+export const SHADOW_MOVES = ['Grumpy Puff', 'Shadow Sneeze', 'Pouty Mist', 'Frown Fog', 'Grumble Gust']

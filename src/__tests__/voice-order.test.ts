@@ -73,7 +73,7 @@ describe('the order a line is spoken in', () => {
   })
 
   it('the role picks the voice, and the next voice in its list stands in', async () => {
-    expect(ROLE_VOICES).toEqual({ narrator: ['mom'], shade: ['dad', 'mom'], pals: ['child', 'mom'] })
+    expect(ROLE_VOICES).toEqual({ narrator: ['mom', 'grok'], shade: ['dad', 'mom', 'grok'], pals: ['child', 'mom', 'grok'] })
     const grr = 'Grumbleshade is making Hoppy grumpy.'
     setHouse(await house({ mom: [grr, 'Yes, please!'], dad: [grr] }))
     await planLine(grr, 'shade')

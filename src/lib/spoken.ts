@@ -18,16 +18,45 @@ export function numberWords(n: number): string {
 
 /**
  * Letter sounds for phonics, written into narration as ⟦n⟧ (see `letterSound`).
- * `ipa` is read by the Grok voice; `say` is the device voice's best attempt.
+ * `grok` is what's sent to the Grok voice, best first: a held sound for the letters you can hold (n, m, s, f, l,
+ * r, v, z), a short "tuh" for the ones you can't, and the IPA last. (Sent as IPA alone, "t" came out as "two".)
+ * The sound check page (owner only) can flag one, and scripts/warm-house-grok.mjs then makes it again with the
+ * next prompt. `say` is the device voice's best attempt (it spells "nnn" out as "N, N, N", so never that).
  */
-export const PHONICS: Record<string, { ipa: string; say: string }> = {
-  a: { ipa: 'æ', say: 'ah' }, b: { ipa: 'bə', say: 'buh' }, c: { ipa: 'kə', say: 'kuh' }, d: { ipa: 'də', say: 'duh' },
-  e: { ipa: 'ɛ', say: 'eh' }, f: { ipa: 'fː', say: 'fff' }, g: { ipa: 'ɡə', say: 'guh' }, h: { ipa: 'hə', say: 'huh' },
-  i: { ipa: 'ɪ', say: 'ih' }, j: { ipa: 'dʒə', say: 'juh' }, k: { ipa: 'kə', say: 'kuh' }, l: { ipa: 'lː', say: 'lll' },
-  m: { ipa: 'mː', say: 'mmm' }, n: { ipa: 'nː', say: 'nnn' }, o: { ipa: 'ɑ', say: 'aw' }, p: { ipa: 'pə', say: 'puh' },
-  q: { ipa: 'kwə', say: 'kwuh' }, r: { ipa: 'ɹː', say: 'rrr' }, s: { ipa: 'sː', say: 'sss' }, t: { ipa: 'tə', say: 'tuh' },
-  u: { ipa: 'ʌ', say: 'uh' }, v: { ipa: 'vː', say: 'vvv' }, w: { ipa: 'wə', say: 'wuh' }, x: { ipa: 'ks', say: 'ks' },
-  y: { ipa: 'jə', say: 'yuh' }, z: { ipa: 'zː', say: 'zzz' },
+export const PHONICS: Record<string, { ipa: string; say: string; grok: string[] }> = {
+  a: { ipa: 'æ', say: 'ah', grok: ['/æ/', 'aah', 'a, as in apple'] },
+  b: { ipa: 'bə', say: 'buh', grok: ['buh', '/bə/'] },
+  c: { ipa: 'kə', say: 'kuh', grok: ['kuh', '/kə/'] },
+  d: { ipa: 'də', say: 'duh', grok: ['duh', '/də/'] },
+  e: { ipa: 'ɛ', say: 'eh', grok: ['/ɛ/', 'eh', 'e, as in egg'] },
+  f: { ipa: 'fː', say: 'fuh', grok: ['Fffff.', '/fː/', 'fuh'] },
+  g: { ipa: 'ɡə', say: 'guh', grok: ['guh', '/ɡə/'] },
+  h: { ipa: 'hə', say: 'huh', grok: ['huh', '/hə/'] },
+  i: { ipa: 'ɪ', say: 'ih', grok: ['/ɪ/', 'ih', 'i, as in igloo'] },
+  j: { ipa: 'dʒə', say: 'juh', grok: ['juh', '/dʒə/'] },
+  k: { ipa: 'kə', say: 'kuh', grok: ['kuh', '/kə/'] },
+  l: { ipa: 'lː', say: 'luh', grok: ['Lllll.', '/lː/', 'luh'] },
+  m: { ipa: 'mː', say: 'muh', grok: ['Mmmmm.', '/mː/', 'muh'] },
+  n: { ipa: 'nː', say: 'nuh', grok: ['Nnnnn.', '/nː/', 'nuh'] },
+  o: { ipa: 'ɑ', say: 'aw', grok: ['/ɑ/', 'ah', 'o, as in octopus'] },
+  p: { ipa: 'pə', say: 'puh', grok: ['puh', '/pə/'] },
+  q: { ipa: 'kwə', say: 'kwuh', grok: ['kwuh', '/kwə/'] },
+  r: { ipa: 'ɹː', say: 'ruh', grok: ['Rrrrr.', '/ɹː/', 'ruh'] },
+  s: { ipa: 'sː', say: 'suh', grok: ['Sssss.', '/sː/', 'ss'] },
+  t: { ipa: 'tə', say: 'tuh', grok: ['tuh', 'tuh.', '/tə/'] },
+  u: { ipa: 'ʌ', say: 'uh', grok: ['/ʌ/', 'uh', 'u, as in umbrella'] },
+  v: { ipa: 'vː', say: 'vuh', grok: ['Vvvvv.', '/vː/', 'vuh'] },
+  w: { ipa: 'wə', say: 'wuh', grok: ['wuh', '/wə/'] },
+  x: { ipa: 'ks', say: 'ks', grok: ['ks', '/ks/'] },
+  y: { ipa: 'jə', say: 'yuh', grok: ['yuh', '/jə/'] },
+  z: { ipa: 'zː', say: 'zuh', grok: ['Zzzzz.', '/zː/', 'zuh'] },
+}
+
+/** What Grok is asked to say for a letter's name, best first ("B." comes out as "bee"). */
+export const LETTER_NAME_PROMPTS = (l: string): string[] => {
+  const L = l.toUpperCase()
+  const spelled: Record<string, string> = { a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'ef', g: 'jee', h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en', o: 'oh', p: 'pee', q: 'cue', r: 'ar', s: 'ess', t: 'tee', u: 'you', v: 'vee', w: 'double-you', x: 'ex', y: 'why', z: 'zee' }
+  return [`${L}.`, spelled[l.toLowerCase()], `${L}!`]
 }
 
 /** A letter's sound, to put inside narration: speak(`the ${letterSound('m')} sound`). */
@@ -52,7 +81,7 @@ export function toSpoken(text: string, voice: 'grok' | 'device'): string {
   let out = text
   for (const h of HETERONYMS) out = out.replace(h.re, voice === 'grok' ? h.grok : h.device)
   return out
-    .replace(/⟦([a-z])⟧/g, (_, l: string) => (voice === 'grok' ? `/${PHONICS[l].ipa}/` : PHONICS[l].say))
+    .replace(/⟦([a-z])⟧/g, (_, l: string) => (voice === 'grok' ? PHONICS[l].grok[0].replace(/\.$/, '') : PHONICS[l].say))
     .replace(EMOJI, '')
     // Numbered books: "1 John 4:8" is said "First John", not "one John"
     .replace(NUMBERED_BOOK, (_, n: string) => `${['First', 'Second', 'Third'][Number(n) - 1]} `)

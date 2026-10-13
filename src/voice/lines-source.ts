@@ -62,9 +62,18 @@ export function codeLines(root = 'src'): { code: string[]; taps: string[] } {
   for (const f of files(root)) {
     const src = readFileSync(f, 'utf8')
     for (const m of src.matchAll(/\bspeak\(\s*(?:'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"|`((?:[^`$\\]|\\.)*)`)\s*[,)]/g)) code.add(unescape(m[1] ?? m[2] ?? m[3]))
+    // (a line built at runtime: its sentences with nothing filled in are fixed, "… Which one comes next?")
+    for (const m of src.matchAll(/\bspeak\(\s*`((?:[^`\\]|\\.)*\$\{(?:[^`\\]|\\.)*)`/g)) {
+      const marked = unescape(m[1]).replace(/\$\{[^}]*\}/g, '\u0000')
+      for (const sentence of marked.split(/(?<=[.!?])\s+/)) {
+        const t = sentence.trim()
+        if (t && !t.includes('\u0000') && !/[`$]/.test(t) && /^[A-Z"“]/.test(t) && /[.!?]$/.test(t)) code.add(t)
+      }
+    }
     if (f.includes(join('src', 'art'))) for (const m of src.matchAll(/\bsay="([^"]+)"/g)) taps.add(m[1])
   }
-  return { code: [...code].sort(), taps: [...taps].filter((t) => !code.has(t)).sort() }
+  const said = (t: string) => /\p{L}/u.test(t)
+  return { code: [...code].filter(said).sort(), taps: [...taps].filter((t) => !code.has(t) && said(t)).sort() }
 }
 
 export const voiceLines = () => ({ learning: learningLines(), ...codeLines() })

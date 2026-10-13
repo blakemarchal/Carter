@@ -14,6 +14,7 @@
 //   PUT and DELETE /voice/house/<voice>/<id>, POST /voice/house/share, POST /voice/house/promote,
 //   POST /voice/house/voice (a voice's label).
 import { copyFile, mkdir, readdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises'
+import { statSync } from 'node:fs'
 import { join } from 'node:path'
 
 export const ID = /^[0-9a-f]{16}$/
@@ -36,9 +37,12 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
   ready.catch((e) => console.error(`House voice folder ${dir} unavailable: ${e.message}`))
   const indexFile = join(dir, 'index.json')
   let index = null
+  let loadedAt = 0 // (index.json's time when it was read: scripts/warm-house-grok.mjs writes it while the server runs)
+  const fileTime = () => { try { return statSync(indexFile).mtimeMs } catch { return 0 } }
   async function load() {
-    if (index) return index
+    if (index && fileTime() <= loadedAt) return index
     await ready
+    loadedAt = fileTime()
     try {
       index = JSON.parse(await readFile(indexFile, 'utf8'))
     } catch {
@@ -57,6 +61,7 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
       const tmp = `${indexFile}.${process.pid}.tmp`
       await writeFile(tmp, body)
       await rename(tmp, indexFile)
+      loadedAt = fileTime()
     })
     return writing
   }
@@ -75,12 +80,18 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
         const mine = {}
         for (const [id, c] of Object.entries(all)) {
           if (hidden && !c.shared) continue
-          mine[id] = [c.at.toString(36), c.start ?? 0, c.end ?? 0, c.gain ?? 1]
+          mine[id] = [c.at.toString(36), c.start ?? 0, c.end ?? 0, c.gain ?? 1, ...(c.flagged ? [1] : [])]
         }
         if (Object.keys(mine).length) clips[voice] = mine
       }
       const voices = Object.fromEntries(Object.entries(ix.voices).map(([v, d]) => [v, { label: d.label }]))
       return { version: ix.version, voices, clips }
+    },
+
+    /** Saves the index (after puts made with { save: false }, as the warm script makes them in batches). */
+    async flush() {
+      await load()
+      await persist()
     },
 
     /** Everything about every clip (the owner's studio). */
@@ -103,7 +114,7 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
      * Saves a clip. `meta`: key (what was said, or a slot's key), said (the words read), ref (where the line is
      * in the script, so a change to its words can be flagged), start and end (ms of sound to play), gain.
      */
-    async put(voice, id, type, body, meta = {}) {
+    async put(voice, id, type, body, meta = {}, { save = true } = {}) {
       checkVoice(voice)
       checkId(id)
       const ext = TYPES[String(type).split(';')[0].trim()]
@@ -127,8 +138,10 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
         start: ms(meta.start) ?? 0, end: ms(meta.end) ?? 0,
         gain: Number.isFinite(gain) && gain > 0 && gain <= 8 ? Math.round(gain * 100) / 100 : 1,
         ...(old?.shared ? { shared: true } : {}),
+        // (which of its prompts made it: a Grok clip flagged on the sound check page is made again with the next)
+        ...(Number.isInteger(meta.attempt) && meta.attempt > 0 ? { attempt: meta.attempt } : {}),
       }
-      await persist()
+      if (save) await persist()
       return ix.clips[voice][id]
     },
 
@@ -150,6 +163,16 @@ export function createHouse(dir, { clock = () => Date.now() } = {}) {
       if (!c) throw err(404, 'no such clip')
       if (on) c.shared = true
       else delete c.shared
+      await persist()
+    },
+
+    /** Flags a clip that sounds wrong (the owner's sound check page), or unflags it. */
+    async setFlag(voice, id, on) {
+      const ix = await load()
+      const c = ix.clips[voice]?.[id]
+      if (!c) throw err(404, 'no such clip')
+      if (on) c.flagged = true
+      else delete c.flagged
       await persist()
     },
 
@@ -221,10 +244,11 @@ export async function handleHouse(req, res, url, house, { own, owner, familyReco
       if (!owner) return json(res, 403)
       return json(res, 200, await house.index())
     }
-    if (['share', 'promote', 'voice'].includes(a) && req.method === 'POST') {
+    if (['share', 'promote', 'voice', 'flag'].includes(a) && req.method === 'POST') {
       if (!owner) return json(res, 403)
       const body = JSON.parse((await readBody(req, 4096)).toString('utf8') || '{}')
       if (a === 'share') await house.setShared(String(body.voice ?? ''), String(body.id ?? ''), !!body.shared)
+      if (a === 'flag') await house.setFlag(String(body.voice ?? ''), String(body.id ?? ''), !!body.flagged)
       if (a === 'voice') await house.setVoice(String(body.voice ?? ''), { label: body.label })
       if (a === 'promote') return json(res, 200, await house.promote(familyRecordingsDir, String(body.voice ?? 'mom')))
       return json(res, 204)

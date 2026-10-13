@@ -17,6 +17,10 @@ export const keys = {
   letter: (l: string) => `⟪letter⟫ ${l.toLowerCase()}`,
   /** A letter's sound ("buh"). */
   sound: (l: string) => `⟪sound⟫ ${l.toLowerCase()}`,
+  /** A thing's name as an activity says it ("the lion", "apples", "the bowl"). */
+  item: (say: string) => `⟪item⟫ ${say.trim().toLowerCase()}`,
+  /** A Pal's move ("Spark Shower"). */
+  move: (name: string) => `⟪move⟫ ${name.trim().toLowerCase()}`,
   /** One of a template's fixed parts, before, between or after its slots. */
   part: (template: string, i: number) => `⟪part⟫ ${template} ${i}`,
   /** A sung recording of a song. */

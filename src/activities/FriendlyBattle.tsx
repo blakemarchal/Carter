@@ -19,7 +19,7 @@ import QuestionCard from '../components/QuestionCard'
 import { BigButton, Confetti } from '../components/ui'
 import { FriendBall, Grumbleshade, GrumpyCloud, type ShadeFace } from '../art/battle'
 import { FRUIT_COLOR, PALS, palById, stageFor, type Move, type MoveKind } from '../data/pals'
-import { GLADSHADE, SHADE_SAY, shadeFor } from '../data/shade'
+import { GLADSHADE, SHADE_SAY, shadeFor, SHADOW_MOVES } from '../data/shade'
 import { makeQuestion, type Question } from '../lib/questions'
 import { addPalXp, getProgress, MAX_LEVEL, update, useProgress, type Skill } from '../lib/progress'
 import { battlesWon, CHARGE, movesFor, POWER, type MoveSlot } from '../lib/moves'
@@ -33,7 +33,6 @@ import './FriendlyBattle.css'
 
 const SHADOW = 6 // the creature's Shadow bar
 const ENERGY = 5 // her Pal's hearts
-const SHADOW_MOVES = ['Grumpy Puff', 'Shadow Sneeze', 'Pouty Mist', 'Frown Fog', 'Grumble Gust']
 
 type Phase = 'intro' | 'team' | 'pick' | 'question' | 'attack' | 'shadow' | 'freed' | 'finale' | 'ask' | 'throw' | 'caught' | 'learned'
 

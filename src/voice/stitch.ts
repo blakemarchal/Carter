@@ -9,7 +9,7 @@ import { recordingFor } from '../lib/recordings'
 import { numberWords } from '../lib/spoken'
 import { PALS } from '../data/pals'
 import { fingerprint, keys, type Take } from './keys'
-import { clipAudio, houseFind, houseManifest } from './house'
+import { clipAudio, houseFind, houseManifest, type ClipInfo } from './house'
 import { libraryName, nameKey } from './names'
 import { PART_GAP, SENTENCE_GAP, type Part } from './player'
 import { voicesFor, type Role, type Voice } from './roles'
@@ -35,6 +35,9 @@ const SLOT_RE: Record<SlotKind, string> = {
   n: `(\\d{1,3}|${[...NUMBER_WORDS].sort(byLength).map(escape).join('|')})`,
   letter: '([A-Za-z])',
   sound: '⟦([a-z])⟧',
+  // (any words: a thing's or a move's name is only filled in if it was recorded, so a wrong guess just doesn't stitch)
+  item: "([\\p{L}\\p{N}][\\p{L}\\p{N}'’ ,\\-]*?)",
+  move: "([\\p{L}][\\p{L}'’ \\-]*?)",
 }
 
 /** A number as said or written ("47", "forty-seven", "Seven"), or null if it's not 0 to MAX_NUMBER. */
@@ -66,18 +69,27 @@ function compile(tpl: Template): Compiled {
 let compiled: Compiled[] | null = null
 const all = () => (compiled ??= TEMPLATES.map(compile).sort((a, b) => b.said.join('').length - a.said.join('').length))
 
-/** A template a sentence fits, with what's in its slots, or null. */
-export function matchTemplate(sentence: string): { tpl: Template; values: { kind: SlotKind; take: Take; value: string }[] } | null {
+type Match = { tpl: Template; values: { kind: SlotKind; take: Take; value: string }[] }
+
+/** Every template a sentence fits, the most specific first, with what's in their slots. */
+export function matchTemplates(sentence: string): Match[] {
   const s = tidy(sentence)
+  const out: Match[] = []
   for (const c of all()) {
     const m = c.re.exec(s)
     if (!m) continue
     const values = c.slots.map((sl, i) => ({ ...sl, value: m[i + 1] }))
     if (values.some((v) => v.kind === 'n' && parseNumber(v.value) === null)) continue
-    return { tpl: c.tpl, values }
+    out.push({ tpl: c.tpl, values })
   }
-  return null
+  return out
 }
+
+/** The most specific template a sentence fits, with what's in its slots, or null. */
+export const matchTemplate = (sentence: string): Match | null => matchTemplates(sentence)[0] ?? null
+
+/** Whether a template's slots are only things recorded for Grok (items and moves), not by our own voices. */
+export const grokOnly = (tpl: Template) => /\{(item|move)\}/.test(tpl.text)
 
 /** A line in sentences: "Great job! 3 plus 4." -> ["Great job!", "3 plus 4."] */
 export function sentences(text: string): string[] {
@@ -89,7 +101,7 @@ export function sentences(text: string): string[] {
  * A piece found but not yet fetched (so trying a voice that turns out to miss a piece fetches nothing): a house
  * clip, or the family's own recording (fetched as it's found: it's the family's).
  */
-type Piece = { house: { voice: Voice; id: string; info: [string, number, number, number] }; gap?: number } | { own: Promise<ArrayBuffer | null>; gap?: number }
+type Piece = { house: { voice: Voice; id: string; info: ClipInfo }; gap?: number } | { own: Promise<ArrayBuffer | null>; gap?: number }
 
 const toPart = (p: Piece): Part => {
   if ('own' in p) return { audio: p.own, gap: p.gap }
@@ -118,6 +130,8 @@ async function slotPiece(voice: Voice, kind: SlotKind, value: string, take: Take
     case 'n': return housePiece(voice, keys.number(parseNumber(value)!, take))
     case 'letter': return housePiece(voice, keys.letter(value))
     case 'sound': return housePiece(voice, keys.sound(value))
+    case 'item': return housePiece(voice, keys.item(value))
+    case 'move': return housePiece(voice, keys.move(value))
   }
 }
 
@@ -125,8 +139,15 @@ async function slotPiece(voice: Voice, kind: SlotKind, value: string, take: Take
 async function runPieces(voice: Voice, run: string, family: boolean): Promise<Piece[] | null> {
   const whole = await housePiece(voice, run)
   if (whole) return [whole]
-  const m = matchTemplate(run)
-  if (!m) return null
+  for (const m of matchTemplates(run)) {
+    const parts = await templatePieces(voice, m, family)
+    if (parts) return parts
+  }
+  return null
+}
+
+/** A filled-in template's pieces in `voice`, or null if any is missing. */
+async function templatePieces(voice: Voice, m: Match, family: boolean): Promise<Piece[] | null> {
   const parts: Piece[] = []
   let slot = 0
   let fixed = 0

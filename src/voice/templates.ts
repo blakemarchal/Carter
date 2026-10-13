@@ -5,10 +5,12 @@
 // these. Add a template here when a new line with a name or number is written; the studio lists it to record.
 //
 // Slots: {name} a child's (or anyone in the family's) name, {pal} a Pal's name, {n} a number, {letter} a letter
-// (said as its name: "bee"), {sound} a letter's sound (written ⟦b⟧ in the game's lines).
+// (said as its name: "bee"), {sound} a letter's sound (written ⟦b⟧ in the game's lines), {item} a thing's name as
+// an activity says it ("the lion", "apples", "the land"), {move} a Pal's move. Items and moves are recorded one
+// by one (the game's data has them all: src/voice/grok-list.ts), so their lines stitch instead of falling through.
 import type { Role } from './roles'
 
-export type SlotKind = 'name' | 'pal' | 'n' | 'letter' | 'sound'
+export type SlotKind = 'name' | 'pal' | 'n' | 'letter' | 'sound' | 'item' | 'move'
 export interface Template {
   /** Stable: the recorded parts are kept under it, so don't change it when the words change. */
   id: string
@@ -107,9 +109,62 @@ export const TEMPLATES: Template[] = [
   t('thats-big', 'That’s the big {letter}!', 'prompts', 'tracing letters'),
   t('thats-little', 'That’s the little {letter}!', 'prompts', 'tracing letters'),
   t('letter-says', '{letter} says {sound}!', 'prompts', 'tracing letters'),
+
+  // ---- things, by name ----
+  t('where-does', 'Where does {item} go?', 'prompts', 'sorting'),
+  t('thats-right-item', 'That’s right, {item}!', 'prompts', 'sorting'),
+  t('you-found', 'You found {item}!', 'prompts', 'mazes'),
+  t('maze-tap', 'Tap a glowing square next to {item}, or drag {item} along!', 'prompts', 'mazes'),
+  t('thats-item', 'That’s {item}.', 'prompts', 'putting things in order'),
+  t('item-bang', '{item}!', 'prompts', 'building, ordering, the map'),
+  t('drag-here', 'Drag {item} here!', 'prompts', 'building'),
+  t('spot-for', 'Here is the spot for {item}!', 'prompts', 'building'),
+  t('first-item', 'First {item}!', 'prompts', 'building'),
+  t('give-one', 'Give one to {item}!', 'prompts', 'sharing'),
+  t('put-in', 'Put {n} {item} in {item}!', 'prompts', 'counting into a basket'),
+  t('drag-into', 'Drag it into {item}!', 'prompts', 'counting into a basket'),
+  t('take-out-of', 'Take some out of {item}.', 'prompts', 'counting into a basket'),
+  t('n-items-bang', '{n} {item}!', 'prompts', 'counting'),
+  t('put-in-bowl', 'Put {n} {item} in the bowl!', 'prompts', 'Pal kitchen'),
+  t('drag-the', 'Drag the {item} into the bowl!', 'prompts', 'Pal kitchen'),
+  t('jar-says', 'Find the jar that says {item}!', 'prompts', 'Pal kitchen'),
+  t('one-says', 'That one says {item}.', 'prompts', 'Pal kitchen'),
+  t('cut-into', 'Cut the {item} into {item}!', 'prompts', 'Pal kitchen'),
+  t('that-makes', 'That makes {item}.', 'prompts', 'Pal kitchen'),
+  t('slide-into', 'Slide the {item} into the oven!', 'prompts', 'Pal kitchen'),
+  t('the-is-ready', 'The {item} is ready!', 'prompts', 'Pal kitchen'),
+  t('the-are-ready', 'The {item} are ready!', 'prompts', 'Pal kitchen'),
+  t('give-it-to', 'Give it to {pal}!', 'prompts', 'Pal kitchen'),
+  t('give-them-to', 'Give them to {pal}!', 'prompts', 'Pal kitchen'),
+  t('pal-loves-item', '{pal} loves {item}!', 'prompts', 'Pal kitchen'),
+  t('lets-cook', 'Let’s cook {item}, {pal}’s favorite!', 'prompts', 'Pal kitchen'),
+  t('pal-would-love', '{pal} would love some {item}.', 'prompts', 'Pal home'),
+  t('pal-looks-great', '{pal} looks great in the {item}!', 'prompts', 'Pal home, dress-up'),
+  t('says-oclock', 'That says {n} o’clock.', 'learning', 'setting the clock'),
+  t('cents-dot', '{n} cents.', 'learning', 'paying with coins'),
+  t('your-back', 'Here is your {item} back.', 'learning', 'paying with coins'),
+  t('landed-on', 'You landed on {n}!', 'learning', 'the number line'),
+  t('everyone-has', 'Everyone has {n}!', 'prompts', 'sharing'),
+  t('item-coming-soon', '{item} is coming soon!', 'prompts', 'the map'),
+  t('finish-first', 'Finish {item} first, then sail here!', 'prompts', 'the map'),
+
+  // ---- moves ----
+  t('pal-used', '{pal} used {move}!', 'prompts', 'friendly battle'),
+  t('learned-super', '{pal} learned a super move: {move}!', 'prompts', 'a Pal grows'),
+  t('learned-brave', '{pal} learned a brave move: {move}!', 'prompts', 'friendly battle'),
+  t('knows-new', '{pal} knows a new move: {move}!', 'prompts', 'friendly battle'),
+  t('knows-two-new', '{pal} knows a new move: {move} and {move}!', 'prompts', 'friendly battle'),
+  t('charge-one', 'Answer {n} more question right on the first try to charge {move}!', 'prompts', 'friendly battle'),
+  t('charge-many', 'Answer {n} more questions right on the first try to charge {move}!', 'prompts', 'friendly battle'),
+  t('win-to-learn', 'Win a friendly battle, and {pal} will learn {move}!', 'prompts', 'friendly battle'),
+  t('grow-to-learn', 'When {pal} grows, {pal} will learn {move}!', 'prompts', 'friendly battle'),
+
+  // ---- the birthday party ----
+  t('sing-to', 'Let’s sing Happy Birthday to {name}!', 'prompts', 'the birthday party'),
+  t('dear-name', 'Happy birthday, dear {name}!', 'prompts', 'the birthday party'),
 ]
 
-const SLOT = /\{(name|pal|n|letter|sound)\}/g
+const SLOT = /\{(name|pal|n|letter|sound|item|move)\}/g
 
 /** A template's pieces in order: its fixed words (kept even when only punctuation) and its slots. */
 export function pieces(text: string): ({ said: string } | { slot: SlotKind })[] {
