@@ -1,7 +1,7 @@
 // Reading questions beyond the first five levels (docs/GAME-PLAN.md §4): rhyming, word families,
 // short sentences to read, and tiny stories with a question.
 // Every sentence, story and prompt is in the lists below (narration is recorded ahead of time).
-// A sentence is never read aloud for her: she reads it, and taps any word to hear just that word.
+// A sentence is never read aloud for them: the player reads it, and taps any word to hear just that word.
 import { useState } from 'react'
 import type { Choice, Question } from '../../lib/questions'
 import { build } from '../../lib/questions'
@@ -152,7 +152,7 @@ export const wordSay = (word: string) => {
   const bare = word.replace(/[^A-Za-z']/g, '')
   return CARRIER[bare.toLowerCase()] ?? bare
 }
-/** The sentence said back after she gets it right (QuestionCard adds "!"). */
+/** The sentence said back after the player gets it right (QuestionCard adds "!"). */
 const sayBack = (text: string) => text.replace(/[.!?]+$/, '')
 const choice = (a: Ans): Choice => ('word' in a
   ? { label: a.word, say: a.word }
@@ -187,7 +187,7 @@ export function wordFamilyQ(): Question {
   const [a, b, ...rest] = FAMILIES[fam]
   const right = pick(rest)
   // Wrong words look like the right one (same first letter, or same vowel) but end another way,
-  // so she has to read the end of the word: for "mat", "map" and "man".
+  // so the player has to read the end of the word: for "mat", "map" and "man".
   const others = fams.filter((f) => f !== fam).flatMap((f) => FAMILIES[f])
   const score = new Map(others.map((x) => [x, (x[0] === right[0] ? 2 : 0) + (x[1] === right[1] ? 1 : 0) + Math.random()]))
   const wrong: string[] = []

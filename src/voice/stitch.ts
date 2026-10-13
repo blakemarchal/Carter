@@ -175,11 +175,11 @@ async function templatePieces(voice: Voice, m: Match, family: boolean): Promise<
  * The line as recorded pieces, in the first of the role's voices that has every piece, or null.
  * Runs of sentences are tried longest first, so a recorded two-sentence line beats two halves.
  */
-export async function stitch(text: string, role: Role = 'narrator', { family = true }: { family?: boolean } = {}): Promise<Part[] | null> {
+export async function stitch(text: string, role: Role = 'narrator', { family = true, grok = true }: { family?: boolean; grok?: boolean } = {}): Promise<Part[] | null> {
   if (!houseManifest() && !family) return null
   const ss = sentences(text)
   if (!ss.length) return null
-  for (const voice of voicesFor(role)) {
+  for (const voice of voicesFor(role).filter((v) => grok || v !== 'grok')) {
     const memo = new Map<number, Piece[] | null>()
     const cover = async (i: number): Promise<Piece[] | null> => {
       if (i === ss.length) return []

@@ -7,6 +7,7 @@ import { BirthdayPicker } from '../components/FamilyEditor'
 import { palById } from '../data/pals'
 import { isBirthday, sleepsToGo, type Birthday } from '../lib/birthday'
 import { PLAYER_EMOJIS } from '../lib/look'
+import Pic from '../components/Pic'
 import { addProfile, useProfiles } from '../lib/progress'
 import { sfx } from '../lib/sfx'
 import { applyUpdate, useUpdateAvailable } from '../lib/update'
@@ -26,7 +27,7 @@ function Welcome({ onDone }: { onDone: (id: string) => void }) {
       <h2>Welcome! Who&rsquo;s playing?</h2>
       <input className="welcome-name" value={name} maxLength={16} placeholder="First name" aria-label="Player's first name" onChange={(e) => setName(e.target.value)} />
       <div className="welcome-emoji">
-        {PLAYER_EMOJIS.map((x) => <button key={x} type="button" className={emoji === x ? 'on' : ''} aria-label={`Icon ${x}`} onClick={() => setEmoji(x)}>{x}</button>)}
+        {PLAYER_EMOJIS.map((x) => <button key={x} type="button" className={emoji === x ? 'on' : ''} aria-label={`Icon ${x}`} onClick={() => setEmoji(x)}><Pic e={x} /></button>)}
       </div>
       <label className="welcome-bday">Birthday (optional, for a surprise party) <BirthdayPicker value={birthday} onChange={setBirthday} /></label>
       <button type="submit" className="big-btn pink" disabled={!name.trim()}>▶️ Let&rsquo;s play!</button>
@@ -75,7 +76,7 @@ export default function Title({ onStart }: { onStart: (profileId: string) => voi
               const sleeps = sleepsToGo(pr.birthday)
               return (
                 <button key={pr.id} className={`player ${pr.id === active ? 'last' : ''}`} onClick={() => onStart(pr.id)}>
-                  <span className="player-emoji">{pr.emoji}</span>
+                  <span className="player-emoji"><Pic e={pr.emoji} /></span>
                   <span className="player-name">{pr.name.trim() || 'Player'}</span>
                   {isBirthday(pr.birthday) && <span className="player-bday">🎂 Birthday!</span>}
                   {sleeps > 0 && <span className="player-bday soon">🎈 {sleeps} {sleeps === 1 ? 'sleep' : 'sleeps'}</span>}

@@ -1,5 +1,5 @@
 // The end of the voyage: every island on the map is done. The map shows this once (progress
-// voyageCelebrated): confetti, Gladshade with a few of her Pals, the narrator, and a big "Keep sailing!".
+// voyageCelebrated): confetti, Gladshade with a few of their Pals, the narrator, and a big "Keep sailing!".
 // Styles: VoyageComplete.css.
 import { useEffect, useState } from 'react'
 import DressedPal from './DressedPal'

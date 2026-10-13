@@ -22,9 +22,9 @@ export interface Exercise {
 
 /**
  * Plays one exercise. Calls `onResult(firstTry, waited)` exactly once, when the child has got it right
- * (whether first time or after help). `firstTry` is false if she needed any retries or hints.
+ * (whether first time or after help). `firstTry` is false if the player needed any retries or hints.
  * `waited` is true when the only help was a hint shown after a quiet while (no wrong moves): a slow,
- * careful thinker isn't marked down for it, so it doesn't move her level either way.
+ * careful thinker isn't marked down for it, so it doesn't move their level either way.
  * No failure: a wrong move wiggles and is undone, and after two misses the next right move is shown.
  * The card around it (./ExerciseCard) says the prompt, scores it, praises, and moves on.
  */

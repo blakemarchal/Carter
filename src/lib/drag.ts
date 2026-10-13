@@ -124,7 +124,7 @@ export interface DragOptions<T> {
 
 /**
  * Makes an element draggable: spread the result onto it. The element should look like the thing
- * being moved (its copy is what she drags).
+ * being moved (its copy is what the player drags).
  */
 export function useDrag<T>(opts: DragOptions<T>) {
   const o = useRef(opts)
@@ -181,7 +181,7 @@ export function useDrag<T>(opts: DragOptions<T>) {
       const kept = h && ev.type === 'pointerup' ? o.current.onDrop(h[0], center) !== false : false
       const restore = () => { el.style.opacity = '' }
       if (kept && h && o.current.landing === 'here') {
-        // It stays where she let go: the copy settles and gives way to the real thing there.
+        // It stays where the player let go: the copy settles and gives way to the real thing there.
         g.copy.animate([{ transform: 'scale(1.18) rotate(-5deg)', opacity: 1 }, { transform: 'scale(1)', opacity: 0 }], { duration: 160, fill: 'forwards' })
           .finished.then(() => { g.wrap.remove(); restore() }, () => { g.wrap.remove(); restore() })
       } else if (kept && h) {

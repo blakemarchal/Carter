@@ -178,7 +178,7 @@ export default function PaintIt({ title, intro, done, kit, onDone }: {
     speak(potLine(pot))
   }
 
-  /** Not this one (yet): its number wiggles, the right pot glows, and she hears which paint it needs. */
+  /** Not this one (yet): its number wiggles, the right pot glows, and the player hears which paint it needs. */
   const nudge = (r: Region, nothingPicked: boolean) => {
     if (nothingPicked) sfx.pop()
     else sfx.oops()
@@ -272,7 +272,7 @@ export default function PaintIt({ title, intro, done, kit, onDone }: {
     lastGo.current = Date.now()
     showPot(n, 3400)
     // (The first three hints in a row are said; after that only now and then, and then the glow
-    // alone, in case she has gone off to do something else.)
+    // alone, in case the player has gone off to do something else.)
     const k = hints.current++
     if (k <= 2 || (k < 7 && k % 2 === 0)) speak(p === n ? `Find ${aNum(n)}, and paint it ${pot.name}!` : `Find the paint with ${aNum(n)}!`)
     const key = ++keys.current
@@ -543,7 +543,7 @@ function PotArt({ pot, picked }: { pot: Pot; picked: boolean }) {
       <ellipse cx={50} cy={40} rx={39} ry={10} fill={light} stroke={line} strokeWidth={3.5} />
       <ellipse cx={50} cy={41} rx={31} ry={6} fill={pot.color} />
       <path d="M22 50 Q20 74 25 98" stroke="#fff" strokeOpacity={0.45} strokeWidth={5} strokeLinecap="round" fill="none" />
-      {/* (the number as big as the pot allows: it's what she matches with the picture's numbers) */}
+      {/* (the number as big as the pot allows: it's what the player matches with the picture's numbers) */}
       <circle cx={52} cy={77} r={27} fill="#fff" stroke={line} strokeWidth={2.5} />
       <text x={52} y={77 + 15.5} textAnchor="middle" className="paint-pot-n">{pot.n}</text>
     </svg>

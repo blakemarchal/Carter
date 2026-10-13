@@ -1,7 +1,7 @@
 // Catch it: catch what falls (types.ts, CatchKit): God's people gathering manna each morning; later, rain
 // in jars and fish in Peter's net. Things fall gently from the top of the board, one or two at a time,
-// drifting and turning a little on the way down, and she moves the catcher along its lane to catch them:
-// she can drag it, or touch anywhere on the board to make it glide there. A thing that reaches the
+// drifting and turning a little on the way down, and the player moves the catcher along its lane to catch them:
+// the player can drag it, or touch anywhere on the board to make it glide there. A thing that reaches the
 // opening drops in with a little bounce and a sparkle, the catcher fills up, and it's counted aloud
 // ("One!", "Two!"). A miss lands softly and fades: nothing is lost, and another one comes. Kind to small
 // hands: slow at first, never more than two at once, and after two misses in a row the next one falls
@@ -145,7 +145,7 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
     started: false, busy: true, done: false, playFrom: 0,
     // The catcher: where it is, where it's headed, its speed, and how far it leans as it goes.
     cx: mid, tx: mid, v: 0, tilt: 0, drawnX: NaN, drawnTilt: NaN,
-    // Her finger: which one, whether it has hold of the catcher (not just a touch beside it), and where on it.
+    // Their finger: which one, whether it has hold of the catcher (not just a touch beside it), and where on it.
     pointer: null as number | null, held: false, offset: 0, touched: false,
     things: [] as Faller[], nextId: 1, spawned: 0, caught: 0, missed: 0, streak: 0, nextAt: Infinity,
     lastCatch: 0, lastCount: -1e9, lastHint: -1e9, idleHints: 0, hintN: 0,
@@ -255,7 +255,7 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
       return x < lo || x > hi ? clamp(from - dir * off, lo, hi) : x
     }
     // Then anywhere along the lane (nearer the catcher at first), and never right above it. A second one
-    // falls well apart from the first, but not so far that she can't get to it in time.
+    // falls well apart from the first, but not so far that the player can't get to it in time.
     const far = Math.max(width * 1.6, span * (0.5 + (0.5 * g.caught) / Math.max(1, goal)))
     for (let i = 0; i < 20; i++) {
       const x = lo + Math.random() * span
@@ -363,7 +363,7 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
       const dt = clamp((now - last) / 1000, 0, 0.05)
       last = now
 
-      // The catcher heads for where she wants it: smoothly up to speed, and easing in at the end. A finger
+      // The catcher heads for where the player wants it: smoothly up to speed, and easing in at the end. A finger
       // that holds it is followed closely; a touch beside it is glided to, and then held.
       {
         const d = g.tx - g.cx
@@ -464,7 +464,7 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
 
       // The hand: at the start, and after eight seconds without a catch. (The first three times with a
       // word; after that only now and then, and then the hand alone, in case she has gone off to do
-      // something else.) It waits for something falling that it can show, and while her finger is down.
+      // something else.) It waits for something falling that it can show, and while their finger is down.
       if (!g.busy && !g.done && !g.hint && !g.want && now - Math.max(g.lastCatch, g.lastHint) > IDLE) {
         const k = g.idleHints++
         g.want = { line: k <= 2 || (k < 7 && k % 2 === 0) ? lines.idle[g.hintN++ % lines.idle.length] : undefined }
@@ -530,7 +530,7 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  // ---------- Her finger ----------
+  // ---------- Their finger ----------
 
   const down = (e: RPointerEvent<SVGSVGElement>) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return
@@ -539,7 +539,7 @@ export default function CatchIt({ title, intro, done, plural, kit, onDone }: {
     if (g.busy || g.done || g.pointer === e.pointerId) return
     const p = toBoard(e.currentTarget, e.clientX, e.clientY)
     const c = g.boxes.catcher
-    // On the catcher, she has hold of it where she took it; anywhere else (even just beside it, where she
+    // On the catcher, the player has hold of it where they took it; anywhere else (even just beside it, where the player
     // might tap a falling thing), it glides over to her finger, and then she has hold of it.
     const onIt = p[0] > g.cx + c.x - 12 && p[0] < g.cx + c.x + c.w + 12 && p[1] > lane.y + c.y - 30 && p[1] < lane.y + c.y + c.h + 24
     g.pointer = e.pointerId

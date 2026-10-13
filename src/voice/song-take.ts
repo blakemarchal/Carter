@@ -5,8 +5,8 @@
 
 /**
  * Where the song starts in the recording (ms). `recordingStarted` and `songStarted` are on the same clock
- * (performance.now()); the singer hears the song `outputLatency` later than it starts, and her voice reaches the
- * recording `inputLatency` after she sings.
+ * (performance.now()); the singer hears the song `outputLatency` later than it starts, and their voice reaches the
+ * recording `inputLatency` after the player sings.
  */
 export function songStartInRecording({ recordingStarted, songStarted, outputLatency = 0, inputLatency = 0.02 }: {
   recordingStarted: number; songStarted: number; outputLatency?: number; inputLatency?: number

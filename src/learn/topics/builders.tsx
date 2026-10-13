@@ -1,7 +1,7 @@
 // Building with tiles (docs/GAME-PLAN.md §4): the word builder (spell a word from its picture with
 // letter tiles) and the sentence builder (put word tiles in order to tell a picture).
 //
-// Both play the same way: tiles wait in a tray under a row of slots, and she drags each tile to its
+// Both play the same way: tiles wait in a tray under a row of slots, and the player drags each tile to its
 // slot. A tile dropped on the wrong slot wiggles and floats home; after two misses the next right tile
 // glows and a hand shows where it goes (so does a long quiet while). Tapping a tile, or a placed one,
 // says it (a letter's sound, or a word). With every slot filled, the word is blended or the sentence
@@ -64,7 +64,7 @@ export interface WordBuildEx extends Exercise {
   /** The word to make, and its picture. */
   word: string
   art: string
-  /** Word families: the word already built, whose first letter she changes. */
+  /** Word families: the word already built, whose first letter the player changes. */
   from?: string
   /** The letter tiles in the tray (shuffled). */
   tiles: string[]
@@ -88,7 +88,7 @@ export function wordBuildEx(level: number): Exercise | null {
     return ex
   }
   const w = pick(SPELL_WORDS)
-  // Level 3: one spare. Level 4: two, one of them a vowel, so she listens for the middle sound too.
+  // Level 3: one spare. Level 4: two, one of them a vowel, so the player listens for the middle sound too.
   const extra = level >= 4 ? [pick(sparesFrom(SPARES, w.word)), pick(sparesFrom(VOWELS, w.word))] : [pick(sparesFrom(SPARES, w.word))]
   const ex: WordBuildEx = {
     kind: 'wordbuild', skill: 'reading', key: `spell:${w.word}`,
@@ -421,7 +421,7 @@ function TileBoard({ want, given, placeholder, tiles, say, finale, onDone, look 
     if (from && to) showDrag(from, to)
   }
 
-  // After a quiet while, show the next move (and again after another, until she makes one).
+  // After a quiet while, show the next move (and again after another, until the player makes one).
   useEffect(() => {
     if (finished) return
     const t = window.setTimeout(() => { if (alive.current) { showNext(true); setPoke((n) => n + 1) } }, IDLE_MS)

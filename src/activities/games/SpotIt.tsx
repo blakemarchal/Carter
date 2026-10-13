@@ -48,7 +48,7 @@ export default function SpotIt({ title, intro, done, plural, kit, onDone }: {
   title: string; intro: string; done: string; plural: string; kit: SpotKit; onDone: () => void
 }) {
   const { Picture, Front, targets } = kit
-  // (ids, in the order she found them)
+  // (ids, in the order the player found them)
   const [found, setFound] = useState<string[]>([])
   const foundRef = useRef<string[]>([])
   const [fx, setFx] = useState<Fx[]>([])
@@ -63,7 +63,7 @@ export default function SpotIt({ title, intro, done, plural, kit, onDone }: {
   const lastFind = useRef(0)
   const lastHint = useRef(0)
   const misses = useRef(0)
-  // The thing the hints are about, and how many times she's been shown it.
+  // The thing the hints are about, and how many times the player's been shown it.
   const hinted = useRef<{ id: string; level: number } | null>(null)
   const glowId = `spotglow${useId().replace(/[^a-zA-Z0-9]/g, '')}`
 
@@ -144,11 +144,11 @@ export default function SpotIt({ title, intro, done, plural, kit, onDone }: {
     // From the second time, the thing itself stirs a little (a bush rustles, a star flickers).
     if (level >= 1) animate(t.id, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(5deg)' }, { transform: 'rotate(-3deg)' }, { transform: 'rotate(0)' }], 700)
     // (The first three hints are said; after that only now and then, and then the glow alone, in case
-    // she has gone off to do something else.)
+    // the player has gone off to do something else.)
     if (level <= 2 || (level < 7 && level % 2 === 0)) speak(hintLine(level, left.length, plural))
   }
 
-  // Every half second: has it been a while since she found one (or since the last hint)?
+  // Every half second: has it been a while since the player found one (or since the last hint)?
   const tick = useRef(() => {})
   tick.current = () => {
     if (busy.current || isSpeaking()) return
@@ -171,7 +171,7 @@ export default function SpotIt({ title, intro, done, plural, kit, onDone }: {
       if (!best || near(t) < near(best)) best = t
     }
     if (best) return void find(best)
-    // One she's found already: it hops (and says its line again, if it has one).
+    // One the player's found already: it hops (and says its line again, if it has one).
     const again = targets.find((t) => foundRef.current.includes(t.id) && near(t) <= 1)
     if (again) {
       sfx.pop()
@@ -271,7 +271,7 @@ function Ripple() {
   )
 }
 
-/** How many she's found: the number, and a row of spots that fill with each find's picture. */
+/** How many the player's found: the number, and a row of spots that fill with each find's picture. */
 function Shelf({ targets, found }: { targets: SpotTarget[]; found: string[] }) {
   const byId = new Map(targets.map((t) => [t.id, t]))
   return (

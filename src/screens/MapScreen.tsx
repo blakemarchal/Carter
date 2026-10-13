@@ -1,6 +1,6 @@
 // The Adventure Map: the voyage through the Bible, one sea at a time (data/seas.ts, lib/voyage.ts).
 // Each sea is an ocean with its islands joined by a sea route; arrows at the sides sail to the sea
-// before or after (the next opens once this sea's islands are done). Her Ark (with her Pal aboard)
+// before or after (the next opens once this sea's islands are done). Their Ark (with their Pal aboard)
 // sits at the island she visited last; tapping an open island sails it there, then the island
 // starts. Islands still ahead hide under clouds; ones not built yet say "coming soon". The daily
 // voyage: a few new island visits a day (Parent Corner), then the crew rests (finished islands, the
@@ -14,6 +14,7 @@ import { HoldButton } from '../components/ui'
 import VoyageComplete from '../components/VoyageComplete'
 import { ISLANDS, islandById, loadIsland, loadedIsland } from '../data/islands'
 import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
+import Pic from '../components/Pic'
 import { boatIsland, currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
 import { Emoji } from '../art/scenes/kit'
 import { palById, stageFor } from '../data/pals'
@@ -64,7 +65,7 @@ const starPath = (x: number, y: number, r: number) => Array.from({ length: 10 },
 /**
  * One island. The press-in effect scales the inner group around its own centre, and a still,
  * invisible hit area on top takes the tap: a CSS transform on the positioned group itself would
- * replace its position (SVG), sliding the island out from under her finger mid-tap.
+ * replace its position (SVG), sliding the island out from under their finger mid-tap.
  */
 function IslandShape({ isl, state, pressed, stars, resting, fresh }: { isl: MapIsland; state: IslandState; pressed: boolean; stars: number; resting: boolean; fresh: boolean }) {
   const [x, y] = isl.at
@@ -304,7 +305,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
       else arrive()
     }
     requestAnimationFrame(step)
-    // Animation frames pause while the app is in the background; never leave her stuck at sea.
+    // Animation frames pause while the app is in the background; never leave them stuck at sea.
     setTimeout(arrive, ms + 400)
   }
 
@@ -343,7 +344,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
         </div>
         <div className="map-tools">
           <button className="who-chip" aria-label="Switch player" onClick={() => { sfx.pop(); onPlayers() }}>
-            <span>{me.emoji}</span>{me.name.trim() || 'Player'}
+            <span className="who-face"><Pic e={me.emoji} /></span><span className="who-name">{me.name.trim() || 'Player'}</span>
           </button>
           <button className={`icon-btn music ${p.music ? '' : 'off'}`} aria-label={p.music ? 'Turn music off' : 'Turn music on'}
             onClick={() => { sfx.pop(); update((x) => ({ ...x, music: !x.music })) }}>{p.music ? '🎵' : '🔇'}</button>
@@ -366,7 +367,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
               <path d="M6 22 q10 -8 20 0 q10 8 20 0" stroke="#ffffff" strokeOpacity={0.35} strokeWidth={3} fill="none" strokeLinecap="round" />
             </pattern>
           </defs>
-          <rect className="sea-waves" x={-80} y={-40} width={1160} height={700} fill="url(#waves)" />
+          <rect className="sea-waves" x={-1600} y={-1400} width={4200} height={3400} fill="url(#waves)" />
           {/* Things to spot: clouds, seagulls, a whale and a jumping fish */}
           <g className="sea-cloud c1"><ellipse cx={0} cy={0} rx={46} ry={18} /><ellipse cx={30} cy={-10} rx={30} ry={18} /><ellipse cx={-26} cy={-6} rx={24} ry={14} /></g>
           <g className="sea-cloud c2"><ellipse cx={0} cy={0} rx={38} ry={15} /><ellipse cx={24} cy={-8} rx={24} ry={14} /></g>

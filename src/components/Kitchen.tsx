@@ -1,7 +1,7 @@
 // Pal Kitchen: cook a Pal's favorite food, one step at a time (see data/recipes.ts), then serve it.
 // Hands-on: drag ingredients into the bowl (and back out), drag the right fruit into a pattern, stir
-// with a wooden spoon that follows her finger, slide the tray into the oven, and carry the food over
-// to her Pal. A tap still works for every one of them, so nothing ever gets stuck.
+// with a wooden spoon that follows their finger, slide the tray into the oven, and carry the food over
+// to their Pal. A tap still works for every one of them, so nothing ever gets stuck.
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import DressedPal from './DressedPal'
 import { CandlesOnCake } from './PartyCake'
@@ -308,9 +308,9 @@ const Knife = () => (
   </svg>
 )
 
-// ---------- stir: a spoon that follows her finger ----------
+// ---------- stir: a spoon that follows their finger ----------
 
-/** Stir round and round: the spoon follows her finger round the bowl (a tap stirs once by itself). */
+/** Stir round and round: the spoon follows their finger round the bowl (a tap stirs once by itself). */
 function StirStep({ step, contents, batter, onDone }: { step: Extract<CookStep, { kind: 'stir' }>; contents: string[]; batter: Batter; onDone: Done }) {
   const box = useRef<HTMLDivElement>(null)
   const start = -Math.PI / 2 + 0.9
@@ -341,7 +341,7 @@ function StirStep({ step, contents, batter, onDone }: { step: Extract<CookStep, 
     if (stirs > s.stirs) { s.stirs = stirs; stirred(stirs) }
   }
   // Every frame: the batter swirls after the spoon (a little behind, like real batter), and keeps
-  // turning a moment after she stops; a tap's stir moves the spoon round by itself.
+  // turning a moment after the player stops; a tap's stir moves the spoon round by itself.
   useEffect(() => {
     let raf = 0
     const tick = () => {
@@ -375,7 +375,7 @@ function StirStep({ step, contents, batter, onDone }: { step: Extract<CookStep, 
     try { box.current!.setPointerCapture(e.pointerId) } catch { /* fine */ }
     const s = m.current
     const a = angleOf(e)
-    // The spoon moves to her finger (that jump isn't stirring).
+    // The spoon moves to their finger (that jump isn't stirring).
     turn(wrap(a - ((s.spoon % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)), false)
     s.last = a
     s.down = true
@@ -404,7 +404,7 @@ function StirStep({ step, contents, batter, onDone }: { step: Extract<CookStep, 
       <div className="k-ask">Stir {step.times} times! <b>{view.stirs}</b></div>
       <div ref={box} className={`k-stir ${view.stirs === 0 && !view.down ? 'hint' : ''}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         <StirBowl contents={contents} batter={batter} spoon={view.spoon} swirl={view.swirl} progress={view.progress} spoonDown={view.down} />
-        {/* "go round": a circling arrow until she starts stirring */}
+        {/* "go round": a circling arrow until the player starts stirring */}
         <svg className="k-stir-arrow" viewBox="0 0 100 100" aria-hidden>
           <g className="k-stir-spin">
             <path d="M50 14 A36 36 0 1 1 18 32" fill="none" stroke="#fff" strokeWidth={7} strokeLinecap="round" strokeDasharray="2 12" />

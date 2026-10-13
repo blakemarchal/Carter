@@ -140,7 +140,7 @@ function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
     <>
       <h4>Invite a grown-up</h4>
       <p className="muted">Grandparents, a babysitter, the other parent: they get their own sign-in on their own phone or tablet, and play with their own players. Parents can also invite people and remove them.</p>
-      <form className="player-add" onSubmit={(e) => {
+      <form className="form-grid" onSubmit={(e) => {
         e.preventDefault()
         const who = name.trim()
         if (!who) return
@@ -148,14 +148,24 @@ function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
         familyApi.invite(who, role, to || undefined).then((r) => { setMade({ link: r.link, who, sentTo: r.emailed ? to : undefined }); setName(''); setEmail(''); reload() })
           .catch((e: { status?: number }) => (e.status === 400 && to ? alert("That email doesn't look right. Check it, or leave it empty and share the link yourself.") : alertFail()))
       }}>
-        <Avatar look={avatarLook(guessAvatar(name))} size={44} />
-        <input value={name} maxLength={40} placeholder="What you call them: Nana" onChange={(e) => setName(e.target.value)} aria-label="Their name" />
-        <select value={role} onChange={(e) => setRole(e.target.value as Role)} aria-label="Who they are">
-          <option value="grownup">Grandparent or other grown-up</option>
-          <option value="parent">Parent</option>
-        </select>
-        {view.emailOn && <input type="email" value={email} maxLength={254} placeholder="Their email (optional)" onChange={(e) => setEmail(e.target.value)} aria-label="Their email" />}
-        <button type="submit">{view.emailOn && email.trim() ? 'Send their link' : 'Make their link'}</button>
+        <label className="field">
+          <span>What you call them</span>
+          <span className="field-row"><Avatar look={avatarLook(guessAvatar(name))} size={40} /><input value={name} maxLength={40} placeholder="Nana" onChange={(e) => setName(e.target.value)} /></span>
+        </label>
+        <label className="field">
+          <span>Who they are</span>
+          <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+            <option value="grownup">A grandparent or other grown-up</option>
+            <option value="parent">A parent</option>
+          </select>
+        </label>
+        {view.emailOn && (
+          <label className="field">
+            <span>Their email (optional)</span>
+            <input type="email" value={email} maxLength={254} placeholder="name@example.com" onChange={(e) => setEmail(e.target.value)} />
+          </label>
+        )}
+        <div className="field-actions"><button type="submit">{view.emailOn && email.trim() ? 'Send their link' : 'Make their link'}</button></div>
       </form>
       {made?.sentTo && <p className="muted">✉️ Sent to {made.sentTo}. You can share the same link another way too:</p>}
       {made && <LinkCard link={made.link} who={made.who} note="It works once, for 7 days. They open it on their phone or tablet and tap Join, and they're in. (Want it on an iPhone or iPad Home Screen? The link's page says how.)" />}
@@ -215,7 +225,7 @@ function FamilyData({ view }: { view: FamilyView }) {
   }
   return (
     <>
-      <h4>Your family's data</h4>
+      <h3>Your family&rsquo;s data</h3>
       <div className="level-row">
         <button className={open ? 'on' : ''} onClick={show}>🗂️ What's kept here</button>
         <a className="button-link" href="/family/export" download>⬇️ Download everything</a>
@@ -240,6 +250,14 @@ function FamilyData({ view }: { view: FamilyView }) {
   )
 }
 
+/** The family's own data (parents): what's kept, a download of all of it, and deleting the family. */
+export function FamilyDataSection() {
+  const { view } = useFamilyAccount()
+  if (!view || view.me.role !== 'parent') return null
+  return <section className="family-accounts"><FamilyData view={view} /></section>
+}
+
+/** Grown-ups who can sign in, invitations, and signed-in devices. */
 export default function FamilyAccounts() {
   const { view, reload } = useFamilyAccount()
   if (!view) {
@@ -268,7 +286,6 @@ export default function FamilyAccounts() {
       {view.emailOn && <MyEmail key={view.me.email ?? ''} view={view} reload={reload} />}
       {parent && <Invite view={view} reload={reload} />}
       <Devices view={view} reload={reload} />
-      {parent && <FamilyData view={view} />}
     </section>
   )
 }

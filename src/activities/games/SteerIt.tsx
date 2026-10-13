@@ -1,9 +1,9 @@
-// Steer it: lead the hero along the way to the goal (types.ts, SteerKit). She puts a finger on the
-// hero and slides along the glowing way. The hero goes to the nearest point of the way under her
+// Steer it: lead the hero along the way to the goal (types.ts, SteerKit). The player puts a finger on the
+// hero and slides along the glowing way. The hero goes to the nearest point of the way under them
 // finger, but only forward and never faster than a brisk walk: it can't jump ahead, and sliding back
 // doesn't undo anything. The followers walk behind it, things on the way are picked up and counted
 // as it passes, and reaching the goal ends with a cheer. A pointing hand shows the way at the start,
-// whenever she touches somewhere else, and after eight seconds without getting any further.
+// whenever the player touches somewhere else, and after eight seconds without getting any further.
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
 import type { At, SteerKit } from './types'
 import { Board, BoardLayer, toBoard } from './Board'
@@ -17,8 +17,8 @@ import { wait } from '../../lib/util'
 import './SteerIt.css'
 
 const GRAB = 85 // a touch this near the hero (board units) picks it up, besides anywhere on the hero itself
-const AHEAD = 170 // how far ahead of the hero her finger can pull it
-const BEHIND = 320 // how far back along the way her finger is still followed (to tell "behind" from "ahead")
+const AHEAD = 170 // how far ahead of the hero their finger can pull it
+const BEHIND = 320 // how far back along the way their finger is still followed (to tell "behind" from "ahead")
 const SPEED = 300 // the hero's top speed, board units a second
 const IDLE = 8000 // ms without getting any further before the hand shows the way again
 const HINTS = ['Slide along the glowing path!', 'Keep going! Follow the glowing path all the way.']
@@ -295,7 +295,7 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
     if (alive.current) onDone()
   }
 
-  // The game loop: pull the hero along toward her finger, pick things up, and move the followers and the hand.
+  // The game loop: pull the hero along toward their finger, pick things up, and move the followers and the hand.
   useEffect(() => {
     let raf = 0
     let last = performance.now()
@@ -369,7 +369,7 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  // ---------- Her finger ----------
+  // ---------- Their finger ----------
 
   const down = (e: RPointerEvent<SVGSVGElement>) => {
     if (g.busy || g.done || g.drag !== null) return

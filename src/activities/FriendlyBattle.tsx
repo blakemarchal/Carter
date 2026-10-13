@@ -1,13 +1,13 @@
 // A friendly battle, G-rated Pokémon style. Grumbleshade, a pouty shadow, has made a creature
-// grumpy. The creature isn't bad; the shadow is. Her Pal chases the shadow away with kindness:
-//   1. Grumbleshade swoops in and hides inside the creature. She picks which Pal will help.
+// grumpy. The creature isn't bad; the shadow is. Their Pal chases the shadow away with kindness:
+//   1. Grumbleshade swoops in and hides inside the creature. The player picks which Pal will help.
 //   2. Her turn: pick a move (basic 1, brave 2 with a trickier question, super 3 when charged),
 //      answer a question, and the move shrinks the creature's Shadow bar.
-//   3. The shadow's turn: it puffs a grumpy move back. A first-try answer means her Pal dodges;
+//   3. The shadow's turn: it puffs a grumpy move back. A first-try answer means their Pal dodges;
 //      otherwise it loses a heart. A tired Pal eats a berry and bounces back: nobody ever loses.
 //   4. Shadow gone: the creature smiles, and Grumbleshade floats away, saying the island's line about
 //      why he's grumpy (data/shade.ts). Then she asks the creature to join the Ark. "Yes, please!"
-//      She throws a Friend Ball: wobble, wobble, wobble… click!
+//      The player throws a Friend Ball: wobble, wobble, wobble… click!
 // Grumbleshade's arc: on Easter Morning he doesn't float away. He hears that God loves everyone, even
 // him, and his shadow turns to light: he's Gladshade, and joins her Ark. From then on the shadow in a
 // battle is a little grumpy cloud, which pops into happy sparkles. Styles: FriendlyBattle.css.
@@ -32,7 +32,7 @@ import { useAlive } from '../lib/useAlive'
 import './FriendlyBattle.css'
 
 const SHADOW = 6 // the creature's Shadow bar
-const ENERGY = 5 // her Pal's hearts
+const ENERGY = 5 // their Pal's hearts
 
 type Phase = 'intro' | 'team' | 'pick' | 'question' | 'attack' | 'shadow' | 'freed' | 'finale' | 'ask' | 'throw' | 'caught' | 'learned'
 
@@ -94,7 +94,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
   const [alreadyFriend] = useState(() => foeId in getProgress().pals)
   // Grumbleshade's arc: his line here, Easter Morning's finale, or (once he's Gladshade) a little grumpy cloud.
   const [arc] = useState(() => shadeFor(island, GLADSHADE in getProgress().pals))
-  // Her Pals who can help (not the creature itself, if she's befriended it before).
+  // Their Pals who can help (not the creature itself, if the player's befriended it before).
   const team = PALS.filter((x) => x.id in p.pals && x.id !== foeId)
   const [palId, setPalId] = useState<string | null>(null)
   const pal = palId ? palById(palId) : null
@@ -133,7 +133,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
   // Basic moves are never new: every Pal has always known its first move.
   const isNew = (s: MoveSlot) => s.known && s.kind !== 'basic' && !!pal && !p.movesSeen.includes(`${pal.id}:${s.kind}`)
 
-  /** Her turn: "Pick a move!", announcing any move she hasn't seen before. */
+  /** Their turn: "Pick a move!", announcing any move the player hasn't seen before. */
   const startTurn = (pl: typeof pal, first: boolean, superReady = false) => {
     if (!pl) return
     setPhase('pick')
@@ -188,7 +188,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     }
     sfx.pop()
     setKind(s.kind)
-    // She's seen this Pal's moves now: the NEW badges can go.
+    // The player's seen this Pal's moves now: the NEW badges can go.
     const seen = slots.filter((x) => x.known).map((x) => `${pal!.id}:${x.kind}`)
     update((x) => ({ ...x, movesSeen: [...new Set([...x.movesSeen, ...seen])] }))
     const skill: Skill = turn % 2 ? 'numbers' : 'reading'
@@ -200,7 +200,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     setPhase('question')
   }
 
-  /** The shadow's turn: a grumpy puff. A first-try answer means her Pal dodges it. */
+  /** The shadow's turn: a grumpy puff. A first-try answer means their Pal dodges it. */
   const shadowTurn = async (dodge: boolean, chargeNow: number) => {
     if (!pal) return
     const mv = pick(SHADOW_MOVES)
@@ -267,7 +267,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
 
   /**
    * Easter Morning: Grumbleshade doesn't float away. He hears the happy news, smiles for the very first
-   * time, and his shadow turns to light: he's Gladshade, and joins her Ark (about 20 seconds).
+   * time, and his shadow turns to light: he's Gladshade, and joins their Ark (about 20 seconds).
    */
   const finale = async () => {
     setPhase('finale')
@@ -293,13 +293,13 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
     sfx.evolveBurst()
     await wait(450)
     if (!alive.current) return
-    // …and he's Gladshade, a Pal on her Ark (the way a befriended creature joins).
+    // …and he's Gladshade, a Pal on their Ark (the way a befriended creature joins).
     setShade('glad')
     setMood('home')
     sfx.fanfare()
     addPalXp(GLADSHADE, 0)
     await speak(SHADE_SAY.finale.glad, { role: 'shade' })
-    // (over to her side, with her Pal, so the creature can be asked to join too)
+    // (over to their side, with their Pal, so the creature can be asked to join too)
     if (alive.current) setShade('joined')
   }
 
@@ -350,7 +350,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
   }
 
   /**
-   * Throw the Friend Ball: it flies over (or she carried it there herself), the creature zips inside,
+   * Throw the Friend Ball: it flies over (or the player carried it there themselves), the creature zips inside,
    * wobble, wobble, wobble… click!
    */
   const thrown = useRef(false)

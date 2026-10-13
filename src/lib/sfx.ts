@@ -126,9 +126,9 @@ export const sfx = {
     slide(o, t + 0.42, 300, 150, 0.45, 'triangle', 0.18)
     rumble(o, t + 0.55, 0.4, 0.25)
   }),
-  /** Her Pal hops out of the way. */
+  /** Their Pal hops out of the way. */
   dodge: () => play((t, o) => { whooshAt(o, t); slide(o, t, 500, 1100, 0.15, 'sine', 0.15) }),
-  /** Her Pal gets puffed on (gentle). */
+  /** Their Pal gets puffed on (gentle). */
   oof: () => play((t, o) => slide(o, t, 260, 140, 0.22, 'sine', 0.2)),
   /** Throwing the Friend Ball. */
   throwBall: () => play((t, o) => { whooshAt(o, t); slide(o, t, 300, 900, 0.5, 'sine', 0.12) }),

@@ -1,4 +1,4 @@
-// Sticker book: a big scene where she drags her stickers anywhere (and back to the tray to take them
+// Sticker book: a big scene where the player drags their stickers anywhere (and back to the tray to take them
 // off). Positions are saved. Tapping a birthday sticker plays that birthday party again.
 import { useCallback, useEffect, useRef } from 'react'
 import { BackButton } from './ui'

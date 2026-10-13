@@ -29,13 +29,13 @@
   .catch-it .game-board { width: min(100cqw, calc(100cqh * 16 / 9)); height: auto; max-width: none; max-height: none; }
   @media (max-aspect-ratio: 1/1) { .catch-it .game-wrap { container-type: inline-size; } }
 }
-/* (Anywhere on the board moves the catcher: no scrolling, zooming or text picking while she does.) */
+/* (Anywhere on the board moves the catcher: no scrolling, zooming or text picking while the player does.) */
 .catch-layer { touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .catch-layer.dragging { cursor: grabbing; }
 .catch-measure { visibility: hidden; }
 .catch-thing, .catch-ghost, .catch-glow, .catch-pop, .catch-num { pointer-events: none; }
 
-/* The catcher: a soft glow until she first touches the board, and four happy hops at the end. */
+/* The catcher: a soft glow until the player first touches the board, and four happy hops at the end. */
 .catch-halo { pointer-events: none; transform-box: fill-box; transform-origin: center; animation: catchhalo 1.8s ease-in-out infinite; }
 @keyframes catchhalo { 50% { opacity: .5; transform: scale(1.12); } }
 .catch-hop { animation: catchhop .62s ease-in-out 4 both; }

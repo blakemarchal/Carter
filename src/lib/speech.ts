@@ -143,7 +143,7 @@ async function sayNow(text: string, pitch: number, g: number, role: Role) {
   talking++
   try {
     // Recordings: the family's own, then the house voices (whole, or stitched from pieces).
-    const plan = await within(planLine(text, role, { family: familyVoices }), 3000, null)
+    const plan = await within(planLine(text, role, { family: familyVoices, grok: narrator !== 'device' }), 3000, null)
     if (g !== gen) return
     if (plan && (await playParts(plan.parts, () => g === gen))) return
     if (narrator !== 'device' && grokAvailable && mayAskVoice(text)) {
@@ -210,7 +210,7 @@ export function stopSpeaking() {
 export async function preload(lines: string[], role: Role = 'narrator') {
   for (const line of lines) {
     // (planning a line starts fetching its recordings' audio, which is then kept)
-    const plan = await planLine(line, role, { family: familyVoices }).catch(() => null)
+    const plan = await planLine(line, role, { family: familyVoices, grok: narrator !== 'device' }).catch(() => null)
     if (plan || narrator === 'device' || !grokAvailable) continue
     if (mayAskVoice(line)) await fetchClip(toSpoken(line, 'grok'))
   }

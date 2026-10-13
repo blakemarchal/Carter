@@ -15,7 +15,7 @@ export default function StoryBook({ title, pages, art, onDone }: { title: string
   // The first page always includes the title, so it matches a family recording of that page.
   const line = i === 0 ? `${title}. ${page.text}` : page.text
   const Art = art?.[i]
-  // Pictures that show "her" Pal (the birthday party) draw the one she plays with.
+  // Pictures that show "their" Pal (the birthday party) draw the one the player plays with.
   const pp = getProgress()
   const buddyId = pp.battler ?? pp.starter ?? 'zippy'
   const buddy = { id: buddyId, stage: stageFor(palById(buddyId), pp.pals[buddyId] ?? 0) }

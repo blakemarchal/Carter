@@ -1,4 +1,4 @@
-// Story questions: "Who did God keep safe?" with picture answers. Doesn't change her reading level.
+// Story questions: "Who did God keep safe?" with picture answers. Doesn't change their reading level.
 import { useEffect, useState } from 'react'
 import QuestionCard from '../components/QuestionCard'
 import type { Thing } from '../data/islands'

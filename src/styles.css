@@ -92,7 +92,7 @@ h1, h2, h3 { margin: 0; line-height: 1.1; }
 
 /* ---------- Map (screens/MapScreen.tsx) ---------- */
 .sea { flex: 1; width: 100%; min-height: 0; display: flex; }
-.sea-map { width: 100%; height: 100%; overflow: visible; }
+.sea-map { width: 100%; height: 100%; overflow: hidden; }
 .sea-waves { animation: waves 6s linear infinite; }
 @keyframes waves { to { transform: translate(80px, 40px); } }
 .sea-route { fill: none; stroke: #fff; stroke-width: 6; stroke-dasharray: 2 16; stroke-linecap: round; opacity: .85; }
@@ -1301,3 +1301,86 @@ input { -webkit-user-select: text; user-select: text; }
 /* A checkbox with its words (Parent Corner). */
 .check-row { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; font-size: 17px; cursor: pointer; }
 .check-row input { width: 24px; height: 24px; accent-color: var(--pink-deep, #e0408a); }
+
+/* ---------- One spacing scale (wave 11 polish): use these for gaps, padding and margins ---------- */
+:root { --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; }
+
+/* ---------- The Parent Corner (screens/ParentScreen.tsx): groups in a side menu (wide) or folds (narrow) ---------- */
+.parent { max-width: 1180px; width: 100%; box-sizing: border-box; padding: var(--s4) var(--s5) var(--s7); gap: var(--s4); justify-content: flex-start; }
+.parent.narrow { max-width: 760px; padding: var(--s3) var(--s4) var(--s7); }
+.parent > header { width: 100%; }
+.parent h4 { font-size: 17px; margin: var(--s4) 0 var(--s2); }
+.parent section { display: flex; flex-direction: column; gap: var(--s2); }
+.parent section > h3:first-child { margin-top: 0; }
+.parent section h4:first-child, .family-accounts h3 + h4 { margin-top: var(--s2); }
+.pc-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: var(--s5); align-items: start; width: 100%; }
+.pc-nav { position: sticky; top: var(--s4); display: flex; flex-direction: column; gap: var(--s1); background: #fbf4f8; border-radius: 18px; padding: var(--s2); }
+.pc-nav button { text-align: left; min-height: 44px; padding: var(--s2) var(--s3); border-radius: 12px; border: 0; background: transparent; font-size: 17px; font-weight: 600; color: #4a3a5a; }
+.pc-nav button.on { background: #fff; color: var(--pink-deep); box-shadow: 0 2px 0 rgba(0,0,0,.06); }
+.pc-group { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+.pc-title { font-size: 30px; margin: 0; text-align: left; }
+.pc-help { margin: calc(-1 * var(--s3)) 0 0 !important; }
+.pc-stack { display: flex; flex-direction: column; gap: var(--s3); width: 100%; }
+.pc-fold { background: #fbf4f8; border-radius: 18px; overflow: hidden; }
+.pc-fold-head { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: var(--s3); min-height: 60px; padding: var(--s3) var(--s4); background: transparent; border: 0; text-align: left; color: inherit; }
+.pc-fold-head b { font-size: 19px; display: block; }
+.pc-fold-head small { display: block; color: #8a7a99; font-size: 14px; margin-top: 2px; }
+.pc-chevron { font-size: 30px; line-height: 1; color: #b07aa0; transition: rotate .2s; }
+.pc-fold.open .pc-chevron { rotate: 90deg; }
+.pc-fold-body { display: flex; flex-direction: column; gap: var(--s3); padding: 0 var(--s3) var(--s3); }
+.pc-fold-body section { background: #fff; }
+
+/* One style for the Parent Corner's inputs, selects and buttons. */
+.parent input:not([type=checkbox]):not([type=radio]):not([type=range]), .parent select {
+  font: inherit; font-size: 17px; min-height: 44px; padding: var(--s2) var(--s3); border-radius: 12px; border: 2px solid #f0c4da;
+  background-color: #fff; color: inherit; box-sizing: border-box; max-width: 100%;
+}
+.parent select {
+  -webkit-appearance: none; appearance: none; padding-right: 38px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23b07aa0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+.parent input:focus-visible, .parent select:focus-visible { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px #ffd6ea; }
+.parent section button:not(.emoji-pick):not(.icon-btn), .parent .button-link {
+  min-height: 44px; padding: var(--s2) var(--s4); border-radius: 12px; border: 2px solid #f0c4da; background: #fff;
+  font: inherit; font-size: 16px; font-weight: 600; color: #3b2a4a; line-height: 1.2;
+}
+.parent section button.on { background: var(--pink); color: #fff; border-color: var(--pink); }
+.parent section button.danger { background: #ffe2e2; border-color: #ffc9c9; color: #b42318; }
+.parent section button:disabled { opacity: .5; }
+.parent .level-row { gap: var(--s2); margin-top: 0; align-items: center; }
+.parent .level-row button { font-size: 16px; }
+.parent .player-row input { width: 200px; }
+/* A form laid out in labelled fields (inviting a grown-up). */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--s3); align-items: end; }
+.field { display: flex; flex-direction: column; gap: var(--s1); font-size: 15px; font-weight: 600; color: #6a5a7a; min-width: 0; }
+.field input, .field select { width: 100%; }
+.field-row { display: flex; align-items: center; gap: var(--s2); }
+.field-row input { flex: 1; min-width: 0; }
+.field-actions { display: flex; }
+.name-voice { margin: 0 0 var(--s2) 58px; }
+.narrow .name-voice { margin-left: 0; }
+
+/* ---------- Screen headers: back button, a centred title, and whatever's on the right (wave 11 polish) ---------- */
+.screen > header { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--s3); }
+.screen > header > :first-child { justify-self: start; }
+.screen > header > :last-child:not(:first-child) { justify-self: end; }
+.screen > header > h2 { text-align: center; min-width: 0; font-size: clamp(26px, 4.4vw, 40px); }
+.screen.parent.wide > header { grid-template-columns: 230px minmax(0, 1fr) 230px; }
+/* (the map's header is its own: the Ark button, the sea's name and the tools, wrapping when the screen is narrow) */
+.screen > header.map-head { display: flex; flex-wrap: wrap; justify-content: space-between; row-gap: var(--s2); }
+/* Phones: the map's tools get their own row, and the Pals on the title screen fit. */
+@media (max-width: 600px) {
+  .screen { padding: var(--s3) var(--s4); gap: var(--s3); }
+  .screen > header { display: flex; flex-wrap: wrap; justify-content: space-between; row-gap: var(--s2); }
+  .screen > header > h2 { order: 3; width: 100%; }
+  .screen > header > span:empty { display: none; }
+  .map-head .map-title { order: 3; width: 100%; }
+  .map-head .map-tools { gap: var(--s2); }
+  .map-head .ark-btn { padding-right: var(--s3); }
+  .map-tools .icon-btn, .map-tools .parent-gear { width: 48px; height: 48px; font-size: 24px; }
+  .map-tools .who-chip .who-name { display: none; }
+  .map-tools .who-chip { padding: 4px 8px; }
+  .title-pals { gap: var(--s1); }
+  .title-pals svg { width: 30vw; height: auto; }
+}

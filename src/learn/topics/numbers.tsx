@@ -303,7 +303,7 @@ function NumberLinePlayer({ ex, onResult }: { ex: NumberLineExercise; onResult: 
   const stage = stageFor(pal, p.pals[pal.id] ?? 0)
 
   const [pos, setPos] = useState(start)
-  const [dragAt, setDragAt] = useState<number | null>(null) // where the Pal is while she drags it (between numbers)
+  const [dragAt, setDragAt] = useState<number | null>(null) // where the Pal is while the player drags it (between numbers)
   const [hopId, setHopId] = useState(0)
   const [misses, setMisses] = useState(0)
   const [wiggle, setWiggle] = useState<number | null>(null)
@@ -362,7 +362,7 @@ function NumberLinePlayer({ ex, onResult }: { ex: NumberLineExercise; onResult: 
       if (!alive.current) return false
       moveTo(n)
       setHopId((h) => h + 1)
-      // (Counting down the hops, as the bubble over the Pal shows them: the numbers she counted on the way out.)
+      // (Counting down the hops, as the bubble over the Pal shows them: the numbers the player counted on the way out.)
       if (n !== start) speak(String(Math.abs(n - start)))
       await wait(HOP_MS + 260)
     }
@@ -420,7 +420,7 @@ function NumberLinePlayer({ ex, onResult }: { ex: NumberLineExercise; onResult: 
       sfx.oops()
       miss()
       // Too far: count the extra hops back to the answer ("ten, nine… You landed on 9!"), keeping the
-      // hops she got right. The wrong way: back to where this drag began.
+      // hops the player got right. The wrong way: back to where this drag began.
       if (dir * (n - goal) > 0) hopBack(n, goal).then((ok) => { if (ok) finish() })
       else hopBack(n, from)
     }

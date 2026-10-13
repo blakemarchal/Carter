@@ -22,7 +22,7 @@ const PET_LINES = ['{name} loves that!', 'Hee hee! That tickles!', '{name} is so
 
 type Carry = { kind: 'berry'; b: string } | { kind: 'acc'; a: Accessory }
 
-/** A berry or a dress-up thing she can carry over to the Pal. */
+/** A berry or a dress-up thing the player can carry over to the Pal. */
 function Carryable({ what, label, on, disabled, onGive }: {
   what: Carry; label: string; on?: boolean; disabled?: boolean; onGive: (what: Carry, el: HTMLElement | null) => boolean
 }) {

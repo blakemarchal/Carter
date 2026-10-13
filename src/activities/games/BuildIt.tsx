@@ -1,7 +1,7 @@
 // Build it: drag the parts onto their places (Noah's ark, the stable for baby Jesus). See types.ts, BuildKit.
 //
 // The board shows the kit's backdrop with a faint picture of every part where it goes, and the loose
-// parts wait in a tray under the board. A part she picks up grows to its real size and follows her
+// parts wait in a tray under the board. A part the player picks up grows to its real size and follows them
 // finger. Let go near its place (within about half its size) and it snaps in: a thunk, a bounce and its
 // name ("The roof!"). Anywhere else, it floats back to the tray. A part that needs others first (`after`)
 // looks dimmer in the tray, and tried too early it goes back with a hint ("First the walls!"). Tapping a
@@ -223,7 +223,7 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
     if (!p) return
     flash(p.id, 3000)
     // (The first three hints in a row are said; after that only now and then, and then the hand alone,
-    // in case she has gone off to do something else.)
+    // in case the player has gone off to do something else.)
     const k = hints.current++
     if (k <= 2 || (k < 7 && k % 2 === 0)) speak(`Drag ${p.say} here!`)
     const from = slots.current.get(p.id)

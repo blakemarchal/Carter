@@ -2,11 +2,11 @@
 //
 // Each round, some of the kit's people stand behind their plates on a picnic cloth, and a pile of things
 // waits in a basket under the board: "Share six loaves of bread with three friends, so everyone gets the
-// same!" She drags things onto the plates (each plate counts aloud, and shows its count), from plate to
+// same!" The player drags things onto the plates (each plate counts aloud, and shows its count), from plate to
 // plate, or back to the basket. A tap shows how to drag (the first time), then hands the thing to the
 // plate with the fewest. When the basket is empty: if every plate has the same, one plate is counted
 // aloud and everyone hops ("Everyone has two! That's fair!"); if not, the uneven plates wiggle ("Hmm, some
-// plates have more. Can you make it fair?") and she evens them out. Eight quiet seconds bring a hand
+// plates have more. Can you make it fair?") and the player evens them out. Eight quiet seconds bring a hand
 // carrying a thing to the plate with the fewest. After the last round: a fanfare, the done line, and on.
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { Thing } from '../../data/islands'
@@ -218,7 +218,7 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
       from = on?.[on.length - 1]
     }
     // (The first three hints in a row are said; after that only now and then, and then the hand alone,
-    // in case she has gone off to do something else.)
+    // in case the player has gone off to do something else.)
     const k = hints.current++
     if (k <= 2 || (k < 7 && k % 2 === 0)) speak(`Give one to ${kit.people[to]?.say ?? 'a friend'}!`)
     if (from) showDrag(from, spot)
@@ -270,7 +270,7 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
     return true
   }
 
-  /** Not fair yet: the plates that don't have their share wiggle, and she evens them out. */
+  /** Not fair yet: the plates that don't have their share wiggle, and the player evens them out. */
   const unfair = (d: Deal) => {
     const each = d.plates.reduce((s, p) => s + p.length, 0) / d.plates.length
     sfx.oops()

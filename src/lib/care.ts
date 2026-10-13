@@ -5,7 +5,7 @@ import { hasAgeSticker } from './party'
 /** needs = stickers earned; `birthday`: comes with the first birthday party instead. */
 export interface Accessory { id: string; emoji: string; name: string; needs: number; birthday?: boolean }
 
-/** Earned with stickers: one more each time she finishes an island (and a party hat on a birthday). */
+/** Earned with stickers: one more each time the player finishes an island (and a party hat on a birthday). */
 export const ACCESSORIES: Accessory[] = [
   { id: 'bow', emoji: '🎀', name: 'bow', needs: 0 },
   { id: 'flower', emoji: '🌸', name: 'flower', needs: 1 },
@@ -56,7 +56,7 @@ export function feed(palId: string) {
 export const EGG_PAL = 'nova' // the hidden legendary Pal
 export const EGG_DAYS = 3
 
-/** The egg shows up after her first island, until it hatches. */
+/** The egg shows up after their first island, until it hatches. */
 export const eggActive = (p: Progress) => p.islandsDone.length >= 1 && !(EGG_PAL in p.pals)
 export const eggReady = (p: Progress) => eggActive(p) && p.egg.warmth >= EGG_DAYS
 

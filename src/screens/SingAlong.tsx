@@ -1,8 +1,8 @@
 // Sing-along: pick a song, then Ara sings it while the words light up one by one (great for
-// following along and early reading) and her Pal dances to the beat. "I sing!" swaps to the same
-// song with the tune on a flute, so she can be the singer. In "Happy Birthday" the game says the
+// following along and early reading) and their Pal dances to the beat. "I sing!" swaps to the same
+// song with the tune on a flute, so the player can be the singer. In "Happy Birthday" the game says the
 // player's name where it goes (Ara leaves it for the name). When the house's child voice has sung a song
-// in the studio (screens/Studio.tsx), a third version plays it: her singing laid on the flute track, on the
+// in the studio (screens/Studio.tsx), a third version plays it: their singing laid on the flute track, on the
 // song's own word timings. That's for the owner's family only, unless the owner shares it (server/house.mjs).
 // Styles: styles.css, "Sing-along".
 import { useEffect, useRef, useState } from 'react'
@@ -21,7 +21,7 @@ import { keys } from '../voice/keys'
 import { clipAudio, houseFind, houseManifest } from '../voice/house'
 import { mixedBuffer } from '../voice/song-take'
 
-/** Who's singing: Ara, the player (the flute only), or the house's child voice (her recording on the flute). */
+/** Who's singing: Ara, the player (the flute only), or the house's child voice (their recording on the flute). */
 type Mode = 'ara' | 'mine' | 'house'
 
 /** The child voice's sung version of a song, mixed onto its flute track, if this family may hear it. */

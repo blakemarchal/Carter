@@ -41,7 +41,7 @@ export default function Sequence({ title, intro, items, onDone }: { title: strin
 
   useEffect(() => { speak(intro) }, [])
 
-  /** A card out of order: say what she picked, so the order gets taught, not just tested. */
+  /** A card out of order: say what the player picked, so the order gets taught, not just tested. */
   const miss = (i: number) => {
     sfx.oops()
     setWrong(i)

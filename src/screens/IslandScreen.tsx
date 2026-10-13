@@ -96,7 +96,7 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
       stepStarted(island.id, steps, step, wasDone)
       if (step === reward) islandFinished(island.id)
     }
-    // Reaching the reward finishes the island, even if she leaves without tapping the button.
+    // Reaching the reward finishes the island, even if the player leaves without tapping the button.
     if (step === reward) {
       const [r, t] = getProgress().islandScore?.[island.id] ?? [0, 0]
       const n = starsFor(r, t)

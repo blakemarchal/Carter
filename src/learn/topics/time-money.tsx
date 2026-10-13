@@ -5,9 +5,9 @@
 // ("How much money?"), find a coin by name, or say what it's worth; and compare two or three things on a
 // common start line ("Which pencil is the longest?").
 // Exercises:
-//   clock    the narrator says a time (sometimes a moment of the day: "Lunch is at 12 o'clock"); she
+//   clock    the narrator says a time (sometimes a moment of the day: "Lunch is at 12 o'clock"); the player
 //            turns the short hand round the clock (it snaps to the hours) and lets go on the time.
-//   coins    the market: a Pal sells something for up to twenty cents; she drags coins from the purse onto
+//   coins    the market: a Pal sells something for up to twenty cents; the player drags coins from the purse onto
 //            the counter, the total is counted aloud, and a coin that makes too much is handed back.
 //   measure  three pencils or flowers to stand on a shelf in order, from shortest to longest (tallest).
 // The clocks, coins and measured things are drawn in src/art/items/learn-time-money.tsx.
@@ -67,7 +67,7 @@ export function clockHourQ(theme?: string): Question {
 export function halfHourQ(theme?: string): Question {
   void theme
   const h = randInt(1, 12)
-  // The short hand is between h and the next hour: she might read the next one, or think it's h o'clock.
+  // The short hand is between h and the next hour: the player might read the next one, or think it's h o'clock.
   const wrong: [number, boolean][] = [[next(h), true], Math.random() < 0.5 ? [h, false] : [next(h), false]]
   if (Math.random() < 0.65) {
     return build('numbers', 'What time is it?', { kind: 'learn', view: 'clock', data: { h, m: 30 } },
@@ -270,7 +270,7 @@ export function coinsQ(theme?: string): Question {
   if (r < 0.55) {
     const coins = handful()
     const n = total(coins)
-    // Wrong answers she might give: one off, five off, or counting coins instead of cents.
+    // Wrong answers the player might give: one off, five off, or counting coins instead of cents.
     const wrong = new Set<number>()
     for (const w of shuffle([coins.length, n + 1, n - 1, n + 5, n - 5])) {
       if (wrong.size < 2 && w > 0 && w !== n && w <= 25) wrong.add(w)
@@ -279,7 +279,7 @@ export function coinsQ(theme?: string): Question {
       centsChoice(n), [...wrong].map(centsChoice))
   }
   if (r < 0.82) {
-    // (The quarter is a bigger coin she may know by sight; it's in sometimes, never the money to count.)
+    // (The quarter is a bigger coin the player may know by sight; it's in sometimes, never the money to count.)
     const k = pick(BY_VALUE)
     const others = shuffle(BY_VALUE.filter((o) => o !== k && (k === 'quarter' || o !== 'quarter' || Math.random() < 0.3))).slice(0, 2)
     return build('numbers', `Which coin is a ${k}?`, { kind: 'learn', view: 'coin-ask', data: { coin: k } },

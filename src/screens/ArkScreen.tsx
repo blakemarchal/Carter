@@ -1,5 +1,5 @@
-// The Ark: all her Pals (and silhouettes of ones still to find). Tap a Pal to visit its home
-// (pet, feed, dress up). The mystery egg sits here once she's finished an island.
+// The Ark: all their Pals (and silhouettes of ones still to find). Tap a Pal to visit its home
+// (pet, feed, dress up). The mystery egg sits here once the player's finished an island.
 import { useEffect, useState } from 'react'
 import DressedPal from '../components/DressedPal'
 import PalArt from '../components/PalArt'

@@ -17,21 +17,22 @@ export interface Plan {
 }
 
 /** A stitcher (src/voice/stitch.ts), plugged in so this file stays small. */
-export type Stitcher = (text: string, role: Role, opts: { family: boolean }) => Promise<Part[] | null>
+export type Stitcher = (text: string, role: Role, opts: { family: boolean; grok: boolean }) => Promise<Part[] | null>
 let stitcher: Stitcher | null = null
 export const setStitcher = (s: Stitcher | null) => { stitcher = s }
 
-export async function planLine(text: string, role: Role = 'narrator', { family = true }: { family?: boolean } = {}): Promise<Plan | null> {
+/** `grok`: whether the house Grok voice may read it (not when a parent chose the iPad voice). */
+export async function planLine(text: string, role: Role = 'narrator', { family = true, grok = true }: { family?: boolean; grok?: boolean } = {}): Promise<Plan | null> {
   const line = text.trim()
   if (family) {
     const rec = await recordingFor(line)
     if (rec) return { parts: [{ audio: rec }], from: 'family' }
   }
-  const hit = await houseFind(voicesFor(role), line)
+  const hit = await houseFind(voicesFor(role).filter((v) => grok || v !== 'grok'), line)
   if (hit) {
     const [v, start, end, gain] = hit.info
     return { parts: [{ audio: clipAudio(hit.voice, hit.id, v), start, end, gain }], from: 'house' }
   }
-  const stitched = stitcher ? await stitcher(line, role, { family }) : null
+  const stitched = stitcher ? await stitcher(line, role, { family, grok }) : null
   return stitched ? { parts: stitched, from: 'stitched' } : null
 }

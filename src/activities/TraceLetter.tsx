@@ -1,5 +1,5 @@
 // Trace a big letter with a finger. We sample points inside the letter shape and count how many
-// her painting covers; about 70% covered (and not much paint outside it) = traced. Scribbling
+// their painting covers; about 70% covered (and not much paint outside it) = traced. Scribbling
 // mostly outside the letter starts over.
 import { useEffect, useRef, useState } from 'react'
 import { BigButton } from '../components/ui'
@@ -25,7 +25,7 @@ export default function TraceLetter({ title, intro, letters, onDone }: { title: 
   const canvas = useRef<HTMLCanvasElement>(null)
   const inside = useRef<[number, number][]>([]) // sample points inside the letter
   const outside = useRef<[number, number][]>([]) // sample points around it
-  const paint = useRef<HTMLCanvasElement | null>(null) // offscreen copy of her strokes, for checking
+  const paint = useRef<HTMLCanvasElement | null>(null) // offscreen copy of their strokes, for checking
   const last = useRef<[number, number] | null>(null)
   const alive = useAlive()
   const letter = letters[i]

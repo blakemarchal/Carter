@@ -42,7 +42,7 @@ export const numChoice = (n: number): Choice => ({ label: String(n), say: String
 // One-letter words are unclear alone ("a" can sound like "uh"), so say them in a little phrase.
 const CARRIER: Record<string, string> = { a: 'a, like a cat', I: 'I, like I love you' }
 const sayWord = (w: string) => CARRIER[w] ?? w
-/** Could she call this picture something that starts with `letter`? (🐶 is a "puppy" too.) */
+/** Could the player call this picture something that starts with `letter`? (🐶 is a "puppy" too.) */
 const goesBy = (p: Picture, letter: string) => [p.word, ...(p.alsoCalled ?? [])].some((name) => name.startsWith(letter))
 /** The first reading questions, by their original level 1 to 5 (src/learn/levels.ts places them now). */
 export function readingQ(level: number): Question {

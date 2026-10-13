@@ -21,14 +21,14 @@ export interface Progress {
   islandStepVersion?: Record<string, number>
   mapAt: string // the island the player's boat is parked at on the map
   battlesWon: number
-  battler?: string // the Pal she picked for her last battle
-  movesSeen: string[] // moves she's been shown, so new ones get a "NEW" badge
+  battler?: string // the Pal the player picked for their last battle
+  movesSeen: string[] // moves the player's been shown, so new ones get a "NEW" badge
   openAll: boolean // Parent Corner: open every built island
   outfits: Record<string, string> // Pal id -> accessory it's wearing
   fed: { day: string; counts: Record<string, number> } // berries per Pal today
-  egg: { warmth: number; day: string } // the mystery egg: one warmth per day she plays
+  egg: { warmth: number; day: string } // the mystery egg: one warmth per day the player plays
   colors: Record<string, Record<number, string>> // coloring pages: "palId:stage" -> shape index -> color
-  stickerSpots: { s: string; x: number; y: number }[] // sticker book: where she put each sticker (% of the scene)
+  stickerSpots: { s: string; x: number; y: number }[] // sticker book: where the player put each sticker (% of the scene)
   cooked: Record<string, string> // Pal Kitchen: Pal id -> the day she last cooked for it
   familyVoices: boolean // play Mom/Dad recordings instead of the narrator when there is one
   log: Record<string, { secs: number; right: number; tries: number }> // per day, for the weekly summary
@@ -58,7 +58,7 @@ export interface Progress {
   islandScore?: Record<string, [number, number]>
   /** Which version of each island (data/islands.ts `version`) this player finished; a newer one shows "New!". */
   islandVersion?: Record<string, number>
-  /** The day she saw the voyage-complete celebration on the map (every island done) and sailed on, so it shows once. */
+  /** The day the player saw the voyage-complete celebration on the map (every island done) and sailed on, so it shows once. */
   voyageCelebrated?: string
   /** The placement game (learn/placement.ts): 'due' for a brand-new player, 'done' once played or skipped. */
   placement?: 'due' | 'done'

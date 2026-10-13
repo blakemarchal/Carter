@@ -167,7 +167,7 @@ function Bubbles({ from, to }: Ends) {
 }
 
 function Shadow({ from, to }: Ends) {
-  // Grumbleshade's grumpy puff: a purple cloud drifts over to her Pal.
+  // Grumbleshade's grumpy puff: a purple cloud drifts over to their Pal.
   return (
     <>
       {[0, 0.08, 0.16].map((d, i) => (
@@ -183,7 +183,7 @@ function Shadow({ from, to }: Ends) {
 const FX: Record<Fx | 'shadow', (e: Ends) => ReactElement> = { shadow: Shadow, spark: Spark, flame: Flame, rock: Rock, leaf: Leaf, hearts: Hearts, stars: Stars, wind: Wind, roll: Roll, bubbles: Bubbles }
 
 /** One move, start to finish. Remount (change `key`) to play it again. */
-/** `fx: 'shadow'` is Grumbleshade's move toward her Pal; `hearts: 0` hides the +hearts. */
+/** `fx: 'shadow'` is Grumbleshade's move toward their Pal; `hearts: 0` hides the +hearts. */
 export default function MoveFx({ fx, move, color, from, to, superMove, hearts = 1, icon }: { fx: Fx | 'shadow'; move: string; color: string; superMove?: boolean; hearts?: number } & Ends) {
   const Effect = FX[fx]
   // --from-x / --to-x drive the CSS animations that travel across (fireball, leaves, stars).

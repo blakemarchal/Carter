@@ -1,6 +1,6 @@
 // The Pal Kitchen's mixing bowl. Drawn in layers so food sits *inside* it: the far wall, then what's in
 // the bowl, then the near wall over the bottom of it. MixingBowl holds ingredients (Kitchen "add");
-// StirBowl is the same bowl full of batter, with a wooden spoon that follows her finger round and
+// StirBowl is the same bowl full of batter, with a wooden spoon that follows their finger round and
 // round while the batter swirls after it and the ingredients slowly blend in (Kitchen "stir").
 import { useId, type ReactNode, type Ref } from 'react'
 

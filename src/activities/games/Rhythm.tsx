@@ -5,7 +5,7 @@
 // either way) plays it brightly, with a sparkle. A tap off the beat still makes a soft note, and a
 // note nobody taps plays quietly by itself, so the tune always comes out whole and tapping never feels
 // wrong. Sound and pictures both run on the audio clock (AudioContext.currentTime), never on timers,
-// so it keeps time on an iPad. At the end: a fanfare, a kind word about how she played, the island's
+// so it keeps time on an iPad. At the end: a fanfare, a kind word about how the player played, the island's
 // line, and the choice to play again or go on.
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from 'react'
 import type { RhythmKit } from './types'
@@ -106,7 +106,7 @@ function prepare(kit: RhythmKit): Song {
   }
 }
 
-// ---------- The clock: the audio clock (what she hears), or the plain clock if sound can't start ----------
+// ---------- The clock: the audio clock (what the player hears), or the plain clock if sound can't start ----------
 
 interface Clock {
   sound: boolean
@@ -405,7 +405,7 @@ function softBass(c: AudioContext, out: AudioNode, t: number, midi: number, dur:
 function tick(c: AudioContext, out: AudioNode, t: number, strong: boolean, instrument: Instrument) {
   const sources: AudioScheduledSourceNode[] = []
   if (instrument === 'tambourine') {
-    // (a wooden tock, so it isn't mistaken for her tambourine)
+    // (a wooden tock, so it isn't mistaken for their tambourine)
     const g = c.createGain()
     env(g.gain, t, strong ? 0.12 : 0.08, 0.002, 0.05)
     g.connect(out)
@@ -649,7 +649,7 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
       setPhase('play')
     }
     // The hand shows when to tap: through the count-in and the first notes (until she taps), and
-    // again, with a word, whenever she hasn't tapped for a while.
+    // again, with a word, whenever the player hasn't tapped for a while.
     const quiet = t - Math.max(r.lastTap, r.start)
     const notesLeft = song.notes.some(([nb]) => nb > b + 0.5)
     const tapped = r.lastTap > r.start - 4 * song.beat

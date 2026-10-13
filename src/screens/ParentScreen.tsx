@@ -1,20 +1,21 @@
 import { LEVELS } from '../learn/levels'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { BackButton } from '../components/ui'
 import {
   activeProfile, addProfile, deleteProfile, editProfile, MAX_LEVEL, playerName, resetProgress, setSkillLevel,
   switchProfile, update, useProfiles, useProgress, type Narrator, type Skill,
 } from '../lib/progress'
-import { grokVoiceAvailable, setNarrator, setRate, speak, voiceSignedOut } from '../lib/speech'
+import { setNarrator, setRate, speak, voiceSignedOut } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { applyUpdate, buildLabel, checkForUpdate, useUpdateAvailable } from '../lib/update'
 import { backupNow, deviceLabel, fetchBackup, lastBackup, listBackups, restore, type BackupInfo } from '../lib/backup'
 import FamilyVoices from '../components/FamilyVoices'
 import { NAME_CONSENT, NAME_STATUS_TEXT, setNarratorSaysName, useAgreedNames, useNameStatus } from '../voice/name-status'
 import FamilySongs from '../components/FamilySongs'
-import FamilyAccounts from '../components/FamilyAccounts'
+import FamilyAccounts, { FamilyDataSection } from '../components/FamilyAccounts'
 import FamilyPlan from '../components/FamilyPlan'
 import StickerFace from '../components/StickerFace'
+import Pic from '../components/Pic'
 import { FamilyCastEditor, PlayerDetails } from '../components/FamilyEditor'
 import { birthdayLabel, daysUntil } from '../lib/birthday'
 import { isGrownup } from '../lib/party'
@@ -32,8 +33,7 @@ const SKILL_LABEL: Record<Skill, string[]> = {
 }
 
 const NARRATORS: { id: Narrator; label: string }[] = [
-  { id: 'ara', label: 'Ara (Grok)' },
-  { id: 'eve', label: 'Eve (Grok)' },
+  { id: 'ara', label: 'Our narrator' },
   { id: 'device', label: 'iPad voice' },
 ]
 
@@ -79,14 +79,14 @@ function Players() {
   const [open, setOpen] = useState<string | null>(null)
   return (
     <section>
-      <h3>Players</h3>
+      <h3>Who plays</h3>
       <p className="muted">Each player has their own Pals, levels and settings. Playing as one never changes another&rsquo;s progress. Tap &ldquo;Birthday &amp; look&rdquo; to add a birthday and choose how they look in the stories.</p>
       <div className="player-list">
         {list.map((pr) => (
           <div key={pr.id} className="player-block">
           <div className={`player-row ${pr.id === active ? 'on' : ''}`}>
             <button className="emoji-pick" title="Change icon"
-              onClick={() => editProfile(pr.id, { emoji: EMOJIS[(EMOJIS.indexOf(pr.emoji) + 1) % EMOJIS.length] })}>{pr.emoji}</button>
+              onClick={() => editProfile(pr.id, { emoji: EMOJIS[(EMOJIS.indexOf(pr.emoji) + 1) % EMOJIS.length] })}><Pic e={pr.emoji} /></button>
             <input value={pr.name} maxLength={16} aria-label="Player name"
               onChange={(e) => editProfile(pr.id, { name: e.target.value })}
               onBlur={(e) => !e.target.value.trim() && editProfile(pr.id, { name: 'Player' })} />
@@ -111,7 +111,7 @@ function Players() {
         addProfile(name.trim(), emoji)
         setName('')
       }}>
-        <button type="button" className="emoji-pick" onClick={() => setEmoji(EMOJIS[(EMOJIS.indexOf(emoji) + 1) % EMOJIS.length])}>{emoji}</button>
+        <button type="button" className="emoji-pick" onClick={() => setEmoji(EMOJIS[(EMOJIS.indexOf(emoji) + 1) % EMOJIS.length])}><Pic e={emoji} /></button>
         <input value={name} maxLength={16} placeholder="New player name" onChange={(e) => setName(e.target.value)} />
         <button type="submit">Add player</button>
       </form>
@@ -346,60 +346,66 @@ function AppVersion() {
   )
 }
 
+/** The Parent Corner's groups, in order. */
+const GROUPS = [
+  { id: 'players', title: 'Players', help: 'Who plays, their birthdays and how they look, and the family in the stories.' },
+  { id: 'grownups', title: 'Grown-ups and devices', help: 'Who can sign in, inviting a grown-up, and the devices signed in.' },
+  { id: 'plan', title: 'Your family’s plan', help: 'Your plan, the billing page, and Grace codes.' },
+  { id: 'voices', title: 'Voices and recordings', help: 'The narrator, your own recordings and songs.' },
+  { id: 'learning', title: 'Learning levels', help: 'Where each player is in reading and numbers.' },
+  { id: 'play', title: 'Play and limits', help: 'Time played, new islands each day, and sound.' },
+  { id: 'data', title: 'Data and privacy', help: 'What’s kept, backups, downloads, and sharing play totals.' },
+  { id: 'app', title: 'App', help: 'The version on this device, and updates.' },
+] as const
+type GroupId = (typeof GROUPS)[number]['id']
+
+/** Wide enough for a side menu (an iPad in landscape, a laptop). */
+function useWide(min = 960) {
+  const q = `(min-width: ${min}px)`
+  const [wide, setWide] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(q).matches)
+  useEffect(() => {
+    const m = matchMedia(q)
+    const on = () => setWide(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [q])
+  return wide
+}
+
 export default function ParentScreen({ onBack, onParty, onPlacement }: { onBack: () => void; onParty: () => void; onPlacement: () => void }) {
   const p = useProgress()
   const me = activeProfile()
   const mins = Math.round(p.playSeconds / 60)
+  const wide = useWide()
+  const [group, setGroup] = useState<GroupId>('players')
+  const [open, setOpen] = useState<Set<GroupId>>(() => new Set(['players']))
   const pickNarrator = (n: Narrator) => {
     setNarrator(n)
     update((x) => ({ ...x, narrator: n }))
     speak(`Hi ${playerName()}! I'll read the stories and questions to you.`)
   }
-  return (
-    <div className="screen parent">
-      <header><BackButton onClick={onBack} /><h2>Parent Corner</h2><span /></header>
+
+  const content: Record<GroupId, ReactNode> = {
+    players: <>
       <Players />
-      <FamilyAccounts />
-      <FamilyPlan />
       <Family />
       <Party onParty={onParty} />
+    </>,
+    grownups: <FamilyAccounts />,
+    plan: <FamilyPlan />,
+    voices: <>
       <section>
-        <h3>Today ({me.emoji} {me.name})</h3>
-        <p>{mins} min played (gentle reminder at 60 min)</p>
-        <p>Islands finished: {p.islandsDone.length ? p.islandsDone.join(', ') : 'none yet'} · Pals: {Object.keys(p.pals).length} · Stickers: {p.stickers.length ? p.stickers.map((s) => <StickerFace key={s} s={s} />) : 'none'}</p>
-      </section>
-      <Week p={p} />
-      <Islands p={p} />
-      <section>
-        <h3>🗺️ Starting levels</h3>
-        <p className="muted">A short treasure hunt with {me.name}&rsquo;s Pal (2 or 3 minutes) finds where to start reading and numbers. It plays once for a new player; play it again here, or set the levels below by hand.</p>
-        <div className="level-row"><button onClick={onPlacement}>🗺️ Find my levels again</button></div>
-      </section>
-      {(['reading', 'numbers'] as Skill[]).map((s) => (
-        <section key={s}>
-          <h3>{s === 'reading' ? '📖 Reading' : '🔢 Numbers'} — level {p.skills[s]}: {SKILL_LABEL[s][p.skills[s] - 1]}</h3>
-          <p className="muted">Adjusts automatically: 3 right in a row moves up, 2 misses in a row moves down.</p>
-          <div className="level-row">
-            {Array.from({ length: MAX_LEVEL[s] }).map((_, i) => (
-              <button key={i} className={p.skills[s] === i + 1 ? 'on' : ''} onClick={() => setSkillLevel(s, i + 1)}>{i + 1}</button>
-            ))}
-          </div>
-        </section>
-      ))}
-      <section>
-        <h3>Narrator voice</h3>
+        <h3>Narrator</h3>
+        <p className="muted">The narrator is our own family&rsquo;s recorded voice where it has recorded a line, and Grok&rsquo;s &ldquo;Ara&rdquo; voice for the rest. The iPad voice reads everything on the device instead.</p>
         <div className="level-row">
           {NARRATORS.map((n) => (
-            <button key={n.id} className={p.narrator === n.id ? 'on' : ''} onClick={() => pickNarrator(n.id)}>{n.label}</button>
+            <button key={n.id} className={(p.narrator === 'eve' ? 'ara' : p.narrator) === n.id ? 'on' : ''} onClick={() => pickNarrator(n.id)}>{n.label}</button>
           ))}
         </div>
         {p.narrator !== 'device' && voiceSignedOut() && (
-          <p className="warn">This iPad&rsquo;s sign-in has expired, so the iPad voice is reading. <a href="/login">Sign in again</a> to get Ara back. Progress is kept.</p>
+          <p className="warn">This iPad&rsquo;s sign-in has expired, so the iPad voice is reading. <a href="/login">Sign in again</a> to get the narrator back. Progress is kept.</p>
         )}
-        {p.narrator !== 'device' && !grokVoiceAvailable() && (
-          <p className="muted">The Grok voice isn&rsquo;t set up on the server yet, so the iPad voice is reading for now.</p>
-        )}
-        <h3 style={{ marginTop: 12 }}>Voice speed</h3>
+        <h4>Speed of the iPad voice</h4>
         <div className="level-row">
           {[0.75, 0.9, 1].map((r) => (
             <button key={r} className={p.speechRate === r ? 'on' : ''}
@@ -409,23 +415,88 @@ export default function ParentScreen({ onBack, onParty, onPlacement }: { onBack:
           ))}
         </div>
       </section>
+      <Voices p={p} />
+      <FamilySongs />
+    </>,
+    learning: <>
+      <section>
+        <h3>Starting levels</h3>
+        <p className="muted">A short treasure hunt with {me.name}&rsquo;s Pal (2 or 3 minutes) finds where to start reading and numbers. It plays once for a new player; play it again here, or set the levels below by hand.</p>
+        <div className="level-row"><button onClick={onPlacement}>Find my levels again</button></div>
+      </section>
+      {(['reading', 'numbers'] as Skill[]).map((s) => (
+        <section key={s}>
+          <h3>{s === 'reading' ? 'Reading' : 'Numbers'}: level {p.skills[s]}</h3>
+          <p>{SKILL_LABEL[s][p.skills[s] - 1]}</p>
+          <p className="muted">Adjusts by itself: 3 right in a row moves up, 2 misses in a row moves down.</p>
+          <div className="level-row">
+            {Array.from({ length: MAX_LEVEL[s] }).map((_, i) => (
+              <button key={i} className={p.skills[s] === i + 1 ? 'on' : ''} onClick={() => setSkillLevel(s, i + 1)} aria-label={`Level ${i + 1}: ${SKILL_LABEL[s][i]}`}>{i + 1}</button>
+            ))}
+          </div>
+        </section>
+      ))}
+    </>,
+    play: <>
+      <section>
+        <h3>Today: {me.name}</h3>
+        <p>{mins} min played (a gentle reminder comes at 60 min)</p>
+        <p>Islands finished: {p.islandsDone.length ? p.islandsDone.map((id) => ISLANDS.find((i) => i.id === id)?.name ?? id).join(', ') : 'none yet'} · Pals: {Object.keys(p.pals).length} · Stickers: {p.stickers.length ? p.stickers.map((s) => <StickerFace key={s} s={s} />) : 'none yet'}</p>
+      </section>
+      <Week p={p} />
+      <Islands p={p} />
       <section>
         <h3>Sound</h3>
         <div className="level-row">
-          <button className={p.music ? 'on' : ''} onClick={() => update((x) => ({ ...x, music: !x.music }))}>🎵 Music {p.music ? 'on' : 'off'}</button>
-          <button className={p.sfx ? 'on' : ''} onClick={() => { update((x) => ({ ...x, sfx: !x.sfx })); if (!p.sfx) setTimeout(sfx.good, 50) }}>✨ Sound effects {p.sfx ? 'on' : 'off'}</button>
+          <button className={p.music ? 'on' : ''} onClick={() => update((x) => ({ ...x, music: !x.music }))}>Music {p.music ? 'on' : 'off'}</button>
+          <button className={p.sfx ? 'on' : ''} onClick={() => { update((x) => ({ ...x, sfx: !x.sfx })); if (!p.sfx) setTimeout(sfx.good, 50) }}>Sound effects {p.sfx ? 'on' : 'off'}</button>
         </div>
       </section>
-      <section>
-        <h3>Reset</h3>
-        <button className="danger" onClick={() => confirm(`Erase all of ${me.name}’s progress on this device?`) && resetProgress()}>Erase {me.name}&rsquo;s progress</button>
-      </section>
-      <Voices p={p} />
-      <FamilySongs />
+    </>,
+    data: <>
+      <FamilyDataSection />
       <Backup />
       <Improve />
-      <AppVersion />
-      <p className="muted">Progress is stored only on this device. No ads, no chat, no accounts. Narration text is sent to xAI to create the voice; nothing else is shared.</p>
+      <section>
+        <h3>Erase progress</h3>
+        <p className="muted">Erases {me.name}&rsquo;s progress on this device only (backups on the server stay).</p>
+        <div className="level-row"><button className="danger" onClick={() => confirm(`Erase all of ${me.name}’s progress on this device?`) && resetProgress()}>Erase {me.name}&rsquo;s progress</button></div>
+      </section>
+      <p className="muted">No ads, no chat, no tracking. The narrator&rsquo;s voice is made ahead of time on our server; a child&rsquo;s name is never sent anywhere unless you choose &ldquo;Let the narrator say&rdquo; it. See our privacy policy for everything we keep.</p>
+    </>,
+    app: <AppVersion />,
+  }
+
+  const toggle = (id: GroupId) => setOpen((o) => { const n = new Set(o); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  return (
+    <div className={`screen parent ${wide ? 'wide' : 'narrow'}`}>
+      <header><BackButton onClick={onBack} /><h2>Parent Corner</h2><span /></header>
+      {wide ? (
+        <div className="pc-layout">
+          <nav className="pc-nav" aria-label="Parent Corner">
+            {GROUPS.map((g) => (
+              <button key={g.id} className={group === g.id ? 'on' : ''} aria-current={group === g.id ? 'page' : undefined} onClick={() => setGroup(g.id)}>{g.title}</button>
+            ))}
+          </nav>
+          <div className="pc-group" key={group}>
+            <h2 className="pc-title">{GROUPS.find((g) => g.id === group)!.title}</h2>
+            <p className="muted pc-help">{GROUPS.find((g) => g.id === group)!.help}</p>
+            {content[group]}
+          </div>
+        </div>
+      ) : (
+        <div className="pc-stack">
+          {GROUPS.map((g) => (
+            <div key={g.id} className={`pc-fold ${open.has(g.id) ? 'open' : ''}`}>
+              <button className="pc-fold-head" aria-expanded={open.has(g.id)} onClick={() => toggle(g.id)}>
+                <span><b>{g.title}</b><small>{g.help}</small></span>
+                <span className="pc-chevron" aria-hidden>›</span>
+              </button>
+              {open.has(g.id) && <div className="pc-fold-body">{content[g.id]}</div>}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

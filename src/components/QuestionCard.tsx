@@ -49,7 +49,7 @@ export function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void
 
 /** Shows one question. No failure: wrong answers wiggle, and after two misses the answer glows. */
 /**
- * `recordMisses: false` (brave battle questions): a miss doesn't lower her level, only a first-try answer counts.
+ * `recordMisses: false` (brave battle questions): a miss doesn't lower their level, only a first-try answer counts.
  * `record: false` (story questions): doesn't touch the reading/number levels at all.
  */
 export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, record = true }: {
