@@ -47,6 +47,24 @@ export function currentSea(done: string[], built: IsBuilt, openAll = false, star
   return last
 }
 
+/**
+ * Where the boat should wait: at `mapAt` if that island is open (done, or next to play), else at the next open
+ * island of the sea the player is up to. (A save from before the map was reordered could have it at a locked one.)
+ */
+export function boatIsland(mapAt: string, done: string[], built: IsBuilt, openAll = false, started: string[] = []): string {
+  const sea = seaIndexOf(mapAt)
+  if (sea >= 0) {
+    const k = SEAS[sea].islands.findIndex((i) => i.id === mapAt)
+    const st = islandState(sea, k, done, built, openAll, started)
+    if (st === 'next' || st === 'done') return mapAt
+  }
+  const cur = currentSea(done, built, openAll, started)
+  const isl = SEAS[cur].islands
+  const at = (want: IslandState) => isl.findIndex((_, k) => islandState(cur, k, done, built, openAll, started) === want)
+  const k = at('next') >= 0 ? at('next') : at('done')
+  return k >= 0 ? isl[k].id : SEAS[0].islands[0].id
+}
+
 // ---------- The daily voyage ----------
 
 /** New visits finished today. */

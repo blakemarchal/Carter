@@ -2,6 +2,7 @@
 // Each player profile has its own saved progress and settings; the family cast is shared.
 // No child is written into the code: names, birthdays and looks all come from the profiles.
 import { SKILLS_MIGRATION } from '../learn/levels'
+import { SEAS } from '../data/seas'
 import { useSyncExternalStore } from 'react'
 import { isValidBirthday, type Birthday } from './birthday'
 import { FAMILY_KEY, migrateStorage, PROFILES_KEY, progressKey } from './storageKeys'
@@ -18,7 +19,7 @@ export interface Progress {
   islandStep: Record<string, number> // where each island was left off
   /** The version of each island (data/islands.ts `version`) its islandStep was saved in (see savedStep). */
   islandStepVersion?: Record<string, number>
-  mapAt: string // the island her boat is parked at on the map
+  mapAt: string // the island the player's boat is parked at on the map
   battlesWon: number
   battler?: string // the Pal she picked for her last battle
   movesSeen: string[] // moves she's been shown, so new ones get a "NEW" badge
@@ -108,7 +109,7 @@ const fresh = (): Progress => ({
   pals: {},
   islandsDone: [],
   islandStep: {},
-  mapAt: 'noah',
+  mapAt: SEAS[0].islands[0].id, // (the first island of the first sea)
   battlesWon: 0,
   movesSeen: [],
   openAll: false,

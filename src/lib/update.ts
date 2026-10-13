@@ -31,14 +31,17 @@ export function useUpdateAvailable() {
   )
 }
 
+/** The service worker's caches an update keeps (vite.config.ts names them). */
+export const KEEP_CACHES = ['narration', 'songs', 'house-voices']
+
 /** Throw away the cached app (not progress, narration clips or songs) and load the newest version. */
 export async function applyUpdate() {
   try {
     const regs = (await navigator.serviceWorker?.getRegistrations()) ?? []
     await Promise.all(regs.map((r) => r.unregister()))
     const keys = await caches.keys()
-    // Narration clips and sing-along songs never go stale (new ones get new URLs), so keep them.
-    await Promise.all(keys.filter((k) => k !== 'narration' && k !== 'songs').map((k) => caches.delete(k)))
+    // Narration clips, the house voices' clips and sing-along songs never go stale (new ones get new URLs), so keep them.
+    await Promise.all(keys.filter((k) => !KEEP_CACHES.includes(k)).map((k) => caches.delete(k)))
   } finally {
     location.reload()
   }

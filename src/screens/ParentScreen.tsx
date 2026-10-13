@@ -287,21 +287,29 @@ function Improve() {
 
 function AppVersion() {
   const update = useUpdateAvailable()
+  // (feedback at once: a reload can take a few seconds to start on an iPad)
+  const [busy, setBusy] = useState<'' | 'checking' | 'updating'>('')
   const [status, setStatus] = useState('')
+  const reload = () => { setBusy('updating'); setStatus(''); setTimeout(applyUpdate, 50) }
+  const check = async () => {
+    setBusy('checking')
+    setStatus('')
+    const newer = await checkForUpdate()
+    setBusy('')
+    setStatus(newer ? '' : 'You have the newest version.')
+  }
   return (
     <section>
       <h3>App version</h3>
       <p>This {deviceLabel()} has the version from {buildLabel()}.</p>
       <div className="level-row">
         {update
-          ? <button className="on" onClick={applyUpdate}>✨ Update now</button>
-          : <button onClick={async () => {
-              setStatus('Checking…')
-              setStatus((await checkForUpdate()) ? '' : 'Up to date.')
-            }}>Check for updates</button>}
-        <button onClick={applyUpdate}>Reload app</button>
+          ? <button className="on" onClick={reload} disabled={!!busy}>✨ Update now</button>
+          : <button onClick={check} disabled={!!busy}>{busy === 'checking' ? <><span className="spinner" aria-hidden /> Checking…</> : 'Check for updates'}</button>}
+        <button onClick={reload} disabled={!!busy}>Reload app</button>
       </div>
-      {status && <p className="muted">{status}</p>}
+      {busy === 'updating' && <p className="muted" role="status"><span className="spinner" aria-hidden /> Updating… the app will open again in a moment.</p>}
+      {status && <p className="muted" role="status">{status}</p>}
       <p className="muted">Updating keeps every player&rsquo;s progress. &ldquo;Reload app&rdquo; also fixes a stuck screen.</p>
     </section>
   )

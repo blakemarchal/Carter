@@ -1,7 +1,7 @@
 // The voyage: seas in Bible order, islands opening one after another, and the daily voyage.
 import { describe, expect, it } from 'vitest'
 import { SEAS, islandSpots } from '../data/seas'
-import { countVisit, currentSea, islandState, seaOpen, visitsLeft } from '../lib/voyage'
+import { boatIsland, countVisit, currentSea, islandState, seaOpen, visitsLeft } from '../lib/voyage'
 import { savedStep, type Progress } from '../lib/progress'
 
 // Today's built islands (the rest are "coming soon").
@@ -93,5 +93,21 @@ describe('the daily voyage', () => {
 
   it('0 means no limit', () => {
     expect(visitsLeft({ day: '2026-10-03', visits: 9 }, '2026-10-03', 0)).toBe(Infinity)
+  })
+})
+
+describe('the boat', () => {
+  it('a new player’s boat waits at the first island of the first sea', async () => {
+    const { getProgress } = await import('../lib/progress')
+    expect(getProgress().mapAt).toBe(SEAS[0].islands[0].id)
+    expect(boatIsland(SEAS[0].islands[0].id, [], built)).toBe('creation')
+  })
+
+  it('a boat left at a locked island (an old save) moves to the next open one; an open one stays', () => {
+    expect(boatIsland('noah', [], built)).toBe('creation') // (from before the map was reordered)
+    expect(boatIsland('noah', ['creation'], built)).toBe('noah')
+    expect(boatIsland('creation', ['creation', 'noah'], built)).toBe('creation') // (done: replaying is fine)
+    expect(boatIsland('nowhere', [], built)).toBe('creation')
+    expect(boatIsland('noah', [], built, true)).toBe('noah') // (everything open)
   })
 })

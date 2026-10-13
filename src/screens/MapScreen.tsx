@@ -14,7 +14,7 @@ import { HoldButton } from '../components/ui'
 import VoyageComplete from '../components/VoyageComplete'
 import { ISLANDS, islandById, loadIsland, loadedIsland } from '../data/islands'
 import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
-import { currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
+import { boatIsland, currentSea, islandState, seaOpen, visitsLeft, type IslandState } from '../lib/voyage'
 import { Emoji } from '../art/scenes/kit'
 import { palById, stageFor } from '../data/pals'
 import { activeProfile, savedStep, today, update, useFamily, useProfiles, useProgress } from '../lib/progress'
@@ -187,9 +187,14 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   const route = useRef<SVGPathElement>(null)
   // Islands part-way through: they (and their seas) stay open, even if a new island appears before them.
   const started = Object.entries(p.islandStep).filter(([id, k]) => k > 0 && !p.islandsDone.includes(id)).map(([id]) => id)
+  // A boat left at an island that isn't open (an old save, from before the map was reordered) moves to the next open one.
+  const parked = boatIsland(p.mapAt, p.islandsDone, built, p.openAll, started)
+  useEffect(() => {
+    if (parked !== p.mapAt) update((x) => ({ ...x, mapAt: parked }))
+  }, [])
   // The sea on screen: where the boat is (if that sea is open), else the one they're up to.
   const [sea, setSea] = useState(() => {
-    const s = seaOf(p.mapAt)
+    const s = seaOf(parked)
     return s >= 0 && seaOpen(s, p.islandsDone, built, p.openAll, started) ? s : currentSea(p.islandsDone, built, p.openAll, started)
   })
   const def = SEAS[sea]
@@ -199,14 +204,14 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
   }, [def])
   const docks = useMemo(() => islands.map(dock), [islands])
   const d = useMemo(() => routePath(docks), [docks])
-  const startAt = Math.max(0, islands.findIndex((i) => i.id === p.mapAt))
+  const startAt = Math.max(0, islands.findIndex((i) => i.id === parked))
   const [boat, setBoat] = useState<{ x: number; y: number; flip: boolean }>({ x: docks[startAt][0], y: docks[startAt][1], flip: false })
   const [sailing, setSailing] = useState(false)
   const [pressed, setPressed] = useState<number | null>(null)
   const at = useRef(startAt)
   // A new sea on screen: the boat waits at its island there (or the first one).
   useEffect(() => {
-    const k = Math.max(0, islands.findIndex((i) => i.id === p.mapAt))
+    const k = Math.max(0, islands.findIndex((i) => i.id === parked))
     at.current = k
     setBoat({ x: docks[k][0], y: docks[k][1], flip: false })
   }, [sea])

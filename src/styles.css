@@ -1293,3 +1293,7 @@ input { -webkit-user-select: text; user-select: text; }
 .family-usage ul { margin: 6px 0 10px; padding-left: 20px; }
 .button-link { display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 14px; border: 2px solid #f0c4da; background: #fff; color: inherit; font-weight: 700; text-decoration: none; }
 .my-email input { flex: 1; min-width: 220px; }
+
+/* A small busy ring, inside a button or a line of text ("Checking…", "Updating…"). */
+.spinner { display: inline-block; width: 0.9em; height: 0.9em; vertical-align: -0.12em; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-turn 0.8s linear infinite; }
+@keyframes spinner-turn { to { transform: rotate(360deg); } }

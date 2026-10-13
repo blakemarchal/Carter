@@ -35,7 +35,7 @@ export default defineConfig({
         globIgnores: ['**/music/**'],
         // These pages come from the server, not the installed app: /login (the sign-in form, when a device is
         // signed out), the pages a family's link opens (/join/…, /start/…), and the owner's play totals (/stats) and billing (/billing/owner).
-        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//, /^\/stats/, /^\/billing\//, /^\/voice\//],
+        navigateFallbackDenylist: [/^\/login/, /^\/join\//, /^\/start\//, /^\/stats/, /^\/billing\//, /^\/voice\//, /^\/welcome/],
         // Narration clips: keep every line the narrator has said, so it plays instantly (and offline) next time.
         runtimeCaching: [{
           urlPattern: ({ url }) => url.pathname === '/tts',

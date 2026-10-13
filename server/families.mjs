@@ -10,6 +10,9 @@ import { createHash, randomBytes } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
 
 /** Parents can invite and remove people; other grown-ups (grandparents, aunts…) can't. */
+/** What the first family's parents are called until they say (the family password signs them in as one grown-up). */
+export const FIRST_MEMBER_NAME = 'Grown-ups'
+
 export const ROLES = ['parent', 'grownup']
 /** How long each kind of link works for, in days. */
 const LINK_DAYS = { member: 7, device: 1, family: 30 }
@@ -108,7 +111,7 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
     tx(() => {
       const fam = addFamily('Our family')
       setMeta('first_family', fam)
-      setMeta('first_member', addMember(fam, 'Grown-ups', 'parent'))
+      setMeta('first_member', addMember(fam, FIRST_MEMBER_NAME, 'parent'))
     })
   }
 

@@ -261,6 +261,9 @@ export default function FamilyAccounts() {
               onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== view.family.name) familyApi.rename(v).then(reload).catch(() => alertFail()) }} />
           : <b>{view.family.name}</b>}
       </div>
+      {view.members.find((m) => m.id === view.me.member)?.name === 'Grown-ups' && (
+        <p className="warn">What should we call you? You&rsquo;re &ldquo;Grown-ups&rdquo; for now: type your name in your box below.</p>
+      )}
       <Members view={view} reload={reload} />
       {view.emailOn && <MyEmail key={view.me.email ?? ''} view={view} reload={reload} />}
       {parent && <Invite view={view} reload={reload} />}

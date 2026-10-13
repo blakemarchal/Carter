@@ -28,8 +28,9 @@ import { deleteFamilyData, writeFamilyExport } from './family-data.mjs'
 import { createRecordings } from './recordings.mjs'
 import { createHouse, handleHouse } from './house.mjs'
 import { familyNames, namesInUse } from './names-in-use.mjs'
+import { leaveChoices, leaveConfirmed, linkGuard } from './link-guard.mjs'
 import { createSongs } from './songs.mjs'
-import { cleanEmail, cleanName, openFamilies, ROLES } from './families.mjs'
+import { cleanEmail, cleanName, FIRST_MEMBER_NAME, openFamilies, ROLES } from './families.mjs'
 import { createMailer, inviteEmail, signInEmail } from './email.mjs'
 import { createBilling, handleBilling, handleWebhook, isOn, stripeFromEnv } from './billing.mjs'
 
@@ -505,6 +506,8 @@ label{display:block;text-align:left;font-weight:700;margin:0 0 6px}
 input{width:100%;box-sizing:border-box;font-size:20px;padding:14px;border-radius:14px;border:2px solid #f0c4da;margin-bottom:14px}
 button{width:100%;font-size:22px;font-weight:700;padding:14px;border:0;border-radius:14px;background:#ff6fae;color:#fff;cursor:pointer}
 .err{color:#b42318;margin-bottom:12px}.small{font-size:14px;color:#8a7a99;margin:16px 0 0}
+label.check{display:flex;gap:10px;align-items:flex-start;font-weight:600;text-align:left;margin:0 0 16px}
+label.check input{width:24px;height:24px;margin:2px 0 0;flex:none}.err p{margin:0;color:inherit}
 </style></head><body>${body}</body></html>`
 const sendPage = (res, status, title, body) => {
   res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
@@ -531,23 +534,56 @@ async function handleJoin(req, res, url, ip) {
     return sendPage(res, 404, 'Ark Pals', deadLink(req))
   }
   const was = currentSession(req)
+  const guard = linkGuard(was, link.family.id, was ? families.view(was.family.id, was.device.id).devices.length : 0)
+  const who = link.kind === 'member' ? link.name : link.member.name
+  const page = (msg = '') => {
+    const lead = link.kind === 'member'
+      ? `<p>You're invited to join <b>${esc(link.family.name)}</b> on Ark Pals, as <b>${esc(who)}</b>.</p>`
+      : `<p>Sign this ${esc(deviceLabel(req))} in to <b>${esc(link.family.name)}</b>, as <b>${esc(who)}</b>.</p>`
+    const switching = !guard.leave && was && (link.kind === 'member' || was.member.id !== link.member.id)
+      ? `<p class="err">This device is signed in as <b>${esc(was.member.name)}</b> now. If it isn't ${esc(who)}'s device, don't tap the button: send ${esc(who)} the link instead.</p>`
+      : ''
+    const leaving = guard.leave ? leaveChoices(was, { last: guard.last, firstFamily: was.family.id === families.firstFamily(), action: `join ${link.family.name}` }) : ''
+    return `<form method="post"><h1>🌈 Ark Pals</h1>${msg ? `<div class="err">${esc(msg)}</div>` : ''}${lead}${switching}${leaving}
+<button>${link.kind === 'member' ? 'Join on this device' : 'Sign in this device'}</button>
+<p class="small">The link works once. After that, this device stays signed in.</p>${homeScreenTip(req)}</form>`
+  }
   if (req.method === 'POST') {
+    const f = new URLSearchParams((await readBody(req, 2000)).toString('utf8'))
+    // (a device signed in to another family moves only when the grown-up ticked "Yes, leave …")
+    if (guard.leave && !leaveConfirmed(f)) return sendPage(res, 400, 'Join Ark Pals', page(`Tick "Yes, leave ${was.family.name}" to move this device, or open the link on another device.`))
     const dev = families.useLink(token, { label: was?.device.label ?? deviceLabel(req) })
     if (!dev) return sendPage(res, 404, 'Ark Pals', deadLink(req))
     if (was) families.removeDevice(was.family.id, was.device.id) // (this device was someone else: it's this one now)
     res.writeHead(303, { 'Set-Cookie': [deviceCookie(req, dev), clearOldCookie], Location: '/' })
     return res.end()
   }
-  const who = link.kind === 'member' ? link.name : link.member.name
-  const lead = link.kind === 'member'
-    ? `<p>You're invited to join <b>${esc(link.family.name)}</b> on Ark Pals, as <b>${esc(who)}</b>.</p>`
-    : `<p>Sign this ${esc(deviceLabel(req))} in to <b>${esc(link.family.name)}</b>, as <b>${esc(who)}</b>.</p>`
-  const switching = was && (link.kind === 'member' || was.member.id !== link.member.id)
-    ? `<p class="err">This device is signed in as <b>${esc(was.member.name)}</b> now. If it isn't ${esc(who)}'s device, don't tap the button: send ${esc(who)} the link instead.</p>`
-    : ''
-  return sendPage(res, 200, 'Join Ark Pals', `<form method="post"><h1>🌈 Ark Pals</h1>${lead}${switching}
-<button>${link.kind === 'member' ? 'Join on this device' : 'Sign in this device'}</button>
-<p class="small">The link works once. After that, this device stays signed in.</p>${homeScreenTip(req)}</form>`)
+  return sendPage(res, 200, 'Join Ark Pals', page())
+}
+
+/**
+ * GET/POST /welcome: after the first sign-in with the family password, "What should we call you?" (the
+ * grown-up is "Grown-ups" until then), and an email for sign-in links. Either can be skipped.
+ */
+async function handleWelcome(req, res, s) {
+  const form = (msg = '', name = '', email = s.member.email ?? '') => `<form method="post"><h1>🌈 Ark Pals</h1>
+<p>Welcome in! One quick thing first.</p>${msg ? `<div class="err">${esc(msg)}</div>` : ''}
+<label for="you">What should we call you?</label><input id="you" name="you" maxlength="40" placeholder="Mom, Dad, Grandma…" value="${esc(name)}" required autofocus>
+${mailer ? `<label for="email">Your email, for a sign-in link on a new device (optional)</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" value="${esc(email)}">` : ''}
+<button>Done</button><p class="small"><a href="/">Skip for now</a> · you can change these any time in the Parent Corner.</p></form>`
+  if (req.method === 'POST') {
+    const f = new URLSearchParams((await readBody(req, 2000)).toString('utf8'))
+    try {
+      if (!(f.get('you') ?? '').trim()) throw Object.assign(new Error('no name'), { status: 400 })
+      families.updateMember(s.family.id, s.member.id, { name: f.get('you'), ...(mailer && f.has('email') ? { email: f.get('email') } : {}) })
+      res.writeHead(303, { Location: '/' })
+      return res.end()
+    } catch (e) {
+      const msg = e.status === 409 ? 'That email is already used by another grown-up. Leave it out, or use another.' : 'Please say what to call you (up to 40 letters), and an email that works, or none.'
+      return sendPage(res, 400, 'Welcome', form(msg, f.get('you') ?? '', f.get('email') ?? ''))
+    }
+  }
+  return sendPage(res, 200, 'Welcome', form('', s.member.name === FIRST_MEMBER_NAME ? '' : s.member.name))
 }
 
 /** GET/POST /start/<token>: a new family, from a link the site owner made. */
@@ -559,17 +595,21 @@ async function handleStart(req, res, url, ip) {
     fail(ip)
     return sendPage(res, 404, 'Ark Pals', deadLink(req))
   }
+  const was = currentSession(req)
+  const guard = linkGuard(was, null, was ? families.view(was.family.id, was.device.id).devices.length : 0)
+  const leaving = guard.leave ? leaveChoices(was, { last: guard.last, firstFamily: was.family.id === families.firstFamily(), action: 'start the new family' }) : ''
   const form = (msg = '', family = '', you = '', email = '') => `<form method="post"><h1>🌈 Ark Pals</h1>
 <p>Welcome! Start your family's Ark. You can invite more grown-ups, like grandparents, once you're in.</p>
-${msg ? `<div class="err">${esc(msg)}</div>` : ''}
+${msg ? `<div class="err">${esc(msg)}</div>` : ''}${leaving}
 <label for="family">Your family's name</label><input id="family" name="family" maxlength="40" placeholder="The Smith family" value="${esc(family)}" required autofocus>
 <label for="you">Your name (what the family calls you)</label><input id="you" name="you" maxlength="40" placeholder="Mom" value="${esc(you)}" required>
 ${mailer ? `<label for="email">Your email (for sign-in links on a new device; optional)</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" value="${esc(email)}">` : ''}
 <button>Start our family</button></form>`
   if (req.method === 'POST') {
     const f = new URLSearchParams((await readBody(req, 2000)).toString('utf8'))
+    // (a device signed in to a family moves only when the grown-up ticked "Yes, leave …")
+    if (guard.leave && !leaveConfirmed(f)) return sendPage(res, 400, 'Start your family', form(`Tick "Yes, leave ${was.family.name}" to start the new family on this device, or open the link on another device.`, f.get('family') ?? '', f.get('you') ?? '', f.get('email') ?? ''))
     try {
-      const was = currentSession(req)
       const dev = families.useLink(token, { label: was?.device.label ?? deviceLabel(req), familyName: f.get('family'), yourName: f.get('you'), yourEmail: f.get('email') })
       if (!dev) return sendPage(res, 404, 'Ark Pals', deadLink(req))
       if (was) families.removeDevice(was.family.id, was.device.id)
@@ -637,8 +677,11 @@ createServer(async (req, res) => {
       const pw = new URLSearchParams(body).get('password') ?? ''
       if (pw && checkPassword(pw)) {
         failures.delete(ip)
-        // (the family password signs a device in as the first family's parents)
-        res.writeHead(303, { 'Set-Cookie': [deviceCookie(req, families.passwordDevice(deviceLabel(req))), clearOldCookie], Location: '/' })
+        // (the family password signs a device in as the first family's parents; while they're still called
+        // "Grown-ups", they're asked what to call them first)
+        const dev = families.passwordDevice(deviceLabel(req))
+        const unnamed = families.session(dev)?.member.name === FIRST_MEMBER_NAME
+        res.writeHead(303, { 'Set-Cookie': [deviceCookie(req, dev), clearOldCookie], Location: unnamed ? '/welcome' : '/' })
         return res.end()
       }
       fail(ip)
@@ -676,6 +719,7 @@ createServer(async (req, res) => {
       res.writeHead(wantsPage ? 200 : 401, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
       return res.end(wantsPage ? LOGIN_PAGE() : '')
     }
+    if (url.pathname === '/welcome') return await handleWelcome(req, res, s)
     if (url.pathname === '/family' || url.pathname.startsWith('/family/')) return await handleFamily(req, res, url, s)
     const mine = s ? storesFor(s.family.id) : null
     if ((url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) || (url.pathname === '/backups' && req.method === 'GET')) return await handleBackup(req, res, url, mine)

@@ -55,9 +55,12 @@ function OurFamily() {
 export default function Title({ onStart }: { onStart: (profileId: string) => void }) {
   const { active, list } = useProfiles()
   const update = useUpdateAvailable()
+  const [updating, setUpdating] = useState(false)
   return (
     <div className={`screen title ${list.length ? '' : 'welcoming'}`}>
-      {update && <button className="update-pill" onClick={applyUpdate}>✨ Update ready: tap to update</button>}
+      {update && <button className="update-pill" disabled={updating} onClick={() => { setUpdating(true); setTimeout(applyUpdate, 50) }}>
+        {updating ? <><span className="spinner" aria-hidden /> Updating…</> : '✨ Update ready: tap to update'}
+      </button>}
       <div className="title-pals">
         <PalArt pal={palById('zippy')} size={120} className="bob" />
         <PalArt pal={palById('ember')} size={140} className="bob d1" />
