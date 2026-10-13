@@ -3,6 +3,7 @@
 // same timing), and the whole effect is over by 1.6 s. Styles are in styles.css under "Battle moves".
 import { useState, type CSSProperties, type ReactElement } from 'react'
 import type { MoveFx as Fx } from '../data/pals'
+import Pic from './Pic'
 
 export interface Pt { x: number; y: number }
 interface Ends { from: Pt; to: Pt; big?: boolean; icon?: string }
@@ -20,7 +21,7 @@ function Burst({ x, y, chars, n = 12, dist = 90, delay = 0.6, size = 30 }: {
   return (
     <div className="fx-burst" style={{ left: `${x}%`, top: `${y}%` }}>
       {parts.map((p, i) => (
-        <span key={i} style={{ '--x': `${p.x}px`, '--y': `${p.y}px`, fontSize: p.s, animationDelay: `${delay}s` } as CSSProperties}>{p.c}</span>
+        <span key={i} style={{ '--x': `${p.x}px`, '--y': `${p.y}px`, fontSize: p.s, animationDelay: `${delay}s` } as CSSProperties}><Pic e={p.c} /></span>
       ))}
     </div>
   )

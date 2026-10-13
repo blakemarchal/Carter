@@ -44,9 +44,9 @@ export default function Practice({ skill, title, intro, count = 5, decor, theme,
       <div className="practice-head">
         <span className="decor"><Pic e={decor} /></span>
         <h2>{title}</h2>
-        <div className="mini-dots">{Array.from({ length: count }).map((_, i) => <span key={i} className={i < n ? 'done' : ''}>{i < n ? '⭐' : '☆'}</span>)}</div>
+        <div className="mini-dots">{Array.from({ length: count }).map((_, i) => <span key={i} className={i < n ? 'done' : ''}>{i < n ? <Pic e="⭐" /> : '☆'}</span>)}</div>
       </div>
-      {!started ? <button className="start-tap" onClick={() => setStarted(true)}>👆 Tap to start</button>
+      {!started ? <button className="start-tap" onClick={() => setStarted(true)}><Pic e="👆" /> Tap to start</button>
         : task.type === 'exercise' ? <ExerciseCard key={n} ex={task.ex} onSolved={next} />
           : <QuestionCard key={n} q={task.q} onSolved={next} />}
     </div>

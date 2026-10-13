@@ -20,6 +20,8 @@ import { ac } from '../lib/audio'
 import { keys } from '../voice/keys'
 import { clipAudio, houseFind, houseManifest } from '../voice/house'
 import { mixedBuffer } from '../voice/song-take'
+import Pic from '../components/Pic'
+import { SEAS } from '../data/seas'
 
 /** Who's singing: Ara, the player (the flute only), or the house's child voice (their recording on the flute). */
 type Mode = 'ara' | 'mine' | 'house'
@@ -169,22 +171,22 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
     <div className="screen sing" style={{ ['--song' as string]: song.color }}>
       <header>
         {inIsland ? <span /> : <BackButton onClick={onDone} />}
-        <h2>{song.emoji} {song.title}</h2>
+        <h2><SongPic song={song} /> {song.title}</h2>
         {song.audio.sing
           ? <button className={`sing-mode ${mode !== 'ara' ? 'mine' : ''}`} onClick={() => { sfx.pop(); switchVoice() }} disabled={state === 'loading'}>
-              {mode === 'mine' ? '🙋 I sing!' : mode === 'house' ? `🎶 ${houseLabel ?? 'Our child'}’s version` : '🎤 Ara sings'}
+              {mode === 'mine' ? <><Pic e="🎤" /> I sing!</> : mode === 'house' ? <><Pic e="🎶" /> {houseLabel ?? 'Our child'}’s version</> : <><Pic e="🎵" /> Ara sings</>}
             </button>
           : <span />}
       </header>
       <div className="sing-stage">
         <Buddy beat={pos.beat} dancing={state === 'playing'} />
         <div className="sing-words">
-          {state === 'loading' && <p className="sing-now ready">🎵 Getting the song ready…</p>}
+          {state === 'loading' && <p className="sing-now ready"><Pic e="🎵" /> Getting the song ready…</p>}
           {state === 'error' && <p className="sing-now ready">Oh no, the song didn&rsquo;t load. Check the internet and try again.</p>}
           {state !== 'loading' && state !== 'error' && (
             <>
               {intro
-                ? <p className="sing-now ready">{state === 'playing' ? '🎶 Get ready…' : '🎶'}</p>
+                ? <p className="sing-now ready"><Pic e="🎶" />{state === 'playing' ? ' Get ready…' : ''}</p>
                 : <p className="sing-now" key={pos.line}>
                     {line.words.map(([w], k) => (
                       <span key={k} className={`w ${k <= pos.word ? 'sung' : ''} ${k === pos.word && state === 'playing' ? 'now' : ''}`}>{w} </span>
@@ -203,7 +205,7 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
             <BigButton color="yellow" onClick={again}><Icon kind="again" /> Again!</BigButton>
             {inIsland
               ? <BigButton color="pink" onClick={() => { stopSpeaking(); onDone() }} aria-label="Next"><Arrow /></BigButton>
-              : <BigButton color="white" onClick={onDone}>🎵 More songs</BigButton>}
+              : <BigButton color="white" onClick={onDone}><Pic e="🎵" /> More songs</BigButton>}
           </>
         ) : (
           <>
@@ -216,6 +218,15 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
       {state === 'done' && <Confetti />}
     </div>
   )
+}
+
+/** The general songs' pictures, where the emoji's own drawing isn't the right one. */
+const SONG_ART: Record<string, string> = { 'noah-boat': 'ark', 'away-in-a-manger': 'jesus-baby' }
+
+/** A song's picture: an island's song shows that island's landmark, as on the map; others their own drawing. */
+function SongPic({ song }: { song: Song }) {
+  const isl = song.island ? SEAS.flatMap((s) => s.islands).find((i) => i.id === song.island) : undefined
+  return <Pic e={isl?.emoji ?? song.emoji} art={(isl as { landmark?: string } | undefined)?.landmark ?? SONG_ART[song.id]} />
 }
 
 export default function SingAlong({ onBack }: { onBack: () => void }) {
@@ -237,14 +248,14 @@ export default function SingAlong({ onBack }: { onBack: () => void }) {
   if (song) return <Player key={song.id} song={song} onDone={() => { stopSpeaking(); setSong(null) }} />
   return (
     <div className="screen sing">
-      <header><BackButton onClick={onBack} /><h2>🎤 Sing-along!</h2><span /></header>
+      <header><BackButton onClick={onBack} /><h2><Pic e="🎤" /> Sing-along!</h2><span /></header>
       <div className="song-grid">
         {songs.map((s) => (
           <button key={s.id} className="song-card" style={{ ['--song' as string]: s.color }}
             onClick={() => { sfx.pop(); setSong(s) }}>
-            <span className="song-emoji">{s.emoji}</span>
+            <span className="song-emoji"><SongPic song={s} /></span>
             <span className="song-title">{s.title}</span>
-            {s.family && <span className="song-tag">💗 our song</span>}
+            {s.family && <span className="song-tag"><Pic e="💗" /> our song</span>}
           </button>
         ))}
       </div>

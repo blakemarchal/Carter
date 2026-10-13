@@ -9,6 +9,7 @@ import { useAlive } from '../lib/useAlive'
 import Pic from './Pic'
 import { ScoreContext } from '../lib/score'
 import { VIEWS } from '../learn/registry'
+import { Icon } from './ui'
 
 export function VisualView({ v, onSay }: { v: Visual; onSay: (s: string) => void }) {
   switch (v.kind) {
@@ -89,7 +90,7 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
   const textChoices = q.choices.every((c) => !c.art && !/\p{Extended_Pictographic}/u.test(c.label))
   return (
     <div className="q-card">
-      <button className="q-prompt" onClick={() => speak(q.say)}>🔊</button>
+      <button className="q-prompt" onClick={() => speak(q.say)} aria-label="Hear it again"><Icon kind="speaker" /></button>
       <VisualView v={q.visual} onSay={(s) => speak(s)} />
       <div className={`q-choices ${textChoices ? 'text' : 'pics'}`}>
         {q.choices.map((c, i) => (

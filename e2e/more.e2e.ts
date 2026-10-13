@@ -33,7 +33,8 @@ test('the Pal Kitchen', async ({ app }) => {
   await app.waitFor(`!!document.querySelector('.k-card .now')`, 15_000, 'the kitchen')
   const done: string[] = []
   for (let guard = 0; guard < 10; guard++) {
-    const now = await app.eval<string | null>(`document.querySelector('.k-card .now')?.textContent ?? null`)
+    // (each step is a drawn picture: its data-icon says which kind it is)
+    const now = await app.eval<string | null>(`document.querySelector('.k-card .now')?.getAttribute('data-icon') ?? null`)
     if (!now) break
     await app.shot(`station-${guard}`)
     const next = await mark(app, `document.querySelector('.k-card .now')`)

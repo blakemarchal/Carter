@@ -5,6 +5,7 @@ import type { Thing } from '../data/islands'
 import { speak } from '../lib/speech'
 import type { Question } from '../lib/questions'
 import { shuffle } from '../lib/util'
+import Pic from '../components/Pic'
 
 export default function Quiz({ title, questions, onDone }: {
   title: string; questions: { say: string; choices: Thing[]; answer: number }[]; onDone: () => void
@@ -28,7 +29,7 @@ export default function Quiz({ title, questions, onDone }: {
         <h2>{title}</h2>
         <div className="mini-dots">{qs.map((_, i) => <span key={i}>{i < n ? '⭐' : '☆'}</span>)}</div>
       </div>
-      {started ? <QuestionCard key={n} q={qs[n]} onSolved={next} record={false} /> : <button className="start-tap" onClick={() => setStarted(true)}>👆 Tap to start</button>}
+      {started ? <QuestionCard key={n} q={qs[n]} onSolved={next} record={false} /> : <button className="start-tap" onClick={() => setStarted(true)}><Pic e="👆" /> Tap to start</button>}
     </div>
   )
 }

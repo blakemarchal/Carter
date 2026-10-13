@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom'
 import type { At, BuildKit, BuildPart } from './types'
 import { Board, BoardLayer, toBoard } from './Board'
 import { sparkle } from '../../art/scenes/kit'
-import { Confetti } from '../../components/ui'
+import { Confetti, Icon } from '../../components/ui'
 import { preload, speak } from '../../lib/speech'
 import { sfx } from '../../lib/sfx'
 import { showDrag } from '../../lib/drag'
@@ -445,7 +445,7 @@ export default function BuildIt({ title, intro, done, kit, onDone }: {
     <div ref={root} className={`activity game build-it ${finished ? 'finished' : ''}`} data-ready={ready && !finished ? 'yes' : 'no'}>
       <div className="practice-head">
         <h2>{title}</h2>
-        <button type="button" className="build-again" aria-label="Hear it again" disabled={!ready || finished} onClick={() => speak(intro)}>🔊</button>
+        <button type="button" className="build-again" aria-label="Hear it again" disabled={!ready || finished} onClick={() => speak(intro)}><Icon kind="speaker" /></button>
       </div>
       <Board className="build-board">
         {backdrop}

@@ -3,7 +3,7 @@
 // stop at the right number. Tapping a thing works too: the first tap shows how to drag, then it hops in.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Thing } from '../data/islands'
-import { BigButton } from '../components/ui'
+import { BigButton, Icon } from '../components/ui'
 import { praise, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { fly, showDrag, useDrag, useDropTarget } from '../lib/drag'
@@ -152,7 +152,7 @@ export default function CountBasket({ title, intro, item, plural, basket, basket
           <span className="count-n" key={n}>{n}</span>
         </button>
       </div>
-      <BigButton color="green" disabled={busy} onClick={done}>✅ Done!</BigButton>
+      <BigButton color="green" disabled={busy} onClick={done}><Icon kind="check" /> Done!</BigButton>
     </div>
   )
 }

@@ -27,6 +27,7 @@ import { numberWords } from '../lib/spoken'
 import { sfx } from '../lib/sfx'
 import { useAlive } from '../lib/useAlive'
 import { wait } from '../lib/util'
+import Pic from '../components/Pic'
 
 /** On the day itself; again from the sticker book (age known); or a grown-up trying it (changes nothing). */
 export type PartyMode = 'day' | 'replay' | 'preview'
@@ -155,10 +156,10 @@ function Song({ name, age, p, onDone }: { name: string; age: number; p: Progress
     <div className="party-song">
       <div className="party-cake lit"><PartyCake slots={age} placed={age} lit /></div>
       <div className="party-words">
-        {state === 'loading' && <p className="sing-now ready">🎵 Getting the song ready…</p>}
+        {state === 'loading' && <p className="sing-now ready"><Pic e="🎵" /> Getting the song ready…</p>}
         {state !== 'loading' && (line
           ? <p className="sing-now" key={pos.line}>{line.words.map(([w], k) => <span key={k} className={`w ${k <= pos.word ? 'sung' : ''} ${k === pos.word ? 'now' : ''} ${w.startsWith(name) ? 'their-name' : ''}`}>{w} </span>)}</p>
-          : <p className="sing-now ready">🎶 Happy Birthday!</p>)}
+          : <p className="sing-now ready"><Pic e="🎶" /> Happy Birthday!</p>)}
       </div>
       <PartyPals p={p} max={5} size={96} dancing={state === 'playing' ? Math.max(0, pos.beat) : undefined} />
       {state === 'playing' && <button className="party-skip" onClick={() => { play.current?.stop(); onDone() }}>Skip ⏭</button>}
@@ -182,7 +183,7 @@ function Thanks({ name, onDone }: { name: string; onDone: () => void }) {
   return (
     <div className="party-thanks">
       <button className={`thanks-heart ${said ? 'said' : ''}`} onClick={tap} aria-label="Say thank you">
-        <span className="thanks-big">💗</span>
+        <span className="thanks-big"><Pic e="💗" /></span>
         {said && <span className="thanks-burst" aria-hidden>{['💖', '💗', '✨', '💕', '💖', '✨'].map((h, i) => <i key={i} style={{ '--i': i } as React.CSSProperties}>{h}</i>)}</span>}
       </button>
       <p className="thanks-line">{thanksLine(name)}</p>
@@ -230,7 +231,7 @@ function Gift({ name, age, again, gifts, onOpen, onDone }: {
           </div>
         </div>
       )}
-      {open && <BigButton color="pink" onClick={onDone}>💖 Thank you!</BigButton>}
+      {open && <BigButton color="pink" onClick={onDone}><Pic e="💖" /> Thank you!</BigButton>}
     </div>
   )
 }
@@ -316,7 +317,7 @@ export default function BirthdayParty({ mode, age: knownAge, onDone }: { mode: P
             {age !== undefined && mode !== 'preview' && <p>You can play it again from your sticker book.</p>}
             <div className="leave-row">
               <BigButton color="white" onClick={() => { setLeaving(false); pauseNarration(false) }}>🎉 Keep partying</BigButton>
-              <BigButton color="pink" onClick={exit}>🗺️ Map</BigButton>
+              <BigButton color="pink" onClick={exit}><Pic e="🗺️" /> Map</BigButton>
             </div>
           </div>
         )}

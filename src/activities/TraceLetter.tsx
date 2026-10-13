@@ -2,7 +2,7 @@
 // their painting covers; about 70% covered (and not much paint outside it) = traced. Scribbling
 // mostly outside the letter starts over.
 import { useEffect, useRef, useState } from 'react'
-import { BigButton } from '../components/ui'
+import { BigButton, Icon } from '../components/ui'
 import { praise, speak } from '../lib/speech'
 import { letterSound } from '../lib/spoken'
 import { sfx } from '../lib/sfx'
@@ -138,8 +138,8 @@ export default function TraceLetter({ title, intro, letters, onDone }: { title: 
       <canvas ref={canvas} className={`trace-canvas ${done ? 'done' : ''}`} style={{ width: SIZE, height: SIZE }}
         onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} />
       <div className="trace-tools">
-        <button className="instruction" onClick={() => speak(`Trace ${named(letter)} with your finger!`)}>🔊 {letter}</button>
-        <BigButton color="white" onClick={() => setup()}>🧽 Start over</BigButton>
+        <button className="instruction" onClick={() => speak(`Trace ${named(letter)} with your finger!`)}><Icon kind="speaker" /> {letter}</button>
+        <BigButton color="white" onClick={() => setup()}><Icon kind="again" /> Start over</BigButton>
       </div>
     </div>
   )

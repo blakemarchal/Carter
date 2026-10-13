@@ -8,6 +8,7 @@ import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 import Pic from '../components/Pic'
 import { Ark } from '../art/scenes/kit'
+import { Icon } from '../components/ui'
 
 const INTRO = 'Help Noah! The animals go into the ark two by two. Find the two that look the same!'
 
@@ -101,7 +102,7 @@ export default function TwoByTwo({ animals, names, done = 'All the animals are s
 
   return (
     <div className="activity two-by-two">
-      <button className="instruction" disabled={counting !== null} onClick={() => speak(INTRO)}>🔊 Find the pairs!</button>
+      <button className="instruction" disabled={counting !== null} onClick={() => speak(INTRO)}><Icon kind="speaker" /> Find the pairs!</button>
       <div className="pair-grid">
         {cards.map((c) => (
           <Animal key={c.id} id={c.id} a={c.a} picked={picked.includes(c.id)} boarded={boarded.includes(c.a)} onMatch={match} onTap={tap} />

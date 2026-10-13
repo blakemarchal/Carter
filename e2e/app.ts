@@ -41,6 +41,26 @@ const SERVER: Record<string, { status?: number; json: unknown }> = {
 // public/voice/grok-list.json, as the server has it after the warm-up (each one plays the same short real clip),
 // so whatever the game still hands to the device's own voice is a line nothing covers. Those are written to
 // e2e-results/voice-audit.txt, one per line, with the test that heard it.
+// The emoji audit (E2E_EMOJI_AUDIT=1): every emoji the game draws as text (not as a drawn picture) while it's
+// played, with where it was (the nearest element's class), written to e2e-results/emoji-audit.txt.
+const EMOJI_AUDIT = !!process.env.E2E_EMOJI_AUDIT
+const EMOJI_WATCH = `(() => {
+  const re = /\\p{Extended_Pictographic}(?:\\uFE0F|\\u200D\\p{Extended_Pictographic}|\\p{Emoji_Modifier})*/gu;
+  window.__emoji = new Map();
+  const note = (node) => {
+    const t = node.nodeType === 3 ? node.textContent : '';
+    if (!t || !re.test(t)) return;
+    re.lastIndex = 0;
+    const el = node.parentElement;
+    if (!el || el.closest('svg')) return;
+    const where = (el.closest('[class]')?.className || el.tagName).toString().split(' ').slice(0, 2).join('.');
+    for (const m of t.matchAll(re)) window.__emoji.set(m[0] + '\\t' + where, (window.__emoji.get(m[0] + '\\t' + where) || 0) + 1);
+  };
+  const walk = (n) => { if (n.nodeType === 3) note(n); else n.childNodes && n.childNodes.forEach(walk); };
+  new MutationObserver((ms) => ms.forEach((m) => { m.addedNodes.forEach(walk); if (m.type === 'characterData') note(m.target); }))
+    .observe(document, { childList: true, subtree: true, characterData: true });
+})();`
+
 const AUDIT = !!process.env.E2E_VOICE_AUDIT
 const auditManifest = () => {
   const clips: Record<string, [string, number, number, number]> = {}
@@ -214,6 +234,7 @@ export const test = base.extend<{ app: App }>({
     page.on('console', (m) => { if (m.type() === 'error') app.errors.push(`console: ${m.text()}${m.location()?.url ? ` (${m.location().url}:${m.location().lineNumber})` : ''}`) })
     page.on('pageerror', (e) => app.errors.push(`page error: ${e.message}\n${e.stack ?? ''}`))
     await page.addInitScript(SPEECH_STUB)
+    if (EMOJI_AUDIT) await page.addInitScript(EMOJI_WATCH)
     await page.route((url) => url.origin === new URL(info.project.use.baseURL ?? 'http://localhost').origin && url.pathname in SERVER, (route) => {
       const r = SERVER[new URL(route.request().url()).pathname]
       return route.fulfill({ status: r.status ?? 200, contentType: 'application/json', body: JSON.stringify(r.json) })
@@ -229,6 +250,13 @@ export const test = base.extend<{ app: App }>({
       mkdirSync('e2e-results', { recursive: true })
       const who = info.titlePath.slice(1).join(' › ')
       for (const line of new Set(said)) if (line.trim()) appendFileSync('e2e-results/voice-audit.txt', `${line.replace(/\s+/g, ' ')}	${who}
+`)
+    }
+    if (EMOJI_AUDIT) {
+      const seen = await app.eval<[string, number][]>('[...(window.__emoji || new Map())]').catch(() => [] as [string, number][])
+      mkdirSync('e2e-results', { recursive: true })
+      const who = info.titlePath.slice(1).join(' › ')
+      for (const [k] of seen) appendFileSync('e2e-results/emoji-audit.txt', `${k}	${who}
 `)
     }
     await app.shot('end')

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import DressedPal from './DressedPal'
 import { CandlesOnCake } from './PartyCake'
 import { MixingBowl, StirBowl, bowlSlot, type Batter } from './Bowl'
-import { BackButton, BigButton, Confetti } from './ui'
+import { BackButton, BigButton, Confetti, Icon } from './ui'
 import { FRUIT_COLOR, stageFor, type PalDef } from '../data/pals'
 import { recipeFor, type CookStep, type Recipe } from '../data/recipes'
 import { CUT_SAY } from '../data/recipes'
@@ -129,7 +129,7 @@ function AddStep({ step, onDone }: { step: Extract<CookStep, { kind: 'add' }>; o
           <span className="k-n" key={count}>{count}</span>
         </div>
       </div>
-      <BigButton color="green" onClick={done}>✅ Done!</BigButton>
+      <BigButton color="green" onClick={done}><Icon kind="check" /> Done!</BigButton>
     </div>
   )
 }
@@ -160,7 +160,7 @@ function FindStep({ step, onDone }: { step: Extract<CookStep, { kind: 'find' }>;
   }
   return (
     <div className="k-station">
-      <div className="k-ask" onClick={ask}>Find: 🔊</div>
+      <div className="k-ask" onClick={ask}>Find: <Icon kind="speaker" /></div>
       <div className="k-jars">
         {jars.map((w) => (
           <button key={w} className={`k-jar ${wrong === w ? 'wiggle' : ''} ${opened === w ? 'open' : ''}`} onClick={() => tap(w)}>
@@ -223,7 +223,7 @@ function PatternStep({ step, onDone }: { step: Extract<CookStep, { kind: 'patter
   }
   return (
     <div className="k-station">
-      <div className="k-ask" onClick={ask}>What comes next? 🔊</div>
+      <div className="k-ask" onClick={ask}>What comes next? <Icon kind="speaker" /></div>
       <div className="k-pattern">
         {Array.from({ length: shown }, (_, i) => <span key={i}>{items[i % items.length]}</span>)}
         <span ref={slotRef} className={`k-slot ${filled ? 'filled' : ''}`}>{filled ? items[nextIdx] : '?'}</span>
@@ -561,9 +561,9 @@ export default function Kitchen({ pal, hungry, special, onClose }: {
     <div className="overlay kitchen" style={{ '--c': FRUIT_COLOR[pal.fruit] } as CSSProperties}>
       <header className="home-head">
         <BackButton onClick={onClose} />
-        <h2>🍳 {recipe.name} for {name}</h2>
+        <h2><Pic e="🍳" art="pan" /> {recipe.name} for {name}</h2>
         <div className="k-card">
-          {recipe.steps.map((s, k) => <span key={k} className={k < i ? 'done' : k === i ? 'now' : ''}>{k < i ? '✅' : ICON[s.kind]}</span>)}
+          {recipe.steps.map((s, k) => <span key={k} className={k < i ? 'done' : k === i ? 'now' : ''} data-icon={ICON[s.kind]}>{k < i ? <Icon kind="check" /> : <Pic e={ICON[s.kind]} />}</span>)}
           <span className={finished ? 'now' : ''}><Pic e={recipe.emoji} /></span>
         </div>
       </header>
@@ -586,7 +586,7 @@ export default function Kitchen({ pal, hungry, special, onClose }: {
             <div className="k-station">
               <div className="k-yum">Yum! 😋</div>
               <p>{name} got <b>+{served}</b> ⭐</p>
-              <BigButton color="pink" onClick={onClose}>💖 Yay!</BigButton>
+              <BigButton color="pink" onClick={onClose}><Pic e="💖" /> Yay!</BigButton>
             </div>
           )}
         </div>

@@ -9,6 +9,7 @@ import { useAlive } from '../lib/useAlive'
 import { ScoreContext } from '../lib/score'
 import { EXERCISES } from './registry'
 import type { Exercise } from './types'
+import { Icon } from '../components/ui'
 
 export default function ExerciseCard({ ex, onSolved }: { ex: Exercise; onSolved: (firstTry: boolean) => void }) {
   const alive = useAlive()
@@ -32,7 +33,7 @@ export default function ExerciseCard({ ex, onSolved }: { ex: Exercise; onSolved:
   if (!Player) return null
   return (
     <div className={`q-card ex-card ex-${ex.kind}`}>
-      <button className="q-prompt" aria-label="Hear it again" onClick={() => speak(ex.say)}>🔊</button>
+      <button className="q-prompt" aria-label="Hear it again" onClick={() => speak(ex.say)}><Icon kind="speaker" /></button>
       <Player ex={ex} onResult={onResult} />
     </div>
   )

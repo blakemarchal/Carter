@@ -10,7 +10,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from 'react'
 import type { RhythmKit } from './types'
 import { Board, BoardLayer } from './Board'
-import { Arrow, BigButton, Confetti } from '../../components/ui'
+import { Arrow, BigButton, Confetti, Icon } from '../../components/ui'
 import { ac, buses, kick, midiHz, musicBox, noiseBuffer, pad, unlockAudio } from '../../lib/audio'
 import { sparkle } from '../../art/scenes/kit'
 import { speak, stopSpeaking } from '../../lib/speech'
@@ -845,7 +845,7 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
         <h2>{title}</h2>
         {/* (not while the intro is said: the music starts when it ends) */}
         {(phase === 'intro' || phase === 'start' || phase === 'ask') && (
-          <button type="button" className="icon-btn speaker" aria-label="Hear it again" disabled={phase === 'intro'} onClick={() => speak(intro)}>🔊</button>
+          <button type="button" className="icon-btn speaker" aria-label="Hear it again" disabled={phase === 'intro'} onClick={() => speak(intro)}><Icon kind="speaker" /></button>
         )}
       </div>
       <Board className="rhythm-board">
@@ -897,7 +897,7 @@ export default function Rhythm({ title, intro, done, kit, onDone }: {
         )}
         {phase === 'ask' && (
           <div className="rhythm-overlay rhythm-ask">
-            <BigButton color="yellow" className="rhythm-again" onClick={() => { stopSpeaking(); begin() }}>🎵 Again!</BigButton>
+            <BigButton color="yellow" className="rhythm-again" onClick={() => { stopSpeaking(); begin() }}><Icon kind="again" /> Again!</BigButton>
             <BigButton color="pink" className="rhythm-next" onClick={() => { stopRun(); onDone() }} aria-label="Next"><Arrow /></BigButton>
           </div>
         )}

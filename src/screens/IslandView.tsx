@@ -5,13 +5,14 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { BigButton } from '../components/ui'
 import { loadIsland } from '../data/islands'
 import { useIsland } from '../lib/useIsland'
+import Pic from '../components/Pic'
 
 const IslandScreen = lazy(() => import('./IslandScreen'))
 
 function Sailing() {
   return (
     <div className="screen sailing">
-      <div className="sailing-ark bob" aria-hidden>⛵</div>
+      <div className="sailing-ark bob" aria-hidden><Pic e="⛵" art="ark" /></div>
       <p>Sailing to the island…</p>
     </div>
   )
@@ -25,7 +26,7 @@ export default function IslandView({ id, onExit }: { id: string; onExit: () => v
     return (
       <div className="screen sailing">
         <p>Oh no, the Ark couldn&rsquo;t reach this island. Check the internet, then try again!</p>
-        <BigButton color="pink" onClick={onExit}>🗺️ Map</BigButton>
+        <BigButton color="pink" onClick={onExit}><Pic e="🗺️" /> Map</BigButton>
       </div>
     )
   }

@@ -30,6 +30,8 @@ import { useDrag, useDropTarget } from '../lib/drag'
 import { pick, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 import './FriendlyBattle.css'
+import Pic from '../components/Pic'
+import MoveIcon from '../components/MoveIcon'
 
 const SHADOW = 6 // the creature's Shadow bar
 const ENERGY = 5 // their Pal's hearts
@@ -70,7 +72,7 @@ function ShadeFinale({ shade }: { shade: 'out' | FinaleShade }) {
     <div className={`gs-finale gs-${shade}`} aria-hidden>
       <div className="gs-rays" />
       <div className="gs-halo" />
-      {(shade === 'listen' || shade === 'smile') && <span className="gs-hearts"><i>💛</i><i>💖</i><i>💛</i></span>}
+      {(shade === 'listen' || shade === 'smile') && <span className="gs-hearts"><i><Pic e="💛" /></i><i><Pic e="💖" /></i><i><Pic e="💛" /></i></span>}
       {shade === 'glad' || shade === 'joined'
         ? <div className="gs-pal"><PalArt pal={palById(GLADSHADE)} size={150} className="bob" /></div>
         : <div className="gs-body"><Grumbleshade size={150} face={face} /></div>}
@@ -423,7 +425,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
               <PalArt pal={foe} mood={happy ? 'happy' : 'grumpy'} size={170}
                 className={phase === 'attack' ? 'hit' : phase === 'shadow' ? 'foe-lunge' : happy ? 'befriend' : 'bob'} />
             </div>
-            {phase === 'ask' && <div className="speech">Yes, please! 💖</div>}
+            {phase === 'ask' && <div className="speech">Yes, please! <Pic e="💖" /></div>}
             {gift && !caughtIn && <span className="foe-present" aria-hidden>🎁</span>}
           </div>
         </div>
@@ -432,7 +434,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
             <>
               <div className="info-box">
                 <b>{name}</b>
-                <span className="hearts">{Array.from({ length: ENERGY }, (_, i) => <i key={i}>{i < energy ? '❤️' : '🤍'}</i>)}</span>
+                <span className="hearts">{Array.from({ length: ENERGY }, (_, i) => <i key={i}><Pic e={i < energy ? '❤️' : '🤍'} /></i>)}</span>
                 {superKnown && (
                   <span className={`charge ${charge >= CHARGE ? 'full' : ''}`} aria-label="Super move charge">
                     {Array.from({ length: CHARGE }, (_, i) => <span key={i} className={i < charge ? 'on' : ''}>⚡</span>)}
@@ -486,11 +488,11 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
                 <button key={s.kind} className={`move-btn ${s.kind} ${s.known ? '' : 'locked'} ${s.known && !ready ? 'charging' : ''} ${s.known && ready && s.kind === 'super' ? 'ready' : ''}`}
                   style={{ ['--c' as string]: pal ? FRUIT_COLOR[pal.fruit] : undefined }} onClick={() => pickMove(s)}>
                   {isNew(s) && <span className="mv-new">NEW</span>}
-                  <span className="mv-icon">{s.known ? s.move.icon : '🔒'}</span>
+                  <span className="mv-icon">{s.known ? <MoveIcon move={s.move} /> : <Pic e="🔒" />}</span>
                   <span className="mv-name">{s.known ? s.move.name : '???'}</span>
-                  <span className="mv-power">{'⭐'.repeat(POWER[s.kind])}</span>
+                  <span className="mv-power">{Array.from({ length: POWER[s.kind] }, (_, k) => <Pic key={k} e="⭐" />)}</span>
                   {s.known && s.kind === 'brave' && <span className="mv-tag">tricky question</span>}
-                  {s.known && s.kind === 'super' && <span className="mv-tag">{ready ? 'READY!' : `${'⚡'.repeat(charge)}${'○'.repeat(CHARGE - charge)}`}</span>}
+                  {s.known && s.kind === 'super' && <span className="mv-tag">{ready ? 'READY!' : `${'●'.repeat(charge)}${'○'.repeat(CHARGE - charge)}`}</span>}
                 </button>
               )
             })}
@@ -516,7 +518,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
           <div className="learned">
             <div className="learned-title">Gotcha!</div>
             <div className="learned-name">{foeName} joined your Ark!</div>
-            <BigButton color="pink" onClick={finish}>Yay! 💖</BigButton>
+            <BigButton color="pink" onClick={finish}>Yay! <Pic e="💖" /></BigButton>
           </div>
         )}
         {phase === 'learned' && learned && (
@@ -524,7 +526,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
             <div className="learned-icon">{learned.icon}</div>
             <div className="learned-title">New move!</div>
             <div className="learned-name">{learned.name}</div>
-            <BigButton color="pink" onClick={onDone}>Yay! 💖</BigButton>
+            <BigButton color="pink" onClick={onDone}>Yay! <Pic e="💖" /></BigButton>
           </div>
         )}
       </div>

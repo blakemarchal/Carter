@@ -10,7 +10,7 @@
 // Styles: styles.css, "Map".
 import { useEffect, useMemo, useRef, useState } from 'react'
 import PalArt from '../components/PalArt'
-import { HoldButton } from '../components/ui'
+import { Arrow, HoldButton } from '../components/ui'
 import VoyageComplete from '../components/VoyageComplete'
 import { ISLANDS, islandById, loadIsland, loadedIsland } from '../data/islands'
 import { SEAS, islandSpots, seaOf, type SeaIsland } from '../data/seas'
@@ -101,7 +101,7 @@ function IslandShape({ isl, state, pressed, stars, resting, fresh }: { isl: MapI
         <g className="map-fog">
           <circle cx={-44} cy={-6} r={34} /><circle cx={0} cy={-22} r={42} /><circle cx={46} cy={-4} r={34} />
           <rect x={-74} y={-8} width={148} height={40} rx={20} />
-          <text x={0} y={8} textAnchor="middle" fontSize={34}>🔒</text>
+          <Emoji e="🔒" x={0} y={-4} size={36} />
         </g>
       )}
       {state === 'soon' && (
@@ -119,8 +119,8 @@ function IslandShape({ isl, state, pressed, stars, resting, fresh }: { isl: MapI
           </g>
         </g>
       )}
-      {state === 'next' && !resting && <text className="map-point" x={4} y={-70} textAnchor="middle">👇</text>}
-      {state === 'next' && resting && <text className="map-point resting" x={4} y={-70} textAnchor="middle">🌙</text>}
+      {state === 'next' && !resting && <g className="map-point"><Emoji e="👇" x={4} y={-86} size={44} /></g>}
+      {state === 'next' && resting && <g className="map-point resting"><Emoji e="🌙" x={4} y={-86} size={44} /></g>}
     </g>
     <ellipse className="map-hit" cx={0} cy={0} rx={104} ry={70} />
     </g>
@@ -334,7 +334,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
         <button className="ark-btn" onClick={() => { sfx.pop(); onArk() }}>
           <PalArt pal={buddy} stage={stageFor(buddy, p.pals[buddy.id] ?? 0)} size={70} />
           <span>My Ark</span>
-          {hungryPals(p, me.id).length > 0 && <span className="hungry-badge small">🍽️</span>}
+          {hungryPals(p, me.id).length > 0 && <span className="hungry-badge small"><Pic e="🍽️" /></span>}
         </button>
         <div className="map-title">
           <h2>{def.name}</h2>
@@ -347,19 +347,19 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
             <span className="who-face"><Pic e={me.emoji} /></span><span className="who-name">{me.name.trim() || 'Player'}</span>
           </button>
           <button className={`icon-btn music ${p.music ? '' : 'off'}`} aria-label={p.music ? 'Turn music off' : 'Turn music on'}
-            onClick={() => { sfx.pop(); update((x) => ({ ...x, music: !x.music })) }}>{p.music ? '🎵' : '🔇'}</button>
-          <button className="icon-btn music" aria-label="Sing-along" onClick={() => { sfx.pop(); onSing() }}>🎤</button>
-          <button className="icon-btn music" aria-label="Bedtime story" onClick={() => { sfx.pop(); onBedtime() }}>🌙</button>
-          <HoldButton onHold={onParent} className="parent-gear">⚙️</HoldButton>
+            onClick={() => { sfx.pop(); update((x) => ({ ...x, music: !x.music })) }}><Pic e={p.music ? '🎵' : '🔇'} /></button>
+          <button className="icon-btn music" aria-label="Sing-along" onClick={() => { sfx.pop(); onSing() }}><Pic e="🎤" /></button>
+          <button className="icon-btn music" aria-label="Bedtime story" onClick={() => { sfx.pop(); onBedtime() }}><Pic e="🌙" /></button>
+          <HoldButton onHold={onParent} className="parent-gear"><Pic e="⚙️" /></HoldButton>
         </div>
       </header>
       <div className="sea">
         {others.length > 0 && <div className="map-banner">🎂 Today is {andList(others)}&rsquo;s birthday! 🎉</div>}
-        {resting && !others.length && states.includes('next') && <div className="map-banner rest">🌙 The crew is resting until tomorrow!</div>}
-        {prevOpen && <button className="sea-arrow prev" aria-label={`Back to ${SEAS[sea - 1].name}`} onClick={() => goSea(sea - 1)}>◀</button>}
+        {resting && !others.length && states.includes('next') && <div className="map-banner rest"><Pic e="🌙" /> The crew is resting until tomorrow!</div>}
+        {prevOpen && <button className="sea-arrow prev" aria-label={`Back to ${SEAS[sea - 1].name}`} onClick={() => goSea(sea - 1)}><Arrow dir="left" /></button>}
         {sea + 1 < SEAS.length && (
           <button className={`sea-arrow next ${nextOpen ? '' : 'locked'} ${nextOpen && seaDone ? 'go' : ''}`} aria-label={`On to ${SEAS[sea + 1].name}`}
-            onClick={() => (nextOpen ? goSea(sea + 1) : (sfx.pop(), speak('Finish the islands in this sea, then sail on!')))}>{nextOpen ? '▶' : '🔒'}</button>
+            onClick={() => (nextOpen ? goSea(sea + 1) : (sfx.pop(), speak('Finish the islands in this sea, then sail on!')))}>{nextOpen ? <Arrow /> : <Pic e="🔒" />}</button>
         )}
         <svg className="sea-map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" key={sea}>
           <defs>

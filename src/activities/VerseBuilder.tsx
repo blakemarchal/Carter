@@ -5,6 +5,7 @@ import { sfx } from '../lib/sfx'
 import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
+import { Icon } from '../components/ui'
 
 function Slot({ i, text, filled, lit, next }: { i: number; text: string; filled: boolean; lit: boolean; next: boolean }) {
   const target = useDropTarget(`verse-${i}`, () => next, 18)
@@ -110,7 +111,7 @@ export default function VerseBuilder({ chunks, reference, onDone }: { chunks: st
         ))}
       </div>
       {/* Only while building: replaying mid-read or mid-celebration would start a second read-aloud. */}
-      <button className="instruction" disabled={!ready || placed === chunks.length} onClick={listen}>🔊 Hear it again</button>
+      <button className="instruction" disabled={!ready || placed === chunks.length} onClick={listen}><Icon kind="speaker" /> Hear it again</button>
     </div>
   )
 }

@@ -3,7 +3,7 @@
 // visits, split by "pause" steps: each finished visit counts toward the daily voyage, and the next
 // visit starts after the pause. First-try answers earn the island's stars (lib/score.ts).
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { BackButton, BigButton, StepDots } from '../components/ui'
+import { BackButton, BigButton, Icon, StepDots } from '../components/ui'
 import StoryBook from '../activities/StoryBook'
 import TwoByTwo from '../activities/TwoByTwo'
 import Practice from '../activities/Practice'
@@ -34,6 +34,7 @@ import BuddyCheer from '../components/BuddyCheer'
 import { pauseNarration, preload, speak, stopSpeaking } from '../lib/speech'
 import { setMood, type Mood } from '../lib/music'
 import { backupNow } from '../lib/backup'
+import Pic from '../components/Pic'
 
 // (null: the step brings its own music, like a song or a rhythm game.)
 const MOOD: Record<Step['kind'], Mood | null> = {
@@ -216,8 +217,8 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
           <h2>Go back to the map?</h2>
           <p>Your place on the island is saved.</p>
           <div className="leave-row">
-            <BigButton color="white" onClick={stay}>▶️ Keep playing</BigButton>
-            <BigButton color="pink" onClick={exit}>🗺️ Map</BigButton>
+            <BigButton color="white" onClick={stay}><Icon kind="play" /> Keep playing</BigButton>
+            <BigButton color="pink" onClick={exit}><Pic e="🗺️" /> Map</BigButton>
           </div>
         </div>
       )}

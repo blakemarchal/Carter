@@ -4,10 +4,11 @@ import type { PalDef } from '../data/pals'
 import { PartyHat } from '../art/partyHat'
 import { partyHatVars } from '../art/pals/faces'
 import { accessoryById, type Accessory } from '../lib/care'
+import Pic from './Pic'
 
-/** An accessory's picture: its emoji, or the drawn party hat. */
+/** An accessory's picture: its drawing (art/items), or the drawn party hat. */
 export function AccessoryIcon({ a, size = 34 }: { a: Accessory; size?: number }) {
-  return a.id === 'partyhat' ? <PartyHat size={size * 0.8} /> : <>{a.emoji}</>
+  return a.id === 'partyhat' ? <PartyHat size={size * 0.8} /> : <Pic e={a.emoji} />
 }
 
 export default function DressedPal({ pal, stage = 0, size = 160, outfit, className, mood }: {
@@ -19,7 +20,7 @@ export default function DressedPal({ pal, stage = 0, size = 160, outfit, classNa
       <PalArt pal={pal} stage={stage} size={size} mood={mood} />
       {acc && (acc.id === 'partyhat'
         ? <PartyHat className="dressed-hat" size={size * 0.3} />
-        : <span className="dressed-acc" style={{ fontSize: size * 0.28 }}>{acc.emoji}</span>)}
+        : <span className="dressed-acc" style={{ fontSize: size * 0.28 }}><Pic e={acc.emoji} /></span>)}
     </span>
   )
 }

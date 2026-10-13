@@ -11,7 +11,7 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ComponentType, type CSSProperties, type PointerEvent as RPointerEvent } from 'react'
 import type { At, SpotKit, SpotTarget } from './types'
 import { Board, BoardLayer, toBoard } from './Board'
-import { Confetti } from '../../components/ui'
+import { Confetti, Icon } from '../../components/ui'
 import { sparkle } from '../../art/scenes/kit'
 import { isSpeaking, preload, speak } from '../../lib/speech'
 import { numberWords } from '../../lib/spoken'
@@ -210,7 +210,7 @@ export default function SpotIt({ title, intro, done, plural, kit, onDone }: {
       <div className="practice-head spot-head">
         <h2>{title}</h2>
         {shelf}
-        <button className="icon-btn spot-again" aria-label="Hear it again" disabled={!ready || cheer} onClick={() => speak(intro)}>🔊</button>
+        <button className="icon-btn spot-again" aria-label="Hear it again" disabled={!ready || cheer} onClick={() => speak(intro)}><Icon kind="speaker" /></button>
       </div>
       <Board className={cheer ? 'spot-cheer' : ''}>
         {picture}

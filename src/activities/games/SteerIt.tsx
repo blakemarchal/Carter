@@ -7,7 +7,7 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
 import type { At, SteerKit } from './types'
 import { Board, BoardLayer, toBoard } from './Board'
-import { Confetti } from '../../components/ui'
+import { Confetti, Icon } from '../../components/ui'
 import { sparkle } from '../../art/scenes/kit'
 import { speak } from '../../lib/speech'
 import { sfx } from '../../lib/sfx'
@@ -437,7 +437,7 @@ export default function SteerIt({ title, intro, done, kit, onDone }: {
       <div className="practice-head">
         <h2>{title}</h2>
         {/* (not while the intro is said, or over the done line at the end) */}
-        <button type="button" className="icon-btn speaker" aria-label="Hear it again" disabled={busy || finished} onClick={() => speak(intro)}>🔊</button>
+        <button type="button" className="icon-btn speaker" aria-label="Hear it again" disabled={busy || finished} onClick={() => speak(intro)}><Icon kind="speaker" /></button>
       </div>
       <Board className="steer-board">
         {backdrop}

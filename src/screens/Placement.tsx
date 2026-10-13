@@ -6,7 +6,7 @@
 // Who gets it and how the next question is picked: learn/placement.ts.
 import { useEffect, useState } from 'react'
 import PalArt from '../components/PalArt'
-import { BackButton, BigButton, Confetti } from '../components/ui'
+import { BackButton, BigButton, Confetti, Icon } from '../components/ui'
 import { VisualView } from '../components/QuestionCard'
 import Pic from '../components/Pic'
 import { PALS, palById, stageFor } from '../data/pals'
@@ -138,7 +138,7 @@ export default function Placement({ onDone }: { onDone: () => void }) {
           </div>
           {q && (
             <div className="q-card pl-card" key={`${skill}-${search.asked}`}>
-              <button className="q-prompt" aria-label="Hear it again" onClick={() => speak(q.say)}>🔊</button>
+              <button className="q-prompt" aria-label="Hear it again" onClick={() => speak(q.say)}><Icon kind="speaker" /></button>
               <VisualView v={q.visual} onSay={(s) => speak(s)} />
               <Choices q={q} picked={picked} onPick={answer} />
               <button className={`pl-unsure ${picked === 'unsure' ? 'picked' : ''}`} onClick={() => answer('unsure')}><Pic e="🤔" /> Not sure</button>

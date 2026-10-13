@@ -13,6 +13,7 @@ import { getProgress, update } from '../lib/progress'
 import { pauseNarration, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { duck } from '../lib/audio'
+import Pic from './Pic'
 
 type Phase = 'intro' | 'glow' | 'morph' | 'burst' | 'reveal'
 
@@ -92,7 +93,7 @@ export default function EvolutionScene({ pal, from, to, onDone }: { pal: PalDef;
         {phase === 'reveal'
           ? <h2 className="evo-name">{oldName} became<br /><b>{newName}!</b>{learnsSuper && <small className="evo-move">New super move: {pal.moves.super.icon} {pal.moves.super.name}</small>}</h2>
           : <h2 className="evo-text">{phase === 'intro' ? `Whoa! ${oldName} is…` : 'growing!'}</h2>}
-        {ready && <BigButton color="pink" onClick={onDone}>Yay! 💖</BigButton>}
+        {ready && <BigButton color="pink" onClick={onDone}>Yay! <Pic e="💖" /></BigButton>}
       </div>
       {phase === 'reveal' && <Confetti count={50} />}
       <div className="evo-flash" aria-hidden />

@@ -7,6 +7,7 @@ import type { PalDef } from '../data/pals'
 import { pauseNarration, speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { duck } from '../lib/audio'
+import Pic from './Pic'
 
 export function Egg({ cracks = 0, size = 200, className = '' }: { cracks?: number; size?: number; className?: string }) {
   return (
@@ -61,7 +62,7 @@ export default function HatchScene({ pal, onDone }: { pal: PalDef; onDone: () =>
         <h2 className={phase === 'reveal' ? 'evo-name' : 'evo-text'}>
           {phase === 'reveal' ? <>A legendary Pal!<br /><b>{name}!</b></> : 'The egg is hatching!'}
         </h2>
-        {ready && <BigButton color="pink" onClick={onDone}>Yay! 💖</BigButton>}
+        {ready && <BigButton color="pink" onClick={onDone}>Yay! <Pic e="💖" /></BigButton>}
       </div>
       {phase === 'reveal' && <Confetti count={60} />}
       <div className="evo-flash" aria-hidden />

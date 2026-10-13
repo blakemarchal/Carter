@@ -5,6 +5,7 @@ import { PALS, palIntro } from '../data/pals'
 import { chooseStarter, playerName } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import Pic from '../components/Pic'
 
 const starters = PALS.filter((p) => p.starter)
 
@@ -39,7 +40,7 @@ export default function StarterPick({ onDone }: { onDone: () => void }) {
           sfx.fanfare()
           await speak(`You chose ${starters.find((s) => s.id === sel)!.stages[0].name}! Let's go on an adventure!`)
           onDone()
-        }}>💖 I choose you!</BigButton>
+        }}><Pic e="💖" /> I choose you!</BigButton>
       )}
     </div>
   )

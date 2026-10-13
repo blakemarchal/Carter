@@ -14,6 +14,7 @@ import { hungryPals } from '../lib/kitchen'
 import { EGG_DAYS, EGG_PAL, eggActive, eggReady, hatchEgg } from '../lib/care'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import Pic from '../components/Pic'
 
 /** `onParty`: play a birthday party again (from its sticker). */
 export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onParty: (age: number) => void }) {
@@ -38,15 +39,15 @@ export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onP
     <div className="screen ark">
       <header>
         <BackButton onClick={onBack} />
-        <h2>🚢 My Ark Pals</h2>
-        <button className="ark-btn" onClick={() => { sfx.pop(); setBook(true) }}><span>⭐</span> Stickers</button>
+        <h2><Pic e="🚢" art="ark" /> My Ark Pals</h2>
+        <button className="ark-btn" onClick={() => { sfx.pop(); setBook(true) }}><span><Pic e="⭐" /></span> Stickers</button>
       </header>
       {eggActive(p) && (
         <button className={`egg-card warm-${p.egg.warmth} ${eggReady(p) ? 'ready' : ''}`} onClick={tapEgg}>
           <Egg size={110} className="egg-wobble" />
           <span className="egg-text">
             <b>{eggReady(p) ? 'It’s hatching! Tap!' : 'Mystery Egg'}</b>
-            <span className="egg-warmth">{Array.from({ length: EGG_DAYS }, (_, i) => <i key={i} className={i < p.egg.warmth ? 'on' : ''}>🔥</i>)}</span>
+            <span className="egg-warmth">{Array.from({ length: EGG_DAYS }, (_, i) => <i key={i} className={i < p.egg.warmth ? 'on' : ''}><Pic e="🔥" /></i>)}</span>
           </span>
         </button>
       )}
@@ -68,7 +69,7 @@ export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onP
               {have
                 ? <DressedPal pal={pal} stage={st} size={120} outfit={p.outfits[pal.id]} className="bob" />
                 : <PalArt pal={pal} stage={st} size={120} silhouette />}
-              {have && hungry.includes(pal.id) && <span className="hungry-badge" aria-label="Hungry">🍽️</span>}
+              {have && hungry.includes(pal.id) && <span className="hungry-badge" aria-label="Hungry"><Pic e="🍽️" /></span>}
               <div className="name">{have ? pal.stages[st].name : '???'}</div>
               {have && <div className="fruit-tag">{pal.fruit}</div>}
               {have && next && (

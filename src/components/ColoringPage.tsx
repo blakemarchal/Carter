@@ -2,11 +2,12 @@
 // part to fill it. Colors are saved per Pal (by the shape's position in the drawing).
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import PalArt from './PalArt'
-import { BackButton, BigButton } from './ui'
+import { BackButton, BigButton, Icon } from './ui'
 import { stageFor, type PalDef } from '../data/pals'
 import { update, useProgress } from '../lib/progress'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import Pic from './Pic'
 
 const PALETTE = ['#ff6fae', '#ff5d5d', '#ffa64d', '#ffd34d', '#5fd39a', '#5fb7ff', '#9b8cff', '#a0612f', '#ffffff', '#3b2a4a']
 
@@ -37,7 +38,7 @@ export default function ColoringPage({ pal, onClose }: { pal: PalDef; onClose: (
 
   return (
     <div className="overlay coloring-page">
-      <header className="home-head"><BackButton onClick={onClose} /><h2>🖍️ Color {pal.stages[stage].name}</h2><span /></header>
+      <header className="home-head"><BackButton onClick={onClose} /><h2><Pic e="🖍️" /> Color {pal.stages[stage].name}</h2><span /></header>
       <div className="coloring-main">
         <div ref={box} className="coloring" onClick={tap}>
           <PalArt pal={pal} stage={stage} size={420} still />
@@ -47,7 +48,7 @@ export default function ColoringPage({ pal, onClose }: { pal: PalDef; onClose: (
             <button key={c} className={`swatch ${c === color ? 'on' : ''}`} style={{ '--sw': c } as CSSProperties}
               onClick={() => { sfx.pop(); setColor(c) }} aria-label={`Color ${c}`} />
           ))}
-          <BigButton color="white" onClick={() => update((x) => ({ ...x, colors: { ...x.colors, [key]: {} } }))}>🧽</BigButton>
+          <BigButton color="white" onClick={() => update((x) => ({ ...x, colors: { ...x.colors, [key]: {} } }))} aria-label="Start over"><Icon kind="again" /></BigButton>
         </div>
       </div>
     </div>

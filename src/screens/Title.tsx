@@ -11,6 +11,7 @@ import Pic from '../components/Pic'
 import { addProfile, useProfiles } from '../lib/progress'
 import { sfx } from '../lib/sfx'
 import { applyUpdate, useUpdateAvailable } from '../lib/update'
+import { Icon } from '../components/ui'
 
 /** A brand-new device: add the first player (a grown-up can do the rest in the Parent Corner). */
 function Welcome({ onDone }: { onDone: (id: string) => void }) {
@@ -30,8 +31,8 @@ function Welcome({ onDone }: { onDone: (id: string) => void }) {
         {PLAYER_EMOJIS.map((x) => <button key={x} type="button" className={emoji === x ? 'on' : ''} aria-label={`Icon ${x}`} onClick={() => setEmoji(x)}><Pic e={x} /></button>)}
       </div>
       <label className="welcome-bday">Birthday (optional, for a surprise party) <BirthdayPicker value={birthday} onChange={setBirthday} /></label>
-      <button type="submit" className="big-btn pink" disabled={!name.trim()}>▶️ Let&rsquo;s play!</button>
-      <p className="muted">For grown-ups: add more players, how they look in the stories, and your family&rsquo;s names in the Parent Corner (press and hold ⚙️ on the map).</p>
+      <button type="submit" className="big-btn pink" disabled={!name.trim()}><Icon kind="play" /> Let&rsquo;s play!</button>
+      <p className="muted">For grown-ups: add more players, how they look in the stories, and your family&rsquo;s names in the Parent Corner (press and hold <Pic e="⚙️" /> on the map).</p>
     </form>
   )
 }

@@ -8,6 +8,7 @@ import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 import Pic from '../components/Pic'
+import { Icon } from '../components/ui'
 
 function Slot({ k, filled, t, next }: { k: number; filled: boolean; t: Thing; next: boolean }) {
   // Only the next empty slot takes a picture.
@@ -94,7 +95,7 @@ export default function Sequence({ title, intro, items, onDone }: { title: strin
           <Card key={t.i} t={t} used={t.i < placed} wrong={wrong === t.i} glow={misses >= 2 && t.i === placed} onDrop={() => drop(t.i)} onTap={(el) => tap(t.i, el)} />
         ))}
       </div>
-      <button className="instruction" onClick={() => speak(intro)}>🔊 Hear it again</button>
+      <button className="instruction" onClick={() => speak(intro)}><Icon kind="speaker" /> Hear it again</button>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import PalArt from '../components/PalArt'
 import { Arrow, BigButton, HoldButton } from '../components/ui'
 import { palById } from '../data/pals'
 import type { Access } from '../lib/billing'
+import Pic from '../components/Pic'
 
 export default function Resting({ why, onParent, onBack, onRetry }: {
   why: Extract<Access, { allowed: false }>['why']; onParent: () => void; onBack: () => void; onRetry: () => Promise<void>
@@ -31,7 +32,7 @@ export default function Resting({ why, onParent, onBack, onRetry }: {
         <BigButton color="white" disabled={checking} onClick={async () => { setChecking(true); await onRetry(); setChecking(false) }}>
           {checking ? 'Checking…' : '🔄 Check again'}
         </BigButton>
-        <HoldButton onHold={onParent} className="parent-gear">⚙️</HoldButton>
+        <HoldButton onHold={onParent} className="parent-gear"><Pic e="⚙️" /></HoldButton>
       </div>
     </div>
   )

@@ -14,7 +14,7 @@ import type { ShareKit } from './types'
 import { Board, BoardLayer } from './Board'
 import { Scene } from '../../art/scenes/kit'
 import Pic from '../../components/Pic'
-import { Confetti } from '../../components/ui'
+import { Confetti, Icon } from '../../components/ui'
 import { preload, speak } from '../../lib/speech'
 import { sfx } from '../../lib/sfx'
 import { fly, showDrag, useDrag, useDropTarget } from '../../lib/drag'
@@ -363,7 +363,7 @@ export default function ShareIt({ title, intro, done, kit, onDone }: {
         <h2>{title}</h2>
         <div className="share-rounds" aria-hidden>{rounds.map((_, r) => <span key={r} className={r < round ? 'done' : r === round ? 'now' : ''} />)}</div>
         {/* (not while the narrator is busy: counting, cheering, the done line) */}
-        <button type="button" className="share-again" aria-label="Hear it again" disabled={busy} onClick={() => ask(roundRef.current)}>🔊</button>
+        <button type="button" className="share-again" aria-label="Hear it again" disabled={busy} onClick={() => ask(roundRef.current)}><Icon kind="speaker" /></button>
       </div>
       <Board className="share-board">
         {backdrop}

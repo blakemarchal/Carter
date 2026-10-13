@@ -2,12 +2,13 @@
 // waving, and back to the map. The next visit starts after this, another day or right away.
 import { useEffect, useState } from 'react'
 import DressedPal from './DressedPal'
-import { BigButton } from './ui'
+import { BigButton, Icon } from './ui'
 import { palById, stageFor } from '../data/pals'
 import { getProgress, today, useProgress } from '../lib/progress'
 import { visitsLeft } from '../lib/voyage'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import Pic from './Pic'
 
 /** Their own Pal, waving goodbye. */
 export function BuddyWave() {
@@ -40,11 +41,11 @@ export function VisitPause({ line, onDone, onContinue, replay, free }: {
       <p>{line}</p>
       {more ? (
         <div className="leave-row">
-          <BigButton color="white" onClick={onDone}>🗺️ Map</BigButton>
-          <BigButton color="pink" onClick={onContinue}>▶️ Keep going!</BigButton>
+          <BigButton color="white" onClick={onDone}><Pic e="🗺️" /> Map</BigButton>
+          <BigButton color="pink" onClick={onContinue}><Icon kind="play" /> Keep going!</BigButton>
         </div>
       ) : (
-        <BigButton color="pink" onClick={onDone}>🗺️ See you next time!</BigButton>
+        <BigButton color="pink" onClick={onDone}><Pic e="🗺️" /> See you next time!</BigButton>
       )}
     </div>
   )

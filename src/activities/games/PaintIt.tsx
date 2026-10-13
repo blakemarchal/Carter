@@ -12,7 +12,7 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type RefObject } from 'react'
 import type { At, PaintKit } from './types'
 import { Board, BoardLayer, toBoard } from './Board'
-import { Confetti } from '../../components/ui'
+import { Confetti, Icon } from '../../components/ui'
 import { darken, ink, lighten } from '../../art/kit'
 import { sparkle } from '../../art/scenes/kit'
 import { isSpeaking, preload, speak } from '../../lib/speech'
@@ -375,7 +375,7 @@ export default function PaintIt({ title, intro, done, kit, onDone }: {
       data-left={todo.filter((id) => !isPainted(id)).length} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
       <div className="practice-head paint-head">
         <h2>{title}</h2>
-        <button className="icon-btn paint-again" aria-label="Hear it again" disabled={!ready || cheer} onClick={() => speak(intro)}>🔊</button>
+        <button className="icon-btn paint-again" aria-label="Hear it again" disabled={!ready || cheer} onClick={() => speak(intro)}><Icon kind="speaker" /></button>
       </div>
       <div className="paint-play">
         <Board className={cheer ? 'paint-cheer' : ''}>

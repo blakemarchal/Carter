@@ -17,6 +17,8 @@ import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
 import { fly, useDrag, useDropTarget } from '../lib/drag'
 import { pick } from '../lib/util'
+import Pic from './Pic'
+import MoveIcon from './MoveIcon'
 
 const PET_LINES = ['{name} loves that!', 'Hee hee! That tickles!', '{name} is so happy!', 'Aww, {name} wants a hug!']
 
@@ -28,7 +30,7 @@ function Carryable({ what, label, on, disabled, onGive }: {
 }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: what, disabled, onStart: sfx.lift, onDrop: (t) => t === 'home-pal' && onGive(what, null), onTap: () => onGive(what, ref.current) })
-  return <button ref={ref} className={`home-btn ${on ? 'on' : ''}`} disabled={disabled} aria-label={label} {...drag}>{what.kind === 'berry' ? what.b : <AccessoryIcon a={what.a} size={56} />}</button>
+  return <button ref={ref} className={`home-btn ${on ? 'on' : ''}`} disabled={disabled} aria-label={label} {...drag}>{what.kind === 'berry' ? <Pic e={what.b} /> : <AccessoryIcon a={what.a} size={56} />}</button>
 }
 
 export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => void }) {
@@ -114,13 +116,13 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
             <DressedPal pal={pal} stage={stage} size={260} outfit={p.outfits[pal.id]} />
           </button>
           {hearts > 0 && (
-            <div className="home-hearts" key={hearts}>{['💖', '💗', '💕', '💖', '💗'].map((h, i) => <span key={i} style={{ '--i': i } as CSSProperties}>{h}</span>)}</div>
+            <div className="home-hearts" key={hearts}>{['💖', '💗', '💕', '💖', '💗'].map((h, i) => <span key={i} style={{ '--i': i } as CSSProperties}><Pic e={h} /></span>)}</div>
           )}
           <p className="home-hint">Tap {name} to pet! Drag a berry over for a snack.</p>
           <div className="leave-row">
-            <BigButton color={hungry ? 'yellow' : 'white'} className={hungry ? 'k-hungry-btn' : ''} onClick={() => setCooking('dish')}>🍳 Cook {dish.emoji}</BigButton>
+            <BigButton color={hungry ? 'yellow' : 'white'} className={hungry ? 'k-hungry-btn' : ''} onClick={() => setCooking('dish')}><Pic e="🍳" art="pan" /> Cook <Pic e={dish.emoji} /></BigButton>
             {birthday && <BigButton color="pink" className="k-cake-btn" onClick={() => setCooking('cake')}>🎂 Birthday cake</BigButton>}
-            <BigButton color="white" onClick={() => setColoring(true)}>🖍️ Color me</BigButton>
+            <BigButton color="white" onClick={() => setColoring(true)}><Pic e="🖍️" /> Color me</BigButton>
           </div>
         </div>
         <div className="home-side">
@@ -142,7 +144,7 @@ export default function PalHome({ pal, onClose }: { pal: PalDef; onClose: () => 
             <div className="home-moves">
               {movesFor(pal, p).map((s) => (
                 <button key={s.kind} className={`home-move ${s.known ? '' : 'locked'}`} onClick={() => speak(s.known ? `${s.move.name}! It fills ${POWER[s.kind]} ${POWER[s.kind] === 1 ? 'heart' : 'hearts'}.` : s.hint)}>
-                  <span>{s.known ? s.move.icon : '🔒'}</span>{s.known ? s.move.name : '???'} <small>{'💖'.repeat(POWER[s.kind])}</small>
+                  <span>{s.known ? <MoveIcon move={s.move} /> : <Pic e="🔒" />}</span>{s.known ? s.move.name : '???'} <small>{Array.from({ length: POWER[s.kind] }, (_, k) => <Pic key={k} e="💖" />)}</small>
                 </button>
               ))}
             </div>

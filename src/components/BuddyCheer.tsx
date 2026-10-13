@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import DressedPal from './DressedPal'
 import { palById, stageFor } from '../data/pals'
 import { useProgress } from '../lib/progress'
+import Pic from './Pic'
 
 type Reaction = { kind: 'good' | 'yay' | 'oops' | ''; n: number }
 
@@ -22,8 +23,8 @@ export default function BuddyCheer() {
       {/* (a new key each time, so the hop starts again) */}
       <span key={r.n} className={`buddy-move ${r.kind}`}>
         <DressedPal pal={pal} stage={stageFor(pal, p.pals[pal.id] ?? 0)} size={68} outfit={p.outfits[pal.id]} />
-        {r.kind === 'good' && <span className="buddy-pop">❤️</span>}
-        {r.kind === 'yay' && <span className="buddy-pop">⭐</span>}
+        {r.kind === 'good' && <span className="buddy-pop"><Pic e="❤️" /></span>}
+        {r.kind === 'yay' && <span className="buddy-pop"><Pic e="⭐" /></span>}
       </span>
     </span>
   )

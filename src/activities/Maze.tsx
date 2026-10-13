@@ -8,6 +8,7 @@ import { sfx } from '../lib/sfx'
 import { shuffle, wait } from '../lib/util'
 import { useAlive } from '../lib/useAlive'
 import Pic from '../components/Pic'
+import { Icon } from '../components/ui'
 
 const W = 6, H = 4
 
@@ -132,7 +133,7 @@ export default function Maze({ title, intro, hero, goal, trail: mark = '👣', t
           <span className="maze-hero-face" style={{ transform: `scaleX(${facing})` }}><Pic e={hero.emoji} art={hero.art} /></span>
         </span>
       </div>
-      <button className="instruction" onClick={() => speak(intro)}>🔊 Hear it again</button>
+      <button className="instruction" onClick={() => speak(intro)}><Icon kind="speaker" /> Hear it again</button>
     </div>
   )
 }

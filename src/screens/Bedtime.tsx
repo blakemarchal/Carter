@@ -10,6 +10,7 @@ import { speak, stopSpeaking } from '../lib/speech'
 import { STORY_ART } from '../art/scenes'
 import { BuddyContext } from '../art/scenes/buddy'
 import { useTapPictures } from '../lib/useTapPictures'
+import Pic from '../components/Pic'
 
 interface Page { scene: string; text: (name: string, pal: string) => string }
 
@@ -57,7 +58,7 @@ export default function Bedtime({ onDone }: { onDone: () => void }) {
       <p className="bed-text" onClick={() => speak(text)}>{text}</p>
       <div className="bed-nav">
         {last
-          ? <BigButton color="white" onClick={onDone}>🌙 Goodnight</BigButton>
+          ? <BigButton color="white" onClick={onDone}><Pic e="🌙" /> Goodnight</BigButton>
           : <BigButton color="white" onClick={() => setI(i + 1)} aria-label="Next"><Arrow /></BigButton>}
       </div>
     </div>
