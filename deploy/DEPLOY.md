@@ -131,6 +131,30 @@ ssh root@68.183.130.3 'cp /opt/Carter/deploy/carter-web.service /etc/systemd/sys
 - **Since wave 10, `/tts` only plays clips made ahead of time.** It never makes a new line by itself, and the game never asks it for a line with a family's name in it, so no child's name is sent to xAI. After new content ships, warm the new lines on the server (`node scripts/warm-narration.mjs …`, as before); a line that wasn't warmed is read by the device's voice until Mom records it. Only on the dev site, `TTS_LIVE=1` in `.env` lets the owner's device make new clips live, for warming.
 - The Parent Corner can switch each player between Ara, Eve (another Grok voice), and the iPad voice.
 
+## Step 4b+: Grok for every line (the house Grok voice)
+
+Since wave 11, Grok's "Ara" voice is a house voice (`grok`) like Mom's: every line, and every piece lines are
+stitched from (numbers, letters and their sounds, Pal names, the names of things and moves, and the 1,062
+children's names in our library), is made once on the server, and our own recordings replace it line by line.
+The device voice only plays when nothing else has the line. After each deploy that adds content:
+
+```bash
+ssh root@68.183.130.3
+cd /opt/Carter
+node scripts/warm-house-grok.mjs --dry-run      # how many clips are missing, and about how many characters
+node scripts/warm-house-grok.mjs                # makes them (skips any already made); no restart needed
+```
+
+- The list is `dist/voice/grok-list.json` (made by `npm run voice-script`, shipped with each deploy).
+- It reads `XAI_API_KEY` from `.env` (never printed), writes into `/var/lib/carter/house/grok`, and hands the
+  files to the service's user. It stops if a run would be more than 400,000 characters (`--max-chars=` to
+  raise it). Lines already made for the old `/tts` cache are copied, not paid for again.
+- **Sound check:** Parent Corner → Voices and recordings → 🔤 Sound check. Flag (🚩) any letter sound, letter
+  name or number that sounds wrong; the next run of the script makes it again with a different prompt.
+- **Lines the narrator missed:** the owner's devices report any line that fell to the device voice; the
+  studio lists them. `node scripts/warm-house-grok.mjs --missed` makes those too.
+- `scripts/warm-narration.mjs` (the old `/tts` warm-up) isn't needed any more.
+
 ## Step 4c: The house voices and the recording studio
 
 Mom is the narrator for every family, with Dad as Grumbleshade and the battle foe, and our child for the Pals'

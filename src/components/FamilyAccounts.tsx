@@ -155,8 +155,8 @@ function Invite({ view, reload }: { view: FamilyView; reload: () => void }) {
         <label className="field">
           <span>Who they are</span>
           <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="grownup">A grandparent or other grown-up</option>
-            <option value="parent">A parent</option>
+            <option value="grownup">Grown-up</option>
+            <option value="parent">Parent</option>
           </select>
         </label>
         {view.emailOn && (

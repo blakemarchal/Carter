@@ -1345,8 +1345,8 @@ input { -webkit-user-select: text; user-select: text; }
   min-height: 44px; padding: var(--s2) var(--s4); border-radius: 12px; border: 2px solid #f0c4da; background: #fff;
   font: inherit; font-size: 16px; font-weight: 600; color: #3b2a4a; line-height: 1.2;
 }
-.parent section button.on { background: var(--pink); color: #fff; border-color: var(--pink); }
-.parent section button.danger { background: #ffe2e2; border-color: #ffc9c9; color: #b42318; }
+.parent section button.on:not(.emoji-pick):not(.icon-btn) { background: var(--pink); color: #fff; border-color: var(--pink); }
+.parent section button.danger:not(.emoji-pick):not(.icon-btn) { background: #ffe2e2; border-color: #ffc9c9; color: #b42318; }
 .parent section button:disabled { opacity: .5; }
 .parent .level-row { gap: var(--s2); margin-top: 0; align-items: center; }
 .parent .level-row button { font-size: 16px; }

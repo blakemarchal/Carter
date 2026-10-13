@@ -506,3 +506,120 @@ The same way as before. Also list:
 - exactly what the local thread must run: `warm-house-grok.mjs` and its list, the warm-up, and anything in `.env`;
 - the Grok clip count to make (a rough xAI character total);
 - before and after screenshots of the Parent Corner and the treasure hunt.
+
+---
+
+## Hand-back: wave 11, a bug and polish pass, and Grok for every line (Oct 13, 2026)
+
+On **`blake/polish`**, made from `blake/wave7` (ddb7a66). It was pushed after each piece:
+1. the four bugs;
+2. Grok as a house voice;
+3. the name choice, the sound check and the coverage log;
+4. the polish;
+5. this hand-back.
+
+Checks: `npx tsc -b` is clean, `npx vitest run` passes (611 tests, 26 of them new), and the Chromium playthroughs pass (36 of 36). WebKit can't be downloaded in the cloud, so the WebKit playthroughs run in CI on this push.
+
+### What the local thread must run
+
+1. **Deploy** as usual. There's nothing new in `.env`. (`TTS_LIVE=1` only exists for the dev site; production never sets it.)
+2. **Make the house Grok voice on the server**, as root, from `/opt/Carter`:
+   ```bash
+   node scripts/warm-house-grok.mjs --dry-run   # expect about 6,844 clips, about 171,000 characters
+   node scripts/warm-house-grok.mjs
+   ```
+   - The list is `dist/voice/grok-list.json`, which ships with the deploy.
+   - The key is read from `.env` and never printed.
+   - Files go to `/var/lib/carter/house/grok` and are handed to `www-data`. The running server picks the new index up by itself, so no restart is needed.
+   - Clips already made for the old `/tts` cache are copied, not paid for again, so the real total is lower.
+   - **Cost:** about 171,257 characters at $15 per million, roughly **$2.60** once.
+   - It's safe to run again after any wave: it only makes what's missing, plus anything flagged.
+3. **After Blake's sound check:** run the same command again to remake the flagged clips with their next prompt. Later, `--missed` also makes the lines the owner's devices heard in the device voice.
+4. The old warm-up (`scripts/warm-narration.mjs`) isn't needed any more.
+
+**What's in the Grok list (6,844 clips):**
+
+| Kind | Clips |
+|---|---|
+| Children's names (1,062 × 2 takes) | 2,124 |
+| Story-picture taps | 1,028 |
+| Names of things, for slots | 694 |
+| Things said on their own | 640 |
+| Learning lines | 446 |
+| Pal names (× 2 takes) | 368 |
+| Activity lines | 336 |
+| Story pages | 305 |
+| Numbers 0–140 (× 2 takes) | 282 |
+| Moves | 188 |
+| Template parts | 156 |
+| Memory verses | 111 |
+| Other fixed lines | 114 |
+| Letter names | 26 |
+| Letter sounds | 26 |
+
+### A. Voice: Grok everywhere, with no child's name sent
+- **Grok is now a house voice, `grok`,** last in every role's list: our recordings come first, then Grok, then the device voice. It's stitched exactly like ours, so "Way to go, Liam!" is Grok too. The library names are the SSA's public list; no family's data goes to xAI.
+- **There's no 4-second race for house clips any more.** They play once fetched and are kept offline. Preloading now fetches house clips first.
+- **New `{item}` and `{move}` slots** cover about 50 templates for the combinatorial lines: sorting, mazes, building, sharing, the kitchen, the map, coins, "<Pal> used <move>!", and the birthday party.
+- **New tests** walk every island step (stories, activities, quizzes, verses, sort, maze and order lines) and sampled learning levels. They fail if a line has nothing but the device voice; a name not in the library is the one exception.
+- **`scripts/warm-house-grok.mjs`** works as described above.
+- **Letter sounds:** Grok gets a held sound for n, m, s, f, l, r, v and z ("Nnnnn."), and "tuh", "buh" and so on for the rest. IPA alone made "t" sound like "two". The device voice no longer reads "nnn" as "N-N-N". Each sound has backup prompts.
+- **Sound check page** (owner only; Parent Corner → Voices and recordings): every letter sound, letter name and number 0–20, each with ▶, 🚩 and the prompt Grok was given.
+- **"Let the narrator say <name>"** (under a player whose name isn't in the library) is off by default and asks for consent in plain words. Only then is that one name sent to xAI, once, for its two clips. They're kept with the family's recordings, included in its download, and deleted when the choice is turned off. The limit is 6 names a day per family. PRIVACY.md is updated.
+- **Voice coverage log:** the owner's devices report lines that fell to the device voice (never one with a name). The studio lists them.
+
+### B. Bugs
+1. **The boat.** A new player starts at Creation, the first island of the first sea. An old save with the boat at a locked island moves to the next open one. Checked on the real server: a new family's boat waits at Creation.
+2. **A family link on a signed-in device.**
+   - The page now says "This device is signed in to <family>" and offers another device or a private window.
+   - The device moves only when "Yes, leave <family> on this device…" is ticked, with an extra warning on that family's last device.
+   - Checked live: without the tick the server refuses with a 400; with it, the device moves.
+3. **"Grown-ups".** After the first family-password sign-in, `/welcome` asks "What should we call you?" and for an email. The Parent Corner keeps nudging while the parent is still "Grown-ups".
+4. **Updates.** "Check for updates", "Reload app" and the title's update button now show a spinner and "Updating…" at once, and disable themselves. They say "You have the newest version" when there's nothing new. An update also no longer clears the cached house-voice clips.
+
+### C. Polish
+- **Parent Corner:** it's now eight groups with a line of help each:
+  - Players;
+  - Grown-ups and devices;
+  - Your family's plan;
+  - Voices and recordings;
+  - Learning levels;
+  - Play and limits;
+  - Data and privacy;
+  - App.
+
+  Wide screens get a side menu, narrow ones get folding cards. Inputs, selects and buttons share one style. The invite form has labelled fields, so placeholders aren't cut off and the native select is gone.
+- **Spacing:** there's one spacing scale (`--s1` to `--s7`). The treasure hunt's Pal now sits with its words, and the puzzle no longer stretches to leave a gap under the Pal. Screen titles are centred.
+- **Phones:**
+  - Headers wrap.
+  - The map's tools fit, and the Parent Corner's gear can be reached. In the "before" phone shot the Corner never opened.
+  - The title screen's Pals fit.
+  - The sea fills the whole map at every size.
+- **Avatars:** all player avatars are drawn. I added a unicorn and a flask to the item library.
+- **Pronouns:** comments say "the player" or "they" (about 45 files). Story art about Bible women is untouched.
+- **Narrator choice:** it's now "Our narrator" (our recordings, then Grok) or "iPad voice". The iPad voice skips Grok too. Eve is folded into "Our narrator".
+- **Screenshots** are in `docs/screens/wave11/`, as `before-*.jpg` and `after-*.jpg`:
+  - `parent-landscape`, `parent-portrait` and `parent-phone`, plus `after-parent-voices-*`;
+  - `treasure-*` and `treasure-puzzle-*` at all three sizes.
+- **Scripts:** `scripts/film/layout-shots.mjs`, `screens-sweep.mjs` (every main screen at three sizes, noting overflow) and `sweep-flows.mjs` (the real-server flows).
+
+### The fresh-eyes sweep
+- Chromium at iPad size, on the real server (built app):
+  - a new owner (password → name → first player → first Pal → treasure hunt → map), plus the sing-along, bedtime and the Parent Corner;
+  - a new customer family from a start link, to the map.
+
+  The only server errors were `/tts` answering 503 with no voice key, which is expected.
+- **Covered by the playthroughs instead** (36 of 36 pass): one visit of each sea (all 27 islands), a battle, the kitchen and every learning exercise.
+- **Fixed during the sweep:** selected buttons weren't showing as selected, and the role choice in the invite form was cut off.
+
+**Left for later:**
+- The sing-along's Pal sits far left of the words in landscape. It works, but it could be centred.
+- On phones, the player rows in the Parent Corner wrap onto three lines.
+- A grown-up's avatar in the Parent Corner is still the grown-up portrait, not an item drawing. That was already drawn, so it's fine.
+- Not tried in WebKit locally; CI runs it.
+
+**New spoken lines:** none, beyond lines now covered by Grok. Nothing for Blake to do in Stripe.
+
+**For Blake:**
+- Run the sound check once the Grok warm-up has run, and flag anything that sounds wrong.
+- In the studio, rename the voices (wave 10) if not done yet.

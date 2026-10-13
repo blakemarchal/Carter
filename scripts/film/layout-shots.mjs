@@ -61,6 +61,12 @@ for (const [size, [w, h]] of Object.entries(SIZES)) {
   await page.waitForTimeout(1200)
   await page.screenshot({ path: `${out}/parent-${size}.png` })
   await page.screenshot({ path: `${out}/parent-full-${size}.png`, fullPage: true })
+  // (on a wide screen, the Voices group too; on a narrow one, its fold opened)
+  await page.evaluate(() => [...document.querySelectorAll('.pc-nav button, .pc-fold-head')].find((b) => b.textContent.includes('Voices'))?.click())
+  await page.waitForTimeout(500)
+  await page.evaluate(() => [...document.querySelectorAll('.pc-fold-head')].find((b) => b.textContent.includes('Voices'))?.scrollIntoView())
+  await page.waitForTimeout(300)
+  await page.screenshot({ path: `${out}/parent-voices-${size}.png` })
   // (the Parent Corner scrolls inside its own box: a picture of every part of it, a screen at a time)
   const parts = await page.evaluate(() => {
     const el = [...document.querySelectorAll('*')].find((e) => e.scrollHeight > e.clientHeight + 40 && getComputedStyle(e).overflowY !== 'visible')
