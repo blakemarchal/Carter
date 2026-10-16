@@ -42,6 +42,8 @@ export const SKILL_NAMES: Skill[] = ['reading', 'numbers']
 export const TOP_LEVEL = 10
 const LEARN_EVENTS = ['start', 'finish', 'right']
 const LEVEL = /^([1-9]|10)$/
+/** What the "Remember?" round asks (learn/remember.ts KINDS; a test keeps this and the server's list the same). */
+export const REMEMBER_KINDS = ['verse', 'word', 'animal']
 const ISLAND_IDS = new Set(ISLANDS.map((i) => i.id))
 /** How many days of counts wait on the device while it can't reach the server. */
 const PENDING_DAYS = 60
@@ -56,6 +58,8 @@ export function validKey(k: string) {
     const names: string[] = island === 'ex' ? EXERCISE_KINDS : SKILL_NAMES
     return !rest.length && LEARN_EVENTS.includes(event) && names.includes(visit) && LEVEL.test(kind ?? '')
   }
+  // (the "Remember?" round: each kind of thing it asks)
+  if (island === 'remember') return LEARN_EVENTS.includes(event) && REMEMBER_KINDS.includes(visit) && kind === undefined
   if (rest.length || !EVENTS.includes(event) || !ISLAND_IDS.has(island)) return false
   if (visit === undefined) return event !== 'wrong'
   if (!/^v[1-9]$/.test(visit)) return false

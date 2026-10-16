@@ -33,6 +33,8 @@ export const SKILLS = ['reading', 'numbers']
 export const TOP_LEVEL = 10
 const LEARN_EVENTS = ['start', 'finish', 'right']
 const LEVEL = /^([1-9]|10)$/
+/** What the "Remember?" round asks (src/learn/remember.ts; kept with src/lib/stats.ts by a test). */
+export const REMEMBER_KINDS = ['verse', 'word', 'animal']
 /** How many days of totals are kept (about 13 months); older days are dropped. */
 export const KEEP_DAYS = 400
 
@@ -53,6 +55,7 @@ export function validKey(k) {
     const names = island === 'ex' ? EXERCISE_KINDS : SKILLS
     return !rest.length && LEARN_EVENTS.includes(event) && names.includes(visit) && LEVEL.test(kind ?? '')
   }
+  if (island === 'remember') return LEARN_EVENTS.includes(event) && REMEMBER_KINDS.includes(visit) && kind === undefined
   if (rest.length || !EVENTS.includes(event) || !ISLAND_SET.has(island)) return false
   if (visit === undefined) return event !== 'wrong'
   if (!/^v[1-9]$/.test(visit)) return false
@@ -156,12 +159,13 @@ export function summarize(all, { from = '0000-00-00', min = MIN_FAMILIES } = {})
   }
   const row = () => ({ start: 0, finish: 0, replay: 0, wrong: 0 })
   const learnRow = () => ({ start: 0, finish: 0, right: 0 })
-  const islands = {}, visits = {}, activities = {}, kinds = {}, exercises = {}, questions = {}, placements = {}
+  const islands = {}, visits = {}, activities = {}, kinds = {}, exercises = {}, questions = {}, placements = {}, remember = {}
   for (const [k, n] of sums) {
     const [event, island, visit, kind] = k.split(':')
     if (event === 'placed') (placements[island] ??= {})[visit] = n
     else if (island === 'ex') (exercises[`${visit}:${kind}`] ??= learnRow())[event] += n
     else if (island === 'q') (questions[`${visit}:${kind}`] ??= learnRow())[event] += n
+    else if (island === 'remember') (remember[visit] ??= learnRow())[event] += n
     else if (!visit) (islands[island] ??= row())[event] += n
     else if (!kind) (visits[`${island}:${visit}`] ??= row())[event] += n
     else {
@@ -171,8 +175,8 @@ export function summarize(all, { from = '0000-00-00', min = MIN_FAMILIES } = {})
       if (event === 'wrong') (islands[island] ??= row()).wrong += n
     }
   }
-  if (families < min) return { hidden: true, families: 0, islands: {}, visits: {}, activities: {}, kinds: {}, exercises: {}, questions: {}, placements: {} }
-  return { families, islands, visits, activities, kinds, exercises, questions, placements }
+  if (families < min) return { hidden: true, families: 0, islands: {}, visits: {}, activities: {}, kinds: {}, exercises: {}, questions: {}, placements: {}, remember: {} }
+  return { families, islands, visits, activities, kinds, exercises, questions, placements, remember }
 }
 
 /** The first day of the last `days` days (for summarize's `from`). */
@@ -258,6 +262,7 @@ ${s.hidden
 <p class="note">A replay is a start by a player who had already finished the island (it counts as a start too). Finished: finishes per start. Right first try: right with no wrong tries and no help.</p>
 ${learnTable('Learning exercises', 'Exercise · level', s.exercises, 'The building exercises in practice rounds (spell a word, a number line, a clock, coins, measuring…), by the level she was on.')}
 ${learnTable('Practice questions', 'Skill · level', s.questions, 'The picture questions in practice rounds, by skill and the level she was on.')}
+${learnTable('Remember? round', 'What was asked', s.remember ?? {}, 'The daily round of things already learned: a memory verse with a piece missing, a sight word, an animal’s home or baby.')}
 ${placementTable}
 ${playTable('Islands', 'Island', s.islands, byIsland, { note: 'Wrong first tries: all the island’s activities together.' })}
 ${playTable('Visits', 'Island · visit', s.visits, byIsland, { wrong: false })}

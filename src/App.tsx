@@ -7,6 +7,7 @@ import ParentScreen from './screens/ParentScreen'
 import IslandView from './screens/IslandView'
 import Bedtime from './screens/Bedtime'
 import SingAlong from './screens/SingAlong'
+import Remember from './screens/Remember'
 import Placement from './screens/Placement'
 import Resting from './screens/Resting'
 import { useAccess } from './lib/billing'
@@ -36,7 +37,7 @@ import { warmEgg } from './lib/care'
 // Lines that aren't recorded whole are stitched from the house voices' recorded pieces.
 setStitcher(stitch)
 
-type Screen = 'title' | 'starter' | 'placement' | 'map' | 'ark' | 'parent' | 'bedtime' | 'sing' | 'party' | `island:${string}`
+type Screen = 'title' | 'starter' | 'placement' | 'map' | 'ark' | 'parent' | 'bedtime' | 'sing' | 'remember' | 'party' | `island:${string}`
 
 const DAILY_MINUTES = 60
 
@@ -147,8 +148,10 @@ export default function App() {
     case 'starter': view = <StarterPick onDone={() => go(placementDue(getProgress()) ? 'placement' : 'map')} />; break
     case 'placement': view = <Placement onDone={() => go('map')} />; break
     case 'map': view = <MapScreen onIsland={(id) => go(`island:${id}`)} onArk={() => go('ark')} onParent={() => go('parent')} onPlayers={() => go('title')} onBedtime={() => go('bedtime')} onSing={() => go('sing')}
-      onParty={() => { setParty(p.partyShown === today() && p.partyAge ? { mode: 'replay', age: p.partyAge, back: 'map' } : { mode: 'day', back: 'map' }); go('party') }} />; break
+      onParty={() => { setParty(p.partyShown === today() && p.partyAge ? { mode: 'replay', age: p.partyAge, back: 'map' } : { mode: 'day', back: 'map' }); go('party') }}
+      onRemember={() => go('remember')} />; break
     case 'sing': view = <SingAlong onBack={() => go('map')} />; break
+    case 'remember': view = <Remember onBack={() => go('map')} />; break
     case 'bedtime': view = <Bedtime onDone={() => go('title')} />; break
     case 'ark': view = <ArkScreen onBack={() => go('map')} onParty={(age) => { setParty({ mode: 'replay', age, back: 'ark' }); go('party') }} />; break
     case 'parent': view = <ParentScreen onBack={() => go('map')} onPlacement={() => go('placement')} onParty={() => { setParty({ mode: 'preview', back: 'parent' }); go('party') }} />; break

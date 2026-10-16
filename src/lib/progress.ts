@@ -64,6 +64,10 @@ export interface Progress {
   placement?: 'due' | 'done'
   /** The animal book (data/animals.ts): the cards the player has opened (a met animal not here shows "New!"). */
   bookSeen?: string[]
+  /** The "Remember?" round (learn/remember.ts): each thing's box and the day it's next asked; the day the round was last played; the day the map last nudged. */
+  remember?: Record<string, { box: number; due: string }>
+  rememberDay?: string
+  rememberNudged?: string
 }
 
 export { DEFAULT_LOOK, type KidLook } from './look'

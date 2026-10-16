@@ -249,6 +249,11 @@ Above all, it's **personal**. The child and their family appear in the pictures,
 - **Billing in Stripe test mode** (BUSINESS-PLAN §10 step 5) is built and off: Checkout with a 7-day trial and the Grace price, the Customer Portal, verified webhooks matched by Customer ID, family access with 7 days offline, an owner dashboard with Grace-code batches, and Sponsor a Family. `BILLING_ENFORCED` and `STRIPE_TAX` stay off until Blake turns them on.
 - **Follow-ups Blake approved:** longer or shorter moved to numbers level 3 and level 10 is half hours; "bug" is a ladybug and the rat is redrawn; play totals also count each learning exercise and practice level (started, finished, right first time) and placement results, with the weakest spots first on the owner page.
 
+**Progress (Oct 16, 2026): the learning "wow" wave, in Blake's approved order:**
+- **Noah's Animal Book** (`src/data/animals.ts`, the Ark's Animals button): a card for every animal the game draws, opened by meeting it on a finished island: what it is, where it lives, what it eats, its baby, its sound, and facts that grow with the reading level; sort games (land, sea or sky; big or small).
+- **The "Remember?" round** (`src/learn/remember.ts`, a bubble in the sea when it's due, once a day): five quick questions on what's already learned, on a growing schedule (1, 2, 4, 8, 16 days: a right answer moves a thing up a box, a miss brings it back tomorrow): a memory verse with a piece missing, a sight word to find, an animal's home or baby. A miss never costs anything; a finished round feeds their Pal. Play totals count it by kind.
+- Next: inference questions after a story, big-word vocabulary, science moments, and a weekly parent email.
+
 **Why this order:** if 20 islands were built on today's thin template, they'd inherit its problems (emoji, short islands, art drawn once and never checked). Fixing the template first makes every later island longer, more interactive and better checked, at no extra cost per island.
 
 ## 10. Decisions (all approved, Oct 3, 2026)

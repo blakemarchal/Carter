@@ -25,6 +25,7 @@ import { andList, othersBirthdayToday } from '../lib/party'
 import { numberWords } from '../lib/spoken'
 import { speak } from '../lib/speech'
 import { sfx } from '../lib/sfx'
+import { NUDGE, known, roundDue } from '../learn/remember'
 
 type P = [number, number]
 /** An island on this sea's map: where it sits, and whether it's built yet. */
@@ -171,9 +172,9 @@ function Boat({ palId, stage }: { palId: string; stage: number }) {
 }
 
 /** `onParty`: their birthday party again (tapping "Happy birthday!" on their birthday). */
-export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime, onSing, onParty }: {
+export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedtime, onSing, onParty, onRemember }: {
   onIsland: (id: string) => void; onArk: () => void; onParent: () => void; onPlayers: () => void; onBedtime: () => void; onSing: () => void
-  onParty: () => void
+  onParty: () => void; onRemember: () => void
 }) {
   const p = useProgress()
   const me = activeProfile()
@@ -217,6 +218,8 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
     setBoat({ x: docks[k][0], y: docks[k][1], flip: false })
   }, [sea])
   const resting = visitsLeft(p.voyage, today(), p.dailyVisits) <= 0
+  // The "Remember?" round (learn/remember.ts): a bubble in the sea on a day it has something to ask.
+  const remember = known(p).length > 0 && roundDue(p, today())
   const prevOpen = sea > 0
   const nextOpen = sea + 1 < SEAS.length && seaOpen(sea + 1, p.islandsDone, built, p.openAll, started)
   const seaDone = islands.every((i) => !i.built || p.islandsDone.includes(i.id))
@@ -232,17 +235,22 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
     if (celebrate) return // (it says its own words; the birthday lines wait for next time)
     // Said once a day: whose birthday it is today, or how many sleeps until theirs.
     const d = today()
+    let said = false
     if (others.length && p.siblingSaid !== d) {
       update((x) => ({ ...x, siblingSaid: d }))
       speak(`Today is ${andList(others)}'s birthday! Tell ${others.length > 1 ? 'them' : others[0]} happy birthday!`)
+      said = true
     } else if (sleeps && p.countdownSaid !== d) {
       update((x) => ({ ...x, countdownSaid: d }))
       speak(`${buddyName} says: ${sleepsLine(sleeps)}`)
-    } else {
-      speak('Where should we go? Tap an island!')
-      return
+      said = true
     }
-    speak('Where should we go? Tap an island!', { interrupt: false })
+    speak('Where should we go? Tap an island!', { interrupt: !said })
+    // (and once a day, when there's a "Remember?" round to play: see the bubble in the sea)
+    if (remember && p.rememberNudged !== d) {
+      update((x) => ({ ...x, rememberNudged: d }))
+      speak(NUDGE, { interrupt: false })
+    }
   }, [])
 
   const states = islands.map((_, i) => islandState(sea, i, p.islandsDone, built, p.openAll, started))
@@ -356,6 +364,7 @@ export default function MapScreen({ onIsland, onArk, onParent, onPlayers, onBedt
       <div className="sea">
         {others.length > 0 && <div className="map-banner">🎂 Today is {andList(others)}&rsquo;s birthday! 🎉</div>}
         {resting && !others.length && states.includes('next') && <div className="map-banner rest"><Pic e="🌙" /> The crew is resting until tomorrow!</div>}
+        {remember && !celebrate && <button className="map-remember" onClick={() => { sfx.pop(); onRemember() }}><Pic e="💭" /> Remember?</button>}
         {prevOpen && <button className="sea-arrow prev" aria-label={`Back to ${SEAS[sea - 1].name}`} onClick={() => goSea(sea - 1)}><Arrow dir="left" /></button>}
         {sea + 1 < SEAS.length && (
           <button className={`sea-arrow next ${nextOpen ? '' : 'locked'} ${nextOpen && seaDone ? 'go' : ''}`} aria-label={`On to ${SEAS[sea + 1].name}`}

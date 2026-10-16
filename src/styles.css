@@ -1459,3 +1459,11 @@ input { -webkit-user-select: text; user-select: text; }
   .book-tile-pic { font-size: 64px; }
   .ark-tools .ark-btn { font-size: 20px; padding: 4px 14px 4px 6px; }
 }
+
+/* The "Remember?" round (screens/Remember.tsx): the map's bubble when it's due, and the round's end. */
+.map-remember { position: absolute; z-index: 3; left: 50%; bottom: 18px; translate: -50% 0; display: flex; align-items: center; gap: 10px; padding: 10px 28px; border-radius: 999px; background: #fff; color: var(--pink-deep); font-size: 28px; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 0 rgba(0,0,0,.12); animation: glow 1.6s infinite; }
+.map-remember:active { transform: translateY(4px); }
+.screen.remember { background: linear-gradient(#b7a6f5, #e9d9ff); }
+.rm-wait, .rm-done p { font-size: 34px; font-weight: 800; color: var(--pink-deep); text-align: center; }
+.rm-done { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+.rm-stars { font-size: 56px; display: flex; gap: 8px; animation: pop .6s both; }

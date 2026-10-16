@@ -147,11 +147,14 @@ describe('play totals on the device', () => {
 
 describe('the same names on the device and the server', () => {
   it('the same exercise kinds (every one the learning backbone plays), skills and top level', async () => {
-    const { EXERCISE_KINDS, SKILL_NAMES, TOP_LEVEL } = await stats()
+    const { EXERCISE_KINDS, REMEMBER_KINDS, SKILL_NAMES, TOP_LEVEL } = await stats()
     const { EXERCISES } = await import('../learn/registry')
+    const { KINDS } = await import('../learn/remember')
     const { MAX_LEVEL } = await import('../lib/progress')
     expect([...EXERCISE_KINDS].sort()).toEqual(Object.keys(EXERCISES).sort())
     expect([...server.EXERCISE_KINDS].sort()).toEqual([...EXERCISE_KINDS].sort())
+    expect([...REMEMBER_KINDS].sort()).toEqual([...KINDS].sort())
+    expect([...server.REMEMBER_KINDS].sort()).toEqual([...REMEMBER_KINDS].sort())
     expect([...server.SKILLS].sort()).toEqual([...SKILL_NAMES].sort())
     expect([...SKILL_NAMES].sort()).toEqual(Object.keys(MAX_LEVEL).sort())
     for (const n of Object.values(MAX_LEVEL)) expect(n).toBe(TOP_LEVEL)

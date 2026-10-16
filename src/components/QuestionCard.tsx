@@ -72,7 +72,9 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
       sfx.good()
       if (record && (recordMisses || misses === 0)) recordAnswer(q.skill, misses === 0)
       if (!quiet) {
-        await speak(`${q.choices[i].say}!`)
+        // (a piece of a verse keeps its own punctuation, as it was recorded)
+        const said = q.choices[i].say
+        await speak(/[,.!?;:]$/.test(said) ? said : `${said}!`)
         if (alive.current) await speak(praise())
       }
       else await wait(500)
@@ -96,6 +98,7 @@ export default function QuestionCard({ q, onSolved, quiet, recordMisses = true, 
         {q.choices.map((c, i) => (
           <button key={i}
             className={`q-choice ${wrong === i ? 'wiggle' : ''} ${misses >= 2 && i === q.answer ? 'glow' : ''} ${solved && i === q.answer ? 'right' : ''}`}
+            aria-label={textChoices ? undefined : c.say}
             onClick={() => choose(i)}>
             {textChoices ? c.label : <Pic e={c.label} art={c.art} />}
           </button>

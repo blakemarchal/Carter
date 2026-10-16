@@ -1,0 +1,9 @@
+/* The "Remember?" round: a verse with a missing piece (learn/topics/remember.tsx). */
+.rm-verse { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 900px; }
+.rm-pieces { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.rm-piece, .rm-blank { font-size: clamp(22px, 3.4vw, 34px); font-weight: 800; padding: 10px 20px; border-radius: 18px; background: #fff; color: #6d3fd1; box-shadow: 0 5px 0 rgba(0,0,0,.1); }
+.rm-piece:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.1); }
+.rm-blank { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; background: #fff3c4; color: #b8860b; border: 4px dashed #ffd34d; animation: pulse 1.4s infinite; }
+.rm-ref { font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.15); }
+/* The pieces to choose from are longer than a word: a size that fits three in a row (a sight word stays big). */
+.remember-round .q-card:has(.rm-verse) .q-choices.text .q-choice { font-size: clamp(22px, 3.2vw, 34px); padding: 14px 22px; }

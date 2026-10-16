@@ -36,16 +36,18 @@ try {
   }
   const entries = {}
   const results = []
+  const gen = join(HERE, '..', '..', 'src', 'data', 'songs.gen.json')
+  // (the game's list is written after each song, so a run that stops part-way leaves the game whole)
+  const save = () => writeFileSync(gen, JSON.stringify(mergeGen(JSON.parse(readFileSync(gen, 'utf8')), entries, songs().map((s) => s.id))))
   for (const id of ids) {
     const s = all.find((x) => x.id === id)
     if (!s) throw new Error(`${id}: not a song`)
     console.log(`${id}: sing.mp3 ${separate(id)}`)
     const { check } = await align(s)
     entries[id] = installSong(s)
+    save()
     results.push({ id, pct: Math.round((100 * check.matched) / check.lyricWords), missed: check.missed })
   }
-  const gen = join(HERE, '..', '..', 'src', 'data', 'songs.gen.json')
-  writeFileSync(gen, JSON.stringify(mergeGen(JSON.parse(readFileSync(gen, 'utf8')), entries, songs().map((s) => s.id))))
   console.log('\nInstalled. The words check:')
   for (const r of results) console.log(`  ${r.pct >= 85 ? 'ok    ' : r.pct >= 70 ? 'LISTEN' : 'REDO? '} ${r.id} ${r.pct}%${r.missed.length ? ' (not heard: ' + r.missed.slice(0, 8).join(' ') + ')' : ''}`)
   console.log('Next: npm test, then npm run dev and listen in the sing-along.')
