@@ -62,7 +62,7 @@ describe('matching the heard words to the lyrics', () => {
 
   it('gives each lyric word the time it was heard, and forgives a mis-heard word', () => {
     const lyrics = ['God', 'made', 'the', 'light', 'so', 'bright,', 'Hooray!']
-    const { times, matched } = alignWords(lyrics, heard('god made the lyte so brite hooray'))
+    const { times, matched } = alignWords(lyrics, heard('god made the lyght so brite hooray'))
     expect(matched).toBe(7)
     expect(times).toEqual([1, 1.5, 2, 2.5, 3, 3.5, 4])
   })
