@@ -27,6 +27,7 @@ import CatchIt from '../activities/games/CatchIt'
 import type { Island, Step } from '../data/islands'
 import { THINK } from '../data/think'
 import { BIG_WORDS } from '../data/bigwords'
+import { SCIENCE } from '../data/science'
 import { completeIsland, getProgress, savedStep, today, update } from '../lib/progress'
 import { countVisit } from '../lib/voyage'
 import { ScoreContext, starsFor } from '../lib/score'
@@ -137,10 +138,12 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   switch (current.kind) {
     case 'story': {
       const first = current.first ?? 0
-      // (the k-th story step gets the island's k-th big word, before it, and its k-th "Think about it", after it)
+      // (the k-th story step gets the island's k-th big word, before it, and its k-th "Think about it", after it;
+      // the island's science moment comes after its last story part)
       const k = steps.slice(0, step).filter((s) => s.kind === 'story').length
+      const last = !steps.slice(step + 1).some((s) => s.kind === 'story')
       body = <StoryBook title={current.title} pages={current.pages} art={island.art.slice(first, first + current.pages.length)}
-        bigWord={BIG_WORDS[island.id]?.[k]} think={THINK[island.id]?.[k]} onDone={next} />
+        bigWord={BIG_WORDS[island.id]?.[k]} think={THINK[island.id]?.[k]} science={last ? SCIENCE[island.id] : undefined} onDone={next} />
       break
     }
     case 'pairs':

@@ -2,6 +2,7 @@ import { useEffect, useState, type ComponentType, type ReactNode } from 'react'
 import type { StoryPage } from '../data/islands'
 import { thinkSay, type ThinkQ } from '../data/think'
 import { capital, cardLine, wordPattern, type BigWord } from '../data/bigwords'
+import { DID_YOU_KNOW, TRY_IT, factFor, scienceSay, type Science } from '../data/science'
 import Pic from '../components/Pic'
 import type { Question } from '../lib/questions'
 import { speak } from '../lib/speech'
@@ -48,6 +49,24 @@ function BigWordCard({ b, onDone }: { b: BigWord; onDone: () => void }) {
   )
 }
 
+/** "Did you know?" (data/science.ts) after the story: a fact at their reading level, and a thing to try at home. */
+function ScienceCard({ sc, onDone }: { sc: Science; onDone: () => void }) {
+  const level = getProgress().skills.reading
+  const line = scienceSay(sc, level)
+  useEffect(() => { speak(line) }, [])
+  return (
+    <div className="science-card">
+      <div className="sc-body" onClick={() => speak(line)}>
+        <div className="sc-label">{DID_YOU_KNOW}</div>
+        <div className="sc-title"><Pic e={sc.emoji} /> {sc.title}</div>
+        <p className="sc-fact">{factFor(sc, level)}</p>
+        <p className="sc-try"><b>{TRY_IT}</b> {sc.tryIt}</p>
+      </div>
+      <div className="story-nav"><span /><span className="story-page" /><BigButton color="pink" onClick={() => { sfx.whoosh(); onDone() }} aria-label="Next"><Arrow /></BigButton></div>
+    </div>
+  )
+}
+
 /** A page's words, with the big word lit up wherever it is: tap it to hear what it means. */
 function PageText({ text, big }: { text: string; big?: BigWord }) {
   if (!big) return <>{text}</>
@@ -66,13 +85,17 @@ function PageText({ text, big }: { text: string; big?: BigWord }) {
  * `art` (optional): one illustration per page (src/art/scenes); pages without one show their emoji scene.
  * `bigWord` (optional): a word to learn before the story, lit up in its pages.
  * `think` (optional): a question to think about after the last page.
+ * `science` (optional): a "Did you know?" after that (the end of the island's story).
  */
-export default function StoryBook({ title, pages, art, bigWord, think, onDone }: {
-  title: string; pages: StoryPage[]; art?: ComponentType[]; bigWord?: BigWord; think?: ThinkQ; onDone: () => void
+export default function StoryBook({ title, pages, art, bigWord, think, science, onDone }: {
+  title: string; pages: StoryPage[]; art?: ComponentType[]; bigWord?: BigWord; think?: ThinkQ; science?: Science; onDone: () => void
 }) {
   const [i, setI] = useState(0)
   const [intro, setIntro] = useState(!!bigWord)
   const [thinking, setThinking] = useState(false)
+  const [wondering, setWondering] = useState(false)
+  // After the last page: the think question if there is one, then the science moment if there is one, then on.
+  const after = () => (think && !thinking ? setThinking(true) : science && !wondering ? setWondering(true) : onDone())
   const page = pages[i]
   // The first page always includes the title, so it matches a family recording of that page.
   const line = i === 0 ? `${title}. ${page.text}` : page.text
@@ -90,13 +113,13 @@ export default function StoryBook({ title, pages, art, bigWord, think, onDone }:
   return (
     <div className={`story ${Art ? 'illustrated' : ''}`} style={{ background: page.bg }}>
       {Art ? <div className="story-art" key={i} onClick={tap}><BuddyContext.Provider value={buddy}><Art /></BuddyContext.Provider></div> : <div className="story-scene" key={i}>{page.scene}</div>}
-      {thinking && think ? <Think q={think} onDone={onDone} /> : (
+      {wondering && science ? <ScienceCard sc={science} onDone={onDone} /> : thinking && think ? <Think q={think} onDone={after} /> : (
         <>
           <p className="story-text" onClick={() => speak(line)}><PageText text={page.text} big={bigWord} /></p>
           <div className="story-nav">
             <BigButton color="white" disabled={i === 0} onClick={() => { sfx.whoosh(); setI(i - 1) }} aria-label="Back"><Arrow dir="left" /></BigButton>
             <span className="story-page">{i + 1} / {pages.length}</span>
-            <BigButton color="pink" onClick={() => { sfx.whoosh(); if (i < pages.length - 1) setI(i + 1); else if (think) setThinking(true); else onDone() }} aria-label="Next"><Arrow /></BigButton>
+            <BigButton color="pink" onClick={() => { sfx.whoosh(); if (i < pages.length - 1) setI(i + 1); else after() }} aria-label="Next"><Arrow /></BigButton>
           </div>
         </>
       )}

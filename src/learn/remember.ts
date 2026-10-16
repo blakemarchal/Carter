@@ -7,6 +7,7 @@
 // screens/Remember.tsx, the verse's picture learn/topics/remember.tsx.
 import { ANIMALS, SORTS, animalById, animalsMet, type Animal } from '../data/animals'
 import { BIG_WORDS, bigWordByName, meaningSay, type BigWord } from '../data/bigwords'
+import { SCIENCE, scienceAsk, type Science } from '../data/science'
 import { ISLANDS, islandById, type Island } from '../data/islands'
 import { SIGHT } from '../data/words'
 import { build, sayWord, type Choice, type Question } from '../lib/questions'
@@ -22,12 +23,12 @@ export const NEW_PER_ROUND = 3
 /** Sight words join the round once the reader is at this level (learn/levels.ts: "Sight words"). */
 export const WORDS_LEVEL = 5
 
-export type Kind = 'verse' | 'word' | 'animal' | 'bigword'
-export const KINDS: Kind[] = ['verse', 'word', 'animal', 'bigword']
+export type Kind = 'verse' | 'word' | 'animal' | 'bigword' | 'science'
+export const KINDS: Kind[] = ['verse', 'word', 'animal', 'bigword', 'science']
 /** Where a thing stands: its box, and the day it's next asked (YYYY-MM-DD). */
 export interface Memory { box: number; due: string }
 
-/** What a thing is: `verse:<island>`, `word:<sight word>`, `animal:<animal id>` or `bigword:<word>`. */
+/** What a thing is: `verse:<island>`, `word:<sight word>`, `animal:<animal id>`, `bigword:<word>` or `science:<island>`. */
 export const kindOf = (id: string): Kind => id.split(':')[0] as Kind
 const nameOf = (id: string) => id.slice(id.indexOf(':') + 1)
 
@@ -48,6 +49,7 @@ export function known(p: Progress, islands: Island[] = []): string[] {
   if (p.skills.reading >= WORDS_LEVEL) for (const w of SIGHT) out.push(`word:${w}`)
   for (const id of animalsMet(p, islands)) out.push(`animal:${id}`)
   for (const id of p.islandsDone) for (const b of BIG_WORDS[id] ?? []) out.push(`bigword:${b.word}`)
+  for (const id of p.islandsDone) if (SCIENCE[id]) out.push(`science:${id}`)
   return out
 }
 
@@ -61,7 +63,7 @@ export function planRound(p: Progress, day: string, islands: Island[] = []): str
     .sort(([, a], [, b]) => a.due.localeCompare(b.due) || a.box - b.box).map(([id]) => id)
   const fresh = known(p, islands).filter((id) => !boxes[id])
   const ofKind = (k: Kind) => shuffle(fresh.filter((id) => kindOf(id) === k))
-  const news = [...ofKind('verse'), ...ofKind('bigword'), ...ofKind('animal'), ...ofKind('word')]
+  const news = [...ofKind('verse'), ...ofKind('bigword'), ...ofKind('science'), ...ofKind('animal'), ...ofKind('word')]
   const room = Math.min(NEW_PER_ROUND, Math.max(0, ROUND_SIZE - due.length))
   return [...due.slice(0, ROUND_SIZE), ...news.slice(0, room)]
 }
@@ -130,6 +132,14 @@ export function bigWordQ(b: BigWord): Question {
   }
 }
 
+/** A science moment's question (data/science.ts), its answers read out in order, as the big words' are. */
+export function scienceQ(sc: Science): Question {
+  return {
+    skill: 'reading', say: scienceAsk(sc), visual: { kind: 'learn', view: 'rd-word-pic', data: { word: sc.title, art: sc.emoji } },
+    choices: sc.choices.map((c) => ({ label: c.emoji, say: c.say })), answer: sc.answer,
+  }
+}
+
 /** The question for a thing in the round (none if its island's verse isn't here). */
 export function questionFor(id: string, verses: Verse[]): Question | undefined {
   const name = nameOf(id)
@@ -138,6 +148,7 @@ export function questionFor(id: string, verses: Verse[]): Question | undefined {
     case 'word': return SIGHT.includes(name) ? wordQ(name) : undefined
     case 'animal': { const a = animalById(name); return a && animalQ(a) }
     case 'bigword': { const b = bigWordByName(name); return b && bigWordQ(b) }
+    case 'science': { const sc = SCIENCE[name]; return sc && scienceQ(sc) }
   }
 }
 

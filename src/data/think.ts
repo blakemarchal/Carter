@@ -183,11 +183,14 @@ export const THINK: Record<string, ThinkQ[]> = {
 const KEEP = /^(God|Jesus|Lord)\b/
 const lower = (s: string) => (KEEP.test(s) ? s : s[0].toLowerCase() + s.slice(1))
 
-/** What the narrator asks: the question, then the three answers in order (the pictures are only reminders). */
-export function thinkSay(q: ThinkQ): string {
-  const [a, b, c] = q.choices.map((x) => x.say)
-  return `${INTRO} ${q.ask} ${a}, ${lower(b)}, or ${lower(c)}?`
+/** A question with its three answers read out in order: "Why…? This, that, or the other?" */
+export function askWith(ask: string, says: string[]): string {
+  const [a, b, c] = says
+  return `${ask} ${a[0].toUpperCase()}${a.slice(1)}, ${lower(b)}, or ${lower(c)}?`
 }
+
+/** What the narrator asks: the question, then the three answers in order (the pictures are only reminders). */
+export const thinkSay = (q: ThinkQ) => `${INTRO} ${askWith(q.ask, q.choices.map((x) => x.say))}`
 
 /** Every line "Think about it" says, for the voice script: each question as asked, each answer, and each why. */
 export function thinkLines(): string[] {

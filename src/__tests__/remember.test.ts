@@ -25,7 +25,7 @@ describe('days', () => {
 describe('what the player knows', () => {
   it('nothing for a brand-new player; the verse of each island finished; sight words once they read them', () => {
     expect(known(player())).toEqual([])
-    expect(known(player({ islandsDone: ['noah', 'creation'] }))).toEqual(['verse:noah', 'verse:creation', 'bigword:obey', 'bigword:promise', 'bigword:beginning', 'bigword:wonderfully'])
+    expect(known(player({ islandsDone: ['noah', 'creation'] }))).toEqual(['verse:noah', 'verse:creation', 'bigword:obey', 'bigword:promise', 'bigword:beginning', 'bigword:wonderfully', 'science:noah', 'science:creation'])
     const reader = player({ skills: { reading: WORDS_LEVEL, numbers: 1 } })
     expect(known(reader)).toEqual(SIGHT.map((w) => `word:${w}`))
     expect(known(player({ skills: { reading: WORDS_LEVEL - 1, numbers: 1 } }))).toEqual([])
@@ -157,7 +157,11 @@ describe('the questions', () => {
     expect(big.choices[big.answer].say).toBe('wanting what someone else has')
     expect(big.choices.map((c) => c.label)).toEqual(['😠', '😴', '🎉'])
     expect(questionFor('bigword:zebra', [])).toBeUndefined()
-    expect(KINDS).toEqual(['verse', 'word', 'animal', 'bigword'])
+    const sci = questionFor('science:noah', [])!
+    expect(sci.say).toBe('What makes a rainbow? Paint in the clouds, sunlight shining through raindrops, or birds carrying colors?')
+    expect(sci.choices[sci.answer].label).toBe('🌈')
+    expect(questionFor('science:atlantis', [])).toBeUndefined()
+    expect(KINDS).toEqual(['verse', 'word', 'animal', 'bigword', 'science'])
   })
 })
 
