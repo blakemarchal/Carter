@@ -254,7 +254,8 @@ Above all, it's **personal**. The child and their family appear in the pictures,
 - **The "Remember?" round** (`src/learn/remember.ts`, a bubble in the sea when it's due, once a day): five quick questions on what's already learned, on a growing schedule (1, 2, 4, 8, 16 days: a right answer moves a thing up a box, a miss brings it back tomorrow): a memory verse with a piece missing, a sight word to find, an animal's home or baby. A miss never costs anything; a finished round feeds their Pal. Play totals count it by kind.
 - **"Think about it"** (`src/data/think.ts`, after each story part): a question that asks for a reason, a feeling or what the story shows ("Why did Jonah get on the boat?"); the narrator reads the three answers in order (the pictures are reminders), and after the right one says why, the story's point in a sentence. 54 questions, two per island.
 - **Big words** (`src/data/bigwords.ts`, two per island): a card before each story part says the word and what it means ("Big word! Jealous. Jealous means wanting what someone else has. Listen for it in the story!"); the word is lit up in the pages (tap it to hear the meaning again); and once the island is finished, the Remember? round asks what it means. 54 words, each checked to be in its story part.
-- Next: science moments, and a weekly parent email.
+- **Science moments** (`src/data/science.ts`, one per island): "Did you know?" at the end of the island's story, about something real in it (the rainbow, the whale, gravity, dew, waves, seeds, ears…): a fact that grows with the reading level, a thing to try at home with a grown-up, and a question in the Remember? round.
+- Next: a weekly parent email.
 
 **Why this order:** if 20 islands were built on today's thin template, they'd inherit its problems (emoji, short islands, art drawn once and never checked). Fixing the template first makes every later island longer, more interactive and better checked, at no extra cost per island.
 
