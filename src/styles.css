@@ -1490,3 +1490,7 @@ input { -webkit-user-select: text; user-select: text; }
 .sc-fact { font-size: 30px; font-weight: 700; text-align: center; margin: 0; background: rgba(255,255,255,.88); padding: 12px 26px; border-radius: 24px; }
 .sc-try { font-size: 22px; font-weight: 600; text-align: center; margin: 0; color: #2b2233; background: rgba(255,255,255,.7); padding: 8px 20px; border-radius: 18px; }
 .sc-try b { color: #1f6fb2; }
+/* The weekly parent email, under my email (components/FamilyAccounts.tsx): on or off, a look, and send it now. */
+.my-weekly { flex-wrap: wrap; gap: 10px 14px; }
+.my-weekly label { display: flex; align-items: center; gap: 8px; }
+.my-weekly input[type="checkbox"] { width: 22px; height: 22px; }

@@ -82,9 +82,14 @@ function MyEmail({ view, reload }: { view: FamilyView; reload: () => void }) {
       setNote(e.status === 409 ? 'Another grown-up already uses that email.' : e.status === 400 ? "That doesn't look like an email address." : 'That didn’t save. Check the internet and try again.'))
   }
   const [weekly, setWeekly] = useState(view.me.weekly !== false)
+  const [sentNote, setSentNote] = useState('')
   const toggleWeekly = (on: boolean) => {
     setWeekly(on)
     familyApi.updateMe({ weekly: on }).then(reload).catch(() => setWeekly(!on))
+  }
+  const sendNow = () => {
+    setSentNote('Sending…')
+    familyApi.weeklyNow().then(() => setSentNote('✓ Sent to your email')).catch((e: { status?: number }) => setSentNote(e.status === 429 ? 'Sent a few already; try again in an hour.' : 'That didn’t send. Check the internet and try again.'))
   }
   return (
     <>
@@ -94,10 +99,12 @@ function MyEmail({ view, reload }: { view: FamilyView; reload: () => void }) {
         {note && <span className="muted">{note}</span>}
       </form>
       {view.weeklyOn && view.me.email && (
-        <label className="player-row my-weekly">
-          <input type="checkbox" checked={weekly} onChange={(e) => toggleWeekly(e.target.checked)} />
-          <span>Email me a short note on the week’s play each Sunday <a href="/weekly" target="_blank" rel="noreferrer">(see this week’s)</a></span>
-        </label>
+        <div className="player-row my-weekly">
+          <label><input type="checkbox" checked={weekly} onChange={(e) => toggleWeekly(e.target.checked)} /> Email me a short note on the week’s play each Sunday</label>
+          <a href="/weekly" target="_blank" rel="noreferrer">See this week’s</a>
+          <button type="button" onClick={sendNow}>Email it to me now</button>
+          {sentNote && <span className="muted">{sentNote}</span>}
+        </div>
       )}
     </>
   )

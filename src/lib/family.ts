@@ -45,6 +45,8 @@ export const familyApi = {
   rename: (name: string) => call<void>('PUT', '/family', { name }),
   /** `email`: where a sign-in link can be sent ('' for none); `weekly`: whether the weekly email goes there. */
   updateMe: (changes: { name?: string; look?: unknown; email?: string; weekly?: boolean }) => call<void>('PUT', '/family/me', changes),
+  /** Sends this week's parent email to my own address now (server/weekly.mjs). */
+  weeklyNow: () => call<{ sent: boolean; played: boolean }>('POST', '/weekly'),
   /** A one-time link (7 days) that brings a new grown-up into the family; with an email, it's sent there too. */
   invite: (name: string, role: Role, email?: string) =>
     call<{ id: string; link: string; expires: number; emailed: boolean }>('POST', '/family/invite', { name, role, email }).then(withSite),
