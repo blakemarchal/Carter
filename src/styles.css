@@ -1419,3 +1419,43 @@ input { -webkit-user-select: text; user-select: text; }
    leaves a margin in its box, where an emoji fills it). */
 .icon-btn > .pic, .parent-gear .pic, .hungry-badge .pic { width: 1.25em; height: 1.25em; }
 .who-face .pic { width: 1.2em; height: 1.2em; }
+
+/* Noah's Animal Book (components/AnimalBook.tsx) */
+.ark-tools { display: flex; gap: 10px; }
+.animal-book { justify-content: flex-start; padding: 12px 20px 20px; overflow-y: auto; background: #fff0f7; }
+.book-sort-back { position: absolute; top: 12px; left: 20px; z-index: 2; }
+.animal-book > header { width: 100%; }
+.animal-book .book-count { font-size: 22px; font-weight: 800; color: var(--pink-deep); white-space: nowrap; }
+.book-games { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.book-games .big-btn { font-size: 22px; padding: 12px 20px; }
+.book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 14px; width: 100%; max-width: 1100px; }
+.book-tile { position: relative; background: #fff; border-radius: 24px; padding: 12px 8px 10px; box-shadow: 0 6px 0 rgba(0,0,0,.1); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.book-tile:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,.1); }
+.book-tile-pic { font-size: 84px; line-height: 1; }
+.book-tile-pic .pic { width: 1em; height: 1em; }
+.book-tile-name { font-size: 20px; font-weight: 800; color: var(--ink); }
+.book-tile.shadow { background: #f3eef7; box-shadow: none; }
+.book-tile.shadow .book-tile-pic { filter: brightness(0) opacity(.18); }
+.book-tile.shadow .book-tile-name { color: #b3a8c2; }
+.book-new { position: absolute; top: -8px; right: -6px; background: var(--pink); color: #fff; font-size: 14px; font-weight: 800; padding: 3px 9px; border-radius: 999px; transform: rotate(8deg); }
+.book-card { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.book-card > header { width: 100%; }
+.book-card-body { display: flex; gap: 28px; align-items: center; width: 100%; }
+.book-pic { font-size: 260px; line-height: 1; background: #fff; border-radius: 40px; padding: 10px; box-shadow: 0 10px 0 rgba(0,0,0,.08); flex: 0 0 auto; }
+.book-pic .pic { width: 1em; height: 1em; }
+.book-facts { flex: 1; background: #fff; border-radius: 32px; padding: 22px 26px; box-shadow: 0 10px 0 rgba(0,0,0,.08); display: flex; flex-direction: column; gap: 12px; }
+.book-facts p { margin: 0; font-size: 24px; line-height: 1.35; color: var(--ink); }
+.book-facts p.big { font-size: 32px; font-weight: 800; }
+.book-hear { align-self: flex-start; font: inherit; font-size: 18px; font-weight: 700; color: var(--pink-deep); background: #fff0f7; border: 2px solid #f0c4da; border-radius: 999px; padding: 8px 16px; }
+.book-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.book-chips .chip { background: #fff; border-radius: 999px; padding: 8px 16px; font-size: 19px; font-weight: 700; color: var(--ink); box-shadow: 0 4px 0 rgba(0,0,0,.08); }
+.book-nav { display: flex; gap: 16px; }
+@media (max-width: 760px) {
+  .book-card-body { flex-direction: column; }
+  .book-pic { font-size: 180px; }
+  .book-facts p { font-size: 20px; }
+  .book-facts p.big { font-size: 26px; }
+  .book-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+  .book-tile-pic { font-size: 64px; }
+  .ark-tools .ark-btn { font-size: 20px; padding: 4px 14px 4px 6px; }
+}

@@ -6,6 +6,7 @@ import PalArt from '../components/PalArt'
 import PalHome from '../components/PalHome'
 import HatchScene, { Egg } from '../components/HatchScene'
 import StickerBook from '../components/StickerBook'
+import AnimalBook from '../components/AnimalBook'
 import StickerFace from '../components/StickerFace'
 import { BackButton } from '../components/ui'
 import { FRUIT_COLOR, PALS, palById, stageFor, type PalDef } from '../data/pals'
@@ -22,6 +23,7 @@ export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onP
   const [home, setHome] = useState<PalDef | null>(null)
   const [hatching, setHatching] = useState(false)
   const [book, setBook] = useState(false)
+  const [animals, setAnimals] = useState(false)
   const hungry = hungryPals(p, activeProfile().id)
   useEffect(() => {
     const names = hungry.map((id) => { const x = palById(id); return x.stages[stageFor(x, p.pals[id] ?? 0)].name })
@@ -40,7 +42,10 @@ export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onP
       <header>
         <BackButton onClick={onBack} />
         <h2><Pic e="🚢" art="ark" /> My Ark Pals</h2>
-        <button className="ark-btn" onClick={() => { sfx.pop(); setBook(true) }}><span><Pic e="⭐" /></span> Stickers</button>
+        <div className="ark-tools">
+          <button className="ark-btn" onClick={() => { sfx.pop(); setAnimals(true) }}><span><Pic e="🦁" art="lion" /></span> Animals</button>
+          <button className="ark-btn" onClick={() => { sfx.pop(); setBook(true) }}><span><Pic e="⭐" /></span> Stickers</button>
+        </div>
       </header>
       {eggActive(p) && (
         <button className={`egg-card warm-${p.egg.warmth} ${eggReady(p) ? 'ready' : ''}`} onClick={tapEgg}>
@@ -82,6 +87,7 @@ export default function ArkScreen({ onBack, onParty }: { onBack: () => void; onP
       <div className="stickers">{p.stickers.map((s) => <span key={s}><StickerFace s={s} /></span>)}</div>
       {home && <PalHome pal={home} onClose={() => { setHome(null); speak('Tap a Pal to say hi.') }} />}
       {book && <StickerBook onClose={() => setBook(false)} onParty={onParty} />}
+      {animals && <AnimalBook onClose={() => setAnimals(false)} />}
       {hatching && <HatchScene pal={palById(EGG_PAL)} onDone={() => { hatchEgg(); setHatching(false) }} />}
     </div>
   )

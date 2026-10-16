@@ -62,6 +62,8 @@ export interface Progress {
   voyageCelebrated?: string
   /** The placement game (learn/placement.ts): 'due' for a brand-new player, 'done' once played or skipped. */
   placement?: 'due' | 'done'
+  /** The animal book (data/animals.ts): the cards the player has opened (a met animal not here shows "New!"). */
+  bookSeen?: string[]
 }
 
 export { DEFAULT_LOOK, type KidLook } from './look'
@@ -104,7 +106,8 @@ interface ProfileIndex {
 
 const keyFor = progressKey
 
-const fresh = (): Progress => ({
+/** A brand-new player's progress. */
+export const fresh = (): Progress => ({
   version: 1,
   pals: {},
   islandsDone: [],

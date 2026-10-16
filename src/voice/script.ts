@@ -46,7 +46,7 @@ export interface ScriptItem {
 }
 
 export interface IslandSource { id: string; name: string; steps: Step[] }
-export type Gen = { learning: [string, number][]; code: string[]; taps: string[] }
+export type Gen = { learning: [string, number][]; code: string[]; taps: string[]; book?: string[] }
 const GEN = gen as Gen
 
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length
@@ -117,6 +117,7 @@ export function buildScript(islands: IslandSource[], { extraNames = [], gen = GE
   line('prompts', 'pals:yes', 'Yes, please!', 'friendly battle: the new friend answers', 'pals')
   line('prompts', 'pals:tickles', 'Hee hee! That tickles!', 'Pal home: petting', 'pals')
   gen.code.forEach((l) => line('prompts', `code:${l}`, l, 'the game'))
+  ;(gen.book ?? []).forEach((l) => line('prompts', `book:${l}`, l, 'the animal book'))
 
   // ---- story pages ----
   for (const isl of islands) {

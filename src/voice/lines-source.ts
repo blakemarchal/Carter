@@ -2,6 +2,7 @@
 // What scripts/voice-script.tsx writes to ./lines.gen.json (and what its test checks against): see there.
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { bookLines } from '../data/animals'
 import { LEVELS } from '../learn/levels'
 import type { Skill } from '../lib/progress'
 
@@ -76,4 +77,4 @@ export function codeLines(root = 'src'): { code: string[]; taps: string[] } {
   return { code: [...code].filter(said).sort(), taps: [...taps].filter((t) => !code.has(t) && said(t)).sort() }
 }
 
-export const voiceLines = () => ({ learning: learningLines(), ...codeLines() })
+export const voiceLines = () => ({ learning: learningLines(), ...codeLines(), book: bookLines() })
