@@ -15,11 +15,20 @@ function clipboard() {
   return text.replace(/^﻿/, '').trim()
 }
 
-/** Asks ElevenLabs who the key belongs to; says the plan, never the key. */
+/**
+ * Asks ElevenLabs who the key belongs to; says the plan, never the key. A key made with limited permissions may
+ * not be allowed to read the plan: then it's tried on a music plan (free), which is what the songs need.
+ */
 async function check(key) {
-  const r = await eleven('/v1/user/subscription', { key })
-  const s = await r.json()
-  console.log(`The key works. Plan: ${s.tier ?? '?'}; ${s.character_count ?? '?'} of ${s.character_limit ?? '?'} characters used this cycle.`)
+  try {
+    const r = await eleven('/v1/user/subscription', { key })
+    const s = await r.json()
+    console.log(`The key works. Plan: ${s.tier ?? '?'}; ${s.character_count ?? '?'} of ${s.character_limit ?? '?'} characters used this cycle.`)
+  } catch (e) {
+    if (!/missing_permissions|permission/i.test(e.message)) throw new Error(e.status === 401 ? 'ElevenLabs says that key is invalid. Copy it again from ElevenLabs (profile → API keys) and run this again.' : e.message)
+    await eleven('/v1/music/plan', { method: 'POST', key, json: { prompt: 'a short gentle tune', music_length_ms: 3000, model_id: 'music_v2_5' } })
+    console.log("The key works for music (it isn't allowed to read the plan, which is fine).")
+  }
 }
 
 try {
