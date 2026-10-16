@@ -1,1 +1,7 @@
-{}
+{
+ "battle": "/music/loops/battle.c731e61e.mp3",
+ "home": "/music/loops/home.5add1d66.mp3",
+ "lullaby": "/music/loops/lullaby.23f8158f.mp3",
+ "play": "/music/loops/play.0192c9c1.mp3",
+ "story": "/music/loops/story.522ae6c0.mp3"
+}
