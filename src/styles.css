@@ -1467,3 +1467,8 @@ input { -webkit-user-select: text; user-select: text; }
 .rm-wait, .rm-done p { font-size: 34px; font-weight: 800; color: var(--pink-deep); text-align: center; }
 .rm-done { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
 .rm-stars { font-size: 56px; display: flex; gap: 8px; animation: pop .6s both; }
+
+/* "Think about it" after a story (activities/StoryBook.tsx): the question under the last picture. */
+.story-think { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.story-think .q-card { background: rgba(255,255,255,.85); border-radius: 24px; padding: 8px 18px 14px; }
+.story-think .q-emoji { font-size: 56px; }

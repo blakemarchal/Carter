@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { bookLines } from '../data/animals'
 import { LEVELS } from '../learn/levels'
 import { rememberLines } from '../learn/remember'
+import { thinkLines } from '../data/think'
 import type { Skill } from '../lib/progress'
 
 /** A small seeded random number generator (mulberry32), so sampling makes the same lines every time. */
@@ -78,4 +79,4 @@ export function codeLines(root = 'src'): { code: string[]; taps: string[] } {
   return { code: [...code].filter(said).sort(), taps: [...taps].filter((t) => !code.has(t) && said(t)).sort() }
 }
 
-export const voiceLines = () => ({ learning: learningLines(), ...codeLines(), book: bookLines(), remember: rememberLines() })
+export const voiceLines = () => ({ learning: learningLines(), ...codeLines(), book: bookLines(), remember: rememberLines(), think: thinkLines() })

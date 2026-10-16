@@ -145,6 +145,11 @@ const onScreen = (layer: string, x: number, y: number) =>
 export const STEPS: Record<string, Player> = {
   async story(app, gone) {
     for (let page = 0; page < 40 && !(await gone()); page++) {
+      // ("Think about it" after the last page: answer it, then on to the next activity)
+      if (await app.eval(`!!document.querySelector('.story-think .q-card')`)) {
+        await answerQuestion(app)
+        await app.waitFor(`!!document.querySelector('.story-think .story-nav')`, 20_000, 'the think question answered')
+      }
       await app.tapOn('.story-nav .big-btn:last-child')
       await sleep(150)
     }
