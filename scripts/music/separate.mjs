@@ -18,9 +18,17 @@ export function separate(id) {
   const vocal = ['vocal.mp3', 'vocal.wav', 'vocal.m4a'].map((f) => join(dir, f)).find(existsSync)
   if (!vocal) throw new Error(`${id}: no vocal.mp3 in work/${id} (make.mjs first)`)
   const tmp = join(dir, 'demucs')
-  rmSync(tmp, { recursive: true, force: true })
-  const r = spawnSync(PY, ['-m', 'demucs', '--two-stems=vocals', '-n', 'htdemucs', '-o', tmp, vocal], { stdio: 'inherit' })
-  if (r.status !== 0) throw new Error(`${id}: Demucs failed`)
+  // (twice: the first run on a machine downloads the model, which can fail once on a slow connection)
+  let r
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    rmSync(tmp, { recursive: true, force: true })
+    r = spawnSync(PY, ['-m', 'demucs', '--two-stems=vocals', '-n', 'htdemucs', '-o', tmp, vocal], { stdio: ['ignore', 'inherit', 'pipe'], encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+    if (r.status === 0) break
+    const lines = (r.stderr ?? '').split(/\r?\n/).filter((l) => l.trim() && !/%\|/.test(l))
+    const why = r.error ? r.error.message : lines.slice(-6).join('\n')
+    console.log(`  ${id}: Demucs didn't finish (${r.status ?? 'no exit code'})${why ? ':\n' + why : ''}${attempt === 1 ? '\n  trying once more…' : ''}`)
+  }
+  if (r.status !== 0) throw new Error(`${id}: Demucs failed. Is the music Python environment set up? Run: node scripts/music/setup.mjs`)
   const stem = join(tmp, 'htdemucs', vocal.split(/[\\/]/).pop().replace(/\.[^.]+$/, ''), 'no_vocals.wav')
   if (!existsSync(stem)) throw new Error(`${id}: Demucs made no no_vocals.wav`)
   transcode(stem, out, { loudnorm: false })

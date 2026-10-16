@@ -94,7 +94,13 @@ async function hear(file) {
   form.set('language_code', 'en')
   form.set('timestamps_granularity', 'word')
   form.set('tag_audio_events', 'false')
-  const r = await eleven('/v1/speech-to-text', { method: 'POST', form })
+  let r
+  try {
+    r = await eleven('/v1/speech-to-text', { method: 'POST', form })
+  } catch (e) {
+    if (/missing_permissions/.test(e.message)) throw new Error('The ElevenLabs key isn\'t allowed to use Speech to Text, which times the words. In ElevenLabs, edit the key (profile → API keys) and turn on Speech to Text, then run this again.')
+    throw e
+  }
   const j = await r.json()
   return (j.words ?? []).filter((w) => w.type === 'word').map((w) => ({ text: w.text, start: w.start, end: w.end }))
 }

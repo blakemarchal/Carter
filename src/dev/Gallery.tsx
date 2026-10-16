@@ -8,6 +8,7 @@
 //   #gallery/game/<kind>[/<island>]   a mini-game mechanic, playable, with its demo kit or an island's
 //   #gallery/kit/<island>      every piece of an island's mini-game kit, drawn in place
 //   #gallery/learn/<skill>/<level>[/question|exercise]   one practice turn at that level, playable
+//   #gallery/song[/<id>]       the sing-along's songs (public/music, songs.gen.json): one playing, with its words lit
 import { STORY_ART } from '../art/scenes'
 import { ISLANDS } from '../data/islands'
 import { useAllIslands } from '../lib/useIsland'
@@ -24,6 +25,8 @@ import DressedPal from '../components/DressedPal'
 import { atStage, PAL_FACES, stageScale } from '../art/pals/faces'
 import KitPreview from './KitPreview'
 import LearnDemo from './LearnDemo'
+import { SONGS } from '../data/songs'
+import { Player } from '../screens/SingAlong'
 
 const LOOK: KidLook = { skin: 'tan', hair: 'pigtails', hairColor: '#2b1d14', color: '#8d7cff' }
 const SAMPLE: PlayerArt = {
@@ -37,11 +40,25 @@ const SAMPLE: PlayerArt = {
   pals: [{ id: 'pip', stage: 1 }, { id: 'ember', stage: 0 }, { id: 'sprinkles', stage: 2 }, { id: 'lionel', stage: 0 }, { id: 'starling', stage: 1 }, { id: 'chilly', stage: 0 }],
 }
 
+/** A song as the sing-along plays it (no narration), with links to every other song. */
+function SongDemo({ id }: { id?: string }) {
+  const song = SONGS.find((s) => s.id === id)
+  return (
+    <div className="gallery">
+      <p style={{ padding: '8px 16px', display: 'flex', flexWrap: 'wrap', gap: '6px 14px', fontSize: 15 }}>
+        {SONGS.map((s) => <a key={s.id} href={`#gallery/song/${s.id}`} style={{ fontWeight: s.id === id ? 800 : 400 }} onClick={() => setTimeout(() => location.reload(), 50)}>{s.title}</a>)}
+      </p>
+      {song ? <Player key={song.id} song={song} onDone={() => { location.hash = '#gallery/song'; location.reload() }} say="" /> : <p style={{ padding: 16 }}>Pick a song.</p>}
+    </div>
+  )
+}
+
 export default function Gallery({ route }: { route: string }) {
   const [, kind, which, variant] = route.split('/')
   if (kind === 'game') return <GameDemo kind={which} island={variant} />
   if (kind === 'kit') return <KitPreview island={which} />
   if (kind === 'learn') return <LearnDemo skill={which} level={variant} mode={route.split('/')[4]} />
+  if (kind === 'song') return <SongDemo id={which} />
   if (kind === 'hats') {
     return (
       <div className="gallery" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 8, background: '#fff', height: '100%', overflow: 'auto', alignContent: 'flex-start' }}>
