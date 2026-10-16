@@ -1,6 +1,9 @@
-// Background music: short original loops played by the synth instruments in audio.ts.
-// Each scene has a mood; changing mood crossfades to that tune. No audio files, works offline.
+// Background music. Each scene has a mood; changing mood crossfades to that tune. A mood's tune is a recorded
+// loop (public/music/loops, made by scripts/music; listed in data/loops.gen.json) when there is one: fetched the
+// first time (and kept by the service worker), looped with a crossfade at its seam. Until it's loaded, or with
+// no loop for the mood, the synth instruments in audio.ts play the mood's short original tune, as they always did.
 import { ac, bass, buses, chip, kick, mallet, musicBox, pad, pluck, shaker, snare } from './audio'
+import LOOPS from '../data/loops.gen.json'
 
 export type Mood = 'home' | 'story' | 'play' | 'battle' | 'lullaby'
 
@@ -172,6 +175,81 @@ function startTrack(mood: Mood): Player {
   }
 }
 
+// ---------- Recorded loops ----------
+
+const LOOP_URLS = LOOPS as Partial<Record<Mood, string>>
+const LOOP_VOL = 0.5
+const SEAM = 2 // seconds of crossfade where the loop comes round
+const loopBuffers = new Map<string, Promise<AudioBuffer>>()
+
+/** Fetches and decodes a loop once (the service worker keeps the file for offline play). */
+function loadLoop(url: string): Promise<AudioBuffer> {
+  let p = loopBuffers.get(url)
+  if (!p) {
+    p = fetch(url).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`HTTP ${r.status}`)))).then((d) => ac().decodeAudioData(d))
+    p.catch(() => loopBuffers.delete(url))
+    loopBuffers.set(url, p)
+  }
+  return p
+}
+
+/** Plays a mood's recorded loop, round and round with a crossfade at the seam; the synth tune plays until it's loaded. */
+function startLoop(mood: Mood, url: string): Player {
+  const c = ac()
+  const out = c.createGain()
+  out.gain.setValueAtTime(0.0001, c.currentTime)
+  out.gain.exponentialRampToValueAtTime(LOOP_VOL, c.currentTime + 1.5)
+  out.connect(buses().music)
+  let synth: Player | null = startTrack(mood)
+  let stopped = false
+  let timer: ReturnType<typeof setInterval> | null = null
+  const sources: AudioBufferSourceNode[] = []
+  loadLoop(url).then((buf) => {
+    if (stopped) return
+    synth?.stop()
+    synth = null
+    const period = Math.max(4, buf.duration - SEAM)
+    let next = c.currentTime + 0.05
+    let first = true
+    const schedule = () => {
+      while (next < c.currentTime + 1.5) {
+        const src = c.createBufferSource()
+        src.buffer = buf
+        const g = c.createGain()
+        if (first) g.gain.setValueAtTime(1, next)
+        else {
+          g.gain.setValueAtTime(0, next)
+          g.gain.linearRampToValueAtTime(1, next + SEAM)
+        }
+        g.gain.setValueAtTime(1, next + buf.duration - SEAM)
+        g.gain.linearRampToValueAtTime(0, next + buf.duration)
+        src.connect(g).connect(out)
+        src.start(next)
+        src.stop(next + buf.duration)
+        src.onended = () => { g.disconnect(); sources.splice(sources.indexOf(src), 1) }
+        sources.push(src)
+        next += period
+        first = false
+      }
+    }
+    schedule()
+    timer = setInterval(schedule, 500)
+  }).catch(() => { /* offline, or no loop yet: the synth tune keeps playing */ })
+  return {
+    mood,
+    stop() {
+      stopped = true
+      if (timer) clearInterval(timer)
+      synth?.stop()
+      const now = c.currentTime
+      out.gain.cancelScheduledValues(now)
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), now)
+      out.gain.exponentialRampToValueAtTime(0.0001, now + 0.8)
+      setTimeout(() => { for (const s of sources.slice()) { try { s.stop() } catch { /* done */ } } out.disconnect() }, 1500)
+    },
+  }
+}
+
 let enabled = true
 let ready = false
 let mood: Mood | null = null
@@ -183,7 +261,7 @@ function refresh() {
   player?.stop()
   player = null
   try {
-    if (want) player = startTrack(want)
+    if (want) player = LOOP_URLS[want] ? startLoop(want, LOOP_URLS[want]!) : startTrack(want)
   } catch {
     /* audio unavailable */
   }

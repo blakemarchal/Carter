@@ -18,9 +18,9 @@ npm run build      # production files in dist/
 **Deploy to spiritflow.church:** see [deploy/DEPLOY.md](deploy/DEPLOY.md).
 **Narration** uses Grok's "Ara" voice (xAI text-to-speech) when the server has an xAI API key; see DEPLOY.md, "Narrator voice". Each line is generated once and cached on the server and the iPad. Without a key, or with `npm run dev`, the device's built-in voice reads instead.
 
-**Music and sound effects** are synthesized in the browser (`src/lib/audio.ts`, `music.ts`, `sfx.ts`), so there are no audio files. Each scene has its own tune. Music is on by default; the 🎵 button on the map turns it off.
+**Music:** each scene has a mood with its own recorded loop (`public/music/loops`, made by `scripts/music`), looped with a crossfade; until a loop has loaded, or offline before it's cached, a short synthesized tune plays instead (`src/lib/music.ts`). Sound effects are synthesized (`sfx.ts`). Music is on by default; the music button on the map turns it off.
 
-**Sing-along** (🎤 on the map): Ara sings six songs while the words light up one at a time, and the player's Pal dances. "I sing!" swaps to the same song with the tune on a flute. The songs are made ahead of time by `scripts/sing` (see "Making the songs" below) into `public/music/` and `src/data/songs.gen.json`. Parents can add their own recordings in the Parent Corner and tap along once to time the words.
+**Sing-along** (the microphone on the map): a singer sings each song while the words light up one at a time, and the player's Pal dances. "I sing!" swaps to the same song without the voice. The songs are made ahead of time by `scripts/music` (see "Making the songs" below) into `public/music/` and `src/data/songs.gen.json`. Parents can add their own recordings in the Parent Corner and tap along once to time the words.
 
 **Players:** the title screen asks "Who's playing?" (a brand-new device asks for the first player's name). Each player has separate progress and settings on the device, so a grown-up testing as themselves never touches a child's game. In the Parent Corner each player can have a birthday (month and day only) and a look for the story pictures, and the family cast (what the children call Mom and Dad, brothers and sisters, pets) puts the family into the stories.
 
@@ -62,23 +62,29 @@ python scripts/film/transforms.py .                               # CSS that wou
 
 The motion audit pauses every animation, scrubs it through its cycle and lists anything that travels far from where it rests (a sign of a transform pivoting on the wrong point). `sheet.py` turns a folder of pictures into one contact sheet. `#gallery/...` pages only exist in `npm run dev`.
 
-## Making the songs
+## Making the songs and the background music
 
-Each song is written out note by note in `scripts/sing/scores.py` (melodies checked against published sheet music; all public domain). To make Ara sing them:
+The sung songs and the background loops are made with ElevenLabs Music from the lyrics in `scripts/music/lyrics.json`
+and the styles in `scripts/music/styles.json` (the melodies of the six well-known songs come from Suno "covers" of
+our tune files, dropped into `scripts/music/drop/`). Once, on the laptop:
 
-1. Get Ara's voice saying each word. This runs on the server, which has the voice key:
-   ```bash
-   python scripts/sing/words.py > words.json
-   scp scripts/sing/fetch-words.mjs root@68.183.130.3:/opt/Carter/scripts/sing/
-   scp words.json root@68.183.130.3:/root/sing-words.json
-   ssh root@68.183.130.3 "cd /opt/Carter && node scripts/sing/fetch-words.mjs /root/sing-words.json /root/sing-words"
-   scp -r "root@68.183.130.3:/root/sing-words" .
-   ```
-2. Make the songs (needs Python 3 and `pip install -r scripts/sing/requirements.txt`):
-   ```bash
-   python scripts/sing/make.py sing-words                  # all songs; or --only twinkle
-   ```
-   Each word is pitched onto its notes and its vowel held for the note's length (the WORLD vocoder), then mixed with a synthesized band. It prints how close each song is to the written notes.
-3. Build and deploy as usual. Song files have a content hash in their names, so iPads pick up new versions.
+1. `node scripts/music/setup.mjs` makes a Python environment (Demucs takes the voice out of each song for "I sing!",
+   librosa finds the beat, LAME writes the mp3s). About 1 GB.
+2. In ElevenLabs, create an API key (a paid plan: the music terms allow an indie game), copy it, then
+   `node scripts/music/key.mjs`. The key is saved outside the repo and never shown.
+
+Then, for some songs or all of them:
+
+```bash
+node scripts/music/run.mjs --only song-creation song-jonah   # make, separate, time the words, install
+node scripts/music/run.mjs --all                              # every song (the birthday song keeps its name gap)
+node scripts/music/run.mjs --from-drop                        # songs made elsewhere: drop/<id>.mp3, <id>-sing.mp3
+node scripts/music/run.mjs --loops                            # the five background loops (data/loops.gen.json)
+```
+
+Each song is transcribed back and matched to its lyrics, so a mis-sung word is flagged ("LISTEN" or "REDO?") and
+the words light up on time. A song's take can be redone with `node scripts/music/make.mjs --again <id>` and then
+`run.mjs --only <id>`. The old pipeline (`scripts/sing`, Ara's spoken words bent onto the notes) still makes the
+birthday song, which needs a gap for the child's name.
 
 Parent Corner: on the map, **press and hold ⚙️ for 3 seconds**.

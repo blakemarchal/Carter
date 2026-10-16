@@ -258,6 +258,6 @@ Above all, it's **personal**. The child and their family appear in the pictures,
    - By default, 2 new visits a day. Parents can change this or turn it off.
    - Islands keep a single visit until they're deepened to three, so a day never runs short.
 2. **Bible order:** the map is reordered into the seas in chronological order. Every player keeps the islands they've already finished.
-3. **Island songs:** new lyrics to public-domain tunes, as with "Noah Built a Big Boat".
+3. **Island songs:** new lyrics to public-domain tunes, as with "Noah Built a Big Boat". *(Changed Oct 16, 2026: the island songs get their own melodies from the music model (ElevenLabs Music), sung from our lyrics; the six well-known songs keep their real tunes. The background music is recorded loops from the same model, with the synthesized tunes as the offline fallback.)*
 4. **Play stats:** privacy-first stats for the church beta, opt-in and first-party, with totals only.
 5. **Art:** code-drawn art behind the review gate. We'll revisit a human illustrator after the beta.

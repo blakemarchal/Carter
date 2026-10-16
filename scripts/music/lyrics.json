@@ -1,0 +1,548 @@
+{
+ "jesus-loves-me": {
+  "lines": [
+   "Jesus loves me! This I know,",
+   "For the Bible tells me so.",
+   "Little ones to Him belong;",
+   "They are weak, but He is strong.",
+   "Yes, Jesus loves me!",
+   "Yes, Jesus loves me!",
+   "Yes, Jesus loves me!",
+   "The Bible tells me so."
+  ]
+ },
+ "this-little-light": {
+  "lines": [
+   "This little light of mine,",
+   "I'm gonna let it shine.",
+   "This little light of mine,",
+   "I'm gonna let it shine.",
+   "This little light of mine,",
+   "I'm gonna let it shine.",
+   "Let it shine, let it shine, let it shine!",
+   "Ev'rywhere I go,",
+   "I'm gonna let it shine.",
+   "Ev'rywhere I go,",
+   "I'm gonna let it shine.",
+   "Ev'rywhere I go,",
+   "I'm gonna let it shine.",
+   "Let it shine, let it shine, let it shine!"
+  ]
+ },
+ "away-in-a-manger": {
+  "lines": [
+   "Away in a manger, no crib for a bed,",
+   "The little Lord Jesus laid down His sweet head.",
+   "The stars in the sky looked down where He lay,",
+   "The little Lord Jesus, asleep on the hay.",
+   "Be near me, Lord Jesus, I ask Thee to stay",
+   "Close by me forever, and love me, I pray.",
+   "Bless all the dear children in Thy tender care,",
+   "And fit us for heaven to live with Thee there."
+  ]
+ },
+ "twinkle": {
+  "lines": [
+   "Twinkle, twinkle, little star,",
+   "How I wonder what you are!",
+   "Up above the world so high,",
+   "Like a diamond in the sky.",
+   "Twinkle, twinkle, little star,",
+   "How I wonder what you are!",
+   "When the blazing sun is gone,",
+   "When he nothing shines upon,",
+   "Then you show your little light,",
+   "Twinkle, twinkle, all the night.",
+   "Twinkle, twinkle, little star,",
+   "How I wonder what you are!"
+  ]
+ },
+ "happy-birthday": {
+  "lines": [
+   "Happy birthday to you,",
+   "Happy birthday to you,",
+   "Happy birthday, dear {name},",
+   "Happy birthday to you!"
+  ],
+  "name": [
+   12.115,
+   14.189
+  ]
+ },
+ "noah-boat": {
+  "lines": [
+   "Old Noah built a big boat,",
+   "EIEIO!",
+   "And on that boat he had some sheep,",
+   "EIEIO!",
+   "With a baa baa here, and a baa baa there,",
+   "Here a baa, there a baa, ev'rywhere a baa baa,",
+   "Old Noah built a big boat,",
+   "EIEIO!",
+   "Old Noah built a big boat,",
+   "EIEIO!",
+   "And on that boat he had some ducks,",
+   "EIEIO!",
+   "With a quack quack here, and a quack quack there,",
+   "Here a quack, there a quack, ev'rywhere a quack quack,",
+   "Old Noah built a big boat,",
+   "EIEIO!",
+   "Old Noah built a big boat,",
+   "EIEIO!",
+   "And on that boat he had some cows,",
+   "EIEIO!",
+   "With a moo moo here, and a moo moo there,",
+   "Here a moo, there a moo, ev'rywhere a moo moo,",
+   "Old Noah built a big boat,",
+   "EIEIO!"
+  ]
+ },
+ "song-creation": {
+  "lines": [
+   "God made the light so bright,",
+   "God made the sky and sea,",
+   "Hip, hip, hooray! Hooray!",
+   "God saw that it was good!",
+   "God made the land and trees,",
+   "The sun, the moon, the stars!",
+   "Hip, hip, hooray! Hooray!",
+   "God saw that it was good!",
+   "God made the fish and birds,",
+   "The bunnies and the bears!",
+   "Hip, hip, hooray! Hooray!",
+   "God saw that it was good!",
+   "And God made you and me!",
+   "And God loves you and me!",
+   "Hip, hip, hooray! Hooray!",
+   "It's very, very good!"
+  ]
+ },
+ "song-abraham": {
+  "lines": [
+   "Abraham, look up at night!",
+   "Count the stars that twinkle bright!",
+   "One, two, three, and on they go!",
+   "God will make your fam'ly grow!",
+   "Abraham, look up at night!",
+   "Count the stars that twinkle bright!",
+   "Abraham and Sarah, too,",
+   "Waited for a dream come true.",
+   "Then a baby came! Hooray!",
+   "Isaac, born that happy day!",
+   "God keeps ev'ry promise true.",
+   "God loves me, and God loves you!"
+  ]
+ },
+ "song-joseph": {
+  "lines": [
+   "Joseph had a rainbow coat,",
+   "Rainbow coat, rainbow coat.",
+   "Joseph had a rainbow coat;",
+   "His father loved him so!",
+   "Brothers had a jealous frown,",
+   "Jealous frown, jealous frown.",
+   "Sent him far, so far away,",
+   "But God stayed by his side!",
+   "Joseph gave a great big hug,",
+   "Great big hug, great big hug!",
+   "He forgave them, ev'ry one,",
+   "And God turned bad to good!"
+  ]
+ },
+ "song-red-sea": {
+  "lines": [
+   "Deep, deep, deep was the sea,",
+   "Deep, deep, deep was the sea,",
+   "Deep, deep, deep was the sea.",
+   "What will the people do now?",
+   "Whoosh! Whoosh! God made a path!",
+   "Whoosh! Whoosh! God made a path!",
+   "Whoosh! Whoosh! God made a path!",
+   "Walk through the sea on dry land!",
+   "Step, step, all the way through,",
+   "Step, step, all the way through,",
+   "Step, step, all the way through,",
+   "Happy and safe on dry land!",
+   "Whoosh! Whoosh! God made a path!",
+   "Whoosh! Whoosh! God made a path!",
+   "Whoosh! Whoosh! God made a path!",
+   "Walk through the sea on dry land!",
+   "Dance, dance, Miriam, dance!",
+   "Clap, clap, sing to the Lord!",
+   "Dance, dance, Miriam, dance!",
+   "Dance with the tambourine, dance!"
+  ]
+ },
+ "song-david": {
+  "lines": [
+   "Shepherd boy with his sheep,",
+   "David played his harp for God,",
+   "With a strum, strum, strum a strum, happy songs he sang!",
+   "God loved David; he loved God!",
+   "Giant's tall, David's small,",
+   "God made David's heart so brave!",
+   "And he said, \"I trust in God! God is by my side!\"",
+   "God is bigger, God is strong!",
+   "Big or small, God loves all!",
+   "God is with you ev'ry day!",
+   "Come and sing, sing, sing a song, sing to God with me!",
+   "God is bigger, God is strong!"
+  ]
+ },
+ "song-daniel": {
+  "lines": [
+   "Daniel's praying, Daniel's praying,",
+   "Ev'ry day, ev'ry day,",
+   "Kneeling by the window, kneeling by the window:",
+   "\"Thank you, God! Thank you, God!\"",
+   "Where is Daniel? Where is Daniel?",
+   "Lions' den! Lions' den!",
+   "God sent down His angel, God sent down His angel.",
+   "Mouths shut tight! Mouths shut tight!",
+   "Daniel's safe now, Daniel's safe now,",
+   "Not a scratch, not a scratch!",
+   "God took care of Daniel, God took care of Daniel.",
+   "God loves you! God loves you!"
+  ]
+ },
+ "song-jonah": {
+  "lines": [
+   "Jonah ran from God,",
+   "Sailing far, so far.",
+   "Up and down, up and down, up and down, up and down,",
+   "What a stormy sea!",
+   "Gulp! Gulp! Great big fish",
+   "Swallowed Jonah up.",
+   "Jonah prayed, \"Thank you, God! Thank you, God! Thank you, God!\"",
+   "God kept Jonah safe.",
+   "God said, \"Try again!\"",
+   "Jonah said, \"I'll go!\"",
+   "God loves you, God loves me, God loves you, God loves me,",
+   "God loves ev'ryone!"
+  ]
+ },
+ "song-loaves": {
+  "lines": [
+   "One little boy had five small loaves",
+   "And two small fish, and two small fish.",
+   "One little boy had five small loaves;",
+   "He shared them all with Jesus!",
+   "Jesus gave thanks and passed it out",
+   "To ev'ryone, to ev'ryone.",
+   "Jesus gave thanks and passed it out,",
+   "And all the tummies filled up!",
+   "Then there were twelve big baskets full",
+   "Of bread and fish, of bread and fish!",
+   "Then there were twelve big baskets full,",
+   "With lots and lots left over!",
+   "This is the way we share our food,",
+   "We share our food, we share our food.",
+   "This is the way we share our food,",
+   "For Jesus cares about us!"
+  ]
+ },
+ "song-baby-moses": {
+  "lines": [
+   "Hush, little baby, lay down your head,",
+   "Mama's gonna make you a basket bed.",
+   "Down by the river, the reeds grow tall,",
+   "Baby in a basket, so snug and small.",
+   "Big sister Miriam watches you,",
+   "Watching over baby, like sisters do.",
+   "Look in the basket! A baby boy!",
+   "Princess loves the baby. Oh, what a joy!",
+   "Who kept him safe? Can you tell me who?",
+   "God kept baby Moses, and God loves you!",
+   "Hush, little one, now lay down your head;",
+   "God takes care of you in your cozy bed."
+  ]
+ },
+ "song-burning-bush": {
+  "lines": [
+   "There's a bush up on the mountain, all on fire!",
+   "There's a bush up on the mountain, all on fire!",
+   "And the shepherd Moses sees it,",
+   "But it never, never burns up!",
+   "There's a bush up on the mountain, all on fire!",
+   "God is calling, \"Moses! Moses!\" from the bush!",
+   "God is calling, \"Moses! Moses!\" from the bush!",
+   "\"Take your sandals off,\" God tells him.",
+   "\"This is holy ground,\" God tells him.",
+   "God is calling, \"Moses! Moses!\" from the bush!",
+   "God says, \"Go now, Moses! I will be with you!\"",
+   "God says, \"Go now, Moses! I will be with you!\"",
+   "So he goes to help God's people,",
+   "Yes, he goes to help God's people,",
+   "And our God will always be with you and me!"
+  ]
+ },
+ "song-manna": {
+  "lines": [
+   "In the desert, hot and dry,",
+   "The tummies growled, the tummies growled!",
+   "In the desert, hot and dry,",
+   "God's people needed food.",
+   "God sent bread from heaven high,",
+   "From heaven high, from heaven high,",
+   "God sent bread from heaven high,",
+   "Each morning, fresh and new!",
+   "White and sweet like honey, yum!",
+   "Like honey, yum! Like honey, yum!",
+   "White and sweet like honey, yum!",
+   "They called it manna bread.",
+   "Just enough for ev'ry day,",
+   "For ev'ry day, for ev'ry day,",
+   "Just enough for ev'ry day:",
+   "God gives us what we need!",
+   "Thank you, God, for food to eat,",
+   "For food to eat, for food to eat!",
+   "Thank you, God, for food to eat!",
+   "You give us what we need!"
+  ]
+ },
+ "song-jericho": {
+  "lines": [
+   "God's people went marching 'round the town, toot, toot! Toot, toot! Just",
+   "one time a day for six whole days, toot, toot! Toot, toot! The",
+   "priests would blow and the people walked, the golden box went around and round, and they",
+   "kept so quiet, not a single peep or sound!",
+   "Then day number seven came around, toot, toot! Toot, toot! They",
+   "marched around seven times that day, toot, toot! Toot, toot! The",
+   "trumpets blew and the people shouted, and the big walls came tumbling down, yes, they",
+   "all came tumbling, tumbling, tumbling, down, down, down!",
+   "And Rahab's fam'ly was safe and sound, hurrah! Hurrah! For",
+   "God always keeps His promises, hurrah! Hurrah! So",
+   "march with me, and we'll toot our horns and sing to God above! God is so good! He",
+   "loves us all the way up to the sky, hurrah!"
+  ]
+ },
+ "song-ruth": {
+  "lines": [
+   "Ruth said, \"I'll go where you go, dear Naomi, Naomi,",
+   "and your people will be mine, and your God will be mine!\"",
+   "And they walked together, together, together,",
+   "all the way to Bethlehem, Naomi's own home town.",
+   "In the fields of golden barley, the barley, the barley,",
+   "Ruth would gather up the grain that the helpers had dropped.",
+   "And kind Boaz told them, \"Leave some extra for her!\"",
+   "Then she carried home a basket full for Naomi.",
+   "Ruth and Boaz had a baby, a baby, a baby,",
+   "and his name was little Obed, and Naomi smiled.",
+   "And Obed grew up to be grandpa of David,",
+   "the brave boy who fought Goliath with one little stone!",
+   "God took care of Ruth and Naomi, God took such good care,",
+   "and He takes good care of you and of me, ev'ry day!",
+   "So where you go, I'll go, and where you stay, I'll stay,",
+   "and your people are my people, your God is my God!"
+  ]
+ },
+ "song-samuel": {
+  "lines": [
+   "Samuel slept in God's house softly, in the still night,",
+   "by the lamp so warm and glowing, in the still night.",
+   "Then he heard a voice say, \"Samuel!\" Up he jumped and ran to Eli:",
+   "\"Here I am! You called me, Eli!\" in the still night.",
+   "Eli said, \"I did not call you. Back to your bed.\"",
+   "Three times Samuel heard God calling in the still night.",
+   "Eli said, \"It's God who's calling! When He calls you, answer Him, child:",
+   "Say, 'Speak, Lord, I'm listening now,'\" all through the night.",
+   "God called, \"Samuel! Samuel!\" softly, in the still night.",
+   "Samuel said, \"Speak, Lord, I hear You,\" in the still night.",
+   "Samuel grew up listening to God, and God was with him always.",
+   "God speaks to us, so let's listen, all day and night!"
+  ]
+ },
+ "song-elijah": {
+  "lines": [
+   "God sent ravens with some bread, Hallelujah!",
+   "Elijah had food to eat, Hallelujah!",
+   "Then a widow shared her bread, Hallelujah!",
+   "God made her flour last and last, Hallelujah!",
+   "Elijah prayed on the hill, Hallelujah!",
+   "Down came fire from heaven high, Hallelujah!",
+   "Then the rain came pouring down, Hallelujah!",
+   "Our God answers when we pray, Hallelujah!"
+  ]
+ },
+ "song-esther": {
+  "lines": [
+   "Esther was a loving queen, loving queen, loving queen;",
+   "Esther was a loving queen. God was with her.",
+   "Proud old Haman made a plan, made a plan, made a plan;",
+   "Proud old Haman made a plan, such a mean one!",
+   "\"Esther, will you help us now, help us now, help us now?\"",
+   "Mordecai said, \"Help us now! Be so brave, Queen!\"",
+   "Esther prayed and was so brave, was so brave, was so brave;",
+   "Esther prayed and was so brave. God was with her!",
+   "God's own people all were saved, all were saved, all were saved;",
+   "God's own people all were saved! Let's all praise Him!"
+  ]
+ },
+ "song-boy-jesus": {
+  "lines": [
+   "Happy! Off to Jerusalem! Happy! Off to the Passover! Jesus, Mary and Joseph went all the way up to the feast!",
+   "Oh, dear! Where can our Jesus be? Oh, dear! Where can our Jesus be? Oh, dear! Where can our Jesus be? Looking for Him ev'rywhere!",
+   "Look, there! There is our Jesus, there! In God's house, in His Father's house! Teachers listened, amazed at Him. Then He went home with them all.",
+   "Jesus grew up so strong and wise, loving God and His fam'ly, too. God loves you, and He loves me, too! Thank You, God, for loving us!"
+  ]
+ },
+ "song-fishers": {
+  "lines": [
+   "The fishermen fished all night long, they fished and they fished all night long, they fished and they fished all night long, but caught no fish at all!",
+   "Then Jesus told Simon Peter, \"Go out to the deeper water, and let down your nets for fish there!\" So Peter said, \"Yes, Lord!\"",
+   "The nets filled up with so many, the nets filled up with so many, the nets filled up with so many, the boats began to sink!",
+   "\"Come follow me now,\" said Jesus, \"I'll make you fishers of people!\" They left their boats and they followed, they followed Him with joy!",
+   "So let's all go follow Jesus, so let's all go follow Jesus, so let's all go follow Jesus, and share that God is love!"
+  ]
+ },
+ "song-storm": {
+  "lines": [
+   "Sailing out, sailing out, on the lake they sail about;",
+   "Jesus slept, Jesus slept, in the boat He slept.",
+   "Then the wind began to blow, waves came splashing high and low;",
+   "Jesus, help! Jesus, help! We are scared, oh help!",
+   "Jesus woke, Jesus woke, \"Peace, be still!\" is what He spoke;",
+   "Wind went still, waves went still, calm and quiet, still.",
+   "Ev'rybody was amazed, at the quiet lake they gazed:",
+   "\"Who is this? Who is this? Wind and waves obey!\"",
+   "When we're scared, when we're scared, Jesus loves us, He is there;",
+   "We can pray, we can pray, He hears ev'ry prayer.",
+   "Jesus calms the wind and sea, He takes care of you and me;",
+   "Lightly row, lightly row, safe across the lake."
+  ]
+ },
+ "song-lost-sheep": {
+  "lines": [
+   "A shepherd had a hundred sheep, he counted them each evening. But only ninety-nine were there! Where is the lamby?",
+   "He left the ninety-nine at home, and went to find the lost one. He looked behind the rocks and trees, Baa! There's the lamby!",
+   "He put the lamb upon his shoulders, carried it home, happy! \"Come celebrate, I found my lamb!\" Happy, happy day!",
+   "God loves us like the shepherd loves each little lamb, his dear one. He comes to find us when we're lost. God loves you so much!",
+   "So clap your hands and stamp your feet, and sing along so happy! The shepherd found his lamb, and God loves you, He loves you!"
+  ]
+ },
+ "song-samaritan": {
+  "lines": [
+   "Once a man was on a journey,",
+   "Walking down to Jericho;",
+   "Robbers took his things away,",
+   "Left him hurt and sad that day.",
+   "Who will stop and help the poor man on the road?",
+   "Then a priest came walking by him,",
+   "But he did not stop to help;",
+   "Then a temple helper passed,",
+   "He went by him, oh so fast!",
+   "Who will stop and help the poor man on the road?",
+   "Then a kind man, walking by there,",
+   "From Samaria he came;",
+   "He was sad to see him there,",
+   "So he stopped to help and care.",
+   "Yes, he stopped to help the poor man on the road!",
+   "Bandaged up his cuts and bruises,",
+   "Let him ride his donkey, too,",
+   "To an inn to rest and stay,",
+   "And he paid for it, hooray!",
+   "He was kind and loved the poor man on the road!",
+   "Jesus says to love our neighbors,",
+   "Ev'ryone we meet each day;",
+   "Friends and strangers, big and small,",
+   "God wants us to love them all!",
+   "Let's be kind like the Samaritan each day!"
+  ]
+ },
+ "song-zacchaeus": {
+  "lines": [
+   "Zacchaeus was a little man, a rich man, but so lonely;",
+   "He took more money, more and more, and folks were cross and grumpy.",
+   "Then one day the news came round:",
+   "Jesus, here He comes now!",
+   "Ev'rybody crowded round; Zacchaeus couldn't see Him!",
+   "So up he climbed a sycamore, up in the leaves and branches,",
+   "And there he sat and watched and watched, to see if Jesus passed by.",
+   "Jesus stopped beneath the tree,",
+   "Looking up, He called out:",
+   "\"Hurry down, Zacchaeus, come! I'm staying at your house now!\"",
+   "Zacchaeus hurried down so fast, he was so glad and happy!",
+   "But some folks grumbled, grumble, grum! \"Why go to his house, Jesus?\"",
+   "Then Zacchaeus stood up tall:",
+   "\"I will give and share now!",
+   "If I took too much from you, I'll pay back four times over!\"",
+   "So Jesus smiled and said, \"Hooray! Today God's love has found you!",
+   "For I have come to find the lost and bring them home so happy!\"",
+   "Big or little, short or tall,",
+   "Jesus loves us, each one!",
+   "Jesus wants to stay with you and be your friend forever!"
+  ]
+ },
+ "song-palm-sunday": {
+  "lines": [
+   "Then Jesus sent two friends ahead",
+   "To find a donkey there;",
+   "A little donkey, young and sweet,",
+   "With soft and fuzzy hair!",
+   "Then Jesus rode the donkey in",
+   "Up through the city gate,",
+   "And ev'ryone came running out",
+   "To shout and celebrate!",
+   "They spread their coats along the road,",
+   "They waved their palm leaves high;",
+   "The children clapped and sang for joy,",
+   "Their voices reached the sky!",
+   "Hosanna! Bless the King who comes",
+   "In God our Father's name!",
+   "Hosanna! Jesus is the King!",
+   "And we will sing the same!",
+   "He did not ride a mighty horse,",
+   "Or wear a golden crown;",
+   "He came, a gentle, humble King,",
+   "To bring God's love around!",
+   "So we will sing Hosanna too,",
+   "Like children long ago;",
+   "For Jesus is our King of love,",
+   "He loves us all, we know!"
+  ]
+ },
+ "song-easter": {
+  "lines": [
+   "Early in the morning light, Alleluia!",
+   "Mary came, and what a sight! Alleluia!",
+   "Rolled away, the stone was gone! Alleluia!",
+   "Jesus is alive! Sing on! Alleluia!",
+   "\"Don't be scared!\" the angel said, Alleluia!",
+   "\"Jesus is alive instead! Alleluia!",
+   "He is risen! Go and tell! Alleluia!",
+   "Ev'rybody, all is well!\" Alleluia!",
+   "Running back, they met Him there: Alleluia!",
+   "Jesus! Happy ev'rywhere! Alleluia!",
+   "Jesus lives, and He is near, Alleluia!",
+   "Sing it loud for all to hear! Alleluia!"
+  ]
+ },
+ "song-pentecost": {
+  "lines": [
+   "All of Jesus' friends were praying when the Holy Spirit came:",
+   "Came a sound like mighty wind, and then on each a little flame!",
+   "And they spoke in words from ev'ry land to praise God's holy name!",
+   "God's Spirit came that day!",
+   "Glory, glory, hallelujah!",
+   "Glory, glory, hallelujah!",
+   "Glory, glory, hallelujah!",
+   "The Spirit came to stay!",
+   "Then a crowd came running up to see what all the noise could be,",
+   "All the people came from far away, from ev'ry land and sea;",
+   "Then brave Peter told them all about how Jesus sets us free!",
+   "So many came that day!",
+   "Glory, glory, hallelujah!",
+   "Glory, glory, hallelujah!",
+   "Glory, glory, hallelujah!",
+   "The Spirit came to stay!",
+   "Now God's Spirit lives in all of us who trust in Jesus' way;",
+   "He's our Helper and our Friend, He's with us ev'ry single day;",
+   "So let's shine like little lights and tell the world, and sing and pray!",
+   "God's love is here to stay!",
+   "Glory, glory, hallelujah!",
+   "Glory, glory, hallelujah!",
+   "Glory, glory, hallelujah!",
+   "The Spirit came to stay!"
+  ]
+ }
+}

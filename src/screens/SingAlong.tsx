@@ -174,7 +174,7 @@ export function Player({ song: picked, onDone, inIsland, say }: { song: Song; on
         <h2><SongPic song={song} /> {song.title}</h2>
         {song.audio.sing
           ? <button className={`sing-mode ${mode !== 'ara' ? 'mine' : ''}`} onClick={() => { sfx.pop(); switchVoice() }} disabled={state === 'loading'}>
-              {mode === 'mine' ? <><Pic e="🎤" /> I sing!</> : mode === 'house' ? <><Pic e="🎶" /> {houseLabel ?? 'Our child'}’s version</> : <><Pic e="🎵" /> Ara sings</>}
+              {mode === 'mine' ? <><Pic e="🎤" /> I sing!</> : mode === 'house' ? <><Pic e="🎶" /> {houseLabel ?? 'Our child'}’s version</> : <><Pic e="🎵" /> Singer</>}
             </button>
           : <span />}
       </header>
