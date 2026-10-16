@@ -110,10 +110,14 @@ export default function StoryBook({ title, pages, art, bigWord, think, science, 
   if (intro && bigWord) {
     return <div className="story" style={{ background: page.bg }}><BigWordCard b={bigWord} onDone={() => setIntro(false)} /></div>
   }
+  // (the science moment has the screen to itself, like the big word: a fact and a thing to try need the room)
+  if (wondering && science) {
+    return <div className="story" style={{ background: page.bg }}><ScienceCard sc={science} onDone={onDone} /></div>
+  }
   return (
     <div className={`story ${Art ? 'illustrated' : ''}`} style={{ background: page.bg }}>
       {Art ? <div className="story-art" key={i} onClick={tap}><BuddyContext.Provider value={buddy}><Art /></BuddyContext.Provider></div> : <div className="story-scene" key={i}>{page.scene}</div>}
-      {wondering && science ? <ScienceCard sc={science} onDone={onDone} /> : thinking && think ? <Think q={think} onDone={after} /> : (
+      {thinking && think ? <Think q={think} onDone={after} /> : (
         <>
           <p className="story-text" onClick={() => speak(line)}><PageText text={page.text} big={bigWord} /></p>
           <div className="story-nav">
