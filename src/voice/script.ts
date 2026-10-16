@@ -46,7 +46,7 @@ export interface ScriptItem {
 }
 
 export interface IslandSource { id: string; name: string; steps: Step[] }
-export type Gen = { learning: [string, number][]; code: string[]; taps: string[]; book?: string[]; remember?: string[]; think?: string[] }
+export type Gen = { learning: [string, number][]; code: string[]; taps: string[]; book?: string[]; remember?: string[]; think?: string[]; bigwords?: string[] }
 const GEN = gen as Gen
 
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length
@@ -120,6 +120,7 @@ export function buildScript(islands: IslandSource[], { extraNames = [], gen = GE
   ;(gen.book ?? []).forEach((l) => line('prompts', `book:${l}`, l, 'the animal book'))
   ;(gen.remember ?? []).forEach((l) => line('prompts', `remember:${l}`, l, 'the Remember? round'))
   ;(gen.think ?? []).forEach((l) => line('prompts', `think:${l}`, l, 'Think about it (after a story)'))
+  ;(gen.bigwords ?? []).forEach((l) => line('prompts', `bigword:${l}`, l, 'Big words (before a story, and in the Remember? round)'))
 
   // ---- story pages ----
   for (const isl of islands) {

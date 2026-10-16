@@ -26,6 +26,7 @@ import ShareIt from '../activities/games/ShareIt'
 import CatchIt from '../activities/games/CatchIt'
 import type { Island, Step } from '../data/islands'
 import { THINK } from '../data/think'
+import { BIG_WORDS } from '../data/bigwords'
 import { completeIsland, getProgress, savedStep, today, update } from '../lib/progress'
 import { countVisit } from '../lib/voyage'
 import { ScoreContext, starsFor } from '../lib/score'
@@ -136,9 +137,10 @@ export default function IslandScreen({ island, onExit }: { island: Island; onExi
   switch (current.kind) {
     case 'story': {
       const first = current.first ?? 0
-      // ("Think about it" after this story part: the k-th story step gets the island's k-th question)
-      const think = THINK[island.id]?.[steps.slice(0, step).filter((s) => s.kind === 'story').length]
-      body = <StoryBook title={current.title} pages={current.pages} art={island.art.slice(first, first + current.pages.length)} think={think} onDone={next} />
+      // (the k-th story step gets the island's k-th big word, before it, and its k-th "Think about it", after it)
+      const k = steps.slice(0, step).filter((s) => s.kind === 'story').length
+      body = <StoryBook title={current.title} pages={current.pages} art={island.art.slice(first, first + current.pages.length)}
+        bigWord={BIG_WORDS[island.id]?.[k]} think={THINK[island.id]?.[k]} onDone={next} />
       break
     }
     case 'pairs':

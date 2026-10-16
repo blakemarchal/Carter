@@ -6,6 +6,7 @@
 // Progress keeps the boxes (`remember`) and the day the round was last played (`rememberDay`); the screen is
 // screens/Remember.tsx, the verse's picture learn/topics/remember.tsx.
 import { ANIMALS, SORTS, animalById, animalsMet, type Animal } from '../data/animals'
+import { BIG_WORDS, bigWordByName, meaningSay, type BigWord } from '../data/bigwords'
 import { ISLANDS, islandById, type Island } from '../data/islands'
 import { SIGHT } from '../data/words'
 import { build, sayWord, type Choice, type Question } from '../lib/questions'
@@ -21,12 +22,12 @@ export const NEW_PER_ROUND = 3
 /** Sight words join the round once the reader is at this level (learn/levels.ts: "Sight words"). */
 export const WORDS_LEVEL = 5
 
-export type Kind = 'verse' | 'word' | 'animal'
-export const KINDS: Kind[] = ['verse', 'word', 'animal']
+export type Kind = 'verse' | 'word' | 'animal' | 'bigword'
+export const KINDS: Kind[] = ['verse', 'word', 'animal', 'bigword']
 /** Where a thing stands: its box, and the day it's next asked (YYYY-MM-DD). */
 export interface Memory { box: number; due: string }
 
-/** What a thing is: `verse:<island>`, `word:<sight word>` or `animal:<animal id>`. */
+/** What a thing is: `verse:<island>`, `word:<sight word>`, `animal:<animal id>` or `bigword:<word>`. */
 export const kindOf = (id: string): Kind => id.split(':')[0] as Kind
 const nameOf = (id: string) => id.slice(id.indexOf(':') + 1)
 
@@ -46,6 +47,7 @@ export function known(p: Progress, islands: Island[] = []): string[] {
   for (const id of p.islandsDone) if (islandById(id)) out.push(`verse:${id}`)
   if (p.skills.reading >= WORDS_LEVEL) for (const w of SIGHT) out.push(`word:${w}`)
   for (const id of animalsMet(p, islands)) out.push(`animal:${id}`)
+  for (const id of p.islandsDone) for (const b of BIG_WORDS[id] ?? []) out.push(`bigword:${b.word}`)
   return out
 }
 
@@ -59,7 +61,7 @@ export function planRound(p: Progress, day: string, islands: Island[] = []): str
     .sort(([, a], [, b]) => a.due.localeCompare(b.due) || a.box - b.box).map(([id]) => id)
   const fresh = known(p, islands).filter((id) => !boxes[id])
   const ofKind = (k: Kind) => shuffle(fresh.filter((id) => kindOf(id) === k))
-  const news = [...ofKind('verse'), ...ofKind('animal'), ...ofKind('word')]
+  const news = [...ofKind('verse'), ...ofKind('bigword'), ...ofKind('animal'), ...ofKind('word')]
   const room = Math.min(NEW_PER_ROUND, Math.max(0, ROUND_SIZE - due.length))
   return [...due.slice(0, ROUND_SIZE), ...news.slice(0, room)]
 }
@@ -117,6 +119,17 @@ export function animalQ(a: Animal, ask: 'home' | 'baby' = Math.random() < 0.5 ? 
   return build('reading', BABY_ASK(a), visual, { label: a.baby, say: a.baby }, wrong.map((b) => ({ label: b, say: b })))
 }
 
+/**
+ * A big word from a story (data/bigwords.ts): what does it mean? The three meanings are read out in the order
+ * they're written (so the line is fixed), with their pictures as reminders.
+ */
+export function bigWordQ(b: BigWord): Question {
+  return {
+    skill: 'reading', say: meaningSay(b), visual: { kind: 'learn', view: 'rd-word-pic', data: { word: b.word, art: b.emoji } },
+    choices: b.choices.map((c) => ({ label: c.emoji, say: c.say })), answer: b.answer,
+  }
+}
+
 /** The question for a thing in the round (none if its island's verse isn't here). */
 export function questionFor(id: string, verses: Verse[]): Question | undefined {
   const name = nameOf(id)
@@ -124,6 +137,7 @@ export function questionFor(id: string, verses: Verse[]): Question | undefined {
     case 'verse': { const v = verses.find((x) => x.island === name); return v && verseQ(v, verses) }
     case 'word': return SIGHT.includes(name) ? wordQ(name) : undefined
     case 'animal': { const a = animalById(name); return a && animalQ(a) }
+    case 'bigword': { const b = bigWordByName(name); return b && bigWordQ(b) }
   }
 }
 
@@ -134,7 +148,7 @@ export const NUDGE = 'Can you remember? Tap the thinking bubble!'
 export const CHEER = 'You remembered! Come back tomorrow for more.'
 export const DONE_TODAY = 'All remembered for today! Come back tomorrow.'
 
-/** Every fixed line the round says, for the voice script (the verse pieces are in the islands' own lines). */
+/** Every fixed line the round says, for the voice script (the verse pieces are in the islands' own lines, the big words' questions in theirs). */
 export function rememberLines(): string[] {
   const out = new Set<string>([INTRO, NUDGE, CHEER, DONE_TODAY])
   for (const i of ISLANDS) out.add(VERSE_ASK(i.name))

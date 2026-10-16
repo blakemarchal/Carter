@@ -43,7 +43,7 @@ export const TOP_LEVEL = 10
 const LEARN_EVENTS = ['start', 'finish', 'right']
 const LEVEL = /^([1-9]|10)$/
 /** What the "Remember?" round asks (learn/remember.ts KINDS; a test keeps this and the server's list the same). */
-export const REMEMBER_KINDS = ['verse', 'word', 'animal']
+export const REMEMBER_KINDS = ['verse', 'word', 'animal', 'bigword']
 const ISLAND_IDS = new Set(ISLANDS.map((i) => i.id))
 /** How many days of counts wait on the device while it can't reach the server. */
 const PENDING_DAYS = 60

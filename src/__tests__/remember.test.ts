@@ -25,7 +25,7 @@ describe('days', () => {
 describe('what the player knows', () => {
   it('nothing for a brand-new player; the verse of each island finished; sight words once they read them', () => {
     expect(known(player())).toEqual([])
-    expect(known(player({ islandsDone: ['noah', 'creation'] }))).toEqual(['verse:noah', 'verse:creation'])
+    expect(known(player({ islandsDone: ['noah', 'creation'] }))).toEqual(['verse:noah', 'verse:creation', 'bigword:obey', 'bigword:promise', 'bigword:beginning', 'bigword:wonderfully'])
     const reader = player({ skills: { reading: WORDS_LEVEL, numbers: 1 } })
     expect(known(reader)).toEqual(SIGHT.map((w) => `word:${w}`))
     expect(known(player({ skills: { reading: WORDS_LEVEL - 1, numbers: 1 } }))).toEqual([])
@@ -73,9 +73,10 @@ describe('a day’s round', () => {
     })
     const round = planRound(p, DAY)
     expect(round.slice(0, 3)).toEqual(['verse:creation', 'verse:noah', 'word:the'])
-    expect(round).toContain('verse:david')
+    expect(round[3]).toBe('verse:david')
+    expect(kindOf(round[4])).toBe('bigword')
     expect(round).not.toContain('word:is')
-    expect(round.length).toBe(4)
+    expect(round.length).toBe(ROUND_SIZE)
   })
 
   it('never asks more than the round’s size, due things before new ones', () => {
@@ -151,7 +152,12 @@ describe('the questions', () => {
     expect(questionFor('word:zebra', [])).toBeUndefined()
     expect(questionFor('animal:sheep', [])?.say).toMatch(/sheep/)
     expect(questionFor('animal:dragon', [])).toBeUndefined()
-    expect(KINDS).toEqual(['verse', 'word', 'animal'])
+    const big = questionFor('bigword:jealous', [])!
+    expect(big.say).toBe('What does jealous mean? Wanting what someone else has, feeling very sleepy, or having a party?')
+    expect(big.choices[big.answer].say).toBe('wanting what someone else has')
+    expect(big.choices.map((c) => c.label)).toEqual(['😠', '😴', '🎉'])
+    expect(questionFor('bigword:zebra', [])).toBeUndefined()
+    expect(KINDS).toEqual(['verse', 'word', 'animal', 'bigword'])
   })
 })
 

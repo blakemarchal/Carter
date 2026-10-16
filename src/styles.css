@@ -1472,3 +1472,12 @@ input { -webkit-user-select: text; user-select: text; }
 .story-think { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
 .story-think .q-card { background: rgba(255,255,255,.85); border-radius: 24px; padding: 8px 18px 14px; }
 .story-think .q-emoji { font-size: 56px; }
+
+/* A big word before a story (activities/StoryBook.tsx): the word, its picture and what it means; lit up in the pages. */
+.big-word-card { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.bw-body { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+.bw-label { font-size: 28px; font-weight: 800; color: var(--pink-deep); text-transform: uppercase; letter-spacing: 2px; }
+.bw-word { font-size: clamp(48px, 9vw, 96px); font-weight: 900; color: #6d3fd1; background: #fff; padding: 6px 40px; border-radius: 30px; box-shadow: 0 8px 0 rgba(0,0,0,.1); animation: pop .6s both; }
+.bw-pic { font-size: 90px; line-height: 1; }
+.bw-means { font-size: 30px; font-weight: 700; text-align: center; max-width: 820px; margin: 0; background: rgba(255,255,255,.85); padding: 12px 26px; border-radius: 24px; }
+.big-word { display: inline; font: inherit; color: #6d3fd1; background: #efe6ff; border-radius: 8px; padding: 0 6px; box-shadow: inset 0 -4px 0 #d9c6ff; }

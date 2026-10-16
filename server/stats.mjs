@@ -34,7 +34,7 @@ export const TOP_LEVEL = 10
 const LEARN_EVENTS = ['start', 'finish', 'right']
 const LEVEL = /^([1-9]|10)$/
 /** What the "Remember?" round asks (src/learn/remember.ts; kept with src/lib/stats.ts by a test). */
-export const REMEMBER_KINDS = ['verse', 'word', 'animal']
+export const REMEMBER_KINDS = ['verse', 'word', 'animal', 'bigword']
 /** How many days of totals are kept (about 13 months); older days are dropped. */
 export const KEEP_DAYS = 400
 
