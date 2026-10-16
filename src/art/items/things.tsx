@@ -979,7 +979,7 @@ export const THINGS: Item[] = [
   { id: 'bus', name: 'bus', emoji: ['🚌'], Draw: Bus },
   { id: 'box', name: 'box', emoji: ['📦'], Draw: Box },
   { id: 'map', name: 'map', emoji: ['🗺️', '🗺'], Draw: TreasureMap },
-  { id: 'heart', name: 'heart', emoji: ['💛', '❤️', '💗', '💖'], Draw: Heart },
+  { id: 'heart', name: 'heart', emoji: ['💛', '❤️', '💗', '💖', '💝', '❤'], Draw: Heart },
   { id: 'party', name: 'party popper', emoji: ['🎉'], Draw: Party },
   { id: 'lightbulb', name: 'idea', emoji: ['💡'], Draw: Lightbulb },
   { id: 'bang', name: 'boom', emoji: ['💥'], Draw: Bang },

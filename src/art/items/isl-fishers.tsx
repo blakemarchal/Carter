@@ -295,5 +295,5 @@ function NetOfFish() {
 
 export const ISL_FISHERS: Item[] = [
   { id: 'empty-net', name: 'an empty fishing net', Draw: EmptyNet },
-  { id: 'net-of-fish', name: 'a net full of fish', Draw: NetOfFish },
+  { id: 'net-of-fish', name: 'a net full of fish', emoji: ['🎣'], Draw: NetOfFish },
 ]

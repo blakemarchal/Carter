@@ -152,7 +152,7 @@ function PillarOfFire() {
 export const ISL_RED_SEA: Item[] = [
   { id: 'shell', name: 'seashell', emoji: ['🐚'], Draw: Shell },
   // (No emoji: 🪘 is a tall long drum, not a tambourine.)
-  { id: 'tambourine', name: 'tambourine', emoji: [], Draw: Tambourine },
+  { id: 'tambourine', name: 'tambourine', emoji: ['🪘'], Draw: Tambourine },
   { id: 'pillar-of-cloud', name: 'pillar of cloud', emoji: [], Draw: PillarOfCloud },
   { id: 'pillar-of-fire', name: 'pillar of fire', emoji: [], Draw: PillarOfFire },
 ]

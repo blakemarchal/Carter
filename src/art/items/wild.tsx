@@ -873,7 +873,7 @@ export const WILD: Item[] = [
   { id: 'elephant', name: 'elephant', emoji: ['🐘'], Draw: Elephant },
   { id: 'giraffe', name: 'giraffe', emoji: ['🦒'], Draw: Giraffe },
   { id: 'zebra', name: 'zebra', emoji: ['🦓'], Draw: Zebra },
-  { id: 'monkey', name: 'monkey', emoji: ['🐒', '🐵'], Draw: Monkey },
+  { id: 'monkey', name: 'monkey', emoji: ['🐒', '🐵', '🙈'], Draw: Monkey },
   { id: 'gorilla', name: 'gorilla', emoji: ['🦍'], Draw: Gorilla },
   { id: 'bear', name: 'bear', emoji: ['🐻'], Draw: Bear },
   { id: 'fox', name: 'fox', emoji: ['🦊'], Draw: Fox },

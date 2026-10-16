@@ -399,7 +399,7 @@ function ShepherdAndLamb() {
 }
 
 export const ISL_LOST_SHEEP: Item[] = [
-  { id: 'sheepfold', name: 'sheepfold', emoji: [], Draw: Sheepfold },
+  { id: 'sheepfold', name: 'sheepfold', emoji: ['🏡'], Draw: Sheepfold },
   { id: 'flock-sheep', name: 'sheep', emoji: [], Draw: FlockSheep },
   { id: 'sheepfold-home', name: 'sheepfold with the sheep safe inside', emoji: [], Draw: SheepfoldHome },
   { id: 'shepherd-carrying-lamb', name: 'the shepherd carrying the lamb home', emoji: [], Draw: ShepherdAndLamb },

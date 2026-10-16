@@ -42,6 +42,8 @@ import { LEARN_TIME_MONEY } from './learn-time-money'
 import { LEARN_PLACEMENT } from './learn-placement'
 import { AVATARS } from './avatars'
 import { UI_ITEMS } from './ui'
+import { LEARN_FACES } from './learn-faces'
+import { LEARN_THINGS } from './learn-things'
 
 export type { Item } from './types'
 export const ITEM_GROUPS: Record<string, Item[]> = {
@@ -83,6 +85,8 @@ export const ITEM_GROUPS: Record<string, Item[]> = {
   avatars: AVATARS,
   // (the game's own buttons and menus: the map's tools, a Pal's home, the kitchen)
   ui: UI_ITEMS,
+  // (feelings and things for the Think about it questions, the big words and the science moments)
+  'learn-words': [...LEARN_FACES, ...LEARN_THINGS],
 }
 export const ITEMS: Item[] = Object.values(ITEM_GROUPS).flat()
 

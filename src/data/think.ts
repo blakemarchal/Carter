@@ -28,7 +28,7 @@ export const THINK: Record<string, ThinkQ[]> = {
       'God made Adam and Eve to be His friends, and He made you to be His friend, too. You are wonderfully made!'),
   ],
   david: [
-    t('Why did God pick David to be king one day?', [['💪', 'He was the tallest'], ['❤️', 'God looks at the heart'], ['👑', 'He had a crown']], 1,
+    t('Why did God pick David to be king one day?', [['🦒', 'He was the tallest'], ['❤️', 'God looks at the heart'], ['👑', 'He had a crown']], 1,
       "David's brothers were tall and strong, but God looks at the heart. David loved God, and that is what God saw."),
     t('Why was David not afraid of the giant?', [['🗡️', 'He had a big sword'], ['🏃', 'He could run fast'], ['🙏', 'He trusted God']], 2,
       'David knew God had helped him before, so God would help him again. God is bigger than any giant.'),
@@ -54,7 +54,7 @@ export const THINK: Record<string, ThinkQ[]> = {
   abraham: [
     t('Why did Abraham leave his home?', [['🙏', 'Because he trusted God'], ['🏠', 'His house was too small'], ['🐪', 'The camels wanted a walk']], 0,
       'Abraham did not know where he was going, but he trusted God and went. Trusting God means going where He leads.'),
-    t('Why did Sarah laugh when she heard about the baby?', [['🤡', 'A clown was there'], ['😮', 'She thought she was too old'], ['🎉', 'It was a party']], 1,
+    t('Why did Sarah laugh when she heard about the baby?', [['🐒', 'A monkey was there'], ['😮', 'She thought she was too old'], ['🎉', 'It was a party']], 1,
       'Sarah thought it was impossible. But nothing is too hard for God, and He kept His promise. Then she laughed for joy!'),
   ],
   joseph: [
@@ -66,17 +66,17 @@ export const THINK: Record<string, ThinkQ[]> = {
   'red-sea': [
     t('How did the people feel when the chariots came?', [['😄', 'Silly'], ['😨', 'Scared'], ['😴', 'Sleepy']], 1,
       'They were scared, but Moses said, do not be afraid, God will help us. When we are scared, we can trust God, too.'),
-    t('Why did everyone sing and dance after they crossed the sea?', [['🍰', 'There was cake'], ['🎵', 'They heard a band'], ['🎉', 'God had saved them']], 2,
+    t('Why did everyone sing and dance after they crossed the sea?', [['🎂', 'There was cake'], ['🎵', 'They heard a band'], ['🎉', 'God had saved them']], 2,
       'God made a way through the sea and kept His people safe. When God helps us, we can thank Him with songs.'),
   ],
   daniel: [
     t('Why did Daniel keep praying when it was against the rule?', [['❤️', 'He loved God most of all'], ['😴', 'He forgot the rule'], ['🤪', 'He liked to be silly']], 0,
       'Daniel loved God more than anything, even more than being safe. Praying to God was the most important thing to him.'),
-    t('Why did the king not sleep that night?', [['🎮', 'He was playing games'], ['😟', 'He was worried about Daniel'], ['🍕', 'He ate too much pizza']], 1,
+    t('Why did the king not sleep that night?', [['⚽', 'He was playing ball'], ['😟', 'He was worried about Daniel'], ['🍕', 'He ate too much pizza']], 1,
       'The king loved Daniel and was worried for him. But God kept Daniel safe all night long. God is always with us.'),
   ],
   'baby-moses': [
-    t("Why did Moses' mom put him in a basket?", [['🛁', 'To give him a bath'], ['⛵', 'To play boats'], ['🛡️', 'To keep him safe']], 2,
+    t("Why did Moses' mom put him in a basket?", [['🫧', 'To give him a bubble bath'], ['⛵', 'To play boats'], ['🛡️', 'To keep him safe']], 2,
       "Pharaoh's rule was unkind, so she hid her baby to keep him safe. And God was watching over him the whole time."),
     t('How did the princess feel when she saw the baby?', [['🥰', 'Kind and loving'], ['😡', 'Cross'], ['😂', 'Silly']], 0,
       'The princess felt kind and loving, and she took care of him. God used the princess to keep baby Moses safe. God had a plan!'),
@@ -84,13 +84,13 @@ export const THINK: Record<string, ThinkQ[]> = {
   'burning-bush': [
     t('Why did Moses help the sisters at the well?', [['💰', 'They paid him'], ['💧', 'He was kind'], ['🏆', 'To win a prize']], 1,
       'Moses saw that it was not kind to push them away, so he helped. God wants us to be kind, like Moses was.'),
-    t('Why did God tell Moses to take off his sandals?', [['🧦', 'His socks were wet'], ['👟', 'His sandals were dirty'], ['✨', 'Because God was there']], 2,
+    t('Why did God tell Moses to take off his sandals?', [['💦', 'His feet were wet'], ['🩴', 'His sandals were dirty'], ['✨', 'Because God was there']], 2,
       'The ground was holy because God was there. When we talk to God, we remember He is great, and He is with us.'),
   ],
   manna: [
-    t('Why did God send bread even after the people grumbled?', [['❤️', 'Because He still loved them'], ['📣', 'Because they shouted loudest'], ['🍞', 'Because He had too much bread']], 0,
+    t('Why did God send bread even after the people grumbled?', [['❤️', 'Because He still loved them'], ['💥', 'Because they made the loudest noise'], ['🍞', 'Because He had too much bread']], 0,
       'God heard the grumbling, but He still loved His people and fed them. God is kind to us even when we grumble.'),
-    t('Why did God say to gather just enough for today?', [['🐜', 'So the ants could eat'], ['🙏', 'So they would trust Him every day'], ['🎒', 'So their bags would stay light']], 1,
+    t('Why did God say to gather just enough for today?', [['🐜', 'So the ants could eat'], ['🙏', 'So they would trust Him every day'], ['🧺', 'So their baskets would stay light']], 1,
       'God wanted His people to trust Him for each new day. God gives us what we need, every single day.'),
   ],
   jericho: [
@@ -100,9 +100,9 @@ export const THINK: Record<string, ThinkQ[]> = {
       'The people did just what God said, and God made the walls fall. God keeps His promises, and He gives the victory.'),
   ],
   ruth: [
-    t('Why did Ruth stay with Naomi?', [['🍰', 'Naomi had cake'], ['❤️', 'She loved her'], ['🗺️', 'She lost her way']], 1,
+    t('Why did Ruth stay with Naomi?', [['🎂', 'Naomi had cake'], ['❤️', 'She loved her'], ['🗺️', 'She lost her way']], 1,
       "Ruth loved Naomi, and she chose Naomi's God, too. Real love stays close, no matter what."),
-    t('Why did Boaz tell his workers to drop extra barley?', [['🧹', 'He hated sweeping'], ['🎲', 'It was a game'], ['🤗', 'To be kind to Ruth']], 2,
+    t('Why did Boaz tell his workers to drop extra barley?', [['😴', 'He was sleepy'], ['⚽', 'It was a game'], ['🤗', 'To be kind to Ruth']], 2,
       'Boaz was kind, and he helped Ruth without being asked. God takes care of us through kind people.'),
   ],
   samuel: [
@@ -114,17 +114,17 @@ export const THINK: Record<string, ThinkQ[]> = {
   elijah: [
     t('Why did the widow share her last bread with Elijah?', [['🤢', "She didn't like bread"], ['🐦', 'The ravens told her to'], ['🙏', "She trusted God's promise"]], 2,
       'Elijah said God would make her flour and oil last, and she trusted God. God took care of her family every day.'),
-    t('Why did Elijah pour water all over the altar?', [['✨', 'So everyone would know God did it'], ['🔥', 'To put out the fire'], ['🧼', 'To wash the stones']], 0,
+    t('Why did Elijah pour water all over the altar?', [['✨', 'So everyone would know God did it'], ['🔥', 'To put out the fire'], ['🫧', 'To wash the stones']], 0,
       'Wet wood cannot burn, so when fire came, everyone knew it was God. The Lord is God, and He answers prayer.'),
   ],
   esther: [
-    t('Why would Mordecai not bow down to Haman?', [['🦵', 'His knees hurt'], ['🙏', 'He bowed only to God'], ['😴', 'He was asleep']], 1,
+    t('Why would Mordecai not bow down to Haman?', [['🩹', 'His knees hurt'], ['🙏', 'He bowed only to God'], ['😴', 'He was asleep']], 1,
       'Mordecai bowed only to God. And God made Esther queen for a time just like this.'),
-    t('Why did Esther pray for three days before seeing the king?', [['🎂', 'It was her birthday'], ['🛌', 'She was sleepy'], ['😨', "She was afraid and needed God's help"]], 2,
+    t('Why did Esther pray for three days before seeing the king?', [['🎂', 'It was her birthday'], ['🛏️', 'She was sleepy'], ['😨', "She was afraid and needed God's help"]], 2,
       'Esther was afraid, so she asked God and her friends to pray. Then she was brave. God takes care of His people.'),
   ],
   'boy-jesus': [
-    t("Why did Jesus' family go to Jerusalem?", [['🙏', 'To praise God at the feast'], ['🎢', 'To ride a roller coaster'], ['👟', 'To buy new shoes']], 0,
+    t("Why did Jesus' family go to Jerusalem?", [['🙏', 'To praise God at the feast'], ['🚲', 'To ride a bike'], ['🩴', 'To buy new sandals']], 0,
       "The Passover feast was a time to remember how God set His people free. Jesus loved to go to God's house."),
     t("Why was Jesus in God's house?", [['🙈', 'He was hiding'], ['📜', 'He loved to learn about God'], ['🍦', 'He wanted ice cream']], 1,
       "Jesus wanted to be in His Father's house, listening and asking questions. Then He went home and obeyed Mary and Joseph."),
@@ -132,7 +132,7 @@ export const THINK: Record<string, ThinkQ[]> = {
   fishers: [
     t('Why did Peter let down the nets again?', [['🐟', 'He saw a fish jump'], ['😴', 'He was bored'], ['🙏', 'Because Jesus said so']], 2,
       'Peter had worked all night and caught nothing. But he did what Jesus said. Obeying Jesus brings good things.'),
-    t('Why did Peter and his friends leave their boats?', [['❤️', 'To follow Jesus'], ['🏊', 'To go swimming'], ['🛏️', 'To go to bed']], 0,
+    t('Why did Peter and his friends leave their boats?', [['❤️', 'To follow Jesus'], ['🌊', 'To go swimming'], ['🛏️', 'To go to bed']], 0,
       'Jesus said, come, follow Me. They left everything to go with Him. Jesus wants you to follow Him, too.'),
   ],
   storm: [
@@ -142,7 +142,7 @@ export const THINK: Record<string, ThinkQ[]> = {
       'They were scared, but Jesus was with them the whole time. When we are scared, Jesus is with us, and He takes care of us.'),
   ],
   'lost-sheep': [
-    t('Why did the shepherd go looking for just one lamb?', [['❤️', 'He loved every one of them'], ['😡', 'He was cross with it'], ['🍖', 'He wanted dinner']], 0,
+    t('Why did the shepherd go looking for just one lamb?', [['❤️', 'He loved every one of them'], ['😡', 'He was cross with it'], ['🍕', 'He wanted pizza']], 0,
       'The shepherd loved every sheep, even the littlest lamb. God loves every one of us like that.'),
     t('Why did the shepherd have a party?', [['🎂', 'It was his birthday'], ['🎉', 'He found his lost lamb'], ['🌧️', 'It was raining']], 1,
       'The shepherd was so happy to find his lamb. When one of us comes home to God, heaven is full of joy!'),
@@ -156,7 +156,7 @@ export const THINK: Record<string, ThinkQ[]> = {
   zacchaeus: [
     t('Why did Zacchaeus climb the tree?', [['🍎', 'To pick apples'], ['👀', 'He wanted to see Jesus'], ['🐒', 'He was playing monkey']], 1,
       'Zacchaeus was short, but he wanted to see Jesus so much. Jesus saw him, too, and He knew his name.'),
-    t('Why did Zacchaeus give the money back?', [['👮', 'A guard made him'], ['💸', 'He had too much'], ['❤️', "Jesus' love changed his heart"]], 2,
+    t('Why did Zacchaeus give the money back?', [['👑', 'The king made him'], ['💰', 'He had too much'], ['❤️', "Jesus' love changed his heart"]], 2,
       'Jesus loved Zacchaeus, and that love changed his heart. Jesus loves everyone, and His love changes hearts.'),
   ],
   'palm-sunday': [
@@ -168,13 +168,13 @@ export const THINK: Record<string, ThinkQ[]> = {
   easter: [
     t("How did Jesus' friends feel after He died?", [['😄', 'Happy'], ['😴', 'Sleepy'], ['😢', 'Very sad']], 2,
       'They were very sad, and they missed Him. But that was not the end of the story!'),
-    t('Why were the women so happy at the garden?', [['🎉', 'Jesus was alive'], ['🌸', 'The flowers were pretty'], ['🥐', 'They found breakfast']], 0,
+    t('Why were the women so happy at the garden?', [['🎉', 'Jesus was alive'], ['🌸', 'The flowers were pretty'], ['🥞', 'They found pancakes']], 0,
       'Jesus was alive! He is alive forever, and He loves you, too.'),
   ],
   pentecost: [
     t('Why did the friends wait and pray in Jerusalem?', [['🌧️', 'It was raining'], ['🙏', 'Jesus told them to wait for the Helper'], ['🚌', 'They missed the bus']], 1,
       'Jesus promised to send the Holy Spirit, the Helper. They trusted Jesus and waited, just like He said.'),
-    t('How did Peter become so brave?', [['🥦', 'He ate his vegetables'], ['🏆', 'He won a race'], ['✨', 'The Holy Spirit filled him']], 2,
+    t('How did Peter become so brave?', [['🥕', 'He ate his carrots'], ['🏆', 'He won a race'], ['✨', 'The Holy Spirit filled him']], 2,
       "The Holy Spirit made Peter brave to tell everyone about Jesus. God's Helper is with God's family today, too."),
   ],
 }

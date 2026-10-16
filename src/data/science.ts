@@ -39,19 +39,19 @@ export const SCIENCE: Record<string, Science> = {
     "Gravity pulls everything toward the ground: stones, balls, raindrops, and you! That is why David's stone came back down.",
     'Gravity is what keeps us on the earth and keeps the moon going around us. The bigger something is, the stronger its pull.',
   ], 'Drop a small stone and a big stone at the same time. Which one lands first? They land together!',
-  'What pulls a stone back down to the ground?', [['💨', 'the wind'], ['🧲', 'gravity'], ['🐦', 'a bird']], 1),
+  'What pulls a stone back down to the ground?', [['💨', 'the wind'], ['🪨', 'gravity'], ['🐦', 'a bird']], 1),
   jonah: s('Whales', '🐋', [
     'A whale is not a fish. It breathes air, like you do, through a hole on top of its head.',
     'A big fish breathes under water with gills. A whale has to come up for air, and it blows a spout of mist when it breathes out.',
     'The blue whale is the biggest animal that has ever lived, bigger than any dinosaur. Its heart is as big as a small car.',
   ], 'Take a big breath and hold it. Count how long you can hold it. A whale can hold its breath for more than an hour!',
-  'How does a whale breathe?', [['🐋', 'it comes up and breathes air'], ['🫧', 'it breathes water with gills'], ['🌿', 'it eats seaweed']], 0),
+  'How does a whale breathe?', [['🐋', 'it comes up and breathes air'], ['🫧', 'it breathes water with gills'], ['🍃', 'it eats leaves']], 0),
   loaves: s('Bread', '🍞', [
     'Bread is made from wheat, a plant with tiny seeds called grain.',
     'To make bread, flour from the grain is mixed with water and yeast. The yeast makes tiny bubbles, and the dough puffs up.',
     'Yeast is alive! It is a tiny living thing that eats the sugar in the dough and breathes out gas. The gas makes the holes you see in a slice of bread.',
   ], 'Look at a slice of bread up close. Can you see the little holes the yeast bubbles made?',
-  'What makes bread puff up?', [['🔥', 'the fire'], ['🫧', 'tiny bubbles from yeast'], ['🧂', 'salt']], 1),
+  'What makes bread puff up?', [['🔥', 'the fire'], ['🫧', 'tiny bubbles from yeast'], ['🧀', 'cheese']], 1),
   christmas: s('Snug and Warm', '🧣', [
     'A blanket keeps you warm by holding in the heat your own body makes.',
     'Your body makes heat all the time. A blanket or coat traps that heat close to you, like a cozy pocket of warm air.',
@@ -93,13 +93,13 @@ export const SCIENCE: Record<string, Science> = {
     "When wood burns, it turns into ash and smoke. Moses' bush was on fire but did not burn up, which is how he knew God was there.",
     'A flame is hot gas that glows. Blue flames are the hottest. Fire needs the oxygen in the air, which is why a candle goes out under a jar.',
   ], 'With a grown-up, put a jar over a lit candle. Watch the flame go out when the air inside is used up!',
-  'What does a fire need to keep burning?', [['🔥', 'something to burn, air and heat'], ['🧊', 'ice and snow'], ['🌊', 'lots of water']], 0),
+  'What does a fire need to keep burning?', [['🔥', 'something to burn, air and heat'], ['❄️', 'ice and snow'], ['🌊', 'lots of water']], 0),
   manna: s('Dew', '💧', [
     'In the morning, tiny drops of water sit on the grass. That is dew.',
     'Air has water in it that you cannot see. At night the ground gets cold, and the water in the air turns into drops on the grass, like the manna in the story.',
     'Warm air can hold more water than cold air. When the air cools at night, it cannot hold all its water, so the extra turns into dew. The same thing makes drops on a cold glass.',
   ], 'Early in the morning, touch the grass. Is it wet with dew, even if it did not rain?',
-  'Where does morning dew come from?', [['🌧️', 'a tiny rain cloud'], ['💧', 'water in the air turning into drops when it gets cold'], ['🚿', 'a sprinkler']], 1),
+  'Where does morning dew come from?', [['🌧️', 'a tiny rain cloud'], ['💧', 'water in the air turning into drops when it gets cold'], ['💦', 'a splash']], 1),
   jericho: s('Sound', '🎺', [
     'Sound is made when something shakes very fast. A trumpet makes the air inside it shake.',
     "When you shout, the air in your throat shakes, and the shaking travels through the air to someone's ears. Loud sounds shake the air harder.",
@@ -111,7 +111,7 @@ export const SCIENCE: Record<string, Science> = {
     'A plant needs sunshine, water and soil to grow. Farmers plant the seeds, wait for the rain and sun, and then harvest the grain.',
     'One barley seed can grow into a plant with dozens of seeds. That is how a field planted from a basket of seeds can fill a barn at harvest.',
   ], 'Put a dry bean on a wet paper towel in a jar by the window. Check it every day. Does a root come out?',
-  'What does a seed need to grow?', [['🌱', 'sunshine, water and soil'], ['🍬', 'candy'], ['📺', 'a television']], 0),
+  'What does a seed need to grow?', [['🌱', 'sunshine, water and soil'], ['🍬', 'candy'], ['🚀', 'a rocket']], 0),
   samuel: s('Ears', '👂', [
     'Your ears catch sounds from the air, even when you are asleep.',
     'Inside your ear is a tiny skin called the eardrum. Sounds make it shake, and your brain turns the shaking into words and music.',
@@ -123,7 +123,7 @@ export const SCIENCE: Record<string, Science> = {
     'The sun warms the sea, and water rises into the air as a mist you cannot see. Up high it cools into clouds. When the drops get heavy, they fall as rain.',
     "Water goes round and round: sea to cloud to rain to river to sea again. That is the water cycle. Elijah's little cloud over the sea was the first sign of the rain.",
   ], 'Breathe on a cold window. See the little drops? That is water from your breath turning back into drops, just like a cloud.',
-  'What are clouds made of?', [['🧁', 'cotton candy'], ['🐑', 'wool'], ['☁️', 'tiny drops of water']], 2),
+  'What are clouds made of?', [['🍦', 'ice cream'], ['🐑', 'wool'], ['☁️', 'tiny drops of water']], 2),
   esther: s('Shiny Things', '👑', [
     'Shiny things, like a gold crown, bounce light back to your eyes.',
     'Smooth, shiny things bounce light the way a ball bounces off a wall. A mirror is so smooth that the light bounces straight back, and you see yourself.',
@@ -135,7 +135,7 @@ export const SCIENCE: Record<string, Science> = {
     'Your bones get longer a tiny bit at a time. That is why your shoes get too small! Milk, vegetables and running around help your bones grow strong.',
     'You will keep growing until you are about eighteen. Your brain grows too: every time you learn something new, it builds new paths inside.',
   ], 'Have a grown-up mark your height on a door frame. Check it again in a few months!',
-  'What helps you grow?', [['📺', 'watching television all day'], ['🥦', 'good food, sleep and play'], ['🍭', 'only candy']], 1),
+  'What helps you grow?', [['🛏️', 'lying in bed all day'], ['🥕', 'good food, sleep and play'], ['🍪', 'only cookies']], 1),
   fishers: s('Fish', '🐟', [
     'A fish breathes under water with gills, the little slits on the sides of its head.',
     'Water has air mixed in it. The gills take the air out of the water as it flows through, so a fish never has to come up to breathe.',
@@ -165,7 +165,7 @@ export const SCIENCE: Record<string, Science> = {
     "A tree drinks water through its roots, and its leaves use sunlight to make food. A sycamore's branches grow wide and low, which made it easy to climb.",
     'Trees give us the air we breathe. Leaves take in the air we breathe out and give back fresh oxygen. One big tree can make enough oxygen for four people.',
   ], 'Hug a tree and look up. Can you see how its branches reach for the sun?',
-  'What does a tree drink water with?', [['🍃', 'its leaves'], ['🐿️', 'its squirrels'], ['🌱', 'its roots']], 2),
+  'What does a tree drink water with?', [['🍃', 'its leaves'], ['🐒', 'its monkeys'], ['🌱', 'its roots']], 2),
   'palm-sunday': s('Palm Trees', '🌴', [
     'A palm tree has big leaves called fronds that grow at the very top.',
     'Palm trees grow in warm places. Their leaves can be as long as a car! People waved them like flags for Jesus.',
@@ -183,7 +183,7 @@ export const SCIENCE: Record<string, Science> = {
     'When you talk, air from your lungs passes over your vocal cords and makes them shake. Your tongue and lips shape the shaking air into words.',
     "People around the world speak about seven thousand different languages, but every baby is born able to learn any of them. Peter's friends spoke languages they had never learned, which was a miracle.",
   ], "Put your fingers on your throat and say ahhh. Feel the buzz of your voice!",
-  'Where does your voice come from?', [['👂', 'your ears'], ['🦶', 'your feet'], ['🗣️', 'air from your lungs shaking strings in your throat']], 2),
+  'Where does your voice come from?', [['👂', 'your ears'], ['👣', 'your feet'], ['🗣️', 'air from your lungs shaking strings in your throat']], 2),
 }
 
 /** The fact a reader at this level hears (as the animal book picks facts). */

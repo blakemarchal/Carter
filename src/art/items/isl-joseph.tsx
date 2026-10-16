@@ -168,7 +168,7 @@ function DreamCows() {
 export const ISL_JOSEPH: Item[] = [
   { id: 'joseph-coat', name: "Joseph's coat", emoji: ['🧥'], Draw: JosephCoat },
   { id: 'grain-sheaf', name: 'bundle of grain', emoji: ['🌾'], Draw: GrainSheaf },
-  { id: 'grain-storehouse', name: 'storehouse', emoji: [], Draw: Storehouse },
+  { id: 'grain-storehouse', name: 'storehouse', emoji: ['🏚️', '🏚'], Draw: Storehouse },
   { id: 'cows-fat-skinny', name: 'fat cow and skinny cow', emoji: [], Draw: DreamCows },
 ]
 

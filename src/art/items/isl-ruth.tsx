@@ -262,7 +262,7 @@ function BabyObed() {
 }
 
 export const ISL_RUTH: Item[] = [
-  { id: 'bethlehem', name: 'Bethlehem', emoji: [], Draw: BethlehemTown },
+  { id: 'bethlehem', name: 'Bethlehem', emoji: ['🏙️', '🏙'], Draw: BethlehemTown },
   // (no emoji: 👶 is every baby, like baby Jesus)
   { id: 'baby-obed', name: 'baby Obed', emoji: [], Draw: BabyObed },
 ]

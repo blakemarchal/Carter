@@ -21,5 +21,5 @@ function Angel() {
 }
 
 export const ISL_DANIEL: Item[] = [
-  { id: 'daniel-angel', name: 'angel', Draw: Angel },
+  { id: 'daniel-angel', name: 'angel', emoji: ['👼'], Draw: Angel },
 ]

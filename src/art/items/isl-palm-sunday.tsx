@@ -253,5 +253,5 @@ export const ISL_PALM_SUNDAY: Item[] = [
   { id: 'palm-branch', name: 'palm branch', emoji: [], Draw: PalmBranchItem },
   { id: 'palm-tree', name: 'palm tree', emoji: ['🌴'], Draw: PalmTreeShape },
   { id: 'stones', name: 'stones', emoji: [], Draw: StonesItem },
-  { id: 'big-horse', name: 'big horse', emoji: [], Draw: BigHorseItem },
+  { id: 'big-horse', name: 'big horse', emoji: ['🐴', '🐎'], Draw: BigHorseItem },
 ]

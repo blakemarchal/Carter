@@ -579,7 +579,7 @@ export const NATURE: Item[] = [
   { id: 'sea', name: 'the sea', emoji: ['🌊'], Draw: Sea },
   { id: 'raindrop', name: 'raindrop', emoji: ['💧'], Draw: Raindrop },
   { id: 'splash', name: 'splash', emoji: ['💦'], Draw: Splash },
-  { id: 'wind', name: 'wind', emoji: ['🌬️', '🌬'], Draw: Wind },
+  { id: 'wind', name: 'wind', emoji: ['🌬️', '🌬', '💨'], Draw: Wind },
   { id: 'tree', name: 'tree', emoji: ['🌳'], Draw: Tree },
   { id: 'leaf', name: 'leaf', emoji: ['🍃'], Draw: Leaf },
   { id: 'stone', name: 'smooth stone', emoji: ['🪨'], Draw: Stone },
@@ -587,7 +587,7 @@ export const NATURE: Item[] = [
   { id: 'beach', name: 'beach', emoji: ['🏖️', '🏖'], Draw: Beach },
   { id: 'earth', name: 'the world', emoji: ['🌍', '🌎', '🌏'], Draw: Earth },
   { id: 'flower', name: 'flower', emoji: ['🌸'], Draw: Flower },
-  { id: 'plants', name: 'plants', emoji: [], Draw: Plants },
+  { id: 'plants', name: 'plants', emoji: ['🌱'], Draw: Plants },
   { id: 'fire', name: 'fire', emoji: ['🔥'], Draw: Fire },
   { id: 'sleep', name: 'fast asleep', emoji: ['💤'], Draw: Sleep },
 ]

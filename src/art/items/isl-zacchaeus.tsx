@@ -358,6 +358,6 @@ export const ISL_ZACCHAEUS: Item[] = [
   { id: 'gold-coin', name: 'coin', emoji: ['🪙'], Draw: GoldCoin },
   { id: 'sycamore-tree', name: 'sycamore tree', emoji: [], Draw: SycamoreTree },
   { id: 'zacchaeus-in-tree', name: 'Zacchaeus up in the sycamore tree', emoji: [], Draw: ZacchaeusInTree },
-  { id: 'zacchaeus-running', name: 'Zacchaeus running', emoji: [], Draw: ZacchaeusRunning },
+  { id: 'zacchaeus-running', name: 'Zacchaeus running', emoji: ['🏃'], Draw: ZacchaeusRunning },
   { id: 'kite', name: 'kite', emoji: ['🪁'], Draw: Kite },
 ]

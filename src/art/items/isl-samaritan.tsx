@@ -336,5 +336,5 @@ export const ISL_SAMARITAN: Item[] = [
   { id: 'bandaged-traveler', name: 'the hurt man in his white bandages', emoji: [], Draw: BandagedTraveler },
   { id: 'denarius', name: 'silver coin', emoji: [], Draw: Denarius },
   { id: 'two-denarii', name: 'two silver coins', emoji: [], Draw: TwoDenarii },
-  { id: 'money-bag-open', name: 'money bag', emoji: [], Draw: MoneyBagOpen },
+  { id: 'money-bag-open', name: 'money bag', emoji: ['💰'], Draw: MoneyBagOpen },
 ]
