@@ -2,6 +2,8 @@
 import { describe, expect, it } from 'vitest'
 import { ISLANDS, loadIsland } from '../data/islands'
 import gen from '../voice/lines.gen.json'
+import content from '../../server/content.gen.json'
+import { contentForServer } from '../data/content-summary'
 import { voiceLines } from '../voice/lines-source'
 import { buildScript, fixedPieces, QUEUES, scriptCounts, type ScriptItem } from '../voice/script'
 import { TEMPLATES, recordedParts } from '../voice/templates'
@@ -15,6 +17,17 @@ const get = async () => (script ??= buildScript(await Promise.all(ISLANDS.map((i
 describe('the recording script', () => {
   it('lines.gen.json is up to date (if not: npm run voice-script)', () => {
     expect(voiceLines()).toEqual(gen)
+  })
+
+  it('the server’s island summary (content.gen.json, for the weekly email) is up to date (if not: npm run voice-script)', async () => {
+    const islands = await Promise.all(ISLANDS.map((i) => loadIsland(i.id)))
+    const made = contentForServer(islands)
+    expect(made).toEqual(content)
+    const noah = made.islands.find((i) => i.id === 'noah')!
+    expect(noah.verse?.ref).toBeTruthy()
+    expect(noah.think.length).toBe(2)
+    expect(noah.bigWords.map((b) => b.word)).toEqual(['obey', 'promise'])
+    expect(noah.science?.tryIt).toBeTruthy()
   })
 
   it('records a line with slots a sentence at a time, and a line without them whole', () => {

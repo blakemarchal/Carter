@@ -1,0 +1,895 @@
+{
+ "islands": [
+  {
+   "id": "noah",
+   "name": "Noah's Ark",
+   "verse": {
+    "text": "I set my rainbow in the cloud.",
+    "ref": "Genesis 9:13"
+   },
+   "think": [
+    {
+     "ask": "Why did Noah build the big boat?",
+     "why": "Noah trusted God, so he obeyed, even before the rain came. Trusting God means doing what He says."
+    },
+    {
+     "ask": "Why did God put a rainbow in the sky?",
+     "why": "The rainbow is God's promise that He would never flood the whole earth again. God always keeps His promises."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "obey",
+     "means": "Obey means doing what you are told."
+    },
+    {
+     "word": "promise",
+     "means": "A promise is saying you will do something, and then doing it."
+    }
+   ],
+   "science": {
+    "title": "Rainbows",
+    "fact": "Sunlight looks white, but it is really made of many colors. Raindrops spread the colors out into a bow.",
+    "tryIt": "Stand with your back to the sun and spray water from a hose into the air. Look for a little rainbow!"
+   }
+  },
+  {
+   "id": "creation",
+   "name": "Creation",
+   "verse": {
+    "text": "In the beginning, God created the heavens and the earth.",
+    "ref": "Genesis 1:1"
+   },
+   "think": [
+    {
+     "ask": "How do you think God felt when He looked at what He made?",
+     "why": "God saw that everything He made was good. He was glad, and He still loves the world He made."
+    },
+    {
+     "ask": "Why did God make you?",
+     "why": "God made Adam and Eve to be His friends, and He made you to be His friend, too. You are wonderfully made!"
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "beginning",
+     "means": "The beginning is the very first part of something."
+    },
+    {
+     "word": "wonderfully",
+     "means": "Wonderfully means in a very good and special way."
+    }
+   ],
+   "science": {
+    "title": "Day and Night",
+    "fact": "The earth is a giant ball that spins around once every day. When your side faces the sun, it is day. When it turns away, it is night.",
+    "tryIt": "Shine a flashlight on a ball in a dark room and slowly turn the ball. Watch day and night move around it!"
+   }
+  },
+  {
+   "id": "david",
+   "name": "David & Goliath",
+   "verse": {
+    "text": "When I am afraid, I will put my trust in you.",
+    "ref": "Psalm 56:3"
+   },
+   "think": [
+    {
+     "ask": "Why did God pick David to be king one day?",
+     "why": "David's brothers were tall and strong, but God looks at the heart. David loved God, and that is what God saw."
+    },
+    {
+     "ask": "Why was David not afraid of the giant?",
+     "why": "David knew God had helped him before, so God would help him again. God is bigger than any giant."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "shepherd",
+     "means": "A shepherd is someone who takes care of sheep."
+    },
+    {
+     "word": "trust",
+     "means": "Trust means believing someone will help you."
+    }
+   ],
+   "science": {
+    "title": "Falling Down",
+    "fact": "Gravity pulls everything toward the ground: stones, balls, raindrops, and you! That is why David's stone came back down.",
+    "tryIt": "Drop a small stone and a big stone at the same time. Which one lands first? They land together!"
+   }
+  },
+  {
+   "id": "jonah",
+   "name": "Jonah & the Big Fish",
+   "verse": {
+    "text": "God is love.",
+    "ref": "1 John 4:8"
+   },
+   "think": [
+    {
+     "ask": "Why did Jonah get on the boat?",
+     "why": "Jonah did not want to do what God said, so he ran the other way. But no one can hide from God, and God still loved Jonah."
+    },
+    {
+     "ask": "Why did God give Jonah a second chance?",
+     "why": "Jonah said sorry, and God forgave him and sent him again. When we say sorry, God forgives us, too."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "swallow",
+     "means": "Swallow means to take something down into your tummy in one gulp."
+    },
+    {
+     "word": "forgive",
+     "means": "Forgive means to stop being upset with someone who said sorry."
+    }
+   ],
+   "science": {
+    "title": "Whales",
+    "fact": "A big fish breathes under water with gills. A whale has to come up for air, and it blows a spout of mist when it breathes out.",
+    "tryIt": "Take a big breath and hold it. Count how long you can hold it. A whale can hold its breath for more than an hour!"
+   }
+  },
+  {
+   "id": "loaves",
+   "name": "Loaves & Fishes",
+   "verse": {
+    "text": "Give us today our daily bread.",
+    "ref": "Matthew 6:11"
+   },
+   "think": [
+    {
+     "ask": "Why did the boy give Jesus his lunch?",
+     "why": "The boy only had a little, but he shared it with Jesus. When we share, Jesus can do big things with it."
+    },
+    {
+     "ask": "What does the story show us about Jesus?",
+     "why": "One little lunch fed thousands, with baskets left over. Jesus cares for us and gives us what we need."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "crowd",
+     "means": "A crowd is a great big group of people."
+    },
+    {
+     "word": "leftovers",
+     "means": "Leftovers are the food that is still there when everyone is full."
+    }
+   ],
+   "science": {
+    "title": "Bread",
+    "fact": "To make bread, flour from the grain is mixed with water and yeast. The yeast makes tiny bubbles, and the dough puffs up.",
+    "tryIt": "Look at a slice of bread up close. Can you see the little holes the yeast bubbles made?"
+   }
+  },
+  {
+   "id": "christmas",
+   "name": "Baby Jesus",
+   "verse": {
+    "text": "I bring you good news of great joy.",
+    "ref": "Luke 2:10"
+   },
+   "think": [
+    {
+     "ask": "Why did Mary and Joseph sleep where the animals sleep?",
+     "why": "The town was full, so there was no room. God's Son was born in a humble place, for everyone, not just for kings."
+    },
+    {
+     "ask": "Why is Jesus God's best gift?",
+     "why": "Jesus is our Savior. God sent Him to rescue us, because God loves us so much."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "angel",
+     "means": "An angel is a messenger God sends from heaven."
+    },
+    {
+     "word": "Savior",
+     "means": "A Savior is someone who comes to rescue us."
+    }
+   ],
+   "science": {
+    "title": "Snug and Warm",
+    "fact": "Your body makes heat all the time. A blanket or coat traps that heat close to you, like a cozy pocket of warm air.",
+    "tryIt": "Put one hand under a blanket and keep the other out. After a minute, which hand feels warmer?"
+   }
+  },
+  {
+   "id": "abraham",
+   "name": "Abraham's Stars",
+   "verse": {
+    "text": "Look now toward the sky, and count the stars.",
+    "ref": "Genesis 15:5"
+   },
+   "think": [
+    {
+     "ask": "Why did Abraham leave his home?",
+     "why": "Abraham did not know where he was going, but he trusted God and went. Trusting God means going where He leads."
+    },
+    {
+     "ask": "Why did Sarah laugh when she heard about the baby?",
+     "why": "Sarah thought it was impossible. But nothing is too hard for God, and He kept His promise. Then she laughed for joy!"
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "believe",
+     "means": "Believe means being sure that what someone says is true."
+    },
+    {
+     "word": "laughter",
+     "means": "Laughter is the happy sound you make when something is funny."
+    }
+   ],
+   "science": {
+    "title": "Stars",
+    "fact": "Stars shine all day long too, but the sun's light is so bright that we only see them at night.",
+    "tryIt": "On a clear night, go outside and count the stars you can see. Look for the brightest one!"
+   }
+  },
+  {
+   "id": "joseph",
+   "name": "Joseph's Coat",
+   "verse": {
+    "text": "You meant evil against me, but God meant it for good.",
+    "ref": "Genesis 50:20"
+   },
+   "think": [
+    {
+     "ask": "Why were Joseph's brothers unkind to him?",
+     "why": "Jealousy made the brothers do a very wrong thing. Being jealous can make us unkind, so we can ask God for a kind heart."
+    },
+    {
+     "ask": "How did Joseph treat his brothers when they came to Egypt?",
+     "why": "Joseph forgave his brothers, even after they hurt him. God turned something bad into something good."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "jealous",
+     "means": "Jealous means wanting what someone else has."
+    },
+    {
+     "word": "storehouse",
+     "means": "A storehouse is a big building where food is kept safe."
+    }
+   ],
+   "science": {
+    "title": "Mixing Colors",
+    "fact": "Mix yellow and blue and you get green. Mix red and yellow and you get orange. Mix red and blue and you get purple.",
+    "tryIt": "Mix two colors of paint and see what new color you make!"
+   }
+  },
+  {
+   "id": "red-sea",
+   "name": "The Red Sea",
+   "verse": {
+    "text": "Your way was through the sea.",
+    "ref": "Psalm 77:19"
+   },
+   "think": [
+    {
+     "ask": "How did the people feel when the chariots came?",
+     "why": "They were scared, but Moses said, do not be afraid, God will help us. When we are scared, we can trust God, too."
+    },
+    {
+     "ask": "Why did everyone sing and dance after they crossed the sea?",
+     "why": "God made a way through the sea and kept His people safe. When God helps us, we can thank Him with songs."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "chariot",
+     "means": "A chariot is a cart with wheels that horses pull fast."
+    },
+    {
+     "word": "tambourine",
+     "means": "A tambourine is a little drum with jingles that you shake."
+    }
+   ],
+   "science": {
+    "title": "Wind",
+    "fact": "Wind can push sailboats, spin windmills and pile up waves. A very strong wind can even push water out of the way, like at the Red Sea.",
+    "tryIt": "Blow on a little paper boat in a bowl of water. Can your wind make it sail?"
+   }
+  },
+  {
+   "id": "daniel",
+   "name": "Daniel & the Lions",
+   "verse": {
+    "text": "My God has sent his angel, and has shut the lions' mouths.",
+    "ref": "Daniel 6:22"
+   },
+   "think": [
+    {
+     "ask": "Why did Daniel keep praying when it was against the rule?",
+     "why": "Daniel loved God more than anything, even more than being safe. Praying to God was the most important thing to him."
+    },
+    {
+     "ask": "Why did the king not sleep that night?",
+     "why": "The king loved Daniel and was worried for him. But God kept Daniel safe all night long. God is always with us."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "trick",
+     "means": "Trick means fooling someone to get your way."
+    },
+    {
+     "word": "den",
+     "means": "A den is the home where wild animals sleep."
+    }
+   ],
+   "science": {
+    "title": "Sleep",
+    "fact": "Children need about ten to twelve hours of sleep a night. Lions sleep even more: up to twenty hours a day!",
+    "tryIt": "Tonight, notice how your body feels when it is sleepy: heavy eyes, big yawns. That is your body asking for rest!"
+   }
+  },
+  {
+   "id": "baby-moses",
+   "name": "Baby Moses",
+   "verse": {
+    "text": "Don't you be afraid, for I am with you.",
+    "ref": "Isaiah 41:10"
+   },
+   "think": [
+    {
+     "ask": "Why did Moses' mom put him in a basket?",
+     "why": "Pharaoh's rule was unkind, so she hid her baby to keep him safe. And God was watching over him the whole time."
+    },
+    {
+     "ask": "How did the princess feel when she saw the baby?",
+     "why": "The princess felt kind and loving, and she took care of him. God used the princess to keep baby Moses safe. God had a plan!"
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "reed",
+     "means": "A reed is tall grass that grows by the water."
+    },
+    {
+     "word": "princess",
+     "means": "A princess is a king's daughter."
+    }
+   ],
+   "science": {
+    "title": "Floating",
+    "fact": "Water pushes up on everything in it. If a thing is light for its size, like a basket of reeds, the push is strong enough to hold it up.",
+    "tryIt": "Put a spoon, a cork, a coin and a leaf in a bowl of water. Guess first: which ones will float?"
+   }
+  },
+  {
+   "id": "burning-bush",
+   "name": "The Burning Bush",
+   "verse": {
+    "text": "Certainly I will be with you.",
+    "ref": "Exodus 3:12"
+   },
+   "think": [
+    {
+     "ask": "Why did Moses help the sisters at the well?",
+     "why": "Moses saw that it was not kind to push them away, so he helped. God wants us to be kind, like Moses was."
+    },
+    {
+     "ask": "Why did God tell Moses to take off his sandals?",
+     "why": "The ground was holy because God was there. When we talk to God, we remember He is great, and He is with us."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "desert",
+     "means": "A desert is a hot, dry land with lots of sand."
+    },
+    {
+     "word": "holy",
+     "means": "Holy means special, because it belongs to God."
+    }
+   ],
+   "science": {
+    "title": "Fire",
+    "fact": "When wood burns, it turns into ash and smoke. Moses' bush was on fire but did not burn up, which is how he knew God was there.",
+    "tryIt": "With a grown-up, put a jar over a lit candle. Watch the flame go out when the air inside is used up!"
+   }
+  },
+  {
+   "id": "manna",
+   "name": "Manna in the Desert",
+   "verse": {
+    "text": "Behold, I will rain bread from the sky for you.",
+    "ref": "Exodus 16:4"
+   },
+   "think": [
+    {
+     "ask": "Why did God send bread even after the people grumbled?",
+     "why": "God heard the grumbling, but He still loved His people and fed them. God is kind to us even when we grumble."
+    },
+    {
+     "ask": "Why did God say to gather just enough for today?",
+     "why": "God wanted His people to trust Him for each new day. God gives us what we need, every single day."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "grumble",
+     "means": "Grumble means complaining in a grumpy voice."
+    },
+    {
+     "word": "spoil",
+     "means": "Spoil means to go bad, so it cannot be eaten."
+    }
+   ],
+   "science": {
+    "title": "Dew",
+    "fact": "Air has water in it that you cannot see. At night the ground gets cold, and the water in the air turns into drops on the grass, like the manna in the story.",
+    "tryIt": "Early in the morning, touch the grass. Is it wet with dew, even if it did not rain?"
+   }
+  },
+  {
+   "id": "jericho",
+   "name": "The Walls of Jericho",
+   "verse": {
+    "text": "By faith the walls of Jericho fell down.",
+    "ref": "Hebrews 11:30"
+   },
+   "think": [
+    {
+     "ask": "Why did Rahab hide the two men?",
+     "why": "Rahab said, I know your God is the real God. She trusted God, and God kept her family safe."
+    },
+    {
+     "ask": "Why did the walls fall down?",
+     "why": "The people did just what God said, and God made the walls fall. God keeps His promises, and He gives the victory."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "priest",
+     "means": "A priest is a helper who leads people to worship God."
+    },
+    {
+     "word": "trumpet",
+     "means": "A trumpet is a horn you blow to make a loud sound."
+    }
+   ],
+   "science": {
+    "title": "Sound",
+    "fact": "When you shout, the air in your throat shakes, and the shaking travels through the air to someone's ears. Loud sounds shake the air harder.",
+    "tryIt": "Put your hand on your throat and hum. Can you feel the buzz? That is sound!"
+   }
+  },
+  {
+   "id": "ruth",
+   "name": "Ruth and Naomi",
+   "verse": {
+    "text": "Your people will be my people, and your God my God.",
+    "ref": "Ruth 1:16"
+   },
+   "think": [
+    {
+     "ask": "Why did Ruth stay with Naomi?",
+     "why": "Ruth loved Naomi, and she chose Naomi's God, too. Real love stays close, no matter what."
+    },
+    {
+     "ask": "Why did Boaz tell his workers to drop extra barley?",
+     "why": "Boaz was kind, and he helped Ruth without being asked. God takes care of us through kind people."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "harvest",
+     "means": "Harvest is the time when the food in the fields is ready to pick."
+    },
+    {
+     "word": "barley",
+     "means": "Barley is a grain that is made into bread."
+    }
+   ],
+   "science": {
+    "title": "Seeds",
+    "fact": "A plant needs sunshine, water and soil to grow. Farmers plant the seeds, wait for the rain and sun, and then harvest the grain.",
+    "tryIt": "Put a dry bean on a wet paper towel in a jar by the window. Check it every day. Does a root come out?"
+   }
+  },
+  {
+   "id": "samuel",
+   "name": "Samuel Listens",
+   "verse": {
+    "text": "Speak; for your servant hears.",
+    "ref": "1 Samuel 3:10"
+   },
+   "think": [
+    {
+     "ask": "How did Hannah feel after she prayed?",
+     "why": "Hannah told God what she wanted, and she felt peace. God hears us when we pray."
+    },
+    {
+     "ask": "Why did Samuel run to Eli?",
+     "why": "Samuel did not know God's voice yet. Eli taught him to say, Speak, Lord, I am listening. We can listen to God in the Bible."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "pray",
+     "means": "Pray means talking to God."
+    },
+    {
+     "word": "listen",
+     "means": "Listen means paying attention with your ears."
+    }
+   ],
+   "science": {
+    "title": "Ears",
+    "fact": "Inside your ear is a tiny skin called the eardrum. Sounds make it shake, and your brain turns the shaking into words and music.",
+    "tryIt": "Close your eyes and have someone clap somewhere in the room. Point to where the clap came from!"
+   }
+  },
+  {
+   "id": "elijah",
+   "name": "Elijah",
+   "verse": {
+    "text": "My God will supply every need of yours.",
+    "ref": "Philippians 4:19"
+   },
+   "think": [
+    {
+     "ask": "Why did the widow share her last bread with Elijah?",
+     "why": "Elijah said God would make her flour and oil last, and she trusted God. God took care of her family every day."
+    },
+    {
+     "ask": "Why did Elijah pour water all over the altar?",
+     "why": "Wet wood cannot burn, so when fire came, everyone knew it was God. The Lord is God, and He answers prayer."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "raven",
+     "means": "A raven is a big black bird."
+    },
+    {
+     "word": "altar",
+     "means": "An altar is a special table of stones for giving gifts to God."
+    }
+   ],
+   "science": {
+    "title": "Rain",
+    "fact": "The sun warms the sea, and water rises into the air as a mist you cannot see. Up high it cools into clouds. When the drops get heavy, they fall as rain.",
+    "tryIt": "Breathe on a cold window. See the little drops? That is water from your breath turning back into drops, just like a cloud."
+   }
+  },
+  {
+   "id": "esther",
+   "name": "Queen Esther",
+   "verse": {
+    "text": "Be strong and courageous. Don't be afraid.",
+    "ref": "Joshua 1:9"
+   },
+   "think": [
+    {
+     "ask": "Why would Mordecai not bow down to Haman?",
+     "why": "Mordecai bowed only to God. And God made Esther queen for a time just like this."
+    },
+    {
+     "ask": "Why did Esther pray for three days before seeing the king?",
+     "why": "Esther was afraid, so she asked God and her friends to pray. Then she was brave. God takes care of His people."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "cousin",
+     "means": "A cousin is the child of your aunt or uncle."
+    },
+    {
+     "word": "brave",
+     "means": "Brave means doing the right thing even when you are afraid."
+    }
+   ],
+   "science": {
+    "title": "Shiny Things",
+    "fact": "Smooth, shiny things bounce light the way a ball bounces off a wall. A mirror is so smooth that the light bounces straight back, and you see yourself.",
+    "tryIt": "Shine a flashlight at a mirror in a dark room. Where does the light go?"
+   }
+  },
+  {
+   "id": "boy-jesus",
+   "name": "Boy Jesus at the Temple",
+   "verse": {
+    "text": "I must be in my Father's house.",
+    "ref": "Luke 2:49"
+   },
+   "think": [
+    {
+     "ask": "Why did Jesus' family go to Jerusalem?",
+     "why": "The Passover feast was a time to remember how God set His people free. Jesus loved to go to God's house."
+    },
+    {
+     "ask": "Why was Jesus in God's house?",
+     "why": "Jesus wanted to be in His Father's house, listening and asking questions. Then He went home and obeyed Mary and Joseph."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "feast",
+     "means": "A feast is a big, happy meal to celebrate."
+    },
+    {
+     "word": "amazed",
+     "means": "Amazed means so surprised that your mouth falls open."
+    }
+   ],
+   "science": {
+    "title": "Growing",
+    "fact": "Your bones get longer a tiny bit at a time. That is why your shoes get too small! Milk, vegetables and running around help your bones grow strong.",
+    "tryIt": "Have a grown-up mark your height on a door frame. Check it again in a few months!"
+   }
+  },
+  {
+   "id": "fishers",
+   "name": "Fishers of People",
+   "verse": {
+    "text": "Come after me, and I will make you fishers for men.",
+    "ref": "Matthew 4:19"
+   },
+   "think": [
+    {
+     "ask": "Why did Peter let down the nets again?",
+     "why": "Peter had worked all night and caught nothing. But he did what Jesus said. Obeying Jesus brings good things."
+    },
+    {
+     "ask": "Why did Peter and his friends leave their boats?",
+     "why": "Jesus said, come, follow Me. They left everything to go with Him. Jesus wants you to follow Him, too."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "net",
+     "means": "A net is a big web of rope for catching fish."
+    },
+    {
+     "word": "follow",
+     "means": "Follow means to go where someone goes."
+    }
+   ],
+   "science": {
+    "title": "Fish",
+    "fact": "Water has air mixed in it. The gills take the air out of the water as it flows through, so a fish never has to come up to breathe.",
+    "tryIt": "Watch a fish in a tank or a pond. Can you see its gills opening and closing as it breathes?"
+   }
+  },
+  {
+   "id": "storm",
+   "name": "Jesus Calms the Storm",
+   "verse": {
+    "text": "He makes the storm a calm, so that its waves are still.",
+    "ref": "Psalm 107:29"
+   },
+   "think": [
+    {
+     "ask": "Why was Jesus asleep in the boat?",
+     "why": "Jesus was tired after teaching all day. Jesus is God's Son, and He was a real person, too, who got tired like us."
+    },
+    {
+     "ask": "Why did the friends wake Jesus up?",
+     "why": "They were scared, but Jesus was with them the whole time. When we are scared, Jesus is with us, and He takes care of us."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "cushion",
+     "means": "A cushion is a soft pillow."
+    },
+    {
+     "word": "calm",
+     "means": "Calm means quiet and still, with no wind or waves."
+    }
+   ],
+   "science": {
+    "title": "Waves",
+    "fact": "The harder and longer the wind blows, the bigger the waves get. A storm has strong wind, so it makes big waves that can splash into a boat.",
+    "tryIt": "Blow across a bowl of water. Blow softly, then hard. Watch the waves get bigger!"
+   }
+  },
+  {
+   "id": "lost-sheep",
+   "name": "The Lost Sheep",
+   "verse": {
+    "text": "Rejoice with me, for I have found my sheep which was lost!",
+    "ref": "Luke 15:6"
+   },
+   "think": [
+    {
+     "ask": "Why did the shepherd go looking for just one lamb?",
+     "why": "The shepherd loved every sheep, even the littlest lamb. God loves every one of us like that."
+    },
+    {
+     "ask": "Why did the shepherd have a party?",
+     "why": "The shepherd was so happy to find his lamb. When one of us comes home to God, heaven is full of joy!"
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "sheepfold",
+     "means": "A sheepfold is a safe pen where sheep sleep."
+    },
+    {
+     "word": "celebrate",
+     "means": "Celebrate means having a happy party because something good happened."
+    }
+   ],
+   "science": {
+    "title": "A Sheep’s Ears",
+    "fact": "A sheep's ears can turn to catch sounds from all around. A lamb's bleat is how it calls its mother, and the mother knows her own lamb's voice.",
+    "tryIt": "Close your eyes and listen. Can you tell who is talking just by their voice?"
+   }
+  },
+  {
+   "id": "samaritan",
+   "name": "The Good Samaritan",
+   "verse": {
+    "text": "You shall love your neighbor as yourself.",
+    "ref": "Matthew 22:39"
+   },
+   "think": [
+    {
+     "ask": "Why did the Samaritan stop?",
+     "why": "The priest and the helper walked by, but the Samaritan stopped because he cared. A neighbor is anyone who needs our help."
+    },
+    {
+     "ask": "What did Jesus want the man to learn?",
+     "why": "Jesus said, go and do the same. God wants us to be kind to everyone, even people who are different from us."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "robber",
+     "means": "A robber is someone who takes things that are not theirs."
+    },
+    {
+     "word": "neighbor",
+     "means": "A neighbor is anyone who needs our help."
+    }
+   ],
+   "science": {
+    "title": "Getting Better",
+    "fact": "Your body fixes itself! New skin grows under a scab, and the scab falls off when the new skin is ready.",
+    "tryIt": "Next time you get a little scrape, watch it over a few days. Can you see the new skin growing?"
+   }
+  },
+  {
+   "id": "zacchaeus",
+   "name": "Zacchaeus",
+   "verse": {
+    "text": "For the Son of Man came to seek and to save that which was lost.",
+    "ref": "Luke 19:10"
+   },
+   "think": [
+    {
+     "ask": "Why did Zacchaeus climb the tree?",
+     "why": "Zacchaeus was short, but he wanted to see Jesus so much. Jesus saw him, too, and He knew his name."
+    },
+    {
+     "ask": "Why did Zacchaeus give the money back?",
+     "why": "Jesus loved Zacchaeus, and that love changed his heart. Jesus loves everyone, and His love changes hearts."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "sycamore",
+     "means": "A sycamore is a big tree with wide branches."
+    },
+    {
+     "word": "poor",
+     "means": "Poor means having very little money or food."
+    }
+   ],
+   "science": {
+    "title": "Trees",
+    "fact": "A tree drinks water through its roots, and its leaves use sunlight to make food. A sycamore's branches grow wide and low, which made it easy to climb.",
+    "tryIt": "Hug a tree and look up. Can you see how its branches reach for the sun?"
+   }
+  },
+  {
+   "id": "palm-sunday",
+   "name": "Palm Sunday",
+   "verse": {
+    "text": "Blessed is he who comes in the name of the Lord!",
+    "ref": "Matthew 21:9"
+   },
+   "think": [
+    {
+     "ask": "Why did the owners let the friends take the donkey?",
+     "why": "The friends said, the Lord needs it, and the owners let it go. Jesus knew just what would happen. He is the King."
+    },
+    {
+     "ask": "Why did the people shout Hosanna?",
+     "why": "Hosanna is a happy shout that praises God. The people welcomed Jesus as their King, and He is our King, too."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "village",
+     "means": "A village is a very small town."
+    },
+    {
+     "word": "Hosanna",
+     "means": "Hosanna is a happy shout that praises God."
+    }
+   ],
+   "science": {
+    "title": "Palm Trees",
+    "fact": "Palm trees grow in warm places. Their leaves can be as long as a car! People waved them like flags for Jesus.",
+    "tryIt": "Find the biggest leaf you can outside. Wave it like a flag!"
+   }
+  },
+  {
+   "id": "easter",
+   "name": "Easter Morning",
+   "verse": {
+    "text": "He is not here, for he has risen, just like he said.",
+    "ref": "Matthew 28:6"
+   },
+   "think": [
+    {
+     "ask": "How did Jesus' friends feel after He died?",
+     "why": "They were very sad, and they missed Him. But that was not the end of the story!"
+    },
+    {
+     "ask": "Why were the women so happy at the garden?",
+     "why": "Jesus was alive! He is alive forever, and He loves you, too."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "tomb",
+     "means": "A tomb is a little cave where someone is laid after they die."
+    },
+    {
+     "word": "alive",
+     "means": "Alive means living and growing."
+    }
+   ],
+   "science": {
+    "title": "Sunrise",
+    "fact": "The sun is not really moving up. The earth is turning, and our side slowly turns to face the sun. The sky turns pink and orange before the sun appears.",
+    "tryIt": "Wake up early one morning and watch the sunrise. What colors do you see?"
+   }
+  },
+  {
+   "id": "pentecost",
+   "name": "Pentecost",
+   "verse": {
+    "text": "But the fruit of the Spirit is love, joy, peace.",
+    "ref": "Galatians 5:22"
+   },
+   "think": [
+    {
+     "ask": "Why did the friends wait and pray in Jerusalem?",
+     "why": "Jesus promised to send the Holy Spirit, the Helper. They trusted Jesus and waited, just like He said."
+    },
+    {
+     "ask": "How did Peter become so brave?",
+     "why": "The Holy Spirit made Peter brave to tell everyone about Jesus. God's Helper is with God's family today, too."
+    }
+   ],
+   "bigWords": [
+    {
+     "word": "Helper",
+     "means": "The Helper is the Holy Spirit, who God sends to be with us."
+    },
+    {
+     "word": "language",
+     "means": "A language is the words people speak in a country."
+    }
+   ],
+   "science": {
+    "title": "Your Voice",
+    "fact": "When you talk, air from your lungs passes over your vocal cords and makes them shake. Your tongue and lips shape the shaking air into words.",
+    "tryIt": "Put your fingers on your throat and say ahhh. Feel the buzz of your voice!"
+   }
+  }
+ ]
+}

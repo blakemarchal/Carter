@@ -270,6 +270,11 @@ has the family password, email and pasted-link sign-in.
 
 - **`SIGNUP_OPEN=1`** in `.env` (then restart) lets anyone start a family from the front page. Without it, the
   front page says families join by invitation, and new families come from `new-family-link` as before.
+- **The weekly parent email** (`server/weekly.mjs`) goes on Sunday evening to every grown-up with an email who
+  hasn't turned it off (Parent Corner → Grown-ups, or the link in the email): the week's play per child, made from
+  the family's progress backups, and something to talk about from the island they finished last. It needs email
+  set up. `WEEKLY_EMAIL=0` in `.env` turns it off; `WEEKLY_HOUR` (UTC, default 22) is when on Sunday it goes.
+  A grown-up can see this week's at `/weekly` and send it to themselves with a POST there.
 - Sign-up needs email set up (Resend). A parent gives their family's name, their own name and their email, and
   ticks that they're the parent or guardian and agree to the Terms and Privacy Policy. Nothing is made yet: they
   get an email with a link (it works once, for 24 hours). Opening it shows the names to check, and **Start our

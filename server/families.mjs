@@ -74,6 +74,8 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
   // how and when a parent agreed to the terms and privacy policy for their children, kept on the family)
   if (!hasColumn('links', 'family_name')) db.exec('ALTER TABLE links ADD COLUMN family_name TEXT')
   if (!hasColumn('families', 'consent')) db.exec('ALTER TABLE families ADD COLUMN consent TEXT')
+  // (added with the weekly parent email: whether a grown-up with an email wants it; on until they turn it off)
+  if (!hasColumn('members', 'weekly')) db.exec('ALTER TABLE members ADD COLUMN weekly INTEGER NOT NULL DEFAULT 1')
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS members_email ON members(email) WHERE email IS NOT NULL')
   // A used or expired link is no use to anyone, so it isn't kept: they're cleared out as new ones are made.
   const purgeLinks = () => q('DELETE FROM links WHERE used IS NOT NULL OR expires < ?').run(clock())
@@ -148,13 +150,13 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
 
     /** Who a device is: { device, member, family }, or null if it's unknown (or was signed out). */
     session(deviceId) {
-      const r = q(`SELECT d.id AS device_id, d.label, d.seen, m.id AS member_id, m.name AS member_name, m.role, m.look, m.email,
+      const r = q(`SELECT d.id AS device_id, d.label, d.seen, m.id AS member_id, m.name AS member_name, m.role, m.look, m.email, m.weekly,
                     f.id AS family_id, f.name AS family_name
                    FROM devices d JOIN members m ON m.id = d.member_id JOIN families f ON f.id = d.family_id WHERE d.id = ?`).get(String(deviceId))
       if (!r) return null
       return {
         device: { id: r.device_id, label: r.label, seen: r.seen },
-        member: { id: r.member_id, name: r.member_name, role: r.role, look: r.look ? JSON.parse(r.look) : null, email: r.email },
+        member: { id: r.member_id, name: r.member_name, role: r.role, look: r.look ? JSON.parse(r.look) : null, email: r.email, weekly: r.weekly !== 0 },
         family: { id: r.family_id, name: r.family_name },
       }
     },
@@ -255,12 +257,31 @@ export function openFamilies(file, { clock = () => Date.now() } = {}) {
     renameFamily(familyId, name) {
       q('UPDATE families SET name = ? WHERE id = ?').run(cleanName(name), familyId)
     },
-    updateMember(familyId, memberId, { name, look, email } = {}) {
+    updateMember(familyId, memberId, { name, look, email, weekly } = {}) {
       if (name !== undefined) q('UPDATE members SET name = ? WHERE id = ? AND family_id = ?').run(cleanName(name), memberId, familyId)
       if (look !== undefined) q('UPDATE members SET look = ? WHERE id = ? AND family_id = ?').run(cleanLook(look), memberId, familyId)
       if (email !== undefined) {
         try { q('UPDATE members SET email = ? WHERE id = ? AND family_id = ?').run(cleanEmail(email), memberId, familyId) } catch (e) { throw emailTaken(e) }
       }
+      if (weekly !== undefined) q('UPDATE members SET weekly = ? WHERE id = ? AND family_id = ?').run(weekly ? 1 : 0, memberId, familyId)
+    },
+    /** The grown-ups who get the weekly email (server/weekly.mjs): those with an email who haven't turned it off. */
+    weeklyRecipients() {
+      return q(`SELECT m.id, m.name, m.email, m.family_id, f.name AS family_name FROM members m JOIN families f ON f.id = m.family_id
+                WHERE m.email IS NOT NULL AND m.weekly = 1 ORDER BY f.created, m.created`).all()
+        .map((r) => ({ familyId: r.family_id, familyName: r.family_name, memberId: r.id, name: r.name, email: r.email }))
+    },
+    /** Turns a grown-up's weekly email off (the link in the email), whichever family they're in; false if no such grown-up. */
+    stopWeekly(memberId) {
+      return q('UPDATE members SET weekly = 0 WHERE id = ?').run(String(memberId)).changes > 0
+    },
+    /** A secret of this site's own, made once and kept (signs the "stop these emails" links). */
+    secret(name) {
+      const row = q('SELECT value FROM meta WHERE key = ?').get(`secret:${name}`)
+      if (row) return row.value
+      const value = randomBytes(24).toString('base64url')
+      q('INSERT INTO meta (key, value) VALUES (?, ?)').run(`secret:${name}`, value)
+      return value
     },
     /** The grown-up who signs in with this email, and their family, or null. */
     memberByEmail(email) {

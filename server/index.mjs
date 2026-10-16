@@ -37,6 +37,8 @@ import { synthesize } from './tts.mjs'
 import { createSongs } from './songs.mjs'
 import { cleanEmail, cleanName, FIRST_MEMBER_NAME, openFamilies, ROLES } from './families.mjs'
 import { createMailer, inviteEmail, signInEmail, signupEmail } from './email.mjs'
+import { createMarks, createWeekly, stopToken } from './weekly.mjs'
+import content from './content.gen.json' with { type: 'json' }
 import { landingPage } from './landing.mjs'
 import { createBilling, handleBilling, handleWebhook, isOn, stripeFromEnv } from './billing.mjs'
 
@@ -81,6 +83,10 @@ const SIGNUP_OPEN = isOn(process.env.SIGNUP_OPEN)
 if (!mailer) console.log('RESEND_API_KEY not set: grown-ups share their links by hand. Run: npm run set-email-key')
 /** This site's address, for links in emails. */
 const siteUrl = (req) => (process.env.SITE_URL || `${secure(req) ? 'https' : 'http'}://${req.headers.host}`).replace(/\/$/, '')
+/** The address last seen on a request, for the weekly email (sent with no request in hand). */
+let lastSite = process.env.SITE_URL?.replace(/\/$/, '') || null
+/** The weekly parent email (server/weekly.mjs): WEEKLY_EMAIL=0 turns it off; WEEKLY_HOUR is the Sunday hour (UTC). */
+const WEEKLY_ON = process.env.WEEKLY_EMAIL !== '0'
 // Emails: at most 3 sign-in links an hour to one address, and 10 emails an hour from one place or person.
 const sentAt = new Map()
 function mayEmail(key, max) {
@@ -114,10 +120,38 @@ function storesFor(familyId) {
       songs: createSongs(join(dir, 'songs')),
       stats: createStats(statsFile(familyId)),
       voiceNames: createNameConsent(join(dir, 'voice-names.json')),
+      weekly: createMarks(join(dir, 'weekly-sent.json')),
     }
     stores.set(familyId, st)
   }
   return st
+}
+const weekly = createWeekly({
+  families, storesFor, mailer: WEEKLY_ON ? mailer : null, content, secret: families.secret('weekly'),
+  hour: Number(process.env.WEEKLY_HOUR) || 22,
+  site: () => lastSite ?? 'https://arkpals.world',
+})
+
+/**
+ * GET /weekly: the email this family would get now (any grown-up: a preview page). POST /weekly sends it to the
+ * signed-in grown-up's own email now. GET /weekly/stop?m=…&t=… (no sign-in: the link in the email) turns it off.
+ */
+async function handleWeekly(req, res, url, s) {
+  if (url.pathname === '/weekly/stop') {
+    const m = url.searchParams.get('m') ?? ''
+    const ok = /^[A-Za-z0-9_-]{1,40}$/.test(m) && url.searchParams.get('t') === stopToken(families.secret('weekly'), m) && families.stopWeekly(m)
+    return sendPage(res, ok ? 200 : 404, 'Weekly email', `<h1>🌈 Ark Pals</h1><p>${ok ? "Done: you won't get the weekly email anymore. You can turn it back on any time in the Parent Corner." : 'That link is not right. You can turn the weekly email off in the Parent Corner.'}</p><p class="small"><a href="/">Back to Ark Pals</a></p>`)
+  }
+  if (!s) return json(res, 401)
+  const { email, summary } = await weekly.preview(s.family.id, s.family.name, s.member.id)
+  if (req.method === 'POST') {
+    if (!mailer || !s.member.email) return json(res, 400, { error: 'no email' })
+    if (!mayEmail(`weekly:${s.member.id}`, 3)) return json(res, 429)
+    await mailer.send({ to: s.member.email, ...email })
+    return json(res, 200, { sent: true, played: summary.played })
+  }
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
+  return res.end(email.html)
 }
 
 /**
@@ -465,7 +499,7 @@ async function handleFamily(req, res, url, s) {
   const [, , what, id] = url.pathname.split('/')
   try {
     if (!what && req.method === 'GET') {
-      return json(res, 200, { me: { member: s.member.id, device: s.device.id, role: s.member.role, email: s.member.email ?? null }, emailOn: !!mailer, deletable: fam !== families.firstFamily(), owner: isOwner(families, s), ...families.view(fam, s.device.id) })
+      return json(res, 200, { me: { member: s.member.id, device: s.device.id, role: s.member.role, email: s.member.email ?? null, weekly: s.member.weekly !== false }, emailOn: !!mailer, weeklyOn: !!mailer && WEEKLY_ON, deletable: fam !== families.firstFamily(), owner: isOwner(families, s), ...families.view(fam, s.device.id) })
     }
     if (!what && req.method === 'PUT') {
       if (!parent) return json(res, 403)
@@ -474,7 +508,7 @@ async function handleFamily(req, res, url, s) {
     }
     if (what === 'me' && req.method === 'PUT') {
       const b = await readJson(req)
-      families.updateMember(fam, s.member.id, { name: b.name, look: b.look, email: b.email })
+      families.updateMember(fam, s.member.id, { name: b.name, look: b.look, email: b.email, weekly: typeof b.weekly === 'boolean' ? b.weekly : undefined })
       return json(res, 204)
     }
     if (what === 'invite' && req.method === 'POST') {
@@ -804,6 +838,7 @@ createServer(async (req, res) => {
     if (url.pathname === '/stripe/webhook' && req.method === 'POST') return await handleWebhook(req, res, billing)
     if (url.pathname.startsWith('/join/')) return await handleJoin(req, res, url, ip)
     if (url.pathname.startsWith('/start/')) return await handleStart(req, res, url, ip)
+    if (url.pathname === '/weekly/stop' && req.method === 'GET') return await handleWeekly(req, res, url, null)
     // The Privacy Policy and Terms of Use are open to anyone (public/legal: made from docs/legal by
     // scripts/legal-pages.mjs).
     if (LEGAL[url.pathname] && (req.method === 'GET' || req.method === 'HEAD')) return await serveFile(res, LEGAL[url.pathname])
@@ -818,8 +853,10 @@ createServer(async (req, res) => {
       if (wantsPage && url.pathname === '/') return res.end(landingPage({ open: SIGNUP_OPEN, email: !!mailer }))
       return res.end(wantsPage ? LOGIN_PAGE() : '')
     }
+    lastSite = siteUrl(req)
     if (url.pathname === '/welcome') return await handleWelcome(req, res, s)
     if (url.pathname === '/family' || url.pathname.startsWith('/family/')) return await handleFamily(req, res, url, s)
+    if (url.pathname === '/weekly' && (req.method === 'GET' || req.method === 'POST')) return await handleWeekly(req, res, url, s)
     const mine = s ? storesFor(s.family.id) : null
     if ((url.pathname === '/backup' && (req.method === 'POST' || req.method === 'GET')) || (url.pathname === '/backups' && req.method === 'GET')) return await handleBackup(req, res, url, mine)
     if (url.pathname === '/recordings' || url.pathname.startsWith('/recording/')) return await handleRecording(req, res, url, mine)
@@ -860,3 +897,10 @@ createServer(async (req, res) => {
     res.end()
   }
 }).listen(PORT, '127.0.0.1', () => console.log(`Ark Pals listening on 127.0.0.1:${PORT}`))
+
+// The weekly parent email goes on Sunday evening: checked every half hour (and soon after a start).
+if (WEEKLY_ON && mailer) {
+  const tick = () => weekly.tick().then((n) => { if (n) console.log(`Weekly email: sent ${n}`) }, (e) => console.error(`Weekly email: ${e.message}`))
+  setTimeout(tick, 60_000).unref()
+  setInterval(tick, 30 * 60_000).unref()
+} else console.log(WEEKLY_ON ? 'Weekly email: off until email is set up' : 'Weekly email: off (WEEKLY_EMAIL=0)')

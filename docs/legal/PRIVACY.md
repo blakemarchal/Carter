@@ -31,7 +31,8 @@ contact other people.
 
 **On our server**, for your family only:
 - your family's name, and each grown-up's name, role (parent or grown-up), chosen avatar, and email
-  address if they add one (to be sent a sign-in link);
+  address if they add one (to be sent a sign-in link, and a short note each Sunday on the week's play,
+  which they can turn off in the Parent Corner or with the link in the note);
 - for a family that signed up on our website: when the parent agreed to these terms for their children,
   as our record of their consent (it's kept with the family, and deleted with it);
 - the devices signed in to your family: a name like "iPad", and when each was first and last used;

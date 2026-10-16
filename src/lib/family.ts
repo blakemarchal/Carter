@@ -5,9 +5,11 @@ import { useCallback, useEffect, useState } from 'react'
 export type Role = 'parent' | 'grownup'
 
 export interface FamilyView {
-  me: { member: string; device: string; role: Role; email: string | null }
+  me: { member: string; device: string; role: Role; email: string | null; weekly?: boolean }
   /** Whether the server can send email (sign-in links, invitations). */
   emailOn: boolean
+  /** Whether the server sends the weekly parent email (server/weekly.mjs). */
+  weeklyOn?: boolean
   /** Whether the family can delete its account here (not the site's own family). */
   deletable: boolean
   /** Whether this grown-up is the site's owner (a parent in its own family): sees the sums of play totals. */
@@ -41,8 +43,8 @@ const withSite = <T extends { link: string }>(r: T): T => ({ ...r, link: new URL
 export const familyApi = {
   get: () => call<FamilyView>('GET', '/family'),
   rename: (name: string) => call<void>('PUT', '/family', { name }),
-  /** `email`: where a sign-in link can be sent ('' for none). */
-  updateMe: (changes: { name?: string; look?: unknown; email?: string }) => call<void>('PUT', '/family/me', changes),
+  /** `email`: where a sign-in link can be sent ('' for none); `weekly`: whether the weekly email goes there. */
+  updateMe: (changes: { name?: string; look?: unknown; email?: string; weekly?: boolean }) => call<void>('PUT', '/family/me', changes),
   /** A one-time link (7 days) that brings a new grown-up into the family; with an email, it's sent there too. */
   invite: (name: string, role: Role, email?: string) =>
     call<{ id: string; link: string; expires: number; emailed: boolean }>('POST', '/family/invite', { name, role, email }).then(withSite),

@@ -13,6 +13,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { voiceLines } from '../src/voice/lines-source'
 import { ISLANDS, loadIsland } from '../src/data/islands'
 import { buildGrokList, grokCharacters } from '../src/voice/grok-list'
+import { contentForServer } from '../src/data/content-summary'
 
 const lines = voiceLines()
 writeFileSync('src/voice/lines.gen.json', JSON.stringify(lines, null, 0).replace(/\],\[/g, '],\n[').replace(/","/g, '",\n"'))
@@ -23,3 +24,8 @@ const grok = buildGrokList(islands, lines) // (the lines just made, not the file
 mkdirSync('public/voice', { recursive: true })
 writeFileSync('public/voice/grok-list.json', `[\n${grok.map((c) => JSON.stringify(c)).join(',\n')}\n]\n`)
 console.log(`${grok.length} Grok clips, about ${grokCharacters(grok).toLocaleString()} characters -> public/voice/grok-list.json`)
+
+// (what the server's weekly parent email says about each island: src/data/content-summary.ts)
+const summary = contentForServer(islands)
+writeFileSync('server/content.gen.json', JSON.stringify(summary, null, 1) + '\n')
+console.log(`${summary.islands.length} islands -> server/content.gen.json`)
