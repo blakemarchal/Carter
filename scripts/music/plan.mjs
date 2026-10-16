@@ -11,8 +11,9 @@ const LINES_PER_SECTION = 4
 const merge = (...lists) => [...new Set(lists.flat().filter(Boolean))]
 
 /**
- * The plan: `lines` are the sung lines in order (a line with the name slot "{name}" is left out: those songs
- * stay on the old pipeline). Sections of four lines, named Verse 1, 2…; the first section's styles set the tone.
+ * The plan: one section per section of the song (a verse, the chorus…), named as the song names it, with its
+ * lines; a traditional song written as lines alone is cut into sections of four. A line with the name slot
+ * "{name}" is left out (those songs stay on the old pipeline). The first section's styles set the tone.
  */
 export function buildPlan(song, style) {
   const base = style.default
@@ -20,22 +21,25 @@ export function buildPlan(song, style) {
   const positive = merge(base.positive, own.positive)
   const negative = merge(base.negative, own.negative)
   const msPerLine = own.msPerLine ?? base.msPerLine
-  const lines = song.lines.filter((l) => !l.includes('{name}'))
-  if (!lines.length) throw new Error(`${song.id}: no lines to sing`)
-  for (const l of lines) if (l.length > MAX_LINE_CHARS) throw new Error(`${song.id}: a line is longer than ${MAX_LINE_CHARS} characters`)
+  const given = song.sections ?? [{ name: 'Verse 1', lines: song.lines }]
+  const sections = given.length === 1 && given[0].lines.length > LINES_PER_SECTION
+    ? Array.from({ length: Math.ceil(given[0].lines.length / LINES_PER_SECTION) }, (_, i) => ({ name: `Verse ${i + 1}`, lines: given[0].lines.slice(i * LINES_PER_SECTION, (i + 1) * LINES_PER_SECTION) }))
+    : given
   const chunks = []
-  for (let i = 0; i < lines.length; i += LINES_PER_SECTION) {
-    const part = lines.slice(i, i + LINES_PER_SECTION)
-    const n = chunks.length + 1
+  for (const sec of sections) {
+    const lines = sec.lines.filter((l) => !l.includes('{name}'))
+    if (!lines.length) continue
+    for (const l of lines) if (l.length > MAX_LINE_CHARS) throw new Error(`${song.id}: a line is longer than ${MAX_LINE_CHARS} characters`)
+    if (lines.length > MAX_LINES) throw new Error(`${song.id}: too many lines in a section`)
     chunks.push({
-      text: `[Verse ${n}]\n${part.join('\n')}`,
-      duration_ms: Math.min(MAX_SECTION_MS, Math.max(MIN_SECTION_MS, part.length * msPerLine)),
-      positive_styles: chunks.length ? merge(own.positive, ['same song', 'same singer', 'same tempo']) : positive,
+      text: `[${sec.name}]\n${lines.join('\n')}`,
+      duration_ms: Math.min(MAX_SECTION_MS, Math.max(MIN_SECTION_MS, lines.length * msPerLine)),
+      positive_styles: chunks.length ? merge(own.positive, ['same song', 'same singer', 'same tempo', ...(/chorus/i.test(sec.name) ? ['chorus', 'catchy', 'the same melody as the other chorus'] : [])]) : positive,
       negative_styles: negative,
       context_adherence: 'high',
     })
   }
-  if (chunks.some((c) => c.text.split('\n').length - 1 > MAX_LINES)) throw new Error(`${song.id}: too many lines in a section`)
+  if (!chunks.length) throw new Error(`${song.id}: no lines to sing`)
   return { chunks }
 }
 

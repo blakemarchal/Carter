@@ -45,15 +45,20 @@ export async function eleven(path, { method = 'GET', json, form, query, key = re
   return r
 }
 
-/** Every built-in song, in the game's order: id, title, island (src/data/songs.ts), and its lyric lines (lyrics.json). */
+/**
+ * Every built-in song, in the game's order: id, title, island (src/data/songs.ts), its sections (verse, chorus…:
+ * lyrics.json; a traditional song is one section of its lines) and its lines, all of them in order.
+ */
 export function songs() {
   const ts = readFileSync(join(ROOT, 'src', 'data', 'songs.ts'), 'utf8')
   const lyrics = JSON.parse(readFileSync(join(HERE, 'lyrics.json'), 'utf8'))
   const out = []
   for (const m of ts.matchAll(/\{ id: '([^']+)', title: (?:'([^']*)'|"([^"]*)"), emoji: '[^']*', color: '[^']*'(?:, island: '([^']+)')? \}/g)) {
     const id = m[1]
-    if (!lyrics[id]) continue
-    out.push({ id, title: m[2] ?? m[3], island: m[4] ?? null, lines: lyrics[id].lines, name: lyrics[id].name ?? null })
+    const l = lyrics[id]
+    if (!l || id === '_') continue
+    const sections = l.sections ?? [{ name: 'Verse 1', lines: l.lines }]
+    out.push({ id, title: m[2] ?? m[3], island: m[4] ?? null, sections, lines: sections.flatMap((x) => x.lines), name: l.name ?? null })
   }
   return out
 }

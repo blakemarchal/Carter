@@ -33,11 +33,13 @@ describe('the songs and their lyrics', () => {
 })
 
 describe('a song’s plan for the music model', () => {
-  it('puts the lyrics in sections of four lines, within the API’s limits, the first section setting the style', () => {
+  it('puts each section of the song in the plan, within the API’s limits, the first section setting the style', () => {
     const song = songs().find((s: { id: string }) => s.id === 'song-creation')
     const plan = buildPlan(song, styles())
-    expect(plan.chunks.length).toBe(Math.ceil(song.lines.length / 4))
+    expect(plan.chunks.length).toBe(song.sections.length)
     expect(plan.chunks[0].text.startsWith('[Verse 1]\n')).toBe(true)
+    expect(plan.chunks[1].text.startsWith('[Chorus]\n')).toBe(true)
+    expect(plan.chunks[1].positive_styles).toContain('chorus')
     expect(plan.chunks[0].positive_styles).toContain("children's song")
     expect(plan.chunks[0].positive_styles).toContain('joyful')
     expect(plan.chunks[1].positive_styles).toContain('same singer')
@@ -48,6 +50,20 @@ describe('a song’s plan for the music model', () => {
     }
     expect(planMs(plan)).toBeLessThan(5 * 60_000)
     expect(plan.chunks.flatMap((c: { text: string }) => c.text.split('\n').slice(1))).toEqual(song.lines)
+    // (a traditional song, written as lines alone, is cut into sections of four)
+    const twinkle = songs().find((s: { id: string }) => s.id === 'twinkle')
+    expect(buildPlan(twinkle, styles()).chunks.length).toBe(Math.ceil(twinkle.lines.length / 4))
+  })
+
+  it('every island song has verses and a chorus that repeats, built around the island’s story', () => {
+    for (const song of songs()) {
+      if (!song.island && song.id !== 'noah-boat') continue
+      const names = song.sections.map((x: { name: string }) => x.name)
+      expect(names.filter((n: string) => n === 'Chorus').length, song.id).toBeGreaterThanOrEqual(2)
+      const choruses = song.sections.filter((x: { name: string }) => x.name === 'Chorus').map((x: { lines: string[] }) => x.lines.join('|'))
+      expect(new Set(choruses).size, `${song.id}: the chorus changes`).toBe(1)
+      for (const l of song.lines) expect(l.length, `${song.id}: ${l}`).toBeLessThan(80)
+    }
   })
 
   it('leaves out a line with the birthday name slot', () => {
