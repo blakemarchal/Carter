@@ -3,12 +3,15 @@
 --loudnorm brings it to -16 LUFS (pyloudnorm, EBU R128) with a true-peak ceiling of -1.5 dB.
 """
 import argparse
+import warnings
 
 import lameenc
 import librosa
 import numpy as np
 import pyloudnorm as pyln
 import soundfile as sf
+
+warnings.filterwarnings('ignore', message='Possible clipped samples')  # (peaks are brought under the ceiling below)
 
 SR = 44100
 ap = argparse.ArgumentParser()

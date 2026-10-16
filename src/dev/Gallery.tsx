@@ -27,6 +27,8 @@ import KitPreview from './KitPreview'
 import LearnDemo from './LearnDemo'
 import { SONGS } from '../data/songs'
 import { Player } from '../screens/SingAlong'
+import { useState } from 'react'
+import { unlockAudio } from '../lib/audio'
 
 const LOOK: KidLook = { skin: 'tan', hair: 'pigtails', hairColor: '#2b1d14', color: '#8d7cff' }
 const SAMPLE: PlayerArt = {
@@ -40,15 +42,18 @@ const SAMPLE: PlayerArt = {
   pals: [{ id: 'pip', stage: 1 }, { id: 'ember', stage: 0 }, { id: 'sprinkles', stage: 2 }, { id: 'lionel', stage: 0 }, { id: 'starling', stage: 1 }, { id: 'chilly', stage: 0 }],
 }
 
-/** A song as the sing-along plays it (no narration), with links to every other song. */
+/** A song as the sing-along plays it (no narration), with links to every other song. A tap first: browsers only play sound after one. */
 function SongDemo({ id }: { id?: string }) {
   const song = SONGS.find((s) => s.id === id)
+  const [go, setGo] = useState(false)
   return (
     <div className="gallery">
       <p style={{ padding: '8px 16px', display: 'flex', flexWrap: 'wrap', gap: '6px 14px', fontSize: 15 }}>
         {SONGS.map((s) => <a key={s.id} href={`#gallery/song/${s.id}`} style={{ fontWeight: s.id === id ? 800 : 400 }} onClick={() => setTimeout(() => location.reload(), 50)}>{s.title}</a>)}
       </p>
-      {song ? <Player key={song.id} song={song} onDone={() => { location.hash = '#gallery/song'; location.reload() }} say="" /> : <p style={{ padding: 16 }}>Pick a song.</p>}
+      {!song ? <p style={{ padding: 16 }}>Pick a song.</p>
+        : !go ? <p style={{ padding: 16 }}><button className="big-btn pink song-demo-play" onClick={() => { unlockAudio(); setGo(true) }}>Play {song.title}</button></p>
+          : <Player key={song.id} song={song} onDone={() => { location.hash = '#gallery/song'; location.reload() }} say="" />}
     </div>
   )
 }
