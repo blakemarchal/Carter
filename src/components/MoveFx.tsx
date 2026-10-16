@@ -194,7 +194,7 @@ export default function MoveFx({ fx, move, color, from, to, superMove, hearts = 
       {superMove && <div className="fx-superglow" />}
       <div className="fx-banner" style={{ '--c': color } as CSSProperties}>{superMove && '★ '}{move}!</div>
       <Effect from={from} to={to} big={superMove} icon={icon} />
-      {hearts > 0 && <div className="fx-plusheart" style={{ left: `${to.x}%`, top: `${to.y - 30}%` }}>{'✨'.repeat(hearts)}</div>}
+      {hearts > 0 && <div className="fx-plusheart" style={{ left: `${to.x}%`, top: `${to.y - 30}%` }}>{Array.from({ length: hearts }, (_, i) => <Pic key={i} e="✨" />)}</div>}
     </div>
   )
 }

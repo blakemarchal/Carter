@@ -1,6 +1,7 @@
 // The end of the voyage: every island on the map is done. The map shows this once (progress
 // voyageCelebrated): confetti, Gladshade with a few of their Pals, the narrator, and a big "Keep sailing!".
 // Styles: VoyageComplete.css.
+import Pic from './Pic'
 import { useEffect, useState } from 'react'
 import DressedPal from './DressedPal'
 import { BigButton, Confetti } from './ui'
@@ -63,7 +64,7 @@ export default function VoyageComplete({ p, onDone }: { p: Progress; onDone: () 
         {side(right, left.length)}
       </div>
       <div className="vd-go">
-        {ready && <BigButton color="pink" className="vd-btn" onClick={onDone}>⛵ Keep sailing!</BigButton>}
+        {ready && <BigButton color="pink" className="vd-btn" onClick={onDone}><Pic e="⛵" /> Keep sailing!</BigButton>}
       </div>
     </div>
   )

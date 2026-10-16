@@ -27,7 +27,7 @@ export default function Quiz({ title, questions, onDone }: {
       <div className="practice-head">
         <span className="decor">❓</span>
         <h2>{title}</h2>
-        <div className="mini-dots">{qs.map((_, i) => <span key={i}>{i < n ? '⭐' : '☆'}</span>)}</div>
+        <div className="mini-dots">{qs.map((_, i) => <span key={i} className={i < n ? 'done' : ''}>{i < n ? <Pic e="⭐" /> : '☆'}</span>)}</div>
       </div>
       {started ? <QuestionCard key={n} q={qs[n]} onSolved={next} record={false} /> : <button className="start-tap" onClick={() => setStarted(true)}><Pic e="👆" /> Tap to start</button>}
     </div>

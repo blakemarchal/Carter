@@ -8,7 +8,7 @@ const ROUND = { strokeLinejoin: 'round', strokeLinecap: 'round' } as const
 
 export type Feeling =
   | 'happy' | 'sad' | 'scared' | 'cross' | 'jealous' | 'calm' | 'sleepy' | 'laughing' | 'grumbling' | 'yuck'
-  | 'worried' | 'loving' | 'amazed' | 'silly' | 'yawning' | 'cold'
+  | 'worried' | 'loving' | 'amazed' | 'silly' | 'yawning' | 'cold' | 'yum'
 
 const SKIN = '#ffd27a'
 /** A cross face goes red, a sick one green, a cold one blue. */
@@ -55,12 +55,18 @@ function Face({ feeling }: { feeling: Feeling }) {
           <path d="M50 67 Q52 82 60 78 Q62 70 56 66 Z" fill="#ff6f9a" stroke={EYE} strokeWidth={2} {...ROUND} />
         </g>
       )
+      case 'yum': return (
+        <g>
+          <path d="M36 62 Q50 78 64 62 Q50 70 36 62 Z" fill="#8a2d3e" stroke={EYE} strokeWidth={2.2} {...ROUND} />
+          <path d="M40 66 Q36 78 44 78 Q50 76 48 68 Z" fill="#ff6f9a" stroke={EYE} strokeWidth={2} {...ROUND} />
+        </g>
+      )
       case 'cold': return <path d="M36 67 L41 63 L46 69 L51 63 L56 69 L61 63 L64 67" stroke={EYE} strokeWidth={3} fill="none" {...ROUND} />
     }
   })()
   const eyes = (() => {
     switch (feeling) {
-      case 'calm': case 'sleepy': case 'laughing': case 'yawning': case 'loving': return <><Eye x={37} y={46} kind="shut" /><Eye x={63} y={46} kind="shut" /></>
+      case 'calm': case 'sleepy': case 'laughing': case 'yawning': case 'loving': case 'yum': return <><Eye x={37} y={46} kind="shut" /><Eye x={63} y={46} kind="shut" /></>
       case 'scared': case 'amazed': return <><Eye x={37} y={46} kind="wide" /><Eye x={63} y={46} kind="wide" /></>
       case 'jealous': return <><Eye x={37} y={46} kind="side" r={5} /><Eye x={63} y={46} kind="side" r={5} /></>
       case 'cross': case 'grumbling': return <><Eye x={37} y={47} r={5} /><Eye x={63} y={47} r={5} /></>
@@ -123,4 +129,5 @@ export const LEARN_FACES: Item[] = [
   face('face-silly', 'a silly face', 'silly', ['🤪', '😜']),
   face('face-yawning', 'a yawning face', 'yawning', ['🥱']),
   face('face-cold', 'a cold face', 'cold', ['🥶']),
+  face('face-yum', 'a yum face', 'yum', ['😋']),
 ]

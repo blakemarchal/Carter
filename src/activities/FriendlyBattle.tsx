@@ -60,7 +60,7 @@ function Sparkles({ out, n = 14, delay = 0 }: { out?: boolean; n?: number; delay
   }))
   return (
     <span className={`gs-sparkles ${out ? 'out' : 'in'}`} aria-hidden>
-      {parts.map((s, i) => <i key={i} style={{ '--x': `${s.x}px`, '--y': `${s.y}px`, animationDelay: `${s.delay}s` } as CSSProperties}>{s.c}</i>)}
+      {parts.map((s, i) => <i key={i} style={{ '--x': `${s.x}px`, '--y': `${s.y}px`, animationDelay: `${s.delay}s` } as CSSProperties}>{s.c === '✦' ? s.c : <Pic e={s.c} />}</i>)}
     </span>
   )
 }
@@ -437,7 +437,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
                 <span className="hearts">{Array.from({ length: ENERGY }, (_, i) => <i key={i}><Pic e={i < energy ? '❤️' : '🤍'} /></i>)}</span>
                 {superKnown && (
                   <span className={`charge ${charge >= CHARGE ? 'full' : ''}`} aria-label="Super move charge">
-                    {Array.from({ length: CHARGE }, (_, i) => <span key={i} className={i < charge ? 'on' : ''}>⚡</span>)}
+                    {Array.from({ length: CHARGE }, (_, i) => <span key={i} className={i < charge ? 'on' : ''}><Pic e="⚡" /></span>)}
                   </span>
                 )}
               </div>
@@ -461,7 +461,7 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
             <div className="throw-ball-y"><FriendBall size={64} open={ball === 'land'} /></div>
           </div>
         )}
-        {ball === 'done' && <div className="caught-stars" style={{ left: `${ends.to.x}%` }}>✨⭐✨</div>}
+        {ball === 'done' && <div className="caught-stars" style={{ left: `${ends.to.x}%` }}><Pic e="✨" /><Pic e="⭐" /><Pic e="✨" /></div>}
       </div>
       <div className="battle-q">
         {phase === 'team' && (
@@ -500,10 +500,10 @@ export default function FriendlyBattle({ foeId, foeIntro, island, present, onDon
         )}
         {phase === 'question' && q && <QuestionCard key={turn} q={q} onSolved={solved} quiet recordMisses={kind !== 'brave'} />}
         {/* (the creature: the shadow may still be on screen, floating off) */}
-        {phase === 'freed' && <div className="friends-banner">☀️ {foeName} is happy again! ☀️</div>}
+        {phase === 'freed' && <div className="friends-banner"><Pic e="☀️" /> {foeName} is happy again! <Pic e="☀️" /></div>}
         {phase === 'finale' && (shade === 'glad' || shade === 'joined'
-          ? <div key="glad" className="friends-banner finale">✨ Gladshade joined your Ark! ✨</div>
-          : <div key="news" className="friends-banner finale">💛 God loves everyone! 💛</div>)}
+          ? <div key="glad" className="friends-banner finale"><Pic e="✨" /> Gladshade joined your Ark! <Pic e="✨" /></div>
+          : <div key="news" className="friends-banner finale"><Pic e="💛" /> God loves everyone! <Pic e="💛" /></div>)}
         {phase === 'ask' && (
           <div className="throw-pick">
             <div className="ask-line">Would you like to join our Ark, {foeName}?</div>

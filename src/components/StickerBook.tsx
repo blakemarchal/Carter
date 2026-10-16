@@ -1,5 +1,6 @@
 // Sticker book: a big scene where the player drags their stickers anywhere (and back to the tray to take them
 // off). Positions are saved. Tapping a birthday sticker plays that birthday party again.
+import Pic from './Pic'
 import { useCallback, useEffect, useRef } from 'react'
 import { BackButton } from './ui'
 import StickerFace from './StickerFace'
@@ -57,7 +58,7 @@ export default function StickerBook({ onClose, onParty }: { onClose: () => void;
 
   return (
     <div className="overlay sticker-book">
-      <header className="home-head"><BackButton onClick={onClose} /><h2>⭐ My Sticker Book</h2><span /></header>
+      <header className="home-head"><BackButton onClick={onClose} /><h2><Pic e="⭐" /> My Sticker Book</h2><span /></header>
       <div ref={sceneRef} className="sticker-scene">
         {p.stickerSpots.map((t) => <Sticker key={t.s} s={t.s} spot={t} onPlace={place} onParty={onParty} />)}
       </div>

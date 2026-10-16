@@ -412,7 +412,7 @@ input { -webkit-user-select: text; user-select: text; }
   92% { opacity: 1; } 100% { left: var(--to-x); transform: translateY(70px) scale(1.2) rotate(200deg); opacity: 0; }
 }
 
-/* Every hit: "+💖" floats up from the creature, which wobbles when the move lands */
+/* Every hit: "+heart" floats up from the creature, which wobbles when the move lands */
 .fx-plusheart { position: absolute; font-size: 34px; font-weight: 800; color: var(--pink-deep); animation: fxplus 1s .75s both; }
 @keyframes fxplus {
   0% { opacity: 0; transform: translate(-50%, 10px) scale(.5); } 30% { opacity: 1; transform: translate(-50%, -12px) scale(1.25); }

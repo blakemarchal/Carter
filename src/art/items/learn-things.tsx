@@ -320,7 +320,7 @@ function Bandage() {
       <ellipse {...groundShadow(50, 93, 36)} />
       <rect x={8} y={36} width={84} height={28} rx={14} fill={tan.fill} stroke={ink('#f3c9a8')} strokeWidth={3} />
       <rect x={34} y={40} width={32} height={20} rx={5} fill="#fff" stroke={ink('#f3c9a8')} strokeWidth={2.2} />
-      {[[18, 44], [24, 50], [18, 56], [76, 44], [82, 50], [76, 56]].map(([x, y]) => <circle key={x + y} cx={x} cy={y} r={1.8} fill={darken('#f3c9a8', 0.3)} />)}
+      {[[18, 44], [24, 50], [18, 56], [76, 44], [82, 50], [76, 56]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={1.8} fill={darken('#f3c9a8', 0.3)} />)}
       <path d="M50 44 L50 56 M44 50 L56 50" stroke="#ff5c8a" strokeWidth={3.2} />
     </g>
   )
@@ -509,7 +509,41 @@ function Snail() {
   )
 }
 
+/** A thought bubble: remembering, wondering. */
+function ThoughtBubble() {
+  const puff = useShade('#ffffff', 0.05, 0.08)
+  const line = '#9a90b0'
+  return (
+    <g {...ROUND}>
+      <defs>{puff.def}</defs>
+      <ellipse cx={54} cy={40} rx={36} ry={26} fill={puff.fill} stroke={line} strokeWidth={3} />
+      <circle cx={30} cy={30} r={16} fill={puff.fill} stroke={line} strokeWidth={3} />
+      <circle cx={62} cy={22} r={18} fill={puff.fill} stroke={line} strokeWidth={3} />
+      <circle cx={80} cy={40} r={14} fill={puff.fill} stroke={line} strokeWidth={3} />
+      <ellipse cx={54} cy={42} rx={35} ry={24} fill="#fff" />
+      <circle cx={30} cy={31} r={15} fill="#fff" /><circle cx={62} cy={23} r={17} fill="#fff" /><circle cx={80} cy={41} r={13} fill="#fff" />
+      <circle cx={26} cy={74} r={7} fill="#fff" stroke={line} strokeWidth={2.6} />
+      <circle cx={16} cy={86} r={4.5} fill="#fff" stroke={line} strokeWidth={2.2} />
+      {[42, 54, 66].map((x) => <circle key={x} cx={x} cy={42} r={3.5} fill={line} />)}
+    </g>
+  )
+}
+
+/** A lightning bolt. */
+function Lightning() {
+  const bolt = useShade('#ffd34d', 0.4, 0.15)
+  return (
+    <g {...ROUND}>
+      <defs>{bolt.def}</defs>
+      <path d="M58 6 L26 54 L46 54 L38 94 L76 40 L54 40 Z" fill={bolt.fill} stroke={ink('#ffd34d')} strokeWidth={3} />
+      <path d="M52 16 L36 44" stroke={lighten('#ffd34d', 0.5)} strokeWidth={3} />
+    </g>
+  )
+}
+
 export const LEARN_THINGS: Item[] = [
+  { id: 'thought-bubble', name: 'a thought bubble', emoji: ['💭'], Draw: ThoughtBubble },
+  { id: 'lightning', name: 'lightning', emoji: ['⚡'], Draw: Lightning },
   { id: 'ear', name: 'an ear', emoji: ['👂'], Draw: Ear },
   { id: 'eyes', name: 'eyes', emoji: ['👀'], Draw: Eyes },
   { id: 'nose', name: 'a nose', emoji: ['👃'], Draw: Nose },

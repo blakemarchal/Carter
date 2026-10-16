@@ -179,7 +179,7 @@ function FindStep({ step, onDone }: { step: Extract<CookStep, { kind: 'find' }>;
 function PatternChoice({ c, wrong, onDrop, onTap }: { c: string; wrong: boolean; onDrop: (c: string) => boolean; onTap: (c: string, el: HTMLElement) => void }) {
   const ref = useRef<HTMLButtonElement>(null)
   const drag = useDrag({ data: c, onStart: sfx.lift, onDrop: (t) => t === 'slot' && onDrop(c), onTap: () => ref.current && onTap(c, ref.current) })
-  return <button ref={ref} className={`k-choice ${wrong ? 'wiggle' : ''}`} {...drag}>{c}</button>
+  return <button ref={ref} className={`k-choice ${wrong ? 'wiggle' : ''}`} {...drag}><Pic e={c} /></button>
 }
 
 /** Finish the pattern: 🍓🫐🍓🫐🍓 _ — drag (or tap) what comes next. */
@@ -225,8 +225,8 @@ function PatternStep({ step, onDone }: { step: Extract<CookStep, { kind: 'patter
     <div className="k-station">
       <div className="k-ask" onClick={ask}>What comes next? <Icon kind="speaker" /></div>
       <div className="k-pattern">
-        {Array.from({ length: shown }, (_, i) => <span key={i}>{items[i % items.length]}</span>)}
-        <span ref={slotRef} className={`k-slot ${filled ? 'filled' : ''}`}>{filled ? items[nextIdx] : '?'}</span>
+        {Array.from({ length: shown }, (_, i) => <span key={i}><Pic e={items[i % items.length]} /></span>)}
+        <span ref={slotRef} className={`k-slot ${filled ? 'filled' : ''}`}>{filled ? <Pic e={items[nextIdx]} /> : '?'}</span>
       </div>
       <div className="k-choices">
         {choices.map((c) => <PatternChoice key={c} c={c} wrong={wrong === c} onDrop={drop} onTap={tap} />)}
@@ -412,7 +412,7 @@ function StirStep({ step, contents, batter, onDone }: { step: Extract<CookStep, 
           </g>
         </svg>
       </div>
-      <div className="k-stir-dots">{Array.from({ length: step.times }, (_, i) => <span key={i} className={i < view.stirs ? 'on' : ''}>🥄</span>)}</div>
+      <div className="k-stir-dots">{Array.from({ length: step.times }, (_, i) => <span key={i} className={i < view.stirs ? 'on' : ''}><Pic e="🥄" /></span>)}</div>
     </div>
   )
 }
@@ -460,16 +460,16 @@ function BakeStep({ step, dish, onDone }: { step: Extract<CookStep, { kind: 'bak
       <div className="k-bake">
         {phase === 'ready' && (
           <div ref={tray} className="k-tray" aria-label={`Tray of ${step.what}: drag it into the oven`} {...drag}>
-            <span className="k-raw">{dish}</span><span className="k-raw two">{dish}</span>
+            <span className="k-raw"><Pic e={dish} /></span><span className="k-raw two"><Pic e={dish} /></span>
           </div>
         )}
         <div ref={ovenRef} className={`k-oven ${phase}`} onClick={toOven}>
           <div className="k-oven-top">
-            <span className="k-knob" /><span className="k-timer">{phase === 'baking' ? n : phase === 'done' ? '🔔' : '–'}</span><span className="k-knob" />
+            <span className="k-knob" /><span className="k-timer">{phase === 'baking' ? n : phase === 'done' ? <Pic e="🔔" /> : '–'}</span><span className="k-knob" />
           </div>
           <div className="k-oven-door">
             <div className="k-oven-window">
-              {phase !== 'ready' && <span className="k-oven-food">{dish}</span>}
+              {phase !== 'ready' && <span className="k-oven-food"><Pic e={dish} /></span>}
             </div>
             <div className="k-oven-handle" />
           </div>
@@ -584,8 +584,8 @@ export default function Kitchen({ pal, hungry, special, onClose }: {
           )}
           {served !== null && (
             <div className="k-station">
-              <div className="k-yum">Yum! 😋</div>
-              <p>{name} got <b>+{served}</b> ⭐</p>
+              <div className="k-yum">Yum! <Pic e="😋" /></div>
+              <p>{name} got <b>+{served}</b> <Pic e="⭐" /></p>
               <BigButton color="pink" onClick={onClose}><Pic e="💖" /> Yay!</BigButton>
             </div>
           )}
